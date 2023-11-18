@@ -6,7 +6,6 @@ Benefits:
 - No dependencies, making this ultra-fast.
 - Automatically re-connect, re-subscribe, or retry sending
 - Written in typescript and published with heavily commented type definitions
-- Intuitive API with named parameters instead of positional
 
 ## Table of Contents
 
