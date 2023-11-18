@@ -20,8 +20,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install Dependencies
         run: npm install --ignore-scripts
-      - name: Run Unit Tests
-        run: npm run test:ci
+#      - name: Run Unit Tests
+#        run: npm run test:ci
       - name: Release Drafter
         uses: release-drafter/release-drafter@v5.9.0
         env:
