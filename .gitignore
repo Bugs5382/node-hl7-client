@@ -132,6 +132,7 @@ docs
 .pnp.*
 
 # NPM
+lib
 package-lock.json
 
 # Webstorm
