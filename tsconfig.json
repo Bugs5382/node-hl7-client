@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "es6",
+    "lib": [
+      "es2021"
+    ],
+    "allowJs": false,
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "./lib/esm",
+    "stripInternal": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "strictNullChecks": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./@types"
+    ],
+    "esModuleInterop": true
+  },
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "./jest.config.ts",
+    "./release.config.js"
+  ],
+  "compileOnSave": true
+}
