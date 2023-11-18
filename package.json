@@ -1,0 +1,65 @@
+{
+  "name": "node-hl7-client",
+  "version": "0.0.0-development",
+  "description": "",
+  "module": "./lib/esm/index.js",
+  "main": "./lib/cjs/index.js",
+  "types": "./lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "import": "./lib/esm/index.js",
+      "require": "./lib/cjs/index.js",
+      "default": "./lib/cjs/index.js"
+    }
+  },
+  "files": [
+    "lib/**/*"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist coverage",
+    "build": "tsc && tsc -p tsconfig.cjs.json && tsc -p tsconfig.types.json && ./bin/build-types.sh",
+    "build:watch": "tsc -w",
+    "lint": "ts-standard --parser @typescript-eslint/parser | snazzy",
+    "lint:fix": "ts-standard --fix --parser @typescript-eslint/parser | snazzy",
+    "pack": "npm run clean && npm run test:ci && npm run build && npm pack",
+    "prepublishOnly": "npm run clean && npm run build",
+    "test": "jest",
+    "test:ci": "jest --ci",
+    "test:coverage": "jest --coverage",
+    "typedoc": "typedoc",
+    "typedoc:watch": "typedoc -watch",
+    "semantic-release": "semantic-release",
+    "semantic-release:dryRun": "semantic-release --dry-run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bugs5382/node-hl7-client.git"
+  },
+  "author": "Shane Froebel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Bugs5382/node-hl7-client/issues"
+  },
+  "homepage": "https://github.com/Bugs5382/node-hl7-client#readme",
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^11.1.0",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/release-notes-generator": "^12.1.0",
+    "@types/jest": "^29.5.8",
+    "@types/node": "^20.9.1",
+    "@typescript-eslint/parser": "^5.62.0",
+    "jest": "^29.7.0",
+    "jest-ts-webcompat-resolver": "^1.0.0",
+    "pre-commit": "^1.2.2",
+    "semantic-release": "^22.0.8",
+    "snazzy": "^9.0.0",
+    "ts-jest": "^29.1.1",
+    "ts-node": "^10.9.1",
+    "ts-standard": "^12.0.2",
+    "tsd": "^0.29.0",
+    "typedoc": "^0.25.3",
+    "typescript": "^5.2.2"
+  }
+}
