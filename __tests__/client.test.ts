@@ -17,7 +17,7 @@ describe('node hl7 client', () => {
       try {
         new Client({hostname: '5.8.6.1', ipv6: true, ipv4: true})
       } catch (err: any) {
-        expect(err.message).toBe('ipv4 and ipv6 both can\'t be set to be exclusive.')
+        expect(err.message).toBe('ipv4 and ipv6 both can\'t be set to be both used exclusively.')
       }
     })
 
@@ -25,7 +25,7 @@ describe('node hl7 client', () => {
       try {
         new Client({hostname: "123.34.52.455", ipv4: true})
       } catch (err: any) {
-        expect(err.message).toBe('hostname is an invalid ipv4 address.')
+        expect(err.message).toBe('hostname is not a valid IPv4 address.')
       }
     })
 
@@ -41,7 +41,7 @@ describe('node hl7 client', () => {
       try {
         new Client({hostname: "2001:0db8:85a3:0000:zz00:8a2e:0370:7334", ipv6: true})
       } catch (err: any) {
-        expect(err.message).toBe('hostname is an invalid ipv6 address.')
+        expect(err.message).toBe('hostname is not a valid IPv6 address.')
       }
     })
 

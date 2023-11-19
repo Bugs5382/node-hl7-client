@@ -15,10 +15,10 @@ export interface ClientOptions {
   connectionTimeout?: number
   /** Hostname - You can do a FQDN or the IPv(4|6) address. */
   hostname: string
-  /** IPv4 - If this is set to true, only IPv4 address will be used.
+  /** IPv4 - If this is set to true, only IPv4 address will be used and also validated upon installation from the hostname property.
    * @default false */
   ipv4?: boolean
-  /** IPv6 - If this is set to true, only IPv6 address will be used.
+  /** IPv6 - If this is set to true, only IPv6 address will be used and also validated upon installation from the hostname property.
    * @default false */
   ipv6?: boolean
   /** Keep the connection alive after sending data and getting a response.
@@ -82,7 +82,19 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
   }
 
   if (props.ipv4 && props.ipv6) {
-    throw new Error('ipv4 and ipv6 both can\'t be set to be exclusive.')
+    throw new Error('ipv4 and ipv6 both can\'t be set to be both used exclusively.')
+  }
+
+  if (typeof props.hostname !== 'string' && !props.ipv4 && !props.ipv6) {
+    throw new Error('hostname is not valid string.')
+  } else if (typeof props.hostname == 'string' && props.ipv4 && !props.ipv6) {
+    if (!validIPv4(props.hostname)) {
+      throw new Error('hostname is not a valid IPv4 address.')
+    }
+  } else if (typeof props.hostname == 'string' && !props.ipv4 && props.ipv6) {
+    if (!validIPv6(props.hostname)) {
+      throw new Error('hostname is not a valid IPv6 address.')
+    }
   }
 
   assertNumber(props, 'acquireTimeout', 0)
@@ -124,7 +136,6 @@ function assertNumber (props: Record<string, number>, name: string, min: number,
 }
 
 /** @internal */
-// @ts-ignore
 function validIPv4 (ip: string): boolean {
   const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/
   if (ipv4Regex.test(ip)) {
@@ -135,7 +146,6 @@ function validIPv4 (ip: string): boolean {
 
 
 /** @internal */
-// @ts-ignore
 function validIPv6 (ip: string): boolean {
   const ipv6Regex = /^([\da-f]{1,4}:){7}[\da-f]{1,4}$/i
   if (ipv6Regex.test(ip)) {
