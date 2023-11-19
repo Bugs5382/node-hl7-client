@@ -1,89 +1,145 @@
-import {TcpSocketConnectOpts} from 'node:net'
-import type {ConnectionOptions as TLSOptions} from 'node:tls'
+import { TcpSocketConnectOpts } from 'node:net'
+import type { ConnectionOptions as TLSOptions } from 'node:tls'
 
-const DEFAULT_OPTS = {
+const DEFAULT_CLIENT_OPTS = {
   acquireTimeout: 20000,
   connectionTimeout: 10000
 }
 
-export interface ConnectionOptions {
+export interface ClientOptions {
   /** Milliseconds to wait before aborting a connection attempt
-   * @default 20_000*/
-  acquireTimeout?: number,
+   * @default 20_000 */
+  acquireTimeout?: number
   /** Max wait time, in milliseconds, for a connection attempt
-   * @default 10_000*/
-  connectionTimeout?: number,
-  /** Hostname */
-  hostname?: string,
+   * @default 10_000 */
+  connectionTimeout?: number
+  /** Hostname - You can do a FQDN or the IPv(4|6) address. */
+  hostname: string
+  /** IPv4 - If this is set to true, only IPv4 address will be used.
+   * @default false */
+  ipv4?: boolean
+  /** IPv6 - If this is set to true, only IPv6 address will be used.
+   * @default false */
+  ipv6?: boolean
   /** Keep the connection alive after sending data and getting a response.
-   * @default true*/
-  keepAlive?: boolean,
-  /** Port */
-  port?: string|number,
+   * @default true */
+  keepAlive?: boolean
   /** Additional options when creating the TCP socket with net.connect(). */
-  socket?: TcpSocketConnectOpts,
+  socket?: TcpSocketConnectOpts
   /** Enable TLS, or set TLS specific options like overriding the CA for
    * self-signed certificates. */
-  tls?: boolean | TLSOptions,
-  /** Must include params: acquire_timeout, connection_timeout.
-   * The port (i.e., 1234) represented the HL7 server connection port that you need to establish on.
-   *
-   * @example "localhost:1234?acquire_timeout=0&connection_timeout=0"
-   */
-  url: string,
+  tls?: boolean | TLSOptions
 }
 
-type ValidatedKeys =
+export interface ClientListenerOptions {
+  /** Milliseconds to wait before aborting a connection attempt.
+   * This will override the overall client connection for this particular connection.
+   * @default 20_000 */
+  acquireTimeout?: number
+  /** Max wait time, in milliseconds, for a connection attempt.
+   * This will override the overall client connection for this particular connection.
+   * @default 10_000 */
+  connectionTimeout?: number
+  /** Keep the connection alive after sending data and getting a response.
+   * @default true */
+  keepAlive?: boolean
+  /** Additional options when creating the TCP socket with net.connect(). */
+  socket?: TcpSocketConnectOpts
+  /** The port we should connect on the server. */
+  port: number
+}
+
+type ValidatedClientKeys =
   | 'acquireTimeout'
   | 'connectionTimeout'
+  | 'hostname'
 
-interface ValidatedOptions extends Pick<Required<ConnectionOptions>, ValidatedKeys> {
-  socket?: TcpSocketConnectOpts,
+interface ValidatedClientOptions extends Pick<Required<ClientOptions>, ValidatedClientKeys> {
+  hostname: string
+  socket?: TcpSocketConnectOpts
   tls?: TLSOptions
-  host: {hostname: string, port: number};
+}
+
+type ValidatedClientListenerKeys =
+  | 'port'
+
+interface ValidatedClientOptions extends Pick<Required<ClientOptions>, ValidatedClientKeys> {
+  hostname: string
+  socket?: TcpSocketConnectOpts
+  tls?: TLSOptions
+}
+
+interface ValidatedClientListenerOptions extends Pick<Required<ClientListenerOptions>, ValidatedClientListenerKeys> {
+  port: number
 }
 
 /** @internal */
-export default function normalizeOptions(raw?: string|ConnectionOptions): ValidatedOptions {
-  if (typeof raw === 'string') {
-    raw = {url: raw}
-  }
-  const props: any = {...DEFAULT_OPTS, ...raw}
-  let url
-  if (typeof props.url == 'string') {
-    url = new URL(props.url)
-    props.hostname = url.hostname
-    props.port = url.port
-    props.tls = props.tls || true
-  } else {
-      throw new Error('url is not valid string.')
+export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOptions {
+  const props: any = { ...DEFAULT_CLIENT_OPTS, ...raw }
+
+  if (typeof props.hostname == 'undefined' || props.hostname.length <= 0) {
+    throw new Error('hostname is not defined or the length is less than 0.')
   }
 
-  const acquireTimeout = parseInt(url.searchParams.get('acquire_timeout')!)
-  if (!isNaN(acquireTimeout)) {
-    props.acquireTimeout = Math.max(0, acquireTimeout)
-  }
-
-  const connectionTimeout = parseInt(url.searchParams.get('connection_timeout')!)
-  if (!isNaN(connectionTimeout)) {
-    props.connectionTimeout = Math.max(0, connectionTimeout)
-  }
-
-  if (props.tls === true) {
-    props.tls = {}
+  if (props.ipv4 && props.ipv6) {
+    throw new Error('ipv4 and ipv6 both can\'t be set to be exclusive.')
   }
 
   assertNumber(props, 'acquireTimeout', 0)
   assertNumber(props, 'connectionTimeout', 0)
 
+  if (props.tls === true) {
+    props.tls = {}
+  }
+
   return props
 }
 
-function assertNumber(props: Record<string, number>, name: string, min: number, max?: number) {
+/** @internal */
+export function normalizeClientListenerOptions (raw?: ClientListenerOptions): ValidatedClientListenerOptions {
+  const props: any = { ...DEFAULT_CLIENT_OPTS, ...raw }
+
+  if (typeof props.port == 'undefined') {
+    throw new Error('port is not defined.')
+  }
+
+  if (typeof props.port !== 'number') {
+    throw new Error('port is not valid number.')
+  }
+
+  assertNumber(props, 'acquireTimeout', 0)
+  assertNumber(props, 'connectionTimeout', 0)
+  assertNumber(props, 'port', 0, 65353)
+
+  return props
+}
+
+function assertNumber (props: Record<string, number>, name: string, min: number, max?: number) {
   const val = props[name]
   if (isNaN(val) || !Number.isFinite(val) || val < min || (max != null && val > max)) {
     throw new TypeError(max != null
-      ? `${name} must be a number (${min}, ${max})`
-      : `${name} must be a number >= ${min}`)
+      ? `${name} must be a number (${min}, ${max}).`
+      : `${name} must be a number >= ${min}.`)
   }
+}
+
+/** @internal */
+// @ts-ignore
+function validIPv4 (ip: string): boolean {
+  const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/
+  if (ipv4Regex.test(ip)) {
+    return ip.split('.').every(part => parseInt(part) <= 255)
+  }
+  return false
+}
+
+
+/** @internal */
+// @ts-ignore
+function validIPv6 (ip: string): boolean {
+  const ipv6Regex = /^([\da-f]{1,4}:){7}[\da-f]{1,4}$/i
+  if (ipv6Regex.test(ip)) {
+    return ip.split(':').every(part => part.length <= 4)
+  }
+  return false
 }

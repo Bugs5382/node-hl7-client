@@ -2,7 +2,7 @@
 class HL7ClientError extends Error {
   code: string
   /** @internal */
-  constructor(code: string, message: string) {
+  constructor (code: string, message: string) {
     super(message)
     this.name = 'HL7ClientError'
     this.code = code
@@ -15,4 +15,4 @@ class HL7ClientConnectionError extends HL7ClientError {
   name = 'HL7ClientConnectionError'
 }
 
-export {HL7ClientError, HL7ClientConnectionError}
+export { HL7ClientError, HL7ClientConnectionError }
