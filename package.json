@@ -52,6 +52,7 @@
     "@typescript-eslint/parser": "^6.11.0",
     "jest": "^29.7.0",
     "jest-ts-webcompat-resolver": "^1.0.0",
+    "node-hl7-server": "file:../node-hl7-server",
     "pre-commit": "^1.2.2",
     "semantic-release": "^22.0.8",
     "snazzy": "^9.0.0",

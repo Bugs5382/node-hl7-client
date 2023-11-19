@@ -1,7 +1,8 @@
-import {Client} from "./client.js";
-import {Parser} from "./parser.js";
+import { Client } from './client.js'
+import { Listener } from './listener.js'
+import { Parser } from './parser.js'
 
 export default Client
-export { Client, Parser }
+export { Client, Listener, Parser }
 
-export type {ConnectionOptions} from './normalize.js'
+export type { ClientOptions, ClientListenerOptions } from './normalize.js'

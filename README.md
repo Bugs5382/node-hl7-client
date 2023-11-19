@@ -14,6 +14,7 @@ Benefits:
 
 ## Acknowledgements
 
+- Code Design Inspiration: [node-rabbitmq-client](https://github.com/cody-greene/node-rabbitmq-client)
 - My Wife and Baby Girl.
 
 ## License
