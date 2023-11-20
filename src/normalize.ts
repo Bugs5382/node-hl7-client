@@ -77,21 +77,21 @@ interface ValidatedClientListenerOptions extends Pick<Required<ClientListenerOpt
 export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOptions {
   const props: any = { ...DEFAULT_CLIENT_OPTS, ...raw }
 
-  if (typeof props.hostname == 'undefined' || props.hostname.length <= 0) {
+  if (typeof props.hostname === 'undefined' || props.hostname.length <= 0) {
     throw new Error('hostname is not defined or the length is less than 0.')
   }
 
-  if (props.ipv4 && props.ipv6) {
+  if (props.ipv4 === true && props.ipv6 === true) {
     throw new Error('ipv4 and ipv6 both can\'t be set to be both used exclusively.')
   }
 
-  if (typeof props.hostname !== 'string' && !props.ipv4 && !props.ipv6) {
+  if (typeof props.hostname !== 'string' && props.ipv4 === false && props.ipv6 === false) {
     throw new Error('hostname is not valid string.')
-  } else if (typeof props.hostname == 'string' && props.ipv4 && !props.ipv6) {
+  } else if (typeof props.hostname === 'string' && props.ipv4 === true && props.ipv6 === false) {
     if (!validIPv4(props.hostname)) {
       throw new Error('hostname is not a valid IPv4 address.')
     }
-  } else if (typeof props.hostname == 'string' && !props.ipv4 && props.ipv6) {
+  } else if (typeof props.hostname === 'string' && props.ipv4 === false && props.ipv6 === true) {
     if (!validIPv6(props.hostname)) {
       throw new Error('hostname is not a valid IPv6 address.')
     }
@@ -111,7 +111,7 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
 export function normalizeClientListenerOptions (raw?: ClientListenerOptions): ValidatedClientListenerOptions {
   const props: any = { ...DEFAULT_CLIENT_OPTS, ...raw }
 
-  if (typeof props.port == 'undefined') {
+  if (typeof props.port === 'undefined') {
     throw new Error('port is not defined.')
   }
 
@@ -126,7 +126,7 @@ export function normalizeClientListenerOptions (raw?: ClientListenerOptions): Va
   return props
 }
 
-function assertNumber (props: Record<string, number>, name: string, min: number, max?: number) {
+function assertNumber (props: Record<string, number>, name: string, min: number, max?: number): void {
   const val = props[name]
   if (isNaN(val) || !Number.isFinite(val) || val < min || (max != null && val > max)) {
     throw new TypeError(max != null
@@ -143,7 +143,6 @@ function validIPv4 (ip: string): boolean {
   }
   return false
 }
-
 
 /** @internal */
 function validIPv6 (ip: string): boolean {

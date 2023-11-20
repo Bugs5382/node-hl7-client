@@ -1,9 +1,9 @@
-import EventEmitter from "events";
-import {Socket} from "net";
-import * as net from "net";
-import * as tls from "tls";
+import EventEmitter from 'events'
+import { Socket } from 'net'
+import * as net from 'net'
+import * as tls from 'tls'
 import { Client } from './client'
-import {ClientListenerOptions, normalizeClientListenerOptions} from "./normalize";
+import { ClientListenerOptions, normalizeClientListenerOptions } from './normalize'
 
 export class Listener extends EventEmitter {
   /** @internal */
@@ -17,8 +17,8 @@ export class Listener extends EventEmitter {
   /** @internal */
   _handler?: any | undefined
 
-  constructor(client: Client, props: ClientListenerOptions, handler?: any) {
-    super();
+  constructor (client: Client, props: ClientListenerOptions, handler?: any) {
+    super()
     this._main = client
 
     // process listener options
@@ -32,18 +32,15 @@ export class Listener extends EventEmitter {
   }
 
   /** @internal */
-  private _connect () {
-
+  private _connect (): Socket | tls.TLSSocket {
     let server
 
-    if (this._main._opt.tls) {
+    if (this._main._opt.tls != null) {
       server = tls.connect({ port: this._opt.port })
     } else {
-      server = net.createConnection({port: this._opt.port })
+      server = net.createConnection({ port: this._opt.port })
     }
 
     return server
-
   }
-
 }
