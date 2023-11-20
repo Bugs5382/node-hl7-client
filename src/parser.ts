@@ -20,8 +20,6 @@ export  interface  ParserProcessRawData {
   data: string;
 }
 
-
-
 export class Parser extends EventEmitter {
   /** @internal */
   _forceBatch: boolean = false
@@ -30,7 +28,7 @@ export class Parser extends EventEmitter {
   /** @internal */
   _subComponents: string = "~"
   /** @internal */
-  _lineSpliter: string = "|"
+  _lineSplitter: string = "|"
   /** @internal */
   _isBatchProcessing: boolean;
   /** @internal */
@@ -49,7 +47,7 @@ export class Parser extends EventEmitter {
   }
 
   // @ts-ignore
-  async processRawData(props: ParserProcessRawData): Promise<string> {
+  async processRawData(props: ParserProcessRawData) {
     if (typeof props.data !== 'undefined') {
 
       const data = props.data
@@ -63,41 +61,53 @@ export class Parser extends EventEmitter {
         && !data.startsWith('BTS')
         && !data.startsWith('FTS')) {
 
-        this._throwError('error.data', "Expected RAW data to be an HL7 Message")
+        this._throwError('error.data', "Expected RAW data to be an HL7 Message.")
       }
 
       // if the data is a batch
-      if (this._isBatch(data) || this._forceBatch) {
+      if (await this._isBatch(data) || this._forceBatch) {
+        // batch processing
         this.emit('data.processingBatch')
         this._isBatchProcessing = true
 
-        const _b = this._splitBatch(data)
+        // split up the batch
+        const _b = await this._splitBatch(data)
+
         for (let i = 0; i < _b.length; i++) {
-          this._results.push(this._processLine(_b[i], i))
+          const result = await this._processLine(_b[i], i)
+          this._results.push(result)
         }
 
-        console.log(this._results)
-
       } else {
+        // regular processing
         this.emit('data.processing', data)
+
+        // split up the lines. this is hardcoded to \n
+        let lines = data.split(`\n`).filter(line => line.indexOf('|') > -1)
+
+        for (let i = 0; i < lines.length; i++) {
+          const result = await this._processLine(lines[i], i)
+          this._results.push(result)
+        }
 
       }
 
     } else {
       this._throwError('error.data', 'data did not pass any data.')
     }
+
   }
 
   /** Tell the user we did a batch process this time around.
    * This will be trying if we are processing a batch
    * and will remain true until it's finished processing the entire batch.
    * @since 1.0.0 */
-  getBatchProcess(): boolean {
+  async getBatchProcess(): Promise<boolean> {
     return this._isBatchProcessing
   }
 
   /** @internal */
-  private _isBatch(data: string): boolean {
+  private async _isBatch(data: string): Promise<boolean> {
     return (data.startsWith('FHS') || data.startsWith('BHS'));
   }
 
@@ -108,11 +118,10 @@ export class Parser extends EventEmitter {
   }
 
   /** @internal */
-  private _splitBatch(data: string, batch: string[] = []): string[] {
-    let getSegIndex = this._getSegIndexes(['FHS', 'BHS', 'MSH', 'BTS', 'FTS'], data)
+  private async _splitBatch(data: string, batch: string[] = []): Promise<string[]> {
+    let getSegIndex = await this._getSegIndexes(['FHS', 'BHS', 'MSH', 'BTS', 'FTS'], data)
     getSegIndex.sort((a, b) => parseInt(a) - parseInt(b));
     for (let i = 0; i < getSegIndex.length; i++) {
-      console.log('Segment Output: ', getSegIndex[i])
       let start =  parseInt(getSegIndex[i])
       let end = parseInt(getSegIndex[i + 1])
       if (i + 1 === getSegIndex.length) {
@@ -124,7 +133,7 @@ export class Parser extends EventEmitter {
   }
 
   /** @internal */
-  private _getSegIndexes(names: string[], data: string, list: string[] = []): string[] {
+  private async _getSegIndexes(names: string[], data: string, list: string[] = []): Promise<string[]> {
     for (let i = 0; i < names.length; i++) {
       let regexp = new RegExp(`(\n|\r\n|^|\r)${names[i]}\\|`, 'g'), m;
       while (m = regexp.exec(data)) {
@@ -144,14 +153,12 @@ export class Parser extends EventEmitter {
     return list
   }
 
-  private _processLine(data: string, index: number) {
-    console.log("Process Line:", data)
+  private async _processLine(data: string, index: number) {
     let name = data.substring(0, 3);
-    let content = data.split(this._lineSpliter)
+    let content = data.split(this._lineSplitter)
     if (Object.keys(this._results).indexOf(name) > -1) {
-      console.log(`Does Exist.`)
+
     } else {
-      console.log(`Doesn't Exist.`)
       const segment = new Segment(this, name, index)
       segment.processContent(content)
       return segment.getData()

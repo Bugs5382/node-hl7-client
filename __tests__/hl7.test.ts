@@ -9,13 +9,22 @@ describe('node hl7 client - parser tests', () => {
     parser = new Parser()
   })
 
-  test('... properties of batch Hl7 messages', async () => {
+  test('...adt Hl7 message', async () => {
+    const data = fs.readFileSync( `${__dirname}/__data__/adt.hl7`, "utf-8" );
+    await parser.processRawData({data})
+    const batch = await parser.getBatchProcess()
 
-    fs.readFile(`${__dirname}/__data__/batch.hl7`, 'utf8', async (_err, data) => {
-      // @ts-ignore
-      const message = await parser.processRawData({data})
-      expect(parser.getBatchProcess()).toBe(true);
-    });
+    // first test
+    expect(batch).toBe(false);
+  })
+
+  test('... batch Hl7 messages', async () => {
+    const data = fs.readFileSync( `${__dirname}/__data__/batch.hl7`, "utf-8" );
+    await parser.processRawData({data})
+    const batch = await parser.getBatchProcess()
+
+    // first test
+    expect(batch).toBe(true);
   });
 
 })
