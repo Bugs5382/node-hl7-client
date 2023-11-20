@@ -26,9 +26,9 @@ export default class Segment {
 
   processContent(content: string[]) {
     const name: string = this._name
-    for (let idx = 1; idx < content.length; idx++) {
+    for (let idx = 0; idx < content.length; idx++) {
       let pos = this._name == "MSH" ? idx + 1 : idx;
-      if (content[idx].indexOf(this._subComponents) > -1) {
+      if (content[idx].indexOf(this._subComponents) > -1) { // ~ check
 
         /************ ***/
         /*** BIG BLOCK **/
@@ -71,30 +71,24 @@ export default class Segment {
         /*** BIG BLOCK **/
         /************ ***/
 
-        let subs = content[idx].split(this._subComponentSplit);
+        let subs = content[idx].split(this._subComponentSplit); // ^ split here
+        let component = {};
         for (let j = 0; j < subs.length; j++) {
-          let component = {};
           let pos_j = (j + 1)
           if (subs[j].indexOf(this._repeatingFields) > -1) {
-            let repeating = subs[j].split(this._repeatingFields);
+            let repeating = subs[j].split(this._repeatingFields); // & split here
             let tmpRepeating: string[] = []
             for (let l = 0; l < repeating.length; l++) {
               tmpRepeating.push(repeating[l])
             }
             component = {
               ...component,
-              [`${name}${this._dataSep}${pos}`]: {
-                // ...[`${name}${this._dataSep}${pos}`],
-                [`${name}${this._dataSep}${pos}${this._dataSep}${pos_j}`]: tmpRepeating
-              }
+              [`${name}${this._dataSep}${pos}${this._dataSep}${pos_j}`]: tmpRepeating
             }
           } else {
             component = {
               ...component,
-              [`${name}${this._dataSep}${pos}`]: {
-                // ...[`${name}${this._dataSep}${pos}`],
-                [`${name}${this._dataSep}${pos}${this._dataSep}${pos_j}`]: subs[j]
-              }
+              [`${name}${this._dataSep}${pos}${this._dataSep}${pos_j}`]: subs[j]
             }
           }
           this._data = {
@@ -102,7 +96,6 @@ export default class Segment {
             [`${name}.${pos}`] : component
           }
         }
-
         /************ ***/
         /*** BIG BLOCK **/
         /************ ***/
