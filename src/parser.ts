@@ -1,4 +1,5 @@
 import EventEmitter from 'events'
+import Segment from "./segment.js";
 
 export interface ParserOptions {
   /** Force processing items as a batch even if it's a single item. */
@@ -6,6 +7,9 @@ export interface ParserOptions {
   /** Separator for Repeating Fields
    * @default & */
   repeatingFields?: string;
+  /** Specification Version HL7
+   * @default none */
+  specification?: any;
   /** Separator for Sub Components Fields
    * @default ~ */
   subComponents?: string;
@@ -16,6 +20,8 @@ export  interface  ParserProcessRawData {
   data: string;
 }
 
+
+
 export class Parser extends EventEmitter {
   /** @internal */
   _forceBatch: boolean = false
@@ -24,7 +30,11 @@ export class Parser extends EventEmitter {
   /** @internal */
   _subComponents: string = "~"
   /** @internal */
+  _lineSpliter: string = "|"
+  /** @internal */
   _isBatchProcessing: boolean;
+  /** @internal */
+  _results: any[] = []
 
   constructor(props?: ParserOptions) {
     super();
@@ -38,7 +48,8 @@ export class Parser extends EventEmitter {
     this.emit('initialized', { subComponents: this._subComponents, repeatingFields: this._repeatingFields})
   }
 
-  async processRawData(props: ParserProcessRawData) {
+  // @ts-ignore
+  async processRawData(props: ParserProcessRawData): Promise<string> {
     if (typeof props.data !== 'undefined') {
 
       const data = props.data
@@ -57,16 +68,19 @@ export class Parser extends EventEmitter {
 
       // if the data is a batch
       if (this._isBatch(data) || this._forceBatch) {
-        this._isBatchProcessing = true
         this.emit('data.processingBatch')
+        this._isBatchProcessing = true
 
         const _b = this._splitBatch(data)
         for (let i = 0; i < _b.length; i++) {
-          console.log('Batch To Transform:', _b[i])
+          this._results.push(this._processLine(_b[i], i))
         }
 
+        console.log(this._results)
+
       } else {
-        this.emit('data.processing')
+        this.emit('data.processing', data)
+
       }
 
     } else {
@@ -74,7 +88,11 @@ export class Parser extends EventEmitter {
     }
   }
 
-  getBatchProcess() {
+  /** Tell the user we did a batch process this time around.
+   * This will be trying if we are processing a batch
+   * and will remain true until it's finished processing the entire batch.
+   * @since 1.0.0 */
+  getBatchProcess(): boolean {
     return this._isBatchProcessing
   }
 
@@ -125,4 +143,20 @@ export class Parser extends EventEmitter {
     }
     return list
   }
+
+  private _processLine(data: string, index: number) {
+    console.log("Process Line:", data)
+    let name = data.substring(0, 3);
+    let content = data.split(this._lineSpliter)
+    if (Object.keys(this._results).indexOf(name) > -1) {
+      console.log(`Does Exist.`)
+    } else {
+      console.log(`Doesn't Exist.`)
+      const segment = new Segment(this, name, index)
+      segment.processContent(content)
+      return segment.getData()
+    }
+
+  }
+
 }
