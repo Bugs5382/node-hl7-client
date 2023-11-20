@@ -1,2 +1,3 @@
 jest.config.ts
 release.config.js
+/__tests__/**/*
