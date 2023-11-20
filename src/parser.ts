@@ -1,24 +1,6 @@
 import EventEmitter from 'events'
+import {ParserOptions, ParserProcessRawData} from "./normalize.js";
 import { Segment } from './segment.js'
-
-export interface ParserOptions {
-  /** Force processing items as a batch even if it's a single item. */
-  forceBatch?: boolean
-  /** Separator for Repeating Fields
-   * @default & */
-  repeatingFields?: string
-  /** Specification Version HL7
-   * @default none */
-  specification?: any
-  /** Separator for Sub Components Fields
-   * @default ~ */
-  subComponents?: string
-}
-
-export interface ParserProcessRawData {
-  /** Data that needs to be processed. */
-  data: string
-}
 
 export class Parser extends EventEmitter {
   /** @internal */
@@ -27,6 +9,10 @@ export class Parser extends EventEmitter {
   _repeatingFields: string = '&'
   /** @internal */
   _subComponents: string = '~'
+  /** @internal */
+  _dataSep: string = '.'
+  /** @internal */
+  _subComponentSplit: string = '^'
   /** @internal */
   _lineSplitter: string = '|'
   /** @internal */
@@ -40,6 +26,8 @@ export class Parser extends EventEmitter {
     // @todo Normalize Parser Options?
     if (typeof props?.repeatingFields !== 'undefined') { this._repeatingFields = props.repeatingFields }
     if (typeof props?.subComponents !== 'undefined') { this._subComponents = props.subComponents }
+    if (typeof props?.dataSep !== 'undefined') { this._dataSep = props.dataSep }
+    if (typeof props?.subComponentSplit !== 'undefined') { this._subComponentSplit = props.subComponentSplit }
 
     this._isBatchProcessing = false
 
@@ -47,7 +35,7 @@ export class Parser extends EventEmitter {
   }
 
   async processRawData (props: ParserProcessRawData): Promise<void> {
-    if (typeof props.data !== 'undefined') {
+    try {
       const data = props.data
 
       // ok, lets emit the data back so listener can listen in if needed
@@ -58,7 +46,7 @@ export class Parser extends EventEmitter {
         !data.startsWith('BHS') &&
         !data.startsWith('BTS') &&
         !data.startsWith('FTS')) {
-        this._throwError('error.data', 'Expected RAW data to be an HL7 Message.')
+        this._throwError('error.data', 'expected RAW data to be an HL7 message.')
       }
 
       // if the data is a batch
@@ -86,8 +74,8 @@ export class Parser extends EventEmitter {
           this._results.push(result)
         }
       }
-    } else {
-      this._throwError('error.data', 'data did not pass any data.')
+    } catch (_e: any) {
+      this._throwError('error.data', 'data object not passed or not defined.')
     }
   }
 
@@ -153,7 +141,7 @@ export class Parser extends EventEmitter {
       /* noop */
     } else {
       const segment = new Segment(this, name, index)
-      segment.processContent(content)
+      await segment.processContent(content)
       return segment.getData()
     }
   }

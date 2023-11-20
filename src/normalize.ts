@@ -6,6 +6,31 @@ const DEFAULT_CLIENT_OPTS = {
   connectionTimeout: 10000
 }
 
+export interface ParserOptions {
+  /** Force processing items as a batch even if it's a single item. */
+  forceBatch?: boolean
+  /** Separator for Repeating Fields
+   * @default & */
+  repeatingFields?: string
+  /** Specification Version HL7
+   * @default none */
+  specification?: any
+  /** Separator for Sub Components Fields
+   * @default ~ */
+  subComponents?: string
+  /** Separator for Data Separator (e.g., parser.get('MSH.1') if this was set to a .)
+   * @default . */
+  dataSep?: string
+  /** Separator for Sub Component Split
+   * @default ^ */
+  subComponentSplit?: string
+}
+
+export interface ParserProcessRawData {
+  /** Data that needs to be processed. */
+  data: string
+}
+
 export interface ClientOptions {
   /** Milliseconds to wait before aborting a connection attempt
    * @default 20_000 */

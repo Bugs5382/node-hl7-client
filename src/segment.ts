@@ -1,12 +1,19 @@
 import { Parser } from './parser.js'
 
 export class Segment {
+  /** @internal */
   _name: string = ''
+  /** @internal */
   _data: any = {}
+  /** @internal */
   _index?: number
+  /** @internal */
   _subComponents: string
+  /** @internal */
   _repeatingFields: string
+  /** @internal */
   _dataSep = '.'
+  /** @internal */
   _subComponentSplit = '^'
 
   constructor (parser: Parser, name: string, index: number) {
@@ -14,17 +21,14 @@ export class Segment {
     this._index = index
     this._subComponents = parser._subComponents
     this._repeatingFields = parser._repeatingFields
+    this._dataSep = parser._dataSep
+    this._subComponentSplit = parser._subComponentSplit
   }
 
-  set (): void {
-    console.log('set')
-  }
-
-  get (): void {
-    console.log('get')
-  }
-
-  processContent (content: string[]): void {
+  /** Process the line and create this segment.
+   * @since 1.0.0
+   * @param content */
+  async processContent (content: string[]): Promise<void> {
     const name: string = this._name
     for (let idx = 0; idx < content.length; idx++) {
       const pos = this._name === 'MSH' ? idx + 1 : idx
@@ -100,7 +104,9 @@ export class Segment {
     }
   }
 
-  getData (): any {
+  /** Get the data that we have parsed as a segment.
+   * @since 1.0.0 */
+  async getData (): Promise<any> {
     return this._data
   }
 }

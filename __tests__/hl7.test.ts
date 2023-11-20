@@ -9,7 +9,30 @@ describe('node hl7 client - parser tests', () => {
     parser = new Parser()
   })
 
-  test('...adt Hl7 message', async () => {
+  describe('sanity test', () => {
+
+    test('error - no data passed', async () => {
+      try {
+        await parser.processRawData({data: ""})
+      } catch (e: any) {
+        expect(e.message).toBe('data object not passed or not defined.');
+      }
+
+    })
+
+    test('error - no data object', async () => {
+      try {
+        // @ts-expect-error no data object
+        await parser.processRawData()
+      } catch (e: any) {
+        expect(e.message).toBe('data object not passed or not defined.');
+      }
+
+    })
+
+  })
+
+  test('...non batch Hl7 message', async () => {
     const data = fs.readFileSync( `${__dirname}/__data__/adt.hl7`, "utf-8" );
     await parser.processRawData({data})
     const batch = await parser.getBatchProcess()

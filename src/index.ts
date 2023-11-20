@@ -6,4 +6,4 @@ import { Segment } from './segment.js'
 export default Client
 export { Client, Listener, Parser, Segment }
 
-export type { ClientOptions, ClientListenerOptions } from './normalize.js'
+export type { ClientOptions, ClientListenerOptions, ParserOptions, ParserProcessRawData } from './normalize.js'
