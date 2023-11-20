@@ -29,10 +29,6 @@ export class Segment {
     for (let idx = 0; idx < content.length; idx++) {
       const pos = this._name === 'MSH' ? idx + 1 : idx
       if (content[idx].includes(this._subComponents)) { // ~ check
-        /** ********** ***/
-        /** * BIG BLOCK **/
-        /** ********** ***/
-
         const subcomponent = content[idx].split(this._subComponents)
         for (let j = 0; j < subcomponent.length; j++) {
           let component = {}
@@ -58,15 +54,7 @@ export class Segment {
             [`${name}${this._dataSep}${pos}`]: component
           }
         }
-
-        /** ********** ***/
-        /** * BIG BLOCK **/
-        /** ********** ***/
       } else if (content[idx].includes(this._subComponentSplit)) {
-        /** ********** ***/
-        /** * BIG BLOCK **/
-        /** ********** ***/
-
         const subs = content[idx].split(this._subComponentSplit) // ^ split here
         let component = {}
         for (let j = 0; j < subs.length; j++) {
@@ -89,17 +77,11 @@ export class Segment {
           }
           this._data = {
             ...this._data,
-            [`${name}.${pos}`]: component
+            [`${name}${this._dataSep}${pos}`]: component
           }
         }
-        /** ********** ***/
-        /** * BIG BLOCK **/
-        /** ********** ***/
-      } else if (content[idx].includes(this._repeatingFields)) {
-        /** ********** ***/
-        /** * BIG BLOCK **/
-        /** ********** ***/
 
+      } else if (content[idx].includes(this._repeatingFields)) {
         const repeating = content[idx].split(this._repeatingFields)
         const tmpRepeating: string[] = []
         for (let l = 0; l < repeating.length; l++) {
@@ -109,23 +91,11 @@ export class Segment {
           ...this._data,
           [`${name}.${pos}`]: tmpRepeating
         }
-
-        /** ********** ***/
-        /** * BIG BLOCK **/
-        /** ********** ***/
       } else {
-        /** ********** ***/
-        /** * BIG BLOCK **/
-        /** ********** ***/
-
         this._data = {
           ...this._data,
           [`${name}${this._dataSep}${pos}`]: content[idx]
         }
-
-        /** ********** ***/
-        /** * BIG BLOCK **/
-        /** ********** ***/
       }
     }
   }
