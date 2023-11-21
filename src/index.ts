@@ -7,3 +7,4 @@ export default Client
 export { Client, Listener, Parser, Segment }
 
 export type { ClientOptions, ClientListenerOptions, ParserOptions, ParserProcessRawData } from './normalize.js'
+export type { HL7ClientError, HL7ClientFatalError } from './exception.js'

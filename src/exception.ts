@@ -1,4 +1,5 @@
-/** Low severity */
+/** Parent Cass of HL7 Error
+ * @since 1.0.0*/
 class HL7ClientError extends Error {
   code: string
   /** @internal */
@@ -9,10 +10,11 @@ class HL7ClientError extends Error {
   }
 }
 
-/** High severity. All pending actions are rejected and all connections are closed. The connection is reset. */
-class HL7ClientConnectionError extends HL7ClientError {
+/** Used to indicate a fatal failure of a connection.
+ * @since 1.0.0*/
+class HL7ClientFatalError extends HL7ClientError {
   /** @internal */
-  name = 'HL7ClientConnectionError'
+  name = 'HL7ClientFatalError'
 }
 
-export { HL7ClientError, HL7ClientConnectionError }
+export { HL7ClientError, HL7ClientFatalError }
