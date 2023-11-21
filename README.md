@@ -4,7 +4,7 @@ Node.js client library for creating a HL7 Client which can publish a properlly f
 Benefits:
 
 - No dependencies, making this ultra-fast.
-- Automatically re-connect, re-subscribe, or retry sending
+- Automatically re-connect or retry sending
 - Written in typescript and published with heavily commented type definitions
 
 ## Table of Contents
@@ -14,7 +14,7 @@ Benefits:
 
 ## Acknowledgements
 
-- Code Design Inspiration: [node-rabbitmq-client](https://github.com/cody-greene/node-rabbitmq-client)
+- Code Design/Auto Re-Connect/Resend, Inspiration: [node-rabbitmq-client](https://github.com/cody-greene/node-rabbitmq-client)
 - My Wife and Baby Girl.
 
 ## License

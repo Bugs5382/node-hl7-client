@@ -25,13 +25,7 @@ export class Client extends EventEmitter {
    * @since 1.0.0
    */
   sendMessage (): void {
-
+    /* noop */
   }
 
-  /** Lets create a HL7 Message
-   * @since 1.0.0
-   */
-  buildMessage (): void {
-
-  }
 }

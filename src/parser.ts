@@ -2,6 +2,17 @@ import EventEmitter from 'events'
 import {ParserOptions, ParserProcessRawData} from "./normalize.js";
 import { Segment } from './segment.js'
 
+/** Needed to help with some functionally.
+ * @since 1.0.0 */
+if (!String.prototype.startsWith) {
+  Object.defineProperty(String.prototype, 'startsWith', {
+    value: function (search: string, rawPos: number) {
+      let pos = rawPos > 0 ? rawPos | 0 : 0;
+      return this.substring(pos, pos + search.length) === search;
+    }
+  });
+}
+
 export class Parser extends EventEmitter {
   /** @internal */
   _forceBatch: boolean = false
@@ -23,7 +34,6 @@ export class Parser extends EventEmitter {
   constructor (props?: ParserOptions) {
     super()
 
-    // @todo Normalize Parser Options?
     if (typeof props?.repeatingFields !== 'undefined') { this._repeatingFields = props.repeatingFields }
     if (typeof props?.subComponents !== 'undefined') { this._subComponents = props.subComponents }
     if (typeof props?.dataSep !== 'undefined') { this._dataSep = props.dataSep }
@@ -34,11 +44,24 @@ export class Parser extends EventEmitter {
     this.emit('initialized', { subComponents: this._subComponents, repeatingFields: this._repeatingFields })
   }
 
+  /** Will return true/false to indicate to the user if we did a batch processing method.
+   * @since 1.0.0 */
+  async getBatchProcess (): Promise<boolean> {
+    return this._isBatchProcessing
+  }
+
+  /** Process a raw HL7 message.
+   * Must be properly formatted, or we will return an error.
+   * @see ParserProcessRawData for HL7 message sample.
+   * @since 1.0.0
+   * @param props
+   * @example
+   */
   async processRawData (props: ParserProcessRawData): Promise<void> {
     try {
       const data = props.data
 
-      // ok, lets emit the data back so listener can listen in if needed
+      // ok, let's emit the data back so listener can listen in if needed
       this.emit('data.raw', { data })
 
       if (!data.startsWith('MSH') &&
@@ -77,14 +100,6 @@ export class Parser extends EventEmitter {
     } catch (_e: any) {
       this._throwError('error.data', 'data object not passed or not defined.')
     }
-  }
-
-  /** Tell the user we did a batch process this time around.
-   * This will be trying if we are processing a batch
-   * and will remain true until it's finished processing the entire batch.
-   * @since 1.0.0 */
-  async getBatchProcess (): Promise<boolean> {
-    return this._isBatchProcessing
   }
 
   /** @internal */
@@ -134,6 +149,7 @@ export class Parser extends EventEmitter {
     return list
   }
 
+  /** @internal */
   private async _processLine (data: string, index: number): Promise<any> {
     const name = data.substring(0, 3)
     const content = data.split(this._lineSplitter)

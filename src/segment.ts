@@ -25,9 +25,21 @@ export class Segment {
     this._subComponentSplit = parser._subComponentSplit
   }
 
-  /** Process the line and create this segment.
+  /** Get the data that we have parsed as a segment.
+   * @since 1.0.0 */
+  async getData (): Promise<any> {
+    return this._data
+  }
+
+  /** Process the line and create this segment to be built into the results.
+   * This will be executed on each line of an HL7 message and break it up so that
+   * individual fields within a segment can be retrieved.
    * @since 1.0.0
-   * @param content */
+   * @param content An array of objects which is a single line of an HL7 message
+   * @example
+   *
+   *
+   * */
   async processContent (content: string[]): Promise<void> {
     const name: string = this._name
     for (let idx = 0; idx < content.length; idx++) {
@@ -104,9 +116,4 @@ export class Segment {
     }
   }
 
-  /** Get the data that we have parsed as a segment.
-   * @since 1.0.0 */
-  async getData (): Promise<any> {
-    return this._data
-  }
 }

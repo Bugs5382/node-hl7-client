@@ -56,6 +56,7 @@ describe('node hl7 client', () => {
     test(`properties exist`, async  () => {
       const client = new Client({ hostname: 'hl7.server.com'})
       expect(client).toHaveProperty("connectToListener")
+      expect(client).toHaveProperty("sendMessage")
     })
 
   })

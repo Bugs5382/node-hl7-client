@@ -50,4 +50,14 @@ describe('node hl7 client - parser tests', () => {
     expect(batch).toBe(true);
   });
 
+  describe('segment retrieval tests', () => {
+
+    test.todo('get first, single segment')
+
+    test.todo('get all segments')
+
+    test.todo('get a particular segment value')
+
+  })
+
 })
