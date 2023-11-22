@@ -52,7 +52,18 @@ describe('node hl7 client - parser tests', () => {
 
   describe('segment retrieval tests', () => {
 
-    test.todo('get first, single segment')
+    beforeEach(async () => {
+      const data = fs.readFileSync(`${__dirname}/__data__/adt.hl7`, "utf-8");
+      await parser.processRawData({data})
+
+      // @todo MSG Header Tests - Make sure that we are setting the field operators from the HL7 message we get
+    })
+
+    test('get first, single segment', async () => {
+      const segment = await parser.getSegment('MSH.1')
+      expect(segment.constructor.name).toBe("Segment")
+      expect(segment._name).toBe("MSH")
+    })
 
     test.todo('get all segments')
 

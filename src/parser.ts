@@ -1,6 +1,6 @@
 import EventEmitter from 'events'
 import {ParserOptions, ParserProcessRawData} from "./normalize.js";
-import { Segment } from './segment.js'
+import {Segment} from './segment.js'
 
 /** Needed to help with some functionally.
  * @since 1.0.0 */
@@ -17,8 +17,8 @@ interface ISegment {
   /* Name of the segment */
   name: string;
   /* The data of the segment */
-  data: []
-  /* */
+  data: Segment
+  /*Content of the HL7 */
   content: string;
 }
 
@@ -61,6 +61,19 @@ export class Parser extends EventEmitter {
     return this._isBatchProcessing
   }
 
+  /**
+   * Get Single Segment
+   * @param segment
+   * @since 1.0.0 */
+  async getSegment(segment: string): Promise<Segment> {
+    // in future releases we will use TypeScript to pass ont he version of the segment we are expecting (i.e. 2.7 MSH)
+    const findIndex = this._results.findIndex((x) => x.name === segment)
+    if (findIndex < 0) {
+      this._throwError('error.segment.not.found', segment)
+    }
+    return this._results[findIndex].data
+  }
+
   /** Process a raw HL7 message.
    * Must be properly formatted, or we will return an error.
    * @see ParserProcessRawData for HL7 message sample.
@@ -94,8 +107,9 @@ export class Parser extends EventEmitter {
 
         for (let i = 0; i < _b.length; i++) {
           const name = _b[i].substring(0, 3)
-          const result = await this._processLine(name, _b[i], i)
-          this._results?.push({name:  `${name}.${i+1}`, data: result, content: _b[i] })
+          const content = _b[i].split(this._lineSplitter)
+          // @todo if MSH, get parser options for this HL7 message. use those when parsing data
+          this._results?.push({name:  `${name}.${i+1}`, data: new Segment(this, name, content,i), content: _b[i] })
         }
 
       } else {
@@ -107,8 +121,9 @@ export class Parser extends EventEmitter {
 
         for (let i = 0; i < lines.length; i++) {
           const name = lines[i].substring(0, 3)
-          const result = await this._processLine(name, lines[i], i)
-          this._results?.push({name: `${name}.${i+1}`, data: result, content: lines[i]})
+          const content = lines[i].split(this._lineSplitter)
+          // @todo if MSH, get parser options for this HL7 message. use those when parsing data
+          this._results?.push({name: `${name}.${i+1}`, data: new Segment(this, name, content,i), content: lines[i]})
         }
       }
     } catch (_e: any) {
@@ -163,11 +178,4 @@ export class Parser extends EventEmitter {
     return list
   }
 
-  /** @internal */
-  private async _processLine (name: string, data: string, index: number): Promise<any> {
-    const content = data.split(this._lineSplitter)
-    const segment = new Segment(this, name, index)
-    await segment.processContent(content)
-    return segment.getData()
-  }
 }
