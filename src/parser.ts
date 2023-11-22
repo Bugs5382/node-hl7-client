@@ -13,6 +13,15 @@ if (!String.prototype.startsWith) {
   });
 }
 
+interface ISegment {
+  /* Name of the segment */
+  name: string;
+  /* The data of the segment */
+  data: []
+  /* */
+  content: string;
+}
+
 export class Parser extends EventEmitter {
   /** @internal */
   _forceBatch: boolean = false
@@ -29,7 +38,7 @@ export class Parser extends EventEmitter {
   /** @internal */
   _isBatchProcessing: boolean
   /** @internal */
-  _results: any[] = []
+  _results: ISegment[]
 
   constructor (props?: ParserOptions) {
     super()
@@ -40,6 +49,8 @@ export class Parser extends EventEmitter {
     if (typeof props?.subComponentSplit !== 'undefined') { this._subComponentSplit = props.subComponentSplit }
 
     this._isBatchProcessing = false
+
+    this._results = []
 
     this.emit('initialized', { subComponents: this._subComponents, repeatingFields: this._repeatingFields })
   }
@@ -82,9 +93,11 @@ export class Parser extends EventEmitter {
         const _b = await this._splitBatch(data)
 
         for (let i = 0; i < _b.length; i++) {
-          const result = await this._processLine(_b[i], i)
-          this._results.push(result)
+          const name = _b[i].substring(0, 3)
+          const result = await this._processLine(name, _b[i], i)
+          this._results?.push({name:  `${name}.${i+1}`, data: result, content: _b[i] })
         }
+
       } else {
         // regular processing
         this.emit('data.processing', data)
@@ -93,8 +106,9 @@ export class Parser extends EventEmitter {
         const lines = data.split('\n').filter(line => line.includes('|'))
 
         for (let i = 0; i < lines.length; i++) {
-          const result = await this._processLine(lines[i], i)
-          this._results.push(result)
+          const name = lines[i].substring(0, 3)
+          const result = await this._processLine(name, lines[i], i)
+          this._results?.push({name: `${name}.${i+1}`, data: result, content: lines[i]})
         }
       }
     } catch (_e: any) {
@@ -150,15 +164,10 @@ export class Parser extends EventEmitter {
   }
 
   /** @internal */
-  private async _processLine (data: string, index: number): Promise<any> {
-    const name = data.substring(0, 3)
+  private async _processLine (name: string, data: string, index: number): Promise<any> {
     const content = data.split(this._lineSplitter)
-    if (Object.keys(this._results).includes(name)) {
-      /* noop */
-    } else {
-      const segment = new Segment(this, name, index)
-      await segment.processContent(content)
-      return segment.getData()
-    }
+    const segment = new Segment(this, name, index)
+    await segment.processContent(content)
+    return segment.getData()
   }
 }
