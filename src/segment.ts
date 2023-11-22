@@ -1,6 +1,10 @@
+import EventEmitter from "events";
 import { Parser } from './parser.js'
 
-export class Segment {
+/**
+ * Segment Class
+ */
+export class Segment extends EventEmitter{
   /** @internal */
   _name: string = ''
   /** @internal */
@@ -15,34 +19,43 @@ export class Segment {
   _dataSep = '.'
   /** @internal */
   _subComponentSplit = '^'
+  /** @internal */
+  _content: string[];
 
-  constructor (parser: Parser, name: string, index: number) {
+  constructor (parser: Parser, name: string, content: string[], index: number) {
+    super()
+
     this._name = name
     this._index = index
+    this._content = content;
+
+    // @todo get this from the MSH field prior to being sent down tot his function
     this._subComponents = parser._subComponents
     this._repeatingFields = parser._repeatingFields
     this._dataSep = parser._dataSep
     this._subComponentSplit = parser._subComponentSplit
+
+    this.processContent()
+
   }
 
-  /** Get the data that we have parsed as a segment.
+  /** Get the data from this segment at this current index in the HL7 string.
    * @since 1.0.0 */
-  async getData (): Promise<any> {
-    return this._data
+  async getValue (area: string): Promise<string | [] | {}> {
+    this.emit('segment.get', area)
+    return this._data[area]
   }
 
   /** Process the line and create this segment to be built into the results.
    * This will be executed on each line of an HL7 message and break it up so that
    * individual fields within a segment can be retrieved.
    * @since 1.0.0
-   * @param content An array of objects which is a single line of an HL7 message
-   * @example
-   *
-   *
    * */
-  async processContent (content: string[]): Promise<void> {
+  processContent (): void {
+    this.emit('segment.processContent')
+    const content = this._content
     const name: string = this._name
-    for (let idx = 0; idx < content.length; idx++) {
+    for (let idx = 1; idx < content.length; idx++) {
       const pos = this._name === 'MSH' ? idx + 1 : idx
       if (content[idx].includes(this._subComponents)) { // ~ check
         const subcomponent = content[idx].split(this._subComponents)
@@ -114,6 +127,15 @@ export class Segment {
         }
       }
     }
+
+    // override MSH 2.1, always since it needs to include the encoding characters that we used
+    if (this._name === "MSH") {
+      this._data = {
+        ...this._data,
+        ['MSH.2']: '^~\\&'
+      }
+    }
+
   }
 
 }
