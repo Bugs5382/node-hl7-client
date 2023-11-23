@@ -1,4 +1,5 @@
 import EventEmitter from 'events'
+import {ISegment} from "./declaration.js";
 import {ParserOptions, ParserProcessRawData} from "./normalize.js";
 import {Segment} from './segment.js'
 
@@ -13,15 +14,6 @@ if (!String.prototype.startsWith) {
   });
 }
 
-export interface ISegment {
-  /* Name of the segment */
-  name: string;
-  /* The data of the segment */
-  data: Segment
-  /*Content of the HL7 */
-  content: string;
-}
-
 /** Parser Class
  * @since 1.0.0 */
 export class Parser extends EventEmitter {
@@ -32,7 +24,7 @@ export class Parser extends EventEmitter {
   /** @internal */
   _subComponents: string = '~'
   /** @internal */
-  _dataSep: string = '.'
+  _dataSep: string = '_'
   /** @internal */
   _subComponentSplit: string = '^'
   /** @internal */
@@ -77,6 +69,7 @@ export class Parser extends EventEmitter {
     if (findIndex < 0) {
       this._throwError('error.segment.not.found', segment)
     }
+    this.emit('parser.get.segment', segment)
     return this._results[findIndex].data
   }
 
@@ -115,7 +108,7 @@ export class Parser extends EventEmitter {
           const name = _b[i].substring(0, 3)
           const content = _b[i].split(this._lineSplitter)
           // @todo if MSH, get parser options for this HL7 message. use those when parsing data
-          this._results?.push({name:  `${name}.${i+1}`, data: new Segment(this, name, content,i), content: _b[i] })
+          this._results?.push({name:  `${name}${this._dataSep}${i+1}`, data: new Segment(this, name, content,i), content: _b[i] })
         }
 
       } else {
@@ -129,7 +122,7 @@ export class Parser extends EventEmitter {
           const name = lines[i].substring(0, 3)
           const content = lines[i].split(this._lineSplitter)
           // @todo if MSH, get parser options for this HL7 message. use those when parsing data
-          this._results?.push({name: `${name}.${i+1}`, data: new Segment(this, name, content,i), content: lines[i]})
+          this._results?.push({name: `${name}${this._dataSep}${i+1}`, data: new Segment(this, name, content,i), content: lines[i]})
         }
       }
     } catch (_e: any) {

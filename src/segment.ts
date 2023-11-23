@@ -1,4 +1,5 @@
 import EventEmitter from "events";
+import {Field} from "./field.js";
 import { Parser } from './parser.js'
 
 /**
@@ -16,7 +17,7 @@ export class Segment extends EventEmitter{
   /** @internal */
   _repeatingFields: string
   /** @internal */
-  _dataSep = '.'
+  _dataSep = '_'
   /** @internal */
   _subComponentSplit = '^'
   /** @internal */
@@ -41,9 +42,9 @@ export class Segment extends EventEmitter{
 
   /** Get the data from this segment at this current index in the HL7 string.
    * @since 1.0.0 */
-  async getValue (area: string): Promise<string | [] | {}> {
-    this.emit('segment.get', area)
-    return this._data[area]
+  async getField (field: string): Promise<Field | Field[]> {
+    this.emit('segment.get.field', field)
+    return this._data[field]
   }
 
   /** Process the line and create this segment to be built into the results.
@@ -66,16 +67,16 @@ export class Segment extends EventEmitter{
             const posK = (k + 1)
             if (subs[k].includes(this._repeatingFields)) {
               const repeating = subs[k].split(this._repeatingFields)
-              const tmpRepeating: string[] = []
+              const tmpRepeating: Field[] = []
               for (let l = 0; l < repeating.length; l++) {
-                tmpRepeating.push(repeating[l])
+                tmpRepeating.push(new Field(repeating[l], `${name}${this._dataSep}${pos}${this._dataSep}${posK}`))
               }
               component = {
                 ...component,
                 [`${name}${this._dataSep}${pos}${this._dataSep}${posK}`]: tmpRepeating
               }
             } else {
-              component = { [`${name}${this._dataSep}${pos}${this._dataSep}${posK}`]: subs[k] }
+              component = { [`${name}${this._dataSep}${pos}${this._dataSep}${posK}`]: new Field(subs[k], `${name}${this._dataSep}${pos}${this._dataSep}${posK}`)  }
             }
           }
           this._data = {
@@ -90,9 +91,9 @@ export class Segment extends EventEmitter{
           const posJ = (j + 1)
           if (subs[j].includes(this._repeatingFields)) {
             const repeating = subs[j].split(this._repeatingFields) // & split here
-            const tmpRepeating: string[] = []
+            const tmpRepeating: Field[] = []
             for (let l = 0; l < repeating.length; l++) {
-              tmpRepeating.push(repeating[l])
+              tmpRepeating.push(new Field(repeating[l], `${name}${this._dataSep}${pos}${this._dataSep}${posJ}`) )
             }
             component = {
               ...component,
@@ -101,7 +102,7 @@ export class Segment extends EventEmitter{
           } else {
             component = {
               ...component,
-              [`${name}${this._dataSep}${pos}${this._dataSep}${posJ}`]: subs[j]
+              [`${name}${this._dataSep}${pos}${this._dataSep}${posJ}`]: new Field(subs[j], `${name}${this._dataSep}${pos}${this._dataSep}${posJ}`)
             }
           }
           this._data = {
@@ -112,18 +113,18 @@ export class Segment extends EventEmitter{
 
       } else if (content[idx].includes(this._repeatingFields)) {
         const repeating = content[idx].split(this._repeatingFields)
-        const tmpRepeating: string[] = []
+        const tmpRepeating: Field[] = []
         for (let l = 0; l < repeating.length; l++) {
-          tmpRepeating.push(repeating[l])
+          tmpRepeating.push(new Field(repeating[l], `${name}${this._dataSep}${pos}`))
         }
         this._data = {
           ...this._data,
-          [`${name}.${pos}`]: tmpRepeating
+          [`${name}${this._dataSep}${pos}`]: tmpRepeating
         }
       } else {
         this._data = {
           ...this._data,
-          [`${name}${this._dataSep}${pos}`]: content[idx]
+          [`${name}${this._dataSep}${pos}`]: new Field(content[idx], `${name}${this._dataSep}${pos}`)
         }
       }
     }
@@ -131,8 +132,9 @@ export class Segment extends EventEmitter{
     // override MSH 2.1, always since it needs to include the encoding characters that we used
     if (this._name === "MSH") {
       this._data = {
+        ['MSH_1']: '|',
         ...this._data,
-        ['MSH.2']: '^~\\&'
+        ['MSH_2']: '^~\\&'  // if this is HL7 Spec 2,7 or higher # at the end
       }
     }
 
