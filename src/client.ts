@@ -3,9 +3,8 @@ import { Listener } from './listener.js'
 import { normalizeClientOptions, normalizeClientListenerOptions, ClientListenerOptions, ClientOptions } from './normalize.js'
 
 /**
- * This
- * @since 1.0.0
- */
+ * Client Class
+ * @since 1.0.0 */
 export class Client extends EventEmitter {
   /** @internal */
   _opt: ReturnType<typeof normalizeClientOptions>

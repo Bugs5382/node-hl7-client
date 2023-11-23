@@ -13,7 +13,7 @@ if (!String.prototype.startsWith) {
   });
 }
 
-interface ISegment {
+export interface ISegment {
   /* Name of the segment */
   name: string;
   /* The data of the segment */
@@ -22,6 +22,8 @@ interface ISegment {
   content: string;
 }
 
+/** Parser Class
+ * @since 1.0.0 */
 export class Parser extends EventEmitter {
   /** @internal */
   _forceBatch: boolean = false
@@ -59,6 +61,10 @@ export class Parser extends EventEmitter {
    * @since 1.0.0 */
   async getBatchProcess (): Promise<boolean> {
     return this._isBatchProcessing
+  }
+
+  getRaw() {
+    return this._results
   }
 
   /**

@@ -3,7 +3,7 @@ import { Parser } from './parser.js'
 
 /**
  * Segment Class
- */
+ * @since 1.0.0 */
 export class Segment extends EventEmitter{
   /** @internal */
   _name: string = ''

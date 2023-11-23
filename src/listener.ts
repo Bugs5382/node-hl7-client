@@ -5,6 +5,8 @@ import * as tls from 'tls'
 import { Client } from './client'
 import { ClientListenerOptions, normalizeClientListenerOptions } from './normalize'
 
+/** Listener Class
+ * @since 1.0.0 */
 export class Listener extends EventEmitter {
   /** @internal */
   _main: Client
