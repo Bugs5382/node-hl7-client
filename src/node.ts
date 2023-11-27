@@ -15,8 +15,9 @@ export class Node implements INode {
   protected parent: Node | null;
 
   private _children: Node[];
-  private _message: Message;
+  private _message: Message | undefined;
   private _delimiterText: string;
+  private _delimiter: Delimiters;
   private _path: string[];
   private _text: string;
 
@@ -28,7 +29,8 @@ export class Node implements INode {
     this._path = []
     this._text = text
     this._delimiterText = ""
-    this._message = new Message()
+    this._message = undefined
+    this._delimiter = delimiter;
 
 
   }
