@@ -1,4 +1,5 @@
 import {Delimiters} from "./delimiters";
+import {Message} from "./message";
 
 interface INode {
 
@@ -11,10 +12,24 @@ interface INode {
 
 export class Node implements INode {
 
-  _path: string[]
+  protected parent: Node | null;
+
+  private _children: Node[];
+  private _message: Message;
+  private _delimiterText: string;
+  private _path: string[];
+  private _text: string;
 
   // @ts-ignore
   constructor( parent: Node | null, text: string, delimiter: Delimiters = undefined) {
+
+    this.parent = parent
+    this._children = []
+    this._path = []
+    this._text = text
+    this._delimiterText = ""
+    this._message = new Message()
+
 
   }
 
@@ -79,36 +94,31 @@ export class Node implements INode {
 
   }
 
-  // @ts-ignore
   protected preparePath(path: string): string[] {
     let parts = path.split(".");
     if (parts[0] == "") {
       parts.shift();
       parts = this.path.concat(parts);
     }
-
     if (!this._isSubPath(parts)) {
       throw new Error("'" + parts.toString() + "' is not a sub-path of '" + this.path.toString() + "'");
     }
-
     return this._remainderOf(parts);
   }
 
   private _isSubPath(other: string[]): boolean {
-
     if(this.path.length >= other.length) return false;
-
-    var path = this.path;
-    for(var i = 0, l = path.length; i < l; i++) {
-      if(path[i] != other[i]) return false;
+    let path = this.path;
+    for (let i = 0, l = path.length; i < l; i++) {
+      if (path[i] != other[i]) {
+        return false;
+      }
     }
-
     return true;
   }
 
   private _remainderOf(other: string[]): string[] {
-
-    var path = this.path;
+    let path = this.path;
     return other.slice(path.length);
   }
 
@@ -130,9 +140,39 @@ export class Node implements INode {
   }
 
   protected addChild(text: string): Node {
-    console.log(text)
-    return this
+    let child = this.createChild(text, this.children.length);
+    this.children.push(child);
+    return child;
   }
 
+  protected createChild(_text: string, _index: number): Node {
+    throw new Error("Not implemented");
+  }
+
+  protected get delimiter(): string {
+
+    if(this._delimiterText) return this._delimiterText;
+    return this._delimiterText = this.message.delimiters[this._delimiter];
+  }
+
+  protected get message(): Message {
+
+    if(this._message) {
+      return this._message;
+    }
+    return this._message = this.parent ? this.parent.message : <any>this;
+  }
+
+  protected get children(): Node[] {
+    if (!this._children) {
+      let parts = this._text.split(this.delimiter);
+      let children = new Array(parts.length);
+      for (let i = 0, l = parts.length; i < l; i++) {
+        children[i] = this.createChild(parts[i], i);
+      }
+      this._children = children;
+    }
+    return this._children;
+  }
 
 }
