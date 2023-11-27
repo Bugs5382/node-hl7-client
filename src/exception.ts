@@ -1,9 +1,9 @@
 /** Parent Cass of HL7 Error
  * @since 1.0.0*/
-class HL7ClientError extends Error {
-  code: string
+class HL7Error extends Error {
+  code: number
   /** @internal */
-  constructor (code: string, message: string) {
+  constructor (code: number, message: string) {
     super(message)
     this.name = 'HL7ClientError'
     this.code = code
@@ -12,9 +12,16 @@ class HL7ClientError extends Error {
 
 /** Used to indicate a fatal failure of a connection.
  * @since 1.0.0*/
-class HL7ClientFatalError extends HL7ClientError {
+class HL7FatalError extends HL7Error {
   /** @internal */
-  name = 'HL7ClientFatalError'
+  name = 'HL7FatalError'
 }
 
-export { HL7ClientError, HL7ClientFatalError }
+/** Used to indicate a fatal failure of a connection.
+ * @since 1.0.0*/
+class HL7ParserError extends HL7Error {
+  /** @internal */
+  name = 'HL7ParserError'
+}
+
+export { HL7Error, HL7FatalError, HL7ParserError }
