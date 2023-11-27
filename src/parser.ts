@@ -1,76 +1,24 @@
-import EventEmitter from 'events'
-import {ISegment} from "./declaration.js";
-import {ParserOptions, ParserProcessRawData} from "./normalize.js";
-import {Segment} from './segment.js'
-
-/** Needed to help with some functionally.
- * @since 1.0.0 */
-if (!String.prototype.startsWith) {
-  Object.defineProperty(String.prototype, 'startsWith', {
-    value: function (search: string, rawPos: number) {
-      let pos = rawPos > 0 ? rawPos | 0 : 0;
-      return this.substring(pos, pos + search.length) === search;
-    }
-  });
-}
+import { HL7ParserError} from "./exception.js";
+import {ParserProcessRawData} from "./normalize.js";
 
 /** Parser Class
  * @since 1.0.0 */
-export class Parser extends EventEmitter {
-  /** @internal */
-  _forceBatch: boolean = false
-  /** @internal */
-  _repeatingFields: string = '&'
-  /** @internal */
-  _subComponents: string = '~'
-  /** @internal */
-  _dataSep: string = '_'
-  /** @internal */
-  _subComponentSplit: string = '^'
-  /** @internal */
-  _lineSplitter: string = '|'
+export class Parser {
   /** @internal */
   _isBatchProcessing: boolean
   /** @internal */
-  _results: ISegment[]
+  _parsePlan?: ParserPlan
+  /** @internal */
+  _regex = /MSH/gm;
 
-  constructor (props?: ParserOptions) {
-    super()
-
-    if (typeof props?.repeatingFields !== 'undefined') { this._repeatingFields = props.repeatingFields }
-    if (typeof props?.subComponents !== 'undefined') { this._subComponents = props.subComponents }
-    if (typeof props?.dataSep !== 'undefined') { this._dataSep = props.dataSep }
-    if (typeof props?.subComponentSplit !== 'undefined') { this._subComponentSplit = props.subComponentSplit }
-
+  constructor () {
     this._isBatchProcessing = false
-
-    this._results = []
-
-    this.emit('initialized', { subComponents: this._subComponents, repeatingFields: this._repeatingFields })
   }
 
   /** Will return true/false to indicate to the user if we did a batch processing method.
    * @since 1.0.0 */
   async getBatchProcess (): Promise<boolean> {
     return this._isBatchProcessing
-  }
-
-  getRaw() {
-    return this._results
-  }
-
-  /**
-   * Get Single Segment
-   * @param segment
-   * @since 1.0.0 */
-  async getSegment(segment: string): Promise<Segment> {
-    // in future releases we will use TypeScript to pass ont he version of the segment we are expecting (i.e. 2.7 MSH)
-    const findIndex = this._results.findIndex((x) => x.name === segment)
-    if (findIndex < 0) {
-      this._throwError('error.segment.not.found', segment)
-    }
-    this.emit('parser.get.segment', segment)
-    return this._results[findIndex].data
   }
 
   /** Process a raw HL7 message.
@@ -82,35 +30,33 @@ export class Parser extends EventEmitter {
    */
   async processRawData (props: ParserProcessRawData): Promise<void> {
     try {
-      const data = props.data
-
-      // ok, let's emit the data back so listener can listen in if needed
-      this.emit('data.raw', { data })
+      // make the data all one line
+      const data = props.data.trim()
 
       if (!data.startsWith('MSH') &&
         !data.startsWith('FHS') &&
         !data.startsWith('BHS') &&
         !data.startsWith('BTS') &&
         !data.startsWith('FTS')) {
-        this._throwError('error.data', 'expected RAW data to be an HL7 message.')
+        new Error('message does not start as a proper hl7 message')
       }
 
-      // if the data is a batch
-      if (await this._isBatch(data) || this._forceBatch) {
-        // batch processing
-        this.emit('data.processingBatch')
-        this._isBatchProcessing = true
+      // generate parse plan
+      this._parsePlan = new ParserPlan(data)
 
-        // split up the batch
-        const _b = await this._splitBatch(data)
+      // check to see if we need to do batch processing
+      this._isBatchProcessing = await this._isBatch(data)
 
-        for (let i = 0; i < _b.length; i++) {
-          const name = _b[i].substring(0, 3)
-          const content = _b[i].split(this._lineSplitter)
-          // @todo if MSH, get parser options for this HL7 message. use those when parsing data
-          this._results?.push({name:  `${name}${this._dataSep}${i+1}`, data: new Segment(this, name, content,i), content: _b[i] })
-        }
+      // @ts-ignore
+      let lines: string[] | string = ''
+      if (this._isBatchProcessing) {
+        lines = await this._splitBatch(data)
+      } else {
+        /** noop **/
+      }
+      console.log(lines)
 
+/*
       } else {
         // regular processing
         this.emit('data.processing', data)
@@ -124,36 +70,10 @@ export class Parser extends EventEmitter {
           // @todo if MSH, get parser options for this HL7 message. use those when parsing data
           this._results?.push({name: `${name}${this._dataSep}${i+1}`, data: new Segment(this, name, content,i), content: lines[i]})
         }
-      }
-    } catch (_e: any) {
-      this._throwError('error.data', 'data object not passed or not defined.')
+      }*/
+    } catch (e: any) {
+      this._throwError('data object needs to be defined.')
     }
-  }
-
-  /** @internal */
-  private async _isBatch (data: string): Promise<boolean> {
-    return (data.startsWith('FHS') || data.startsWith('BHS'))
-  }
-
-  /** @internal */
-  private _throwError (emitKey: string, message: string): Error {
-    this.emit(emitKey, { error: message })
-    throw new Error(message)
-  }
-
-  /** @internal */
-  private async _splitBatch (data: string, batch: string[] = []): Promise<string[]> {
-    const getSegIndex = await this._getSegIndexes(['FHS', 'BHS', 'MSH', 'BTS', 'FTS'], data)
-    getSegIndex.sort((a, b) => parseInt(a) - parseInt(b))
-    for (let i = 0; i < getSegIndex.length; i++) {
-      const start = parseInt(getSegIndex[i])
-      let end = parseInt(getSegIndex[i + 1])
-      if (i + 1 === getSegIndex.length) {
-        end = data.length
-      }
-      batch.push(data.slice(start, end))
-    }
-    return batch
   }
 
   /** @internal */
@@ -175,6 +95,106 @@ export class Parser extends EventEmitter {
       }
     }
     return list
+  }
+
+  /** @internal */
+  private async _isBatch (data: string): Promise<boolean> {
+    return (data.startsWith('FHS') || data.startsWith('BHS'))
+  }
+
+  /** @internal */
+  private _throwError (message: string): Error {
+    throw new HL7ParserError(500,message)
+  }
+
+  /** @internal */
+  private async _splitBatch (data: string, batch: string[] = []): Promise<string[]> {
+    const getSegIndex = await this._getSegIndexes(['FHS', 'BHS', 'MSH', 'BTS', 'FTS'], data)
+    getSegIndex.sort((a, b) => parseInt(a) - parseInt(b))
+    for (let i = 0; i < getSegIndex.length; i++) {
+      const start = parseInt(getSegIndex[i])
+      let end = parseInt(getSegIndex[i + 1])
+      if (i + 1 === getSegIndex.length) {
+        end = data.length
+      }
+      batch.push(data.slice(start, end))
+    }
+    return batch
+  }
+
+}
+
+/**
+ * Used to figure out the current HL7 message(s) stings used to encode this particular HL7 message.
+ * @since 1.0.0
+ * @example
+ *
+ * let parsePlan = new ParserPlan(<HL7 Message>)
+ *
+ *
+ */
+export class ParserPlan {
+
+  _escape?: string;
+  _separators?: string;
+
+  /**
+   * Gets passed an HL7 message. Batched or Non-Batched.
+   * @since
+   * @param data
+   */
+  constructor(data: string) {
+
+    try {
+
+      if (!data.startsWith('MSH') &&
+        !data.startsWith('FHS') &&
+        !data.startsWith('BHS') &&
+        !data.startsWith('BTS') &&
+        !data.startsWith('FTS')) {
+        new Error('message does not start as a proper hl7 message')
+      }
+
+      let esc: string = ''
+      let separators = "\r\n"
+
+      let sep0 = data.substring(3, 4)
+      let seps = data.substring(data.indexOf(sep0), 8).split('')
+
+      separators += seps[0]
+      if (seps.length > 2) {
+        separators += seps[2]
+      } else {
+        separators += "~"
+      }
+      if (seps.length > 1) {
+        separators += seps[1]
+      } else {
+        separators += "^"
+      }
+      if (seps.length > 4) {
+        separators += seps[4]
+      } else {
+        separators += "&"
+      }
+      if (seps.length > 3) {
+        esc = seps[3]
+      } else {
+        esc = "\\"
+      }
+
+      this._escape = esc
+      this._separators = separators
+
+    } catch (e: any) {
+      this._throwError(e.message)
+    }
+
+  }
+
+  /** @internal */
+  private _throwError (message: string): Error {
+    throw new HL7ParserError(500,message)
   }
 
 }

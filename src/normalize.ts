@@ -1,34 +1,29 @@
-import { TcpSocketConnectOpts } from 'node:net'
-import type { ConnectionOptions as TLSOptions } from 'node:tls'
+import {TcpSocketConnectOpts} from 'node:net'
+import type {ConnectionOptions as TLSOptions} from 'node:tls'
+import {assertNumber, validIPv4, validIPv6} from "./utils.js";
 
 const DEFAULT_CLIENT_OPTS = {
   acquireTimeout: 20000,
   connectionTimeout: 10000
 }
 
-export interface ParserOptions {
-  /** Force processing items as a batch even if it's a single item. */
-  forceBatch?: boolean
-  /** Separator for Repeating Fields
-   * @default & */
-  repeatingFields?: string
-  /** Specification Version HL7
-   * @default none */
-  specification?: any
-  /** Separator for Sub Components Fields
-   * @default ~ */
-  subComponents?: string
-  /** Separator for Data Separator (e.g., parser.get('MSH.1') if this was set to a .)
-   * @default . */
-  dataSep?: string
-  /** Separator for Sub Component Split
-   * @default ^ */
-  subComponentSplit?: string
+const DEFAULT_CLIENT_BUILDER_OPTS = {
+  hl7Spec: "2.7",
+  newLine: "\r",
+  separatorField: "|",
+  separatorRepetition: "~",
+  separatorComponent:  "^",
+  separatorSubComponent: "&",
+  separatorEscape: "\\"
 }
 
 export interface ParserProcessRawData {
   /** Data that needs to be processed. */
   data: string
+}
+
+export interface MessageHeaderOptions {
+
 }
 
 export interface ClientOptions {
@@ -74,19 +69,47 @@ export interface ClientListenerOptions {
   port: number
 }
 
+export interface ClientBuilderOptions {
+  /** The HL7 spec we are going to be creating. This will be formatted into the MSH header by default.
+   * @default 2.7*/
+  hl7Spec: string;
+  /** At the end of each line, add this as the new line character.
+   * @default \r */
+  newLine?: string
+  /** */
+  separatorField?: string
+  /** */
+  separatorRepetition?: string
+  /** */
+  separatorComponent?: string
+  /** */
+  separatorSubComponent?: string
+  /** */
+  separatorEscape?: string
+}
+
+export interface ClientBuilderBatchOptions extends ClientBuilderOptions {
+  /** */
+  comment?: string;
+  /** */
+  footerComment?: string;
+  /** */
+  headerComment?: string;
+}
+
 type ValidatedClientKeys =
   | 'acquireTimeout'
   | 'connectionTimeout'
   | 'hostname'
+
+type ValidatedClientListenerKeys =
+  | 'port'
 
 interface ValidatedClientOptions extends Pick<Required<ClientOptions>, ValidatedClientKeys> {
   hostname: string
   socket?: TcpSocketConnectOpts
   tls?: TLSOptions
 }
-
-type ValidatedClientListenerKeys =
-  | 'port'
 
 interface ValidatedClientOptions extends Pick<Required<ClientOptions>, ValidatedClientKeys> {
   hostname: string
@@ -132,6 +155,30 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
   return props
 }
 
+export function normalizedClientBuilderOptions(raw?: ClientBuilderOptions) : ClientBuilderOptions {
+  const props = {...DEFAULT_CLIENT_BUILDER_OPTS, ...raw}
+
+  if (typeof props.newLine !== 'undefined' && props.newLine == `\\r` || props.newLine == `\\n`) {
+    throw new Error(`newLine must be \r or \n`)
+  }
+
+  return props
+}
+
+export function normalizedClientBatchBuilderOptions(raw?: ClientBuilderBatchOptions) : ClientBuilderBatchOptions {
+  const props = {...DEFAULT_CLIENT_BUILDER_OPTS, ...raw}
+
+  if (typeof props.newLine !== 'undefined' && !props.newLine.startsWith("\\r") || !props.newLine.startsWith("\\n")) {
+    throw new Error('newLine must be \r or \n')
+  }
+
+  if ((typeof props.comment !== 'undefined') && (typeof props.headerComment !== 'undefined') && (typeof props.footerComment !== 'undefined')) {
+    throw new Error('comment must be undefined if headerComment and footerComment are being set.')
+  }
+
+  return props
+}
+
 /** @internal */
 export function normalizeClientListenerOptions (raw?: ClientListenerOptions): ValidatedClientListenerOptions {
   const props: any = { ...DEFAULT_CLIENT_OPTS, ...raw }
@@ -151,29 +198,3 @@ export function normalizeClientListenerOptions (raw?: ClientListenerOptions): Va
   return props
 }
 
-function assertNumber (props: Record<string, number>, name: string, min: number, max?: number): void {
-  const val = props[name]
-  if (isNaN(val) || !Number.isFinite(val) || val < min || (max != null && val > max)) {
-    throw new TypeError(max != null
-      ? `${name} must be a number (${min}, ${max}).`
-      : `${name} must be a number >= ${min}.`)
-  }
-}
-
-/** @internal */
-function validIPv4 (ip: string): boolean {
-  const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/
-  if (ipv4Regex.test(ip)) {
-    return ip.split('.').every(part => parseInt(part) <= 255)
-  }
-  return false
-}
-
-/** @internal */
-function validIPv6 (ip: string): boolean {
-  const ipv6Regex = /^([\da-f]{1,4}:){7}[\da-f]{1,4}$/i
-  if (ipv6Regex.test(ip)) {
-    return ip.split(':').every(part => part.length <= 4)
-  }
-  return false
-}
