@@ -26,5 +26,4 @@ export class Client extends EventEmitter {
   sendMessage (): void {
     /* noop */
   }
-
 }

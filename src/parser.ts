@@ -1,5 +1,5 @@
-import { HL7ParserError} from "./exception.js";
-import {ParserProcessRawData} from "./normalize.js";
+import { HL7ParserError } from './exception.js'
+import { ParserProcessRawData } from './normalize.js'
 
 /** Parser Class
  * @since 1.0.0 */
@@ -9,7 +9,7 @@ export class Parser {
   /** @internal */
   _parsePlan?: ParserPlan
   /** @internal */
-  _regex = /MSH/gm;
+  _regex = /MSH/gm
 
   constructor () {
     this._isBatchProcessing = false
@@ -29,34 +29,32 @@ export class Parser {
    * @example
    */
   async processRawData (props: ParserProcessRawData): Promise<void> {
-    try {
-      // make the data all one line
-      const data = props.data.trim()
+    // make the data all one line
+    const data = props.data.trim()
 
-      if (!data.startsWith('MSH') &&
+    if (!data.startsWith('MSH') &&
         !data.startsWith('FHS') &&
         !data.startsWith('BHS') &&
         !data.startsWith('BTS') &&
         !data.startsWith('FTS')) {
-        new Error('message does not start as a proper hl7 message')
-      }
+      this._throwError('message does not start as a proper hl7 message')
+    }
 
-      // generate parse plan
-      this._parsePlan = new ParserPlan(data)
+    // generate parse plan
+    this._parsePlan = new ParserPlan(data)
 
-      // check to see if we need to do batch processing
-      this._isBatchProcessing = await this._isBatch(data)
+    // check to see if we need to do batch processing
+    this._isBatchProcessing = await this._isBatch(data)
 
-      // @ts-ignore
-      let lines: string[] | string = ''
-      if (this._isBatchProcessing) {
-        lines = await this._splitBatch(data)
-      } else {
-        /** noop **/
-      }
-      console.log(lines)
+    let lines: string[] | string = ''
+    if (this._isBatchProcessing) {
+      lines = await this._splitBatch(data)
+    } else {
+      /** noop **/
+    }
+    console.log(lines)
 
-/*
+    /*
       } else {
         // regular processing
         this.emit('data.processing', data)
@@ -70,10 +68,7 @@ export class Parser {
           // @todo if MSH, get parser options for this HL7 message. use those when parsing data
           this._results?.push({name: `${name}${this._dataSep}${i+1}`, data: new Segment(this, name, content,i), content: lines[i]})
         }
-      }*/
-    } catch (e: any) {
-      this._throwError('data object needs to be defined.')
-    }
+      } */
   }
 
   /** @internal */
@@ -104,7 +99,7 @@ export class Parser {
 
   /** @internal */
   private _throwError (message: string): Error {
-    throw new HL7ParserError(500,message)
+    throw new HL7ParserError(500, message)
   }
 
   /** @internal */
@@ -121,7 +116,6 @@ export class Parser {
     }
     return batch
   }
-
 }
 
 /**
@@ -134,67 +128,57 @@ export class Parser {
  *
  */
 export class ParserPlan {
-
-  _escape?: string;
-  _separators?: string;
+  _escape?: string
+  _separators?: string
 
   /**
    * Gets passed an HL7 message. Batched or Non-Batched.
    * @since
    * @param data
    */
-  constructor(data: string) {
-
-    try {
-
-      if (!data.startsWith('MSH') &&
+  constructor (data: string) {
+    if (!data.startsWith('MSH') &&
         !data.startsWith('FHS') &&
         !data.startsWith('BHS') &&
         !data.startsWith('BTS') &&
         !data.startsWith('FTS')) {
-        new Error('message does not start as a proper hl7 message')
-      }
-
-      let esc: string = ''
-      let separators = "\r\n"
-
-      let sep0 = data.substring(3, 4)
-      let seps = data.substring(data.indexOf(sep0), 8).split('')
-
-      separators += seps[0]
-      if (seps.length > 2) {
-        separators += seps[2]
-      } else {
-        separators += "~"
-      }
-      if (seps.length > 1) {
-        separators += seps[1]
-      } else {
-        separators += "^"
-      }
-      if (seps.length > 4) {
-        separators += seps[4]
-      } else {
-        separators += "&"
-      }
-      if (seps.length > 3) {
-        esc = seps[3]
-      } else {
-        esc = "\\"
-      }
-
-      this._escape = esc
-      this._separators = separators
-
-    } catch (e: any) {
-      this._throwError(e.message)
+      this._throwError('message does not start as a proper hl7 message')
     }
 
+    let esc: string = ''
+    let separators = '\r\n'
+
+    const sep0 = data.substring(3, 4)
+    const seps = data.substring(data.indexOf(sep0), 8).split('')
+
+    separators += seps[0]
+    if (seps.length > 2) {
+      separators += seps[2]
+    } else {
+      separators += '~'
+    }
+    if (seps.length > 1) {
+      separators += seps[1]
+    } else {
+      separators += '^'
+    }
+    if (seps.length > 4) {
+      separators += seps[4]
+    } else {
+      separators += '&'
+    }
+    if (seps.length > 3) {
+      esc = seps[3]
+    } else {
+      esc = '\\'
+    }
+
+    this._escape = esc
+    this._separators = separators
   }
 
   /** @internal */
   private _throwError (message: string): Error {
-    throw new HL7ParserError(500,message)
+    throw new HL7ParserError(500, message)
   }
-
 }

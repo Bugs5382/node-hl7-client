@@ -1,15 +1,12 @@
-import {Delimiters} from "./delimiters";
-import { Node } from "./node";
-
+import { Delimiters } from './delimiters'
+import { Node } from './node'
 
 export class ValueNode extends Node {
+  key: string
 
-  key: string;
+  constructor (parent: Node, key: string, text: string, delimiter: Delimiters) {
+    super(parent, text, delimiter)
 
-  constructor(parent: Node, key: string, text: string, delimiter: Delimiters) {
-    super(parent, text, delimiter);
-
-    this.key = key;
+    this.key = key
   }
-
 }
