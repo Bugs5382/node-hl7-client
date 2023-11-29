@@ -4,7 +4,6 @@ import {ClientBuilderOptions, normalizedClientBatchBuilderOptions} from "./norma
 */
 
 export class Batch {
-
 /*  private _count: number = 0;
   private _opt: ReturnType<typeof normalizedClientBatchBuilderOptions>;
   private _header: string;
@@ -28,19 +27,6 @@ export class Batch {
       this._tail = `FTS${this._opt.separatorField}`
     }
 
-  }*/
-
-  buildHeader() {
-
   }
-
-  /**
-   * Adds a new message segment to the batch.
-   * @since 1.0.0
    */
-  addMessage() {
-
-  }
-
-
 }

@@ -1,5 +1,5 @@
 /** Parent Cass of HL7 Error
- * @since 1.0.0*/
+ * @since 1.0.0 */
 class HL7Error extends Error {
   code: number
   /** @internal */
@@ -11,14 +11,14 @@ class HL7Error extends Error {
 }
 
 /** Used to indicate a fatal failure of a connection.
- * @since 1.0.0*/
+ * @since 1.0.0 */
 class HL7FatalError extends HL7Error {
   /** @internal */
   name = 'HL7FatalError'
 }
 
 /** Used to indicate a fatal failure of a connection.
- * @since 1.0.0*/
+ * @since 1.0.0 */
 class HL7ParserError extends HL7Error {
   /** @internal */
   name = 'HL7ParserError'

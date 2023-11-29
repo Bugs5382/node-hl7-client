@@ -26,18 +26,12 @@ export function validIPv6 (ip: string): boolean {
 }
 
 /** @internal */
-function pad2(n: number): string {  // always returns a string
-  return (n < 10 ? '0' : '') + n;
+function pad (n: number): string { // always returns a string
+  return `${(n < 10 ? '0' : '')}${n}`
 }
 
 /** @internal */
-export function createDateTime(): string {
-
+export function createDateTime (): string {
   const date = new Date()
-  return date.getFullYear() +
-    pad2(date.getMonth() + 1) +
-    pad2(date.getDate()) +
-    pad2(date.getHours()) +
-    pad2(date.getMinutes()) +
-    pad2(date.getSeconds())
+  return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`
 }
