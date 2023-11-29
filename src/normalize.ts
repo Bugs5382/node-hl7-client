@@ -1,6 +1,7 @@
-import {TcpSocketConnectOpts} from 'node:net'
-import type {ConnectionOptions as TLSOptions} from 'node:tls'
-import {assertNumber, validIPv4, validIPv6} from "./utils.js";
+import { TcpSocketConnectOpts } from 'node:net'
+import type { ConnectionOptions as TLSOptions } from 'node:tls'
+import { HL7_2_7 } from './specification/2.7.js'
+import { assertNumber, validIPv4, validIPv6 } from './utils.js'
 
 const DEFAULT_CLIENT_OPTS = {
   acquireTimeout: 20000,
@@ -8,22 +9,18 @@ const DEFAULT_CLIENT_OPTS = {
 }
 
 const DEFAULT_CLIENT_BUILDER_OPTS = {
-  hl7Spec: "2.7",
-  newLine: "\r",
-  separatorField: "|",
-  separatorRepetition: "~",
-  separatorComponent:  "^",
-  separatorSubComponent: "&",
-  separatorEscape: "\\"
+  specification: new HL7_2_7(),
+  newLine: '\r',
+  separatorField: '|',
+  separatorRepetition: '~',
+  separatorComponent: '^',
+  separatorSubComponent: '&',
+  separatorEscape: '\\'
 }
 
 export interface ParserProcessRawData {
   /** Data that needs to be processed. */
   data: string
-}
-
-export interface MessageHeaderOptions {
-
 }
 
 export interface ClientOptions {
@@ -71,8 +68,8 @@ export interface ClientListenerOptions {
 
 export interface ClientBuilderOptions {
   /** The HL7 spec we are going to be creating. This will be formatted into the MSH header by default.
-   * @default 2.7*/
-  hl7Spec: string;
+   * @default 2.7 */
+  specification: any
   /** At the end of each line, add this as the new line character.
    * @default \r */
   newLine?: string
@@ -90,11 +87,11 @@ export interface ClientBuilderOptions {
 
 export interface ClientBuilderBatchOptions extends ClientBuilderOptions {
   /** */
-  comment?: string;
+  comment?: string
   /** */
-  footerComment?: string;
+  footerComment?: string
   /** */
-  headerComment?: string;
+  headerComment?: string
 }
 
 type ValidatedClientKeys =
@@ -155,20 +152,20 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
   return props
 }
 
-export function normalizedClientBuilderOptions(raw?: ClientBuilderOptions) : ClientBuilderOptions {
-  const props = {...DEFAULT_CLIENT_BUILDER_OPTS, ...raw}
+export function normalizedClientBuilderOptions (raw?: ClientBuilderOptions): ClientBuilderOptions {
+  const props = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
-  if (typeof props.newLine !== 'undefined' && props.newLine == `\\r` || props.newLine == `\\n`) {
-    throw new Error(`newLine must be \r or \n`)
+  if ((typeof props.newLine !== 'undefined' && props.newLine === '\\r') || props.newLine === '\\n') {
+    throw new Error('newLine must be \r or \n')
   }
 
   return props
 }
 
-export function normalizedClientBatchBuilderOptions(raw?: ClientBuilderBatchOptions) : ClientBuilderBatchOptions {
-  const props = {...DEFAULT_CLIENT_BUILDER_OPTS, ...raw}
+export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderBatchOptions): ClientBuilderBatchOptions {
+  const props = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
-  if (typeof props.newLine !== 'undefined' && !props.newLine.startsWith("\\r") || !props.newLine.startsWith("\\n")) {
+  if ((typeof props.newLine !== 'undefined' && props.newLine === '\\r') || props.newLine === '\\n') {
     throw new Error('newLine must be \r or \n')
   }
 
@@ -197,4 +194,3 @@ export function normalizeClientListenerOptions (raw?: ClientListenerOptions): Va
 
   return props
 }
-
