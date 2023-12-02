@@ -1,20 +1,23 @@
+// @ts-nocheck
+
+import {HL7FatalError} from "./exception";
+import {NodeBase} from "./nodeBase";
+import {Segment} from "./segment";
 import * as Util from "./utils.js";
 import { Delimiters } from './decorators/enum/delimiters'
 import { ClientBuilderOptions, normalizedClientBuilderOptions } from './normalize.js'
+import { Node } from "./decorators/interfaces/node";
 
 /**
  * Message Class
  * @since 1.0.0
  */
-export class Message {
+export class Message extends NodeBase {
 
   private readonly _opt: ReturnType<typeof normalizedClientBuilderOptions>
+  
   private _delimiters: string
-
-
-  // @ts-ignore
   private _matchUnescape: RegExp;
-  // @ts-ignore
   private _matchEscape: RegExp;
 
   private static _defaultDelimiters = "\r|^~\\&";
@@ -38,11 +41,11 @@ export class Message {
    * @since 1.0.0
    */
   constructor (props?: ClientBuilderOptions) {
+    let opt = normalizedClientBuilderOptions(props)
+    
+    super(null, opt.text, Delimiters.Segment)
 
-    // const opt = normalizedClientBuilderOptions(props)
-    // super(null, opt.text, Delimiters.Segment)
-
-    this._opt = normalizedClientBuilderOptions(props)
+    this._opt = opt
     this._delimiters = `${this._opt.newLine}${this._opt.separatorField}${this._opt.separatorComponent}${this._opt.separatorRepetition}${this._opt.separatorEscape}${this._opt.separatorSubComponent}`
 
     if (this._delimiters === Message._defaultDelimiters) {
@@ -51,6 +54,23 @@ export class Message {
     } else {
       this._matchUnescape = Message._makeMatchUnescape(this._delimiters);
       this._matchEscape = Message._makeMatchEscape(this._delimiters);
+    }
+
+    if (opt.text == "" && this._opt.specification.checkMSH(this._opt.mshHeader)) {
+
+      // set header
+      this.set('MSH.1', `${this._opt.separatorField}`)
+      this.set('MSH.2', `${this._opt.separatorComponent}${this._opt.separatorRepetition}${this._opt.separatorEscape}${this._opt.separatorSubComponent}`)
+      this.set('MSH.7', this.createDate())
+      this.set('MSH.9.1', this._opt.mshHeader?.msh_9.msh_9_1)
+      this.set('MSH.9.2', this._opt.mshHeader?.msh_9.msh_9_2)
+      this.set('MSH.9.3', this._opt.mshHeader?.msh_9.msh_9_3)
+      this.set('MSH.10', this._opt.mshHeader?.msh_10)
+      // @todo Add MSH.11
+      this.set('MSH.12', this._opt.specification.name)
+
+    } else {
+      throw new HL7FatalError(500, 'Unable to fully build a new HL7 message.')
     }
 
   }
@@ -92,30 +112,22 @@ export class Message {
   }
 
   unescape(text: string): string {
-    if(text == null) return null;
+    if (text == null) {
+      throw new HL7FatalError(500, "text must be passed in unescape function.")
+    }
 
-    // Slightly faster for normal case of no escape sequences in text
-    if(text.indexOf(this._delimiters[Delimiters.Escape]) == -1) return text;
+    // Slightly faster for a normal case of no escape sequences in text
+    if(text.indexOf(this._delimiters[Delimiters.Escape]) == -1) {
+      return text;
+    }
 
     return text.replace(this._matchUnescape, (match: string) => {
 
-      switch(match.slice(1, 2)) {
-        case "C":
-          // ignore single-byte escape sequence
-          break;
+      switch (match.slice(1, 2)) {
         case "E":
           return this._delimiters[Delimiters.Escape];
         case "F":
           return this._delimiters[Delimiters.Field];
-        case "H":
-          // ignore start highlight
-          break;
-        case "M":
-          // ignore multi-byte escape sequence
-          break;
-        case "N":
-          // ignore stop highlight
-          break;
         case "R":
           return this._delimiters[Delimiters.Repetition];
         case "S":
@@ -124,11 +136,13 @@ export class Message {
           return this._delimiters[Delimiters.SubComponent];
         case "X":
           return Util.decodeHexString(match.slice(2, match.length - 1));
+        case "C":
+        case "H":
+        case "M":
+        case "N":
         case "Z":
-          // ignore locally defined escape sequence
           break;
         default:
-          // pass through unknown escape sequences
           return match;
       }
 
@@ -137,11 +151,13 @@ export class Message {
   }
 
   escape(text: string): string {
-    if(text == null) return null;
+    if (text == null) {
+      throw new HL7FatalError(500, "text must be passed in escape function.")
+    }
 
     return text.replace(this._matchEscape, (match: string) => {
 
-      var ch: string;
+      let ch: string = "";
 
       switch(match) {
         case this._delimiters[Delimiters.Escape]:
@@ -161,8 +177,8 @@ export class Message {
           break;
       }
 
-      if(ch) {
-        var escape = this._delimiters[Delimiters.Escape]
+      if (ch) {
+        let escape = this._delimiters[Delimiters.Escape]
         return escape + ch + escape;
       }
 
@@ -172,31 +188,29 @@ export class Message {
 
   addSegment(path: string): Segment {
 
-    if(!path) {
+    if (!path) {
       throw new Error("Missing segment path.");
     }
 
-    var preparedPath = this.preparePath(path);
+    let preparedPath = this.preparePath(path);
     if(preparedPath.length != 1) {
       throw new Error("Invalid segment path '" + path + "'.");
     }
 
-    return <Segment>this.addChild(preparedPath[0]);
+    return this.addChild(preparedPath[0]);
   }
 
   read(path: string[]): Node {
-
-    var segmentName = path.shift();
-
+    let segmentName = path.shift();
     if(path.length == 0) {
       // only the segment name was in the path so return a SegmentList
-      var segments = <Segment[]>this.children.filter(x => (<Segment>x).name == segmentName);
+      let segments = <Segment[]>this.children.filter(x => (<Segment>x).name == segmentName);
       if(segments.length > 0) {
         return new SegmentList(this, segments);
       }
     }
     else {
-      var segment = this._getFirstSegment(segmentName);
+      let segment = this._getFirstSegment(segmentName);
       if(segment) {
         return segment.read(path);
       }
@@ -207,8 +221,8 @@ export class Message {
 
   protected writeCore(path: string[], value: string): Node {
 
-    var segmentName = path.shift();
-    var index = this._getFirstSegmentIndex(segmentName);
+    let segmentName = path.shift();
+    let index = this._getFirstSegmentIndex(segmentName);
     if(index === undefined) {
       index = this.children.length;
     }
@@ -229,9 +243,9 @@ export class Message {
 
   private _getFirstSegment(name: string): Segment {
 
-    var children = this.children;
-    for (var i = 0, l = children.length; i < l; i++) {
-      var segment = <Segment>children[i];
+    let children = this.children;
+    for (let i = 0, l = children.length; i < l; i++) {
+      let segment = <Segment>children[i];
       if (segment.name == name) {
         return segment;
       }
@@ -239,9 +253,9 @@ export class Message {
   }
   private _getFirstSegmentIndex(name: string): number {
 
-    var children = this.children;
-    for (var i = 0, l = children.length; i < l; i++) {
-      var segment = <Segment>children[i];
+    let children = this.children;
+    for (let i = 0, l = children.length; i < l; i++) {
+      let segment = <Segment>children[i];
       if (segment.name == name) {
         return i;
       }
