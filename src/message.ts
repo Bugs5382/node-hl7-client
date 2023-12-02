@@ -86,5 +86,166 @@ export class Message {
     return new RegExp([matchEscape,"[^", matchEscape, "]*", matchEscape].join(""), "g");
   }
 
+  get delimiters(): string {
+
+    return this._delimiters;
+  }
+
+  unescape(text: string): string {
+    if(text == null) return null;
+
+    // Slightly faster for normal case of no escape sequences in text
+    if(text.indexOf(this._delimiters[Delimiters.Escape]) == -1) return text;
+
+    return text.replace(this._matchUnescape, (match: string) => {
+
+      switch(match.slice(1, 2)) {
+        case "C":
+          // ignore single-byte escape sequence
+          break;
+        case "E":
+          return this._delimiters[Delimiters.Escape];
+        case "F":
+          return this._delimiters[Delimiters.Field];
+        case "H":
+          // ignore start highlight
+          break;
+        case "M":
+          // ignore multi-byte escape sequence
+          break;
+        case "N":
+          // ignore stop highlight
+          break;
+        case "R":
+          return this._delimiters[Delimiters.Repetition];
+        case "S":
+          return this._delimiters[Delimiters.Component];
+        case "T":
+          return this._delimiters[Delimiters.SubComponent];
+        case "X":
+          return Util.decodeHexString(match.slice(2, match.length - 1));
+        case "Z":
+          // ignore locally defined escape sequence
+          break;
+        default:
+          // pass through unknown escape sequences
+          return match;
+      }
+
+      return "";
+    });
+  }
+
+  escape(text: string): string {
+    if(text == null) return null;
+
+    return text.replace(this._matchEscape, (match: string) => {
+
+      var ch: string;
+
+      switch(match) {
+        case this._delimiters[Delimiters.Escape]:
+          ch = "E";
+          break;
+        case this._delimiters[Delimiters.Field]:
+          ch = "F";
+          break;
+        case this._delimiters[Delimiters.Repetition]:
+          ch = "R";
+          break;
+        case this._delimiters[Delimiters.Component]:
+          ch = "S";
+          break;
+        case this._delimiters[Delimiters.SubComponent]:
+          ch = "T";
+          break;
+      }
+
+      if(ch) {
+        var escape = this._delimiters[Delimiters.Escape]
+        return escape + ch + escape;
+      }
+
+      throw new Error("Escape sequence for '" + match + "' is not known.");
+    });
+  }
+
+  addSegment(path: string): Segment {
+
+    if(!path) {
+      throw new Error("Missing segment path.");
+    }
+
+    var preparedPath = this.preparePath(path);
+    if(preparedPath.length != 1) {
+      throw new Error("Invalid segment path '" + path + "'.");
+    }
+
+    return <Segment>this.addChild(preparedPath[0]);
+  }
+
+  read(path: string[]): Node {
+
+    var segmentName = path.shift();
+
+    if(path.length == 0) {
+      // only the segment name was in the path so return a SegmentList
+      var segments = <Segment[]>this.children.filter(x => (<Segment>x).name == segmentName);
+      if(segments.length > 0) {
+        return new SegmentList(this, segments);
+      }
+    }
+    else {
+      var segment = this._getFirstSegment(segmentName);
+      if(segment) {
+        return segment.read(path);
+      }
+    }
+
+    return null;
+  }
+
+  protected writeCore(path: string[], value: string): Node {
+
+    var segmentName = path.shift();
+    var index = this._getFirstSegmentIndex(segmentName);
+    if(index === undefined) {
+      index = this.children.length;
+    }
+    return this.writeAtIndex(path, value, index, segmentName);
+  }
+
+  protected createChild(text: string, index: number): Node {
+
+    // make sure to remove any \n that might follow the \r
+    return new Segment(this, text.trim());
+  }
+
+  protected pathCore(): string[] {
+
+    // the message has an empty path
+    return [];
+  }
+
+  private _getFirstSegment(name: string): Segment {
+
+    var children = this.children;
+    for (var i = 0, l = children.length; i < l; i++) {
+      var segment = <Segment>children[i];
+      if (segment.name == name) {
+        return segment;
+      }
+    }
+  }
+  private _getFirstSegmentIndex(name: string): number {
+
+    var children = this.children;
+    for (var i = 0, l = children.length; i < l; i++) {
+      var segment = <Segment>children[i];
+      if (segment.name == name) {
+        return i;
+      }
+    }
+  }
 
 }
