@@ -26,11 +26,14 @@ export interface HL7_2_7_MSH {
  * @since 1.0.0
  */
 export class HL7_2_7 extends HL7_SPEC_BASE {
-  checkMSH (msh: HL7_2_7_MSH): HL7_2_7_MSH {
+
+  static name: "2.7"
+
+  checkMSH (msh: HL7_2_7_MSH): boolean {
     if (typeof msh.msh_9.msh_9_1 === 'undefined' ||
       typeof msh.msh_9.msh_9_2 === 'undefined' ||
       typeof msh.msh_9.msh_9_3 === 'undefined') {
-      throw new Error('MSH.1 must be one character in length.')
+      throw new Error('MSH.9.1 & MSH 9.2 & MSH 9.3 must be defined.')
     }
 
     if (msh.msh_9.msh_9_1.length !== 3) {
@@ -49,10 +52,10 @@ export class HL7_2_7 extends HL7_SPEC_BASE {
       throw new Error('MSH.9.10 must be defined.')
     }
 
-    if (msh.msh_10.length > 199) {
-      throw new Error('MSH.9.10 must less than 199 characters.')
+    if (msh.msh_10.length == 0 || msh.msh_10.length > 199) {
+      throw new Error('MSH.9.10 must be greater than 0 and less than 199 characters.')
     }
 
-    return msh
+    return true
   }
 }
