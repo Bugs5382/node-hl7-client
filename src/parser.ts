@@ -34,9 +34,7 @@ export class Parser {
 
     if (!data.startsWith('MSH') &&
         !data.startsWith('FHS') &&
-        !data.startsWith('BHS') &&
-        !data.startsWith('BTS') &&
-        !data.startsWith('FTS')) {
+        !data.startsWith('BHS')) {
       this._throwError('message does not start as a proper hl7 message')
     }
 

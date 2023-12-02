@@ -1,83 +1,90 @@
-import { Delimiters } from './delimiters'
-import { Node } from './node'
-import { ClientBuilderOptions, normalizedClientBuilderOptions } from './normalize'
-import { Segment } from './segment'
-import { createDateTime } from './utils'
+import * as Util from "./utils.js";
+import { Delimiters } from './decorators/enum/delimiters'
+import { ClientBuilderOptions, normalizedClientBuilderOptions } from './normalize.js'
 
-export class Message extends Node {
+/**
+ * Message Class
+ * @since 1.0.0
+ */
+export class Message {
+
   private readonly _opt: ReturnType<typeof normalizedClientBuilderOptions>
   private _delimiters: string
 
+
+  // @ts-ignore
+  private _matchUnescape: RegExp;
+  // @ts-ignore
+  private _matchEscape: RegExp;
+
+  private static _defaultDelimiters = "\r|^~\\&";
+  private static _defaultMatchUnescape = Message._makeMatchUnescape(Message._defaultDelimiters);
+  private static _defaultMatchEscape = Message._makeMatchEscape(Message._defaultDelimiters);
+
   /**
-   * @param text If not provided you have to build a MSH header using (@see createHeader)
    * @param props Override default encoding characters. (@default |^~\\&)
    * @example
    * If you are processing a full message, do this:
    *
-   * const message = new Message("The HL7 Message Here")
+   * const message = new Message({text: "The HL7 Message Here"})
    * ... output cut ...
    *
    * If you are building out a message, do this:
    *
-   * const message = new Message();
-   * await message.createHeader<HL7_2_7_MSH>() ({ ... required parameters ... })
-   * ... add additional segments, etc. Check out Unit Tests for complete examples ...
+   * const message = new Message({header: { ... MSH Header Required Values ... }});
    *
-   * which will generate the properly formatted MSH header for your HL7 Method.
+   * which then you add segments with fields and values for your Hl7 message.
    *
    * @since 1.0.0
    */
-  constructor (text: string = '', props: ClientBuilderOptions = normalizedClientBuilderOptions()) {
-    super(null, text, Delimiters.Segment)
+  constructor (props?: ClientBuilderOptions) {
+
+    // const opt = normalizedClientBuilderOptions(props)
+    // super(null, opt.text, Delimiters.Segment)
 
     this._opt = normalizedClientBuilderOptions(props)
-    this._delimiters = `${this._opt.newLine}${this._opt.separatorField}${this._opt.separatorRepetition}${this._opt.separatorEscape}${this._opt.separatorSubComponent}`
-  }
+    this._delimiters = `${this._opt.newLine}${this._opt.separatorField}${this._opt.separatorComponent}${this._opt.separatorRepetition}${this._opt.separatorEscape}${this._opt.separatorSubComponent}`
 
-  addSegment (path: string): Segment {
-    if (typeof path === 'undefined') {
-      throw new Error('Missing segment path.')
+    if (this._delimiters === Message._defaultDelimiters) {
+      this._matchUnescape = Message._defaultMatchUnescape;
+      this._matchEscape = Message._defaultMatchEscape;
+    } else {
+      this._matchUnescape = Message._makeMatchUnescape(this._delimiters);
+      this._matchEscape = Message._makeMatchEscape(this._delimiters);
     }
-    const preparedPath = this.preparePath(path)
-    if (preparedPath.length !== 1) {
-      throw new Error("Invalid segment path '" + path + "'.")
-    }
-    return this.addChild(preparedPath[0]) as Segment
+
   }
 
-  async createHeader<T>(specification: T): Promise<void> {
-    try {
-      const specs = await this._opt.specification.checkMSH(specification)
+  /**
+   * @internal
+   * @since 1.0.0
+   * @param delimiters
+   * @private
+   */
+  private static _makeMatchEscape(delimiters: string): RegExp {
 
-      if (typeof specs.msh_1 !== 'undefined') {
-        this._opt.separatorField = specs.msh_1
-      }
+    let sequences = [
+      Util.escapeForRegExp(delimiters[Delimiters.Escape]),
+      Util.escapeForRegExp(delimiters[Delimiters.Field]),
+      Util.escapeForRegExp(delimiters[Delimiters.Repetition]),
+      Util.escapeForRegExp(delimiters[Delimiters.Component]),
+      Util.escapeForRegExp(delimiters[Delimiters.SubComponent]),
+    ];
 
-      if (typeof specs.msh_2 !== 'undefined') {
-        this._delimiters = `${this._opt.newLine}${specs.msh_2}`
-      }
-
-      const segment = this.addSegment('MSH')
-      segment.set('MSH.1', typeof specs.msh_1 !== 'undefined' ? specs.msh_1 : this._opt.separatorField)
-      segment.set('MSH.2', typeof specs.msh_2 !== 'undefined' ? specs.msh_2 : `${typeof specs.msh_1 !== 'undefined' ? specs.msh_1 : this._opt.separatorField}${this._opt.separatorRepetition}${this._opt.separatorEscape}${this._opt.separatorSubComponent}`)
-      segment.set('MSH.7', typeof specs.msh_7 !== 'undefined' ? specs.msh_7 : createDateTime())
-      segment.set('MSH.9').set('1', specs.msh_9_1).set('2', specs.msh_9_2).set('3', specs.msh_9_3)
-    } catch (e: any) {
-      throw new Error(e.message)
-    }
+    return new RegExp(sequences.join("|"), "g");
   }
 
-  protected pathCore (): string[] {
-    // the message has an empty path
-    return []
+  /**
+   * @internal
+   * @since 1.0.0
+   * @param delimiters
+   * @private
+   */
+  private static _makeMatchUnescape(delimiters: string): RegExp {
+    // setup regular expression for matching escape sequences, see http://www.hl7standards.com/blog/2006/11/02/hl7-escape-sequences/
+    let matchEscape = Util.escapeForRegExp(delimiters[Delimiters.Escape]);
+    return new RegExp([matchEscape,"[^", matchEscape, "]*", matchEscape].join(""), "g");
   }
 
-  protected createChild (text: string, _index: number): Node {
-    // make sure to remove any \n that might follow the \r
-    return new Segment(this, text.trim())
-  }
 
-  get delimiters (): string {
-    return this._delimiters
-  }
 }

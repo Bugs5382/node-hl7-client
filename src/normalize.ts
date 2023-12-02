@@ -1,7 +1,8 @@
 import { TcpSocketConnectOpts } from 'node:net'
 import type { ConnectionOptions as TLSOptions } from 'node:tls'
 import { HL7_2_7 } from './specification/2.7.js'
-import { assertNumber, validIPv4, validIPv6 } from './utils.js'
+import {MSH} from "./specification/specification";
+import * as Util from './utils.js'
 
 const DEFAULT_CLIENT_OPTS = {
   acquireTimeout: 20000,
@@ -9,13 +10,14 @@ const DEFAULT_CLIENT_OPTS = {
 }
 
 const DEFAULT_CLIENT_BUILDER_OPTS = {
-  specification: new HL7_2_7(),
   newLine: '\r',
+  separatorComponent: '^',
+  separatorEscape: `\\`,
   separatorField: '|',
   separatorRepetition: '~',
-  separatorComponent: '^',
   separatorSubComponent: '&',
-  separatorEscape: '\\'
+  specification: new HL7_2_7(),
+  text: ""
 }
 
 export interface ParserProcessRawData {
@@ -66,32 +68,62 @@ export interface ClientListenerOptions {
   port: number
 }
 
+/**
+ * Client Builder Options
+ * @description Used to specific default paramaters around building an HL7 message if that is
+ * so desired.
+ * It also sets up checking of input values to make sure they match up to the proper
+ * HL7 specification.
+ * @since 1.0.0
+ */
 export interface ClientBuilderOptions {
-  /** The HL7 spec we are going to be creating. This will be formatted into the MSH header by default.
-   * @default 2.7 */
-  specification: any
+  /**
+   * MSH Header Options
+   * @since 1.0.0
+   */
+  mshHeader?: MSH
   /** At the end of each line, add this as the new line character.
+   * @since 1.0.0
    * @default \r */
   newLine?: string
-  /** */
-  separatorField?: string
-  /** */
-  separatorRepetition?: string
-  /** */
+  /** The character used to separate different components.
+   * @since 1.0.0
+   * @default ^ */
   separatorComponent?: string
-  /** */
-  separatorSubComponent?: string
-  /** */
+  /** The character used to escape characters that need it in order for the computer to interpret the string correctly.
+   * @since 1.0.0
+   * @default \\ */
   separatorEscape?: string
+  /** The character used for separating fields.
+   * @since 1.0.0
+   * @default | */
+  separatorField?: string
+  /** The character used for repetition field/values pairs.
+   * @since 1.0.0
+   * @default ~ */
+  separatorRepetition?: string
+  /** The character used to have subcomponents seperated.
+   * @since 1.0.0
+   * @default & */
+  separatorSubComponent?: string
+  /** The HL7 spec we are going to be creating.
+   * This will be formatted into the MSH header by default.
+   * @since 1.0.0
+   * @default 2.7 via class new HL7_2_7() */
+  specification?: any
+  /** The HL7 string that we are going to parse.
+   * @default "" */
+  text: string;
 }
 
 export interface ClientBuilderBatchOptions extends ClientBuilderOptions {
   /** */
-  comment?: string
+  batchHeader?: any;
+}
+
+export interface ClientBuilderFileOptions extends ClientBuilderOptions {
   /** */
-  footerComment?: string
-  /** */
-  headerComment?: string
+  fileHeader?: any;
 }
 
 type ValidatedClientKeys =
@@ -133,17 +165,17 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
   if (typeof props.hostname !== 'string' && props.ipv4 === false && props.ipv6 === false) {
     throw new Error('hostname is not valid string.')
   } else if (typeof props.hostname === 'string' && props.ipv4 === true && props.ipv6 === false) {
-    if (!validIPv4(props.hostname)) {
+    if (!Util.validIPv4(props.hostname)) {
       throw new Error('hostname is not a valid IPv4 address.')
     }
   } else if (typeof props.hostname === 'string' && props.ipv4 === false && props.ipv6 === true) {
-    if (!validIPv6(props.hostname)) {
+    if (!Util.validIPv6(props.hostname)) {
       throw new Error('hostname is not a valid IPv6 address.')
     }
   }
 
-  assertNumber(props, 'acquireTimeout', 0)
-  assertNumber(props, 'connectionTimeout', 0)
+  Util.assertNumber(props, 'acquireTimeout', 0)
+  Util.assertNumber(props, 'connectionTimeout', 0)
 
   if (props.tls === true) {
     props.tls = {}
@@ -155,6 +187,12 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
 export function normalizedClientBuilderOptions (raw?: ClientBuilderOptions): ClientBuilderOptions {
   const props = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
+  if (typeof props.mshHeader == 'undefined' && props.text !== '') {
+    throw new Error('mshHeader must be set if no HL7 message is being passed.')
+  } else if (props.text.slice(0, 3) !== "MSH") {
+    throw new Error("text must begin with the MSH segment.");
+  }
+
   if ((typeof props.newLine !== 'undefined' && props.newLine === '\\r') || props.newLine === '\\n') {
     throw new Error('newLine must be \r or \n')
   }
@@ -165,12 +203,32 @@ export function normalizedClientBuilderOptions (raw?: ClientBuilderOptions): Cli
 export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderBatchOptions): ClientBuilderBatchOptions {
   const props = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
+  if (typeof props.batchHeader == 'undefined' && props.text !== '') {
+    throw new Error('batchHeader must be set if no HL7 message is being passed.')
+  } else if (typeof props.batchHeader != 'undefined' && typeof props.mshHeader == 'undefined' && props.text !== '' ) {
+    throw new Error('batchHeader and mshHeader must be set if no HL7 message is being passed.')
+  } else if (props.text.slice(0, 3) !== "BHS") {
+    throw new Error("text must begin with the BHS segment.");
+  }
+
   if ((typeof props.newLine !== 'undefined' && props.newLine === '\\r') || props.newLine === '\\n') {
     throw new Error('newLine must be \r or \n')
   }
 
-  if ((typeof props.comment !== 'undefined') && (typeof props.headerComment !== 'undefined') && (typeof props.footerComment !== 'undefined')) {
-    throw new Error('comment must be undefined if headerComment and footerComment are being set.')
+  return props
+}
+
+export function normalizedClientFileBuilderOptions (raw?: ClientBuilderFileOptions): ClientBuilderFileOptions {
+  const props = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
+
+  if (typeof props.fileHeader == 'undefined' && props.text !== '') {
+    throw new Error('fileHeader must be set if no HL7 message is being passed.')
+  } else if (props.text.slice(0, 3) !== "FHS") {
+    throw new Error("text must begin with the FHS segment.");
+  }
+
+  if ((typeof props.newLine !== 'undefined' && props.newLine === '\\r') || props.newLine === '\\n') {
+    throw new Error('newLine must be \r or \n')
   }
 
   return props
@@ -188,9 +246,9 @@ export function normalizeClientListenerOptions (raw?: ClientListenerOptions): Va
     throw new Error('port is not valid number.')
   }
 
-  assertNumber(props, 'acquireTimeout', 0)
-  assertNumber(props, 'connectionTimeout', 0)
-  assertNumber(props, 'port', 0, 65353)
+  Util.assertNumber(props, 'acquireTimeout', 0)
+  Util.assertNumber(props, 'connectionTimeout', 0)
+  Util.assertNumber(props, 'port', 0, 65353)
 
   return props
 }
