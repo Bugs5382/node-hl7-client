@@ -1,51 +1,59 @@
-import Delimiters from "./delimiters";
-import Message from "./message";
-import Node from "./node";
+import {HL7FatalError} from "./exception";
+import {isNumber, isString} from "./utils";
+import * as Util from "./utils";
+import {Delimiters} from "./decorators/enum/delimiters";
+import { Node } from "./decorators/interfaces/node";
 import EmptyNode from "./emptyNode";
-import * as Util from "./util";
+import {Message} from "./message";
 
 export default class NodeBase implements Node {
 
     protected parent: NodeBase;
 
     private _name: string;
-    private _text: string;
-    private _delimiter: Delimiters;
+    private _text: string | null;
+    private readonly _delimiter: Delimiters | undefined;
     private _delimiterText: string;
     private _children: Node[];
-    private _message: Message;
+    private _message: Message | undefined;
     private _path: string[];
     private _dirty: boolean;
 
-    constructor(parent: NodeBase, text: string = null, delimiter: Delimiters = undefined) {
+    constructor(parent: NodeBase, text: string | null = null, delimiter: Delimiters | undefined = undefined) {
 
-        this.parent = parent;
-        this._text = text;
-        this._delimiter = delimiter;
-        this._dirty = false;
+        this.parent = parent
+
+        this._children = []
+        this._delimiter = delimiter
+        this._delimiterText = ""
+        this._dirty = false
+        this._message = undefined
+        this._name = ""
+        this._path = []
+        this._text = text
     }
+
 
     static empty = new EmptyNode();
 
     get(path: string | number): Node {
 
-        var ret: Node;
+        let ret: any;
 
-        if(typeof path === "number") {
-            if(path >= 0 && path < this.children.length) {
+        if (typeof path === "number") {
+            if (path >= 0 && path < this.children.length) {
                  ret = this.children[path];
             }
-        }
-        else if(typeof path === "string") {
+        } else if (path !== "") {
             ret = this.read(this.preparePath(path));
         }
 
-        return ret || NodeBase.empty;
+        return ret || NodeBase.empty as Node;
     }
 
     set(path: string | number, value?: any): Node {
 
-        // If there is only one argument we make sure the path exists and return it
+        /** If there is only one argument, we make sure the path exists and return it. */
         if (arguments.length == 1) {
             return this.ensure(path);
         }
@@ -53,25 +61,24 @@ export default class NodeBase implements Node {
         if (typeof path === "string") {
 
             if (Array.isArray(value)) {
-                // If the value is an array, write each item in the array using the index of the item as an additional
-                // step in the path.
-                for (var i = 0, l = value.length; i < l; i++) {
+                /** If the value is an array, write each item in the array using the index of the item as an additional
+                step in the path. */
+                for (let i = 0, l = value.length; i < l; i++) {
                     this.set(path + "." + (i + 1), value[i]);
                 }
-            }
-            else {
+            } else {
                 this.write(this.preparePath(path), this.prepareValue(value));
             }
 
             return this;
         }
-        else if (typeof path === "number") {
+        else if (isNumber(path)) {
 
             if (Array.isArray(value)) {
-                // If the value is an array, write each item in the array using the index of the item as an additional
-                // step in the path.
-                var child = this.ensure(path);
-                for (var i = 0, l = value.length; i < l; i++) {
+                /** If the value is an array, write each item in the array using the index of the item as an additional
+                step in the path. */
+                let child = this.ensure(path);
+                for (let i = 0, l = value.length; i < l; i++) {
                     child.set(i, value[i]);
                 }
                 return this;
@@ -83,7 +90,7 @@ export default class NodeBase implements Node {
             return this;
         }
 
-        throw new Error("Path must be a string or number.");
+        throw new HL7FatalError(500, "Path must be a string or number.");
     }
 
     get name(): string {
@@ -95,36 +102,48 @@ export default class NodeBase implements Node {
         return this.children.length;
     }
 
+    toDate(): Date {
+        throw new Error("Method not implemented.");
+    }
+    toInteger(): number {
+        throw new Error("Method not implemented.");
+    }
+    toFloat(): number {
+        throw new Error("Method not implemented.");
+    }
+    toBoolean(): boolean {
+        throw new Error("Method not implemented.");
+    }
+
     toString(): string {
         return this.toRaw();
     }
 
     toRaw(): string {
-        if(!this._dirty) {
-            return this._text;
+        if (!this._dirty) {
+            return this._text || "";
         }
         this._dirty = false;
         return this._text = this.children.map(x => x.toRaw()).join(this.delimiter);
     }
 
     toArray(): Node[] {
-        // return shallow clone of children
-        return [].concat(this.children);
+        // @review This has been changed from: return [].concat(this.children);
+        return this.children;
     }
 
     forEach(callback: (value: Node, index: number) => void): void {
-
-        var children = this.children;
-        for(var i = 0, l = children.length; i < l; i++) {
+        let children = this.children;
+        for(let i = 0, l = children.length; i < l; i++) {
             callback(children[i], i);
         }
     }
 
     exists(path: string | number): boolean {
-
-        var value = this.get(path);
-        if(value == null) return false;
-
+        let value = this.get(path);
+        if (value == null) {
+            return false;
+        }
         return !value.isEmpty();
     }
 
@@ -132,39 +151,21 @@ export default class NodeBase implements Node {
         return this.children.length == 0;
     }
 
-    toDate(): Date {
-        return null;
-    }
-
-    toInteger(): number {
-        return null;
-    }
-
-    toFloat(): number {
-        return null;
-    }
-
-    toBoolean(): boolean {
-        return null;
-    }
-
     protected ensure(path: string | number): Node {
-
-        var ret = this.get(path);
+        let ret = this.get(path);
         if (ret != NodeBase.empty) {
             return ret;
         }
-
-        if(typeof path === "number") {
+        if (typeof path === "number") {
             return this.setChild(this.createChild("", path), path);
-        }
-        else if(typeof path === "string") {
+        } else if (isString(path)) {
             return this.write(this.preparePath(path), "");
         }
+        throw new HL7FatalError(500, "There seems to be a problem.")
     }
 
     protected preparePath(path: string): string[] {
-        var parts = path.split(".");
+        let parts = path.split(".");
         if(parts[0] == "") {
             parts.shift();
             parts = this.path.concat(parts);
@@ -206,9 +207,8 @@ export default class NodeBase implements Node {
         return this._message = this.parent ? this.parent.message : <any>this;
     }
 
-    read(path: string[]): Node {
-
-        throw new Error("Not implemented");
+    read(_path: string[]): Node {
+        throw new Error("Method not implemented.");
     }
 
     write(path: string[], value: string): Node {
@@ -216,13 +216,13 @@ export default class NodeBase implements Node {
         return this.writeCore(path, value == null ? "" : value);
     }
 
-    protected writeCore(path: string[], value: string): Node {
-        throw new Error("Not implemented.");
+    protected writeCore(_path: string[], _value: string): Node {
+        throw new Error("Method not implemented.");
     }
 
     protected writeAtIndex(path: string[], value: string, index: number, emptyValue = ""): Node {
 
-        var child: Node;
+        let child: Node;
 
         if(path.length == 0) {
             child = this.createChild(value || emptyValue, index);
@@ -254,67 +254,61 @@ export default class NodeBase implements Node {
     }
 
     protected pathCore(): string[] {
-
-        throw new Error("Not implemented");
+        throw new Error("Method not implemented.");
     }
 
     protected get delimiter(): string {
-
-        if(this._delimiterText) return this._delimiterText;
-        return this._delimiterText = this.message.delimiters[this._delimiter];
+        if (this._delimiterText) {
+            return this._delimiterText;
+        }
+        if (typeof this._delimiter == 'undefined') {
+            throw new HL7FatalError(500, "this._delimiter is somehow undefined.")
+        }
+        this._delimiterText = this.message.delimiters[this._delimiter];
+        return this._delimiterText
     }
 
     protected get children(): Node[] {
-
-        if(!this._children) {
-            var parts = this._text.split(this.delimiter);
-            var children = new Array(parts.length);
-            for (var i = 0, l = parts.length; i < l; i++) {
+        if (this._text !== null && !this._children) {
+            let parts = this._text.split(this.delimiter);
+            let children = new Array(parts.length);
+            for (let i = 0, l = parts.length; i < l; i++) {
                 children[i] = this.createChild(parts[i], i);
             }
             this._children = children;
         }
-
         return this._children;
     }
 
     protected addChild(text: string): Node {
-
         this.setDirty();
-        var child = this.createChild(text, this.children.length);
+        let child = this.createChild(text, this.children.length);
         this.children.push(child);
         return child;
     }
 
-    protected createChild(text: string, index: number): Node {
-
-        throw new Error("Not implemented");
+    protected createChild(_text: string, _index: number): Node {
+        throw new Error("Method not implemented.");
     }
 
     protected setChild(child: Node, index: number): Node {
-
         this.setDirty();
-
-        var children = this.children;
-
-        // if we already have a child at that index then replace it
-        if(index < children.length) {
+        let children = this.children;
+        /** if we already have a child at that index, then replace it. */
+        if (index < children.length) {
             children[index] = child;
             return child;
         }
-
-        // otherwise, fill the @children array with empty children for any indexes between the end of the list
-        // and the specified index.
-        for(var i = children.length; i < index; i++) {
+        /** otherwise, fill the @children array with empty children for any indexes between the end of the list
+         and the specified index. */
+        for (let i = children.length; i < index; i++) {
             children.push(this.createChild("", i));
         }
-
         children.push(child);
         return child;
     }
 
     protected setDirty(): void {
-
         if (!this._dirty) {
             this._dirty = true;
             if (this.parent) {
@@ -324,35 +318,32 @@ export default class NodeBase implements Node {
     }
 
     private _isSubPath(other: string[]): boolean {
-
-        if(this.path.length >= other.length) return false;
-
-        var path = this.path;
-        for(var i = 0, l = path.length; i < l; i++) {
-            if(path[i] != other[i]) return false;
+        if (this.path.length >= other.length) {
+            return false;
         }
-
+        let path = this.path;
+        for (let i = 0, l = path.length; i < l; i++) {
+            if (path[i] != other[i]) {
+                return false;
+            }
+        }
         return true;
     }
 
     private _remainderOf(other: string[]): string[] {
-
-        var path = this.path;
+        let path = this.path;
         return other.slice(path.length);
     }
 
     private _formatDateTime(date: Date): string {
-
         // check if there is a time component
-        if(date.getHours() != 0 || date.getMinutes() != 0 || date.getSeconds() != 0 || date.getMilliseconds() != 0) {
+        if (date.getHours() != 0 || date.getMinutes() != 0 || date.getSeconds() != 0 || date.getMilliseconds() != 0) {
             return this._formatDate(date) + Util.pad(date.getHours(), 2) + Util.pad(date.getMinutes(), 2) + Util.pad(date.getSeconds(), 2);
         }
-
         return this._formatDate(date);
     }
 
     private _formatDate(date: Date): string {
-
         return date.getFullYear().toString() + Util.pad(date.getMonth() + 1, 2) + Util.pad(date.getDate(), 2);
     }
 }
