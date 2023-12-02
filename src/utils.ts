@@ -9,6 +9,15 @@ export function assertNumber (props: Record<string, number>, name: string, min: 
 }
 
 /** @internal */
+export function isNumber(value: string | number): boolean {
+  value = typeof value === 'string' ? parseInt(value) : value
+  return isNaN(value) || !Number.isFinite(value);
+}
+
+/** @internal */
+export const isString = (value: any) => typeof value === 'string';
+
+/** @internal */
 export function validIPv4 (ip: string): boolean {
   const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/
   if (ipv4Regex.test(ip)) {
