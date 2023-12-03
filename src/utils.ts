@@ -11,11 +11,11 @@ export function assertNumber (props: Record<string, number>, name: string, min: 
 /** @internal */
 export const isNumber = (value: string | number): boolean => {
   value = typeof value === 'string' ? parseInt(value) : value
-  return isNaN(value) || !Number.isFinite(value);
+  return isNaN(value) || !Number.isFinite(value)
 }
 
 /** @internal */
-export const isString = (value: any) => typeof value === 'string';
+export const isString = (value: any): boolean => typeof value === 'string'
 
 /**
  * Check if valid IPv4 Address Format
@@ -53,7 +53,7 @@ export const validIPv6 = (ip: string): boolean => {
  * const date = Util.createDate(new Date())
  * // date = 2023120305123434 or YYYYMMDDHHMMSS
  */
-export const createDate = (date: Date) => {
+export const createDate = (date: Date): string => {
   return `${date.getFullYear()}${pad(date.getMonth() + 1, 2)}${pad(date.getDate(), 2)}${pad(date.getHours(), 2)}${pad(date.getMinutes(), 2)}${pad(date.getSeconds(), 2)}`
 }
 

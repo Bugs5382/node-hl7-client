@@ -1,6 +1,6 @@
-import {HL7FatalError} from "./exception";
-import {NodeBase} from "./nodeBase";
-import {ValueNode} from "./valueNode";
+import { HL7FatalError } from './exception.js'
+import {NodeBase} from "./nodeBase.js";
+import { ValueNode } from './valueNode.js'
 
 /**
  * Sub Components
@@ -23,18 +23,18 @@ export class SubComponent extends ValueNode {
      * Get Value as String
      * @since 1.0.0
      */
-    toString(): string {
-        if (typeof this.message !== 'undefined') {
-            return this.message.unescape(this.toRaw());
-        }
-        throw new HL7FatalError(500, "this.message is undefined. Unable to continue.")
+  toString (): string {
+    if (typeof this.message !== 'undefined') {
+      return this.message.unescape(this.toRaw())
     }
+    throw new HL7FatalError(500, 'this.message is undefined. Unable to continue.')
+  }
 
-    /**
+  /**
      * Check to see if the value is empty.
      * @since 1.0.0
      */
-    isEmpty(): boolean {
-        return !this.toString();
-    }
+  isEmpty (): boolean {
+    return !this.toString()
+  }
 }
