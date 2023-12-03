@@ -8,5 +8,13 @@
   "name": "Node HL7 Client",
   "navigationLinks": {
     "GitHub": "https://github.com/Bugs5382/node-hl7-client"
+  },
+  "visibilityFilters": {
+    "protected": true,
+    "private": false,
+    "inherited": false,
+    "external": true,
+    "@alpha": false,
+    "@beta": false
   }
 }
