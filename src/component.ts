@@ -46,6 +46,7 @@ export class Component extends ValueNode {
      * @since 1.0.0
      * @param text
      * @param index
+     * @see {@link SubComponent}
      * @protected
      */
     protected createChild(text: string, index: number): Node {
