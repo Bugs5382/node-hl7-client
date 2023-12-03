@@ -1,3 +1,4 @@
+/** @internal */
 export interface Node {
   name: string;
   length: number;
