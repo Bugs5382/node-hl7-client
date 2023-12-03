@@ -1,37 +1,38 @@
-import Node from "./node";
+import { Node } from "./decorators/interfaces/node.js";
 
-export default class EmptyNode implements Node {
+/** @internal */
+export class EmptyNode implements Node {
 
     get name(): string {
-        return null;
+        throw new Error("Not implemented");
     }
 
     get length(): number {
         return 0;
     }
 
-    get(path: string | number): Node {
+    get(_path: string | number): Node {
         return this;
     }
 
-    set(path: string | number, value?: any): Node {
+    set(_path: string | number, _value?: any): Node {
         return this;
     }
 
-    exists(path: string | number): boolean {
+    exists(_path: string | number): boolean {
         return false;
     }
 
-    forEach(callback: (value: Node, index: number) => void): void {
-
+    forEach(_callback: (value: Node, index: number) => void): void {
+        throw new Error("Not implemented");
     }
 
     toString(): string {
-        return null;
+        throw new Error("Not implemented");
     }
 
     toRaw(): string {
-        return null;
+        throw new Error("Not implemented");
     }
 
     toArray(): Node[] {
@@ -39,30 +40,30 @@ export default class EmptyNode implements Node {
     }
 
     isEmpty(): boolean {
-        return true;
+        throw new Error("Not implemented");
     }
 
     toDate(): Date {
-        return null;
+        throw new Error("Not implemented");
     }
 
     toInteger(): number {
-        return null;
+        throw new Error("Not implemented");
     }
 
     toFloat(): number {
-        return null;
+        throw new Error("Not implemented");
     }
 
     toBoolean(): boolean {
-        return null;
+        throw new Error("Not implemented");
     }
 
-    read(path: string[]): Node {
-        return null;
+    read(_path: string[]): Node {
+        throw new Error("Not implemented");
     }
 
-    write(path: string[], value: string): Node {
+    write(_path: string[], _value: string): Node {
         return this;
     }
 
