@@ -62,15 +62,17 @@ export class Message extends NodeBase {
       this._matchEscape = Message._makeMatchEscape(this._delimiters)
     }
 
-    if (opt.text === '' && this._opt.specification.checkMSH(this._opt.mshHeader)) {
-      this.set('MSH.1', `${this._opt.separatorField}`)
-      this.set('MSH.2', `${this._opt.separatorComponent}${this._opt.separatorRepetition}${this._opt.separatorEscape}${this._opt.separatorSubComponent}`)
-      this.set('MSH.7', Util.createDate(new Date()))
-      this.set('MSH.9.1', this._opt.mshHeader?.msh_9.msh_9_1)
-      this.set('MSH.9.2', this._opt.mshHeader?.msh_9.msh_9_2)
-      this.set('MSH.9.3', `${this._opt.mshHeader?.msh_9.msh_9_1}_${this._opt.mshHeader?.msh_9.msh_9_2}`)
-      this.set('MSH.10', this._opt.mshHeader?.msh_10)
-      this.set('MSH.12', this._opt.specification.name)
+    if (opt.text === '') {
+      if (this._opt.specification.checkMSH(this._opt.mshHeader) === true) {
+        this.set('MSH.1', `${this._opt.separatorField}`)
+        this.set('MSH.2', `${this._opt.separatorComponent}${this._opt.separatorRepetition}${this._opt.separatorEscape}${this._opt.separatorSubComponent}`)
+        this.set('MSH.7', Util.createDate(new Date()))
+        this.set('MSH.9.1', this._opt.mshHeader?.msh_9.msh_9_1)
+        this.set('MSH.9.2', this._opt.mshHeader?.msh_9.msh_9_2)
+        this.set('MSH.9.3', `${this._opt.mshHeader?.msh_9.msh_9_1}_${this._opt.mshHeader?.msh_9.msh_9_2}`)
+        this.set('MSH.10', this._opt.mshHeader?.msh_10)
+        this.set('MSH.12', this._opt.specification.name)
+      }
     } else {
       throw new HL7FatalError(500, 'Unable to fully build a new HL7 message.')
     }
@@ -187,12 +189,12 @@ export class Message extends NodeBase {
           break
       }
 
-      if (ch) {
+      if (typeof ch !== 'undefined') {
         const escape = this._delimiters[Delimiters.Escape]
-        return escape + ch + escape
+        return `${escape}${ch}${escape}`
       }
 
-      throw new Error("Escape sequence for '" + match + "' is not known.")
+      throw new Error(`Escape sequence for ${match} is not known.`)
     })
   }
 
@@ -216,7 +218,7 @@ export class Message extends NodeBase {
    *
    */
   addSegment (path: string): Segment {
-    if (!path) {
+    if (typeof path === 'undefined') {
       throw new Error('Missing segment path.')
     }
 
@@ -247,7 +249,7 @@ export class Message extends NodeBase {
         throw new Error('We have an error Huston.')
       }
       const segment = this._getFirstSegment(segmentName)
-      if (segment) {
+      if (typeof segment !== 'undefined') {
         return segment.read(path)
       }
     }
