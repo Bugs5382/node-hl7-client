@@ -1,72 +1,82 @@
-import Node from "./node";
-import NodeBase from './nodeBase';
-import Delimiters from "./delimiters";
-import Field from "./field";
-import SubComponent from "./subComponent";
+import {Delimiters} from "./decorators/enum/delimiters.js";
+import {HL7FatalError} from "./exception.js";
+import {Field} from "./field.js";
+import {NodeBase} from "./nodeBase.js";
+import {Node} from './decorators/interfaces/node.js'
+import * as Util from "./utils.js";
 
-export default class Segment extends NodeBase {
+/**
+ * Segment Class
+ * @since 1.0.0
+ * @extends NodeBase
+ */
+export class Segment extends NodeBase {
 
-    private _segmentName: string;
+    /** @internal */
+    private readonly _segmentName: string;
 
+    /**
+     * Create a Segment
+     * @since 1.0.0
+     * @param parent
+     * @param text
+     */
     constructor(parent: NodeBase, text: string) {
         super(parent, text, Delimiters.Field);
-
-        if (typeof text !== "string" || text.length == 0) {
+        if (!Util.isString(text) || text.length == 0) {
             throw new Error("Segment must have a name.");
         }
-
         this._segmentName = text.slice(0, 3);
     }
 
+    /**
+     * Read Segment
+     * @since 1.0.0
+     * @param path
+     */
     read(path: string[]): Node {
-
-        var index = parseInt(path.shift());
-        if(index < 1) return null;
-
-        // TODO: MSH already parses the index == 2. Instead of doing this here, do it in "children" accessor to add in the index == 1
-        // Special handling for MSH. In the MSH segment, field 1 is the field separator, field 2 is the encoding characters
-        // then the rest of the fields start with 3.
-        if(this.path[0] == "MSH") {
-            if(index == 1) {
-                return new SubComponent(this, "1", this.message.delimiters[Delimiters.Field]);
-            }
-            else {
-                index--;
-            }
+        let index = parseInt(<string>path.shift());
+        if (index < 1) {
+          throw new HL7FatalError(500, "index must be 1 or greater.")
         }
 
-        // TODO: Handle MSH for writing
-
-        var field = this.children[index];
+        let field = this.children[index];
         return field && path.length > 0 ? field.read(path) : field;
     }
 
+    /**
+     * Write Segment Core
+     * @since 1.0.0
+     * @param path
+     * @param value
+     * @protected
+     */
     protected writeCore(path: string[], value: string): Node {
-
-        var index = parseInt(path.shift());
-        if(index < 1) return;
-
-        // Special handling for MSH. In the MSH segment, field 1 is the field separator, field 2 is the encoding characters
-        // then the rest of the fields start with 3.
-        if(this.path[0] == "MSH") {
-            if (index == 1 || index == 2) {
-                throw new Error("You cannot assign the field separator or encoding characters");
-            }
-            else {
-                index--;
-            }
+        let index = parseInt(<string>path.shift());
+        if (index < 1) {
+            throw new Error("Can't have an index < 1")
         }
-
         return this.writeAtIndex(path, value, index);
     }
 
+    /**
+     * Path Core
+     * @since 1.0.0
+     * @protected
+     */
     protected pathCore(): string[] {
-
         return [this._segmentName];
     }
 
+    /**
+     * Create a Field from a Segment
+     * @since 1.0.0
+     * @see {@link Field}
+     * @param text
+     * @param index
+     * @protected
+     */
     protected createChild(text: string, index: number): Node {
-
         return new Field(this, index.toString(), text);
     }
 }
