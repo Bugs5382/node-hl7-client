@@ -25,17 +25,27 @@
     "pack": "npm run clean && npm run test:ci && npm run build && npm pack",
     "prepublishOnly": "npm run clean && npm run build",
     "test": "jest",
+    "test:watch": "jest --watch",
     "test:ci": "jest --ci",
     "test:coverage": "jest --coverage",
     "typedoc": "typedoc",
     "typedoc:watch": "typedoc -watch",
     "semantic-release": "semantic-release",
-    "semantic-release:dryRun": "semantic-release --dry-run"
+    "semantic-release:dryRun": "semantic-release --dry-run",
+    "update": "npx npm-check-updates -u && npm install && npm run test"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Bugs5382/node-hl7-client"
   },
+  "keywords": [
+    "HL7",
+    "HL7 Parser",
+    "HL7 Client",
+    "HL7 Builder",
+    "HL7 Speffications",
+    "HL7 Validation"
+  ],
   "author": "Shane Froebel",
   "license": "MIT",
   "bugs": {
@@ -47,12 +57,13 @@
     "@semantic-release/commit-analyzer": "^11.1.0",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/release-notes-generator": "^12.1.0",
-    "@types/jest": "^29.5.9",
-    "@types/node": "^20.9.3",
-    "@typescript-eslint/parser": "^6.12.0",
+    "@types/jest": "^29.5.10",
+    "@types/node": "^20.10.2",
+    "@typescript-eslint/parser": "^6.13.1",
     "jest": "^29.7.0",
     "jest-ts-webcompat-resolver": "^1.0.0",
     "node-hl7-server": "file:../node-hl7-server",
+    "npm-check-updates": "^16.14.11",
     "pre-commit": "^1.2.2",
     "semantic-release": "^22.0.8",
     "snazzy": "^9.0.0",
@@ -60,7 +71,7 @@
     "ts-node": "^10.9.1",
     "ts-standard": "^12.0.2",
     "tsd": "^0.29.0",
-    "typedoc": "^0.25.3",
-    "typescript": "5.2.2"
+    "typedoc": "^0.25.4",
+    "typescript": "5.3.2"
   }
 }
