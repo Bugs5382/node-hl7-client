@@ -1,17 +1,21 @@
-import {HL7FatalError} from "./exception";
-import {isNumber, isString} from "./utils";
-import * as Util from "./utils";
-import {Delimiters} from "./decorators/enum/delimiters";
-import { Node } from "./decorators/interfaces/node";
-import EmptyNode from "./emptyNode";
-import {Message} from "./message";
+import {EmptyNode} from "./emptyNode.js";
+import {HL7FatalError} from "./exception.js";
+import * as Util from "./utils.js";
+import {Delimiters} from "./decorators/enum/delimiters.js";
+import { Node } from "./decorators/interfaces/node.js";
+import {Message} from "./message.js";
 
-export default class NodeBase implements Node {
+/**
+ * Node Base
+ * @since 1.0.0
+ * @internal
+ */
+export class NodeBase implements Node {
 
-    protected parent: NodeBase;
+    protected parent: NodeBase | null;
 
     private _name: string;
-    private _text: string | null;
+    private _text: string;
     private readonly _delimiter: Delimiters | undefined;
     private _delimiterText: string;
     private _children: Node[];
@@ -19,7 +23,7 @@ export default class NodeBase implements Node {
     private _path: string[];
     private _dirty: boolean;
 
-    constructor(parent: NodeBase, text: string | null = null, delimiter: Delimiters | undefined = undefined) {
+    constructor(parent: NodeBase | null, text: string = "", delimiter: Delimiters | undefined = undefined) {
 
         this.parent = parent
 
@@ -71,8 +75,7 @@ export default class NodeBase implements Node {
             }
 
             return this;
-        }
-        else if (isNumber(path)) {
+        } else if (Util.isNumber(path)) {
 
             if (Array.isArray(value)) {
                 /** If the value is an array, write each item in the array using the index of the item as an additional
@@ -82,8 +85,7 @@ export default class NodeBase implements Node {
                     child.set(i, value[i]);
                 }
                 return this;
-            }
-            else {
+            } else {
                 this.setChild(this.createChild(this.prepareValue(value), path), path);
             }
 
@@ -158,7 +160,7 @@ export default class NodeBase implements Node {
         }
         if (typeof path === "number") {
             return this.setChild(this.createChild("", path), path);
-        } else if (isString(path)) {
+        } else if (Util.isString(path)) {
             return this.write(this.preparePath(path), "");
         }
         throw new HL7FatalError(500, "There seems to be a problem.")
@@ -166,12 +168,12 @@ export default class NodeBase implements Node {
 
     protected preparePath(path: string): string[] {
         let parts = path.split(".");
-        if(parts[0] == "") {
+        if (parts[0] == "") {
             parts.shift();
             parts = this.path.concat(parts);
         }
 
-        if(!this._isSubPath(parts)) {
+        if (!this._isSubPath(parts)) {
             throw new Error("'" + parts.toString() + "' is not a sub-path of '" + this.path.toString() + "'");
         }
 
@@ -183,7 +185,9 @@ export default class NodeBase implements Node {
         if(value == null) return "";
 
         if(typeof value === "string") {
-            return this.message.escape(value);
+            if (typeof this.message !== 'undefined') {
+                return this.message.escape(value);
+            }
         }
 
         if(typeof value === "number") {
@@ -201,10 +205,10 @@ export default class NodeBase implements Node {
         return value.toString();
     }
 
-    protected get message(): Message {
-
+    protected get message(): Message | undefined {
         if(this._message) return this._message;
-        return this._message = this.parent ? this.parent.message : <any>this;
+        this._message = this.parent ? this.parent.message : <any>this;
+        return this._message
     }
 
     read(_path: string[]): Node {
@@ -224,15 +228,13 @@ export default class NodeBase implements Node {
 
         let child: Node;
 
-        if(path.length == 0) {
+        if (path.length == 0) {
             child = this.createChild(value || emptyValue, index);
-        }
-        else {
+        } else {
             // check if we already have a child at that index
-            if(index < this.children.length) {
+            if (index < this.children.length) {
                 child = this.children[index];
-            }
-            else {
+            } else {
                 // if not, create a new one
                 child = this.createChild(emptyValue, index);
             }
@@ -240,7 +242,7 @@ export default class NodeBase implements Node {
 
         this.setChild(child, index);
 
-        if(path.length != 0) {
+        if (path.length != 0) {
             return child.write(path, value);
         }
 
@@ -248,7 +250,6 @@ export default class NodeBase implements Node {
     }
 
     get path(): string[] {
-
         if(this._path) return this._path;
         return this._path = this.pathCore();
     }
@@ -264,12 +265,17 @@ export default class NodeBase implements Node {
         if (typeof this._delimiter == 'undefined') {
             throw new HL7FatalError(500, "this._delimiter is somehow undefined.")
         }
+
+        if (typeof this.message == "undefined") {
+            throw new Error("this.message is not defined.")
+        }
+
         this._delimiterText = this.message.delimiters[this._delimiter];
         return this._delimiterText
     }
 
     protected get children(): Node[] {
-        if (this._text !== null && !this._children) {
+        if (this._text !== ''  && this._children.length === 0) {
             let parts = this._text.split(this.delimiter);
             let children = new Array(parts.length);
             for (let i = 0, l = parts.length; i < l; i++) {
@@ -280,9 +286,9 @@ export default class NodeBase implements Node {
         return this._children;
     }
 
-    protected addChild(text: string): Node {
+    protected addChild<T extends Node>(text: string): T {
         this.setDirty();
-        let child = this.createChild(text, this.children.length);
+        let child = <T>this.createChild(text, this.children.length);
         this.children.push(child);
         return child;
     }

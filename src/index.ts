@@ -10,12 +10,13 @@ import { Message } from './message.js'
 import { NodeBase } from './nodeBase.js'
 import { Parser, ParserPlan } from './parser.js'
 import { Segment } from './segment.js'
+import { SegmentList } from './segmentList.js'
 import { HL7_2_7 } from './specification/2.7.js'
 import { HL7_SPEC, HL7_SPEC_BASE } from './specification/specification.js'
 import { SubComponent } from './subComponent.js'
 
 export default Client
-export { Client, Listener, Parser, ParserPlan, Message, Delimiters, Segment, Component, SubComponent, Field, FieldRepetition, EmptyNode, NodeBase, Node }
+export { Client, Listener, Parser, ParserPlan, Message, Delimiters, Segment, SegmentList, Component, SubComponent, Field, FieldRepetition, EmptyNode, NodeBase, Node }
 
 /** HL7 Specs **/
 export type { MSH } from './specification/specification.js'

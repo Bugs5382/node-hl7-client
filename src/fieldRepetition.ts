@@ -1,9 +1,9 @@
-import {Component} from "./component";
-import {Delimiters} from "./decorators/enum/delimiters";
-import {Node} from  "./decorators/interfaces/node"
-import {HL7FatalError} from "./exception";
-import {NodeBase} from "./nodeBase";
-import {ValueNode} from "./valueNode";
+import {Component} from "./component.js";
+import {Delimiters} from "./decorators/enum/delimiters.js";
+import {Node} from  "./decorators/interfaces/node.js"
+import {HL7FatalError} from "./exception.js";
+import {NodeBase} from "./nodeBase.js";
+import {ValueNode} from "./valueNode.js";
 
 /**
  * Create a Field Repetition in an HL7 message segment
