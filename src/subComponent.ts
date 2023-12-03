@@ -1,5 +1,6 @@
+import * as Util from './utils'
 import { HL7FatalError } from './exception.js'
-import {NodeBase} from "./nodeBase.js";
+// import { NodeBase } from './nodeBase.js'
 import { ValueNode } from './valueNode.js'
 
 /**
@@ -8,18 +9,17 @@ import { ValueNode } from './valueNode.js'
  * @extends ValueNode
  */
 export class SubComponent extends ValueNode {
-
-    /**
+  /**
      * @since 1.0.0
      * @param parent
      * @param key
      * @param text
      */
-    constructor(parent: NodeBase, key: string, text: string) {
-        super(parent, key, text);
-    }
+  /* constructor (parent: NodeBase, key: string, text: string) {
+    super(parent, key, text)
+  } */
 
-    /**
+  /**
      * Get Value as String
      * @since 1.0.0
      */
@@ -35,6 +35,6 @@ export class SubComponent extends ValueNode {
      * @since 1.0.0
      */
   isEmpty (): boolean {
-    return !this.toString()
+    return !Util.isString(this.toString())
   }
 }
