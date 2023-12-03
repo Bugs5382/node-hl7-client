@@ -4,8 +4,6 @@ export interface HL7_MSH_MESSAGE_TYPE {
   msh_9_1: 'ACK' | 'ADR' | 'ADT'
   /** Trigger Event */
   msh_9_2: 'A01'
-  /** Message Structure */
-  msh_9_3: 'ADT_A01'
 }
 
 /** @internal */
