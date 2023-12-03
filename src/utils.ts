@@ -45,17 +45,25 @@ export const validIPv6 = (ip: string): boolean => {
   return false
 }
 
-export const createData = (date: Date) => {
+/**
+ * Create Date
+ * @since 1.0.0
+ * @param date
+ * @example
+ * const date = Util.createDate(new Date())
+ * // date = 2023120305123434 or YYYYMMDDHHMMSS
+ */
+export const createDate = (date: Date) => {
   return `${date.getFullYear()}${pad(date.getMonth() + 1, 2)}${pad(date.getDate(), 2)}${pad(date.getHours(), 2)}${pad(date.getMinutes(), 2)}${pad(date.getSeconds(), 2)}`
 }
 
 /**
  * Converts a number to a string-padded n characters.
  * From http://stackoverflow.com/questions/10073699/pad-a-number-with-leading-zeros-in-javascript.
+ * @since 1.0.0
  * @param n The number to convert to a string.
  * @param width The number of characters that should be in the resulting string.
  * @param z Optional. The character to use for padding. Defaults to '0'.
- * @since 1.0.0
  */
 export const pad = (n: number, width: number, z: string = '0'): string => {
   const s = n.toString()
@@ -65,8 +73,8 @@ export const pad = (n: number, width: number, z: string = '0'): string => {
 /**
  * Escape a string for use in a regular express.
  * From http://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript/3561711#3561711.
- * @param value The string to escape
  * @since 1.0.0
+ * @param value The string to escape
  */
 export const escapeForRegExp = (value: string): string => {
   return value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
@@ -74,8 +82,8 @@ export const escapeForRegExp = (value: string): string => {
 
 /**
  * Decode Hex String
- * @param value
  * @since 1.0.0
+ * @param value
  */
 export const decodeHexString = (value: string): string => {
   const result = new Array(value.length / 2)
