@@ -1,7 +1,7 @@
 import { TcpSocketConnectOpts } from 'node:net'
 import type { ConnectionOptions as TLSOptions } from 'node:tls'
 import { HL7_2_7 } from './specification/2.7.js'
-import {MSH} from "./specification/specification";
+import {MSH} from "./specification/specification.js";
 import * as Util from './utils.js'
 
 const DEFAULT_CLIENT_OPTS = {
@@ -113,7 +113,7 @@ export interface ClientBuilderOptions {
   specification?: any
   /** The HL7 string that we are going to parse.
    * @default "" */
-  text: string;
+  text?: string;
 }
 
 export interface ClientBuilderBatchOptions extends ClientBuilderOptions {
@@ -187,9 +187,9 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
 export function normalizedClientBuilderOptions (raw?: ClientBuilderOptions): ClientBuilderOptions {
   const props = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
-  if (typeof props.mshHeader == 'undefined' && props.text !== '') {
+  if (typeof props.mshHeader == 'undefined' && props.text == '') {
     throw new Error('mshHeader must be set if no HL7 message is being passed.')
-  } else if (props.text.slice(0, 3) !== "MSH") {
+  } else if (typeof props.mshHeader == 'undefined' && props.text.slice(0, 3) !== "MSH") {
     throw new Error("text must begin with the MSH segment.");
   }
 
