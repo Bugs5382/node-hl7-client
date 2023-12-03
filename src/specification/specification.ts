@@ -6,7 +6,7 @@ export type MSH = HL7_2_7_MSH
 /** @internal */
 export interface HL7_SPEC {
   /** Name of the HL7 Spec */
-  name: string;
+  name: string
   /** Check the MSH Header for this Specification */
   checkMSH: (options: MSH) => boolean
 }
@@ -14,7 +14,7 @@ export interface HL7_SPEC {
 /** @internal */
 export class HL7_SPEC_BASE implements HL7_SPEC {
   /** @internal */
-  name = ""
+  name = ''
 
   /**
    * Check MSH Header Properties

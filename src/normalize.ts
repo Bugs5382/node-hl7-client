@@ -1,7 +1,7 @@
 import { TcpSocketConnectOpts } from 'node:net'
 import type { ConnectionOptions as TLSOptions } from 'node:tls'
 import { HL7_2_7 } from './specification/2.7.js'
-import {MSH} from "./specification/specification.js";
+import { MSH } from './specification/specification.js'
 import * as Util from './utils.js'
 
 const DEFAULT_CLIENT_OPTS = {
@@ -12,12 +12,12 @@ const DEFAULT_CLIENT_OPTS = {
 const DEFAULT_CLIENT_BUILDER_OPTS = {
   newLine: '\r',
   separatorComponent: '^',
-  separatorEscape: `\\`,
+  separatorEscape: '\\',
   separatorField: '|',
   separatorRepetition: '~',
   separatorSubComponent: '&',
   specification: new HL7_2_7(),
-  text: ""
+  text: ''
 }
 
 export interface ParserProcessRawData {
@@ -113,17 +113,17 @@ export interface ClientBuilderOptions {
   specification?: any
   /** The HL7 string that we are going to parse.
    * @default "" */
-  text?: string;
+  text?: string
 }
 
 export interface ClientBuilderBatchOptions extends ClientBuilderOptions {
   /** */
-  batchHeader?: any;
+  batchHeader?: any
 }
 
 export interface ClientBuilderFileOptions extends ClientBuilderOptions {
   /** */
-  fileHeader?: any;
+  fileHeader?: any
 }
 
 type ValidatedClientKeys =
@@ -187,10 +187,10 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
 export function normalizedClientBuilderOptions (raw?: ClientBuilderOptions): ClientBuilderOptions {
   const props = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
-  if (typeof props.mshHeader == 'undefined' && props.text == '') {
+  if (typeof props.mshHeader === 'undefined' && props.text === '') {
     throw new Error('mshHeader must be set if no HL7 message is being passed.')
-  } else if (typeof props.mshHeader == 'undefined' && props.text.slice(0, 3) !== "MSH") {
-    throw new Error("text must begin with the MSH segment.");
+  } else if (typeof props.mshHeader === 'undefined' && props.text.slice(0, 3) !== 'MSH') {
+    throw new Error('text must begin with the MSH segment.')
   }
 
   if ((typeof props.newLine !== 'undefined' && props.newLine === '\\r') || props.newLine === '\\n') {
@@ -203,12 +203,12 @@ export function normalizedClientBuilderOptions (raw?: ClientBuilderOptions): Cli
 export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderBatchOptions): ClientBuilderBatchOptions {
   const props = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
-  if (typeof props.batchHeader == 'undefined' && props.text !== '') {
+  if (typeof props.batchHeader === 'undefined' && props.text !== '') {
     throw new Error('batchHeader must be set if no HL7 message is being passed.')
-  } else if (typeof props.batchHeader != 'undefined' && typeof props.mshHeader == 'undefined' && props.text !== '' ) {
+  } else if (typeof props.batchHeader !== 'undefined' && typeof props.mshHeader === 'undefined' && props.text !== '') {
     throw new Error('batchHeader and mshHeader must be set if no HL7 message is being passed.')
-  } else if (props.text.slice(0, 3) !== "BHS") {
-    throw new Error("text must begin with the BHS segment.");
+  } else if (props.text.slice(0, 3) !== 'BHS') {
+    throw new Error('text must begin with the BHS segment.')
   }
 
   if ((typeof props.newLine !== 'undefined' && props.newLine === '\\r') || props.newLine === '\\n') {
@@ -221,10 +221,10 @@ export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderBatchOpt
 export function normalizedClientFileBuilderOptions (raw?: ClientBuilderFileOptions): ClientBuilderFileOptions {
   const props = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
-  if (typeof props.fileHeader == 'undefined' && props.text !== '') {
+  if (typeof props.fileHeader === 'undefined' && props.text !== '') {
     throw new Error('fileHeader must be set if no HL7 message is being passed.')
-  } else if (props.text.slice(0, 3) !== "FHS") {
-    throw new Error("text must begin with the FHS segment.");
+  } else if (props.text.slice(0, 3) !== 'FHS') {
+    throw new Error('text must begin with the FHS segment.')
   }
 
   if ((typeof props.newLine !== 'undefined' && props.newLine === '\\r') || props.newLine === '\\n') {

@@ -22,10 +22,9 @@ export interface HL7_2_7_MSH {
  * @since 1.0.0
  */
 export class HL7_2_7 extends HL7_SPEC_BASE {
-
-  constructor() {
-    super();
-    this.name = "2.7"
+  constructor () {
+    super()
+    this.name = '2.7'
   }
 
   /**
@@ -52,7 +51,7 @@ export class HL7_2_7 extends HL7_SPEC_BASE {
       throw new Error('MSH.9.10 must be defined.')
     }
 
-    if (msh.msh_10.length == 0 || msh.msh_10.length > 199) {
+    if (msh.msh_10.length === 0 || msh.msh_10.length > 199) {
       throw new Error('MSH.9.10 must be greater than 0 and less than 199 characters.')
     }
 
