@@ -40,7 +40,7 @@ export class Segment extends NodeBase {
     }
 
     const field = this.children[index]
-    return field && path.length > 0 ? field.read(path) : field
+    return path.length > 0 ? field.read(path) : field
   }
 
   /**
