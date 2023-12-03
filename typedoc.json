@@ -1,8 +1,12 @@
 {
   "entryPoints": ["src/index.ts"],
   "excludeExternals": true,
+  "excludeInternal": true,
   "includeVersion": false,
   "githubPages": false,
   "out": "./docs",
-  "name": "Node HL7 Client"
+  "name": "Node HL7 Client",
+  "navigationLinks": {
+    "GitHub": "https://github.com/Bugs5382/node-hl7-client"
+  }
 }
