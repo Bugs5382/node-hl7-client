@@ -28,7 +28,7 @@ export class FieldRepetition extends ValueNode {
      */
   read (path: string[]): Node {
     const component = this.children[parseInt(path.shift() as string) - 1]
-    return component && path.length > 0 ? component.read(path) : component
+    return path.length > 0 ? component.read(path) : component
   }
 
   /**

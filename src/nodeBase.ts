@@ -5,11 +5,7 @@ import { Delimiters } from './decorators/enum/delimiters.js'
 import { Node } from './decorators/interfaces/node.js'
 import { Message } from './message.js'
 
-/**
- * Node Base
- * @since 1.0.0
- * @internal
- */
+/** @internal */
 export class NodeBase implements Node {
   protected parent: NodeBase | null
 
@@ -29,7 +25,6 @@ export class NodeBase implements Node {
     this._delimiter = delimiter
     this._delimiterText = ''
     this._dirty = false
-    this._message = undefined
     this._name = ''
     this._path = []
     this._text = text
@@ -48,7 +43,7 @@ export class NodeBase implements Node {
       ret = this.read(this.preparePath(path))
     }
 
-    return ret || NodeBase.empty as Node
+    return typeof ret !== 'undefined' ? ret as Node : NodeBase.empty as Node
   }
 
   set (path: string | number, value?: any): Node {
@@ -90,7 +85,8 @@ export class NodeBase implements Node {
 
   get name (): string {
     if (this._name !== undefined) return this._name
-    return this._name = this.path.join('.')
+    this._name = this.path.join('.')
+    return this._name
   }
 
   get length (): number {
@@ -119,10 +115,11 @@ export class NodeBase implements Node {
 
   toRaw (): string {
     if (!this._dirty) {
-      return this._text || ''
+      return typeof this._text !== 'undefined' ? this._text : ''
     }
     this._dirty = false
-    return this._text = this.children.map(x => x.toRaw()).join(this.delimiter)
+    this._text = this.children.map(x => x.toRaw()).join(this.delimiter)
+    return this._text
   }
 
   toArray (): Node[] {
@@ -201,7 +198,9 @@ export class NodeBase implements Node {
   }
 
   protected get message (): Message | undefined {
-    if (this._message !== null) return this._message
+    if (typeof this._message !== 'undefined') {
+      return this._message
+    }
     this._message = (this.parent !== null) ? this.parent.message : this as any
     return this._message
   }
@@ -223,7 +222,7 @@ export class NodeBase implements Node {
     let child: Node
 
     if (path.length === 0) {
-      child = this.createChild(value || emptyValue, index)
+      child = this.createChild(typeof value !== 'undefined' ? value : emptyValue, index)
     } else {
       // check if we already have a child at that index
       if (index < this.children.length) {
@@ -244,8 +243,11 @@ export class NodeBase implements Node {
   }
 
   get path (): string[] {
-    if (this._path) return this._path
-    return this._path = this.pathCore()
+    if (typeof this._path !== 'undefined') {
+      return this._path
+    }
+    this._path = this.pathCore()
+    return this._path
   }
 
   protected pathCore (): string[] {
@@ -253,14 +255,11 @@ export class NodeBase implements Node {
   }
 
   protected get delimiter (): string {
-    if (this._delimiterText) {
-      return this._delimiterText
-    }
-    if (typeof this._delimiter === 'undefined') {
-      throw new HL7FatalError(500, 'this._delimiter is somehow undefined.')
+    if (typeof this.message === 'undefined') {
+      throw new Error('this.message is not defined.')
     }
 
-    if (typeof this.message === 'undefined') {
+    if (typeof this._delimiter === 'undefined') {
       throw new Error('this.message is not defined.')
     }
 
