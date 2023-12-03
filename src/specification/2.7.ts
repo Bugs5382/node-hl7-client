@@ -1,10 +1,6 @@
 import { HL7_MSH_MESSAGE_TYPE } from './generic.js'
 import { HL7_SPEC_BASE } from './specification.js'
 
-export const HL7_2_7_MSH_DEFAULT = {
-  msh: {}
-}
-
 /**
  * HL7 2.7 MSH Specification
  * @since 1.0.0
@@ -27,12 +23,20 @@ export interface HL7_2_7_MSH {
  */
 export class HL7_2_7 extends HL7_SPEC_BASE {
 
-  static name: "2.7"
+  constructor() {
+    super();
+    this.name = "2.7"
+  }
 
+  /**
+   * Check MSH Header Properties for HL7 2.7
+   * @since 1.0.0
+   * @param msh
+   * @return boolean
+   */
   checkMSH (msh: HL7_2_7_MSH): boolean {
     if (typeof msh.msh_9.msh_9_1 === 'undefined' ||
-      typeof msh.msh_9.msh_9_2 === 'undefined' ||
-      typeof msh.msh_9.msh_9_3 === 'undefined') {
+      typeof msh.msh_9.msh_9_2 === 'undefined') {
       throw new Error('MSH.9.1 & MSH 9.2 & MSH 9.3 must be defined.')
     }
 
@@ -42,10 +46,6 @@ export class HL7_2_7 extends HL7_SPEC_BASE {
 
     if (msh.msh_9.msh_9_2.length !== 3) {
       throw new Error('MSH.9.2 must be 3 characters in length.')
-    }
-
-    if (msh.msh_9.msh_9_3.length !== 7) {
-      throw new Error('MSH.9.3 must be 7 characters in length.')
     }
 
     if (typeof msh.msh_10 === 'undefined') {

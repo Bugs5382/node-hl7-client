@@ -1,3 +1,4 @@
+/** @internal */
 export enum Delimiters {
   Segment,
   Field,
