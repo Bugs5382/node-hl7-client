@@ -17,7 +17,7 @@
     "lib/**/*"
   ],
   "scripts": {
-    "clean": "rm -rf dist coverage",
+    "clean": "rm -rf coverage docs lib",
     "build": "tsc && tsc -p tsconfig.cjs.json && tsc -p tsconfig.types.json && ./bin/build-types.sh",
     "build:watch": "tsc -w",
     "lint": "ts-standard --parser @typescript-eslint/parser | snazzy",
