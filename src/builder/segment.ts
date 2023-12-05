@@ -1,9 +1,9 @@
-import { Delimiters } from './decorators/enum/delimiters.js'
-import { HL7FatalError } from './exception.js'
-import { Field } from './field.js'
-import { NodeBase } from './nodeBase.js'
-import { Node } from './decorators/interfaces/node.js'
-import * as Util from './utils.js'
+import { Delimiters } from './decorators/delimiters'
+import { HL7FatalError } from '../utils/exception'
+import { Field } from './field'
+import { NodeBase } from './nodeBase'
+import { Node } from './decorators/node'
+import * as Util from '../utils/'
 
 /**
  * Segment Class

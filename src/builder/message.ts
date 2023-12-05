@@ -1,11 +1,11 @@
-import { HL7FatalError } from './exception.js'
-import { NodeBase } from './nodeBase.js'
-import { Segment } from './segment.js'
-import { SegmentList } from './segmentList.js'
-import * as Util from './utils.js'
-import { Delimiters } from './decorators/enum/delimiters.js'
-import { ClientBuilderOptions, normalizedClientBuilderOptions } from './normalize.js'
-import { Node } from './decorators/interfaces/node.js'
+import { HL7FatalError } from '../utils/exception'
+import { NodeBase } from './nodeBase'
+import { Segment } from './segment'
+import { SegmentList } from './segmentList'
+import * as Util from '../utils/'
+import { Delimiters } from './decorators/delimiters'
+import { ClientBuilderOptions, normalizedClientBuilderOptions } from '../utils/normalize'
+import { Node } from './decorators/node'
 
 /**
  * Message Class

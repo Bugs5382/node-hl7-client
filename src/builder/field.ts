@@ -1,8 +1,8 @@
-import { Delimiters } from './decorators/enum/delimiters.js'
-import { Node } from './decorators/interfaces/node.js'
-import { FieldRepetition } from './fieldRepetition.js'
-import { NodeBase } from './nodeBase.js'
-import { ValueNode } from './valueNode.js'
+import { Delimiters } from './decorators/delimiters'
+import { Node } from './decorators/node'
+import { FieldRepetition } from './fieldRepetition'
+import { NodeBase } from './nodeBase'
+import { ValueNode } from './valueNode'
 
 /**
  * Field Area of the HL7 Segment
