@@ -3,7 +3,7 @@ import { Socket } from 'net'
 import * as net from 'net'
 import * as tls from 'tls'
 import { Client } from './client'
-import { ClientListenerOptions, normalizeClientListenerOptions } from './normalize'
+import { ClientListenerOptions, normalizeClientListenerOptions } from '../utils/normalize'
 
 /** Listener Class
  * @since 1.0.0 */

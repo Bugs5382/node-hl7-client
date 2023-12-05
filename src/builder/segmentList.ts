@@ -1,4 +1,4 @@
-import { Node } from './decorators/interfaces/node'
+import { Node } from './decorators/node'
 import { NodeBase } from './nodeBase'
 import { Segment } from './segment'
 

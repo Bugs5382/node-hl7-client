@@ -1,4 +1,4 @@
-import { Node } from './decorators/interfaces/node.js'
+import { Node } from './decorators/node'
 
 /** @internal */
 export class EmptyNode implements Node {

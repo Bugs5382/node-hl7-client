@@ -1,5 +1,5 @@
-import { HL7ParserError } from './exception.js'
-import { ParserProcessRawData } from './normalize.js'
+import { HL7ParserError } from '../utils/exception'
+import { ParserProcessRawData } from '../utils/normalize'
 
 /** Parser Class
  * @since 1.0.0 */

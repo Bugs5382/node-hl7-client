@@ -1,9 +1,9 @@
-import { EmptyNode } from './emptyNode.js'
-import { HL7FatalError } from './exception.js'
-import * as Util from './utils.js'
-import { Delimiters } from './decorators/enum/delimiters.js'
-import { Node } from './decorators/interfaces/node.js'
-import { Message } from './message.js'
+import { EmptyNode } from './emptyNode'
+import { HL7FatalError } from '../utils/exception'
+import * as Util from '../utils/'
+import { Delimiters } from './decorators/delimiters'
+import { Node } from './decorators/node'
+import { Message } from './message'
 
 /** @internal */
 export class NodeBase implements Node {
