@@ -62,10 +62,8 @@ export class Message extends NodeBase {
       this._matchEscape = Message._makeMatchEscape(this._delimiters)
     }
 
-    if (typeof this._opt.mshHeader !== 'undefined' && this._opt.text === '') {
+    if (typeof this._opt.mshHeader !== 'undefined') {
       if (this._opt.specification.checkMSH(this._opt.mshHeader) === true) {
-        this.set('MSH.1', `${this._opt.separatorField}`)
-        this.set('MSH.2', `${this._opt.separatorComponent}${this._opt.separatorRepetition}${this._opt.separatorEscape}${this._opt.separatorSubComponent}`)
         this.set('MSH.7', Util.createDate(new Date()))
         this.set('MSH.9.1', this._opt.mshHeader.msh_9.msh_9_1.toString())
         this.set('MSH.9.2', this._opt.mshHeader.msh_9.msh_9_2.toString())

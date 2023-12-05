@@ -26,6 +26,7 @@ export class Segment extends NodeBase {
       throw new Error('Segment must have a name.')
     }
     this._segmentName = text.slice(0, 3)
+    this._name = this._segmentName
   }
 
   /**
@@ -51,10 +52,18 @@ export class Segment extends NodeBase {
      * @protected
      */
   protected writeCore (path: string[], value: string): Node {
-    const index = parseInt(path.shift() as string)
+    let index = parseInt(path.shift() as string)
     if (index < 1) {
       throw new Error("Can't have an index < 1")
     }
+    if (this._name === 'MSH') {
+      if (index === 1 || index === 2) {
+        throw new Error('You cannot assign the field separator or encoding characters')
+      } else {
+        index = index - 1
+      }
+    }
+
     return this.writeAtIndex(path, value, index)
   }
 

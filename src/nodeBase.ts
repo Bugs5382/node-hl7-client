@@ -9,7 +9,7 @@ import { Message } from './message.js'
 export class NodeBase implements Node {
   protected parent: NodeBase | null
 
-  private _name: string
+  _name: string
   private _text: string
   private readonly _delimiter: Delimiters | undefined
   private _delimiterText: string
@@ -60,7 +60,8 @@ export class NodeBase implements Node {
           this.set(`${path}.${i + 1}`, value[i])
         }
       } else {
-        this.write(this.preparePath(path), this.prepareValue(value))
+        const _path = this.preparePath(path)
+        this.write(_path, this.prepareValue(value))
       }
 
       return this
@@ -84,7 +85,9 @@ export class NodeBase implements Node {
   }
 
   get name (): string {
-    if (this._name !== undefined) return this._name
+    if (this._name !== undefined) {
+      return this._name
+    }
     this._name = this.path.join('.')
     return this._name
   }
@@ -310,7 +313,7 @@ export class NodeBase implements Node {
   protected setDirty (): void {
     if (!this._dirty) {
       this._dirty = true
-      if (this.parent !== null) {
+      if (typeof this.parent !== 'undefined' && this.parent !== null) {
         this.parent.setDirty()
       }
     }

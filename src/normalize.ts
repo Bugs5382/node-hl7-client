@@ -197,6 +197,10 @@ export function normalizedClientBuilderOptions (raw?: ClientBuilderOptions): Cli
     throw new Error('newLine must be \r or \n')
   }
 
+  if (props.text === '') {
+    props.text = `MSH${props.separatorField}${props.separatorComponent}${props.separatorRepetition}${props.separatorEscape}${props.separatorSubComponent}`
+  }
+
   return props
 }
 
