@@ -2,8 +2,9 @@ import { Delimiters } from './decorators/delimiters'
 import { HL7FatalError } from '../utils/exception'
 import { Field } from './field'
 import { NodeBase } from './nodeBase'
-import { Node } from './decorators/node'
+import { Node } from './interface/node'
 import * as Util from '../utils/'
+import { SubComponent } from './subComponent'
 
 /**
  * Segment Class
@@ -35,9 +36,16 @@ export class Segment extends NodeBase {
      * @param path
      */
   read (path: string[]): Node {
-    const index = parseInt(path.shift() as string)
+    let index = parseInt(path.shift() as string)
     if (index < 1) {
       throw new HL7FatalError(500, 'index must be 1 or greater.')
+    }
+    if (this._name === 'MSH') {
+      if (typeof this.message !== 'undefined' && index === 1) {
+        return new SubComponent(this, '1', this.message.delimiters[Delimiters.Field])
+      } else {
+        index = index - 1
+      }
     }
 
     const field = this.children[index]

@@ -144,21 +144,38 @@ describe('node hl7 client - builder tests', () => {
 
   describe(`'build basics`, () => {
 
-    test("simple message with just MSH header", async () => {
+    let message: Message
+    const randomControlID = randomUUID()
 
-      const randomControlID = randomUUID()
+    beforeEach(async () => {
 
-      const message = new Message({
+      message = new Message({
         mshHeader: {
-            msh_9: {
-              msh_9_1: "ADT",
-              msh_9_2: "A01"
-            },
-            msh_10: randomControlID
-          }
+          msh_9: {
+            msh_9_1: "ADT",
+            msh_9_2: "A01"
+          },
+          msh_10: randomControlID
+        }
       })
+
+    })
+
+    test("basic build", async () => {
       expect(message.toString()).toContain("MSH|^~\\&")
       expect(message.toString()).toContain(`|ADT^A01^ADT_A01|${randomControlID}||2.7`)
+    })
+
+    test("basic build - verify MSH header is correct", async () => {
+      expect(message.toString()).toContain("MSH|^~\\&")
+      expect(message.get('MSH.1').toRaw()).toBe("|")
+      expect(message.get('MSH.2').toRaw()).toBe("^~\\&")
+      expect(message.get('MSH.3').toRaw()).toBe("")
+      expect(message.get('MSH.9.1').toRaw()).toBe("ADT")
+      expect(message.get('MSH.9.2').toRaw()).toBe("A01")
+      expect(message.get('MSH.9.3').toRaw()).toBe("ADT_A01")
+      expect(message.get('MSH.10').toRaw()).toBe(randomControlID)
+      expect(message.get('MSH.12').toRaw()).toBe("2.7")
     })
 
   })

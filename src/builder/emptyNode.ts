@@ -1,4 +1,4 @@
-import { Node } from './decorators/node'
+import { Node } from './interface/node'
 
 /** @internal */
 export class EmptyNode implements Node {

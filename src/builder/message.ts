@@ -5,7 +5,7 @@ import { SegmentList } from './segmentList'
 import * as Util from '../utils/'
 import { Delimiters } from './decorators/delimiters'
 import { ClientBuilderOptions, normalizedClientBuilderOptions } from '../utils/normalize'
-import { Node } from './decorators/node'
+import { Node } from './interface/node'
 
 /**
  * Message Class
