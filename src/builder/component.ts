@@ -1,5 +1,5 @@
 import { Delimiters } from './decorators/delimiters'
-import { Node } from './decorators/node'
+import { Node } from './interface/node'
 import { NodeBase } from './nodeBase'
 import { SubComponent } from './subComponent'
 import { ValueNode } from './valueNode'

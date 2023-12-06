@@ -2,7 +2,7 @@ import { EmptyNode } from './emptyNode'
 import { HL7FatalError } from '../utils/exception'
 import * as Util from '../utils/'
 import { Delimiters } from './decorators/delimiters'
-import { Node } from './decorators/node'
+import { Node } from './interface/node'
 import { Message } from './message'
 
 /** @internal */
@@ -40,7 +40,8 @@ export class NodeBase implements Node {
         ret = this.children[path]
       }
     } else if (path !== '') {
-      ret = this.read(this.preparePath(path))
+      const _path = this.preparePath(path)
+      ret = this.read(_path)
     }
 
     return typeof ret !== 'undefined' ? ret as Node : NodeBase.empty as Node
