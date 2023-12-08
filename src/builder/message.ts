@@ -4,7 +4,7 @@ import { Segment } from './modules/segment'
 import { SegmentList } from './modules/segmentList'
 import * as Util from '../utils/'
 import { Delimiters } from './decorators/delimiters'
-import { ClientBuilderOptions, normalizedClientBuilderOptions } from '../utils/normalize'
+import {ClientBuilderMessageOptions, normalizedClientBuilderOptions} from '../utils/normalize'
 import { Node } from './interface/node'
 
 /**
@@ -46,7 +46,7 @@ export class Message extends NodeBase {
    * which then you add segments with fields and values for your Hl7 message.
    *
    */
-  constructor (props?: ClientBuilderOptions) {
+  constructor (props?: ClientBuilderMessageOptions) {
     const opt = normalizedClientBuilderOptions(props)
 
     super(null, opt.text, Delimiters.Segment)
@@ -62,13 +62,13 @@ export class Message extends NodeBase {
       this._matchEscape = Message._makeMatchEscape(this._delimiters)
     }
 
-    if (typeof this._opt.mshHeader !== 'undefined') {
-      if (this._opt.specification.checkMSH(this._opt.mshHeader) === true) {
+    if (typeof this._opt.messageHeader !== 'undefined') {
+      if (this._opt.specification.checkMSH(this._opt.messageHeader) === true) {
         this.set('MSH.7', Util.createDate(new Date()))
-        this.set('MSH.9.1', this._opt.mshHeader.msh_9.msh_9_1.toString())
-        this.set('MSH.9.2', this._opt.mshHeader.msh_9.msh_9_2.toString())
-        this.set('MSH.9.3', `${this._opt.mshHeader.msh_9.msh_9_1.toString()}_${this._opt.mshHeader.msh_9.msh_9_2.toString()}`)
-        this.set('MSH.10', this._opt.mshHeader.msh_10.toString())
+        this.set('MSH.9.1', this._opt.messageHeader.msh_9.msh_9_1.toString())
+        this.set('MSH.9.2', this._opt.messageHeader.msh_9.msh_9_2.toString())
+        this.set('MSH.9.3', `${this._opt.messageHeader.msh_9.msh_9_1.toString()}_${this._opt.messageHeader.msh_9.msh_9_2.toString()}`)
+        this.set('MSH.10', this._opt.messageHeader.msh_10.toString())
         this.set('MSH.12', this._opt.specification.name.toString())
       }
     } else {

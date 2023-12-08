@@ -33,7 +33,7 @@ describe('node hl7 client - builder tests', () => {
     test("error - Message Object - msh 9.1 is empty ", async () => {
       try {
         new Message({
-          mshHeader: {
+          messageHeader: {
             msh_9: {
               // @ts-expect-error 9.1 should be not empty
               msh_9_1: "",
@@ -48,7 +48,7 @@ describe('node hl7 client - builder tests', () => {
     test("error - Message Object - msh 9.2 is empty ", async () => {
       try {
         new Message({
-          mshHeader: {
+          messageHeader: {
             msh_9: {
               // @ts-expect-error 9.2 should be not empty
               msh_9_2: "",
@@ -63,7 +63,7 @@ describe('node hl7 client - builder tests', () => {
     test("error - Message Object - msh 9.3 is empty ", async () => {
       try {
         new Message({
-          mshHeader: {
+          messageHeader: {
             msh_9: {
               // @ts-expect-error 9.3 should be not empty
               msh_9_3: "",
@@ -78,7 +78,7 @@ describe('node hl7 client - builder tests', () => {
     test("error - Message Object - msh 9.1 is not 3 character long ", async () => {
       try {
         new Message({
-          mshHeader: {
+          messageHeader: {
             msh_9: {
               // @ts-expect-error 9.1 should be 3 characters
               msh_9_1: "ADTY",
@@ -95,7 +95,7 @@ describe('node hl7 client - builder tests', () => {
     test("error - Message Object - msh 9.2 is not 3 character long ", async () => {
       try {
         new Message({
-          mshHeader: {
+          messageHeader: {
             msh_9: {
               msh_9_1: "ADT",
               // @ts-expect-error 9.2 should be 3 characters
@@ -112,7 +112,7 @@ describe('node hl7 client - builder tests', () => {
     test("error - Message Object - msh 10 is more than 199 characters ", async () => {
       try {
         new Message({
-          mshHeader: {
+          messageHeader: {
             msh_9: {
               msh_9_1: "ADT",
               msh_9_2: "A01"
@@ -128,7 +128,7 @@ describe('node hl7 client - builder tests', () => {
     test("error - Message Object - msh 10 can not be blank", async () => {
       try {
         new Message({
-          mshHeader: {
+          messageHeader: {
             msh_9: {
               msh_9_1: "ADT",
               msh_9_2: "A01"
@@ -143,14 +143,14 @@ describe('node hl7 client - builder tests', () => {
 
   })
 
-  describe(`'build basics`, () => {
+  describe(`'build message basics`, () => {
 
     let message: Message
     const randomControlID = randomUUID()
 
     beforeEach(async () => {
       message = new Message({
-        mshHeader: {
+        messageHeader: {
           msh_9: {
             msh_9_1: "ADT",
             msh_9_2: "A01"
@@ -207,14 +207,14 @@ describe('node hl7 client - builder tests', () => {
 
   })
 
-  describe('complex builder tests', () => {
+  describe('complex builder message tests', () => {
 
     let message: Message
     //const randomControlID = randomUUID()
 
     beforeEach(async () => {
       message = new Message({
-        mshHeader: {
+        messageHeader: {
           msh_9: {
             msh_9_1: "ADT",
             msh_9_2: "A01"
@@ -249,6 +249,17 @@ describe('node hl7 client - builder tests', () => {
       segment.set(2, '20081231')
       expect(message.toString()).toBe("MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231")
     })
+
+  })
+
+  describe('basic batch basics', () => {
+
+    test.todo('... initial build')
+    test.todo('... verify BSH header is correct')
+    test.todo('... add onto the BSH header')
+    test.todo('...override BSH.7 (Date/Time/Field)')
+    test.todo('...override BSH.7 to short - error out')
+    test.todo('...override BSH.7 to long - error out')
 
   })
 
