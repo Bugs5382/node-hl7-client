@@ -1,9 +1,9 @@
-import { Delimiters } from './decorators/delimiters'
-import { HL7FatalError } from '../utils/exception'
+import { Delimiters } from '../decorators/delimiters'
+import { HL7FatalError } from '../../utils/exception'
 import { Field } from './field'
 import { NodeBase } from './nodeBase'
-import { Node } from './interface/node'
-import * as Util from '../utils/'
+import { Node } from '../interface/node'
+import * as Util from '../../utils'
 import { SubComponent } from './subComponent'
 
 /**

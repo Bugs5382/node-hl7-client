@@ -1,4 +1,4 @@
-import { Node } from './interface/node'
+import { Node } from '../interface/node'
 import { NodeBase } from './nodeBase'
 import { Segment } from './segment'
 

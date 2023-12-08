@@ -1,10 +1,12 @@
 ## Node HL7 Client
-Node.js client library for creating a HL7 Client which can publish a properlly formatted HL7 message to a source.
+A pure Node.js HL7 Client
+that allows for communication to a HL7 Broker/Server that can send properly formatted HL7 messages with ease.
+It can also parse and then you can extract message segments out.
 
 This includes a:
 * the Client, which can connect to a HL7 server and send messages and get response back from that Hl7 Server and do something with the results if needed.
 * The Parser, will decode an HL7 messages
-* the Builder, can create a properly formatted HL7 message(s) to be sent. 
+* the Builder, can create a properly formatted HL7 message(s) to be sent either a single message, batch of messages, or batch of messages written into a file.
 
 Benefits:
 
@@ -22,8 +24,8 @@ Benefits:
 ## Acknowledgements
 
 - Code Design/Auto Re-Connect/Resend, Inspiration:
-  - [node-rabbitmq-client](https://github.com/cody-greene/node-rabbitmq-client)
-  - [artifacthealth/hl7parser](https://github.com/artifacthealth/hl7parser)
+- [node-rabbitmq-client](https://github.com/cody-greene/node-rabbitmq-client)
+- [artifacthealth/hl7parser](https://github.com/artifacthealth/hl7parser)
 - My Wife and Baby Girl.
 
 ## License

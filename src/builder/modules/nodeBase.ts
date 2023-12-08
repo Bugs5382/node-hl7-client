@@ -1,9 +1,9 @@
 import { EmptyNode } from './emptyNode'
-import { HL7FatalError } from '../utils/exception'
-import * as Util from '../utils/'
-import { Delimiters } from './decorators/delimiters'
-import { Node } from './interface/node'
-import { Message } from './message'
+import { HL7FatalError } from '../../utils/exception'
+import * as Util from '../../utils'
+import { Delimiters } from '../decorators/delimiters'
+import { Node } from '../interface/node'
+import { Message } from '../message'
 
 /** @internal */
 export class NodeBase implements Node {
