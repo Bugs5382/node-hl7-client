@@ -1,11 +1,11 @@
 import * as Util from '../utils'
 import { HL7FatalError } from '../utils/exception'
-/* import { HL7FatalError } from '../utils/exception' */
 import {
   ClientBuilderBatchOptions,
   normalizedClientBatchBuilderOptions
 } from '../utils/normalize'
 import { Node } from './interface/node'
+import { Message } from './message'
 import { RootBase } from './modules/rootBase'
 import { Segment } from './modules/segment'
 import { SegmentList } from './modules/segmentList'
@@ -18,6 +18,7 @@ import { SegmentList } from './modules/segmentList'
 export class Batch extends RootBase {
   /** @internal **/
   _opt: ReturnType<typeof normalizedClientBatchBuilderOptions>
+  _messagesCount: number
 
   /**
    * @since 1.0.0
@@ -27,10 +28,18 @@ export class Batch extends RootBase {
     const opt = normalizedClientBatchBuilderOptions(props)
     super(opt)
     this._opt = opt
+    this._messagesCount = 0
   }
 
-  addMessage (): void {
-    throw new Error('Not Implemented')
+  /**
+   * Add a Message to the Batch
+   * @since 1.0.0
+   * @param message
+   */
+  add (message: Message): void {
+    this.setDirty()
+    this._messagesCount = this._messagesCount + 1
+    this.children.push(message)
   }
 
   /**
@@ -39,8 +48,7 @@ export class Batch extends RootBase {
    */
   end (): void {
     const segment = this._addSegment('BTS')
-    segment.set('1', 1) // this will be the number of message segments
-    segment.set('2', 'End of Batch') // maybe from options?
+    segment.set('1', this._messagesCount)
   }
 
   /**
@@ -52,21 +60,20 @@ export class Batch extends RootBase {
   read (path: string[]): Node {
     const segmentName = path.shift() as string
     if (path.length === 0) {
-      // only the segment name was in the path so return a SegmentList
       const segments = this.children.filter(x => (x as Segment).name === segmentName) as Segment[]
       if (segments.length > 0) {
         return new SegmentList(this, segments) as Node
       }
     } else {
       if (typeof segmentName === 'undefined') {
-        throw new Error('We have an error Huston.')
+        throw new HL7FatalError(500, 'segment name is not defined.')
       }
       const segment = this._getFirstSegment(segmentName)
       if (typeof segment !== 'undefined') {
         return segment.read(path)
       }
     }
-    throw new Error('Failure is not an option.')
+    throw new HL7FatalError(500, 'Unable to process the read function correctly.')
   }
 
   /**
@@ -74,8 +81,7 @@ export class Batch extends RootBase {
    * @since 1.0.0
    */
   start (): void {
-    this.set('BSH.7', Util.createDate(new Date()))
-    // this.set('BSH.10', 'Start of Batch') // maybe from options?
+    this.set('BSH.7', Util.createHL7Date(new Date()))
   }
 
   /**
@@ -88,7 +94,7 @@ export class Batch extends RootBase {
   protected writeCore (path: string[], value: string): Node {
     const segmentName = path.shift() as string
     if (typeof segmentName === 'undefined') {
-      throw new Error('Danger, Will Robinson')
+      throw new HL7FatalError(500, 'segment name is not defined.')
     }
     return this.writeAtIndex(path, value, 0, segmentName)
   }
@@ -128,6 +134,6 @@ export class Batch extends RootBase {
         return segment
       }
     }
-    throw new Error('We have a problem.')
+    throw new HL7FatalError(500, 'Unable to process _getFirstSegment.')
   }
 }

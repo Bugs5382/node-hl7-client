@@ -1,5 +1,5 @@
 import {randomUUID} from "crypto";
-// import * as Util from '../src/utils/'
+import * as Util from '../src/utils/'
 import {Batch, Message} from "../src";
 
 describe('node hl7 client - builder tests', () => {
@@ -263,14 +263,14 @@ describe('node hl7 client - builder tests', () => {
     test('... initial build', async() => {
       batch.end()
       expect(batch.toString()).toContain("BHS|^~\\&")
-      expect(batch.toString()).toContain("BTS|")
+      expect(batch.toString()).toContain("BTS|0")
     })
 
     test('... verify BHS header is correct', async() => {
       batch.set('BHS.7', '20081231')
       batch.end()
       expect(batch.get('BHS.7').toString()).toBe("20081231")
-      expect(batch.toString()).toBe("BHS|^~\\&|||||20081231\rBTS|1|End of Batch")
+      expect(batch.toString()).toBe("BHS|^~\\&|||||20081231\rBTS|0")
     })
 
     test('... add onto the BHS header', async() => {
@@ -285,12 +285,44 @@ describe('node hl7 client - builder tests', () => {
       expect(batch.get("BHS.4").toString()).toBe( "SendingFacility");
       expect(batch.get("BHS.5").toString()).toBe( "ReceivingApp");
       expect(batch.get("BHS.6").toString()).toBe( "ReceivingFacility");
-      expect(batch.toString()).toBe("BHS|^~\\&|SendingApp|SendingFacility|ReceivingApp|ReceivingFacility|20081231\rBTS|1|End of Batch")
+      expect(batch.toString()).toBe("BHS|^~\\&|SendingApp|SendingFacility|ReceivingApp|ReceivingFacility|20081231\rBTS|0")
     })
 
     test.todo('...override BSH.7 (Date/Time/Field)')
     test.todo('...override BSH.7 to short - error out')
     test.todo('...override BSH.7 to long - error out')
+
+  })
+
+  describe('complex builder batch tests', () => {
+
+    let batch: Batch
+    let message: Message
+    const date = Util.createHL7Date(new Date(), "8")
+
+    beforeEach(async () => {
+      batch = new Batch()
+      batch.start()
+      batch.set('BHS.7', date)
+    })
+
+    test('... add single message to batch', async () => {
+
+      message = new Message({
+        messageHeader: {
+          msh_9: {
+            msh_9_1: "ADT",
+            msh_9_2: "A01"
+          },
+          msh_10: 'CONTROL_ID'
+        }
+      })
+      message.set('MSH.7', date)
+
+      batch.add(message)
+      batch.end()
+      expect(batch.toString()).toBe([`BHS|^~\\&|||||${date}`, `MSH|^~\\&|||||${date}||ADT^A01^ADT_A01|CONTROL_ID||2.7`, "BTS|1"].join("\r"))
+    })
 
   })
 

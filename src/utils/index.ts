@@ -46,15 +46,27 @@ export const validIPv6 = (ip: string): boolean => {
 }
 
 /**
- * Create Date
+ * Create HL7 Valid Date
  * @since 1.0.0
  * @param date
+ * @param length (@default 14)
  * @example
- * const date = Util.createDate(new Date())
- * // date = 2023120305123434 or YYYYMMDDHHMMSS
+ * const date = Util.createDate(new Date(), "14") (default)
+ * // date = 20231203051234 or YYYYMMDDHHMMSS
+ * const date = Util.createDate(new Date(), "12")
+ * // date = 202312030512 or YYYYMMDDHHMM
+ * const date = Util.createDate(new Date(), "8")
+ * // date = 20231203 or YYYYMMDD
  */
-export const createDate = (date: Date): string => {
-  return `${date.getFullYear()}${pad(date.getMonth() + 1, 2)}${pad(date.getDate(), 2)}${pad(date.getHours(), 2)}${pad(date.getMinutes(), 2)}${pad(date.getSeconds(), 2)}`
+export const createHL7Date = (date: Date, length: '8' | '12' | '14' = '14'): string => {
+  switch (length) {
+    case '14':
+      return `${date.getFullYear()}${pad(date.getMonth() + 1, 2)}${pad(date.getDate(), 2)}${pad(date.getHours(), 2)}${pad(date.getMinutes(), 2)}${pad(date.getSeconds(), 2)}`
+    case '12':
+      return `${date.getFullYear()}${pad(date.getMonth() + 1, 2)}${pad(date.getDate(), 2)}${pad(date.getHours(), 2)}${pad(date.getMinutes(), 2)}`
+    case '8':
+      return `${date.getFullYear()}${pad(date.getMonth() + 1, 2)}${pad(date.getDate(), 2)}`
+  }
 }
 
 /**
