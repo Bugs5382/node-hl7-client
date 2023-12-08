@@ -1,14 +1,14 @@
 import * as Util from '../utils'
-import {HL7FatalError} from "../utils/exception";
-/*import { HL7FatalError } from '../utils/exception'*/
+import { HL7FatalError } from '../utils/exception'
+/* import { HL7FatalError } from '../utils/exception' */
 import {
   ClientBuilderBatchOptions,
   normalizedClientBatchBuilderOptions
 } from '../utils/normalize'
-import {Node} from "./interface/node";
+import { Node } from './interface/node'
 import { RootBase } from './modules/rootBase'
-import {Segment} from "./modules/segment";
-import {SegmentList} from "./modules/segmentList";
+import { Segment } from './modules/segment'
+import { SegmentList } from './modules/segmentList'
 
 /**
  * Batch Class
@@ -29,7 +29,7 @@ export class Batch extends RootBase {
     this._opt = opt
   }
 
-  addMessage () {
+  addMessage (): void {
     throw new Error('Not Implemented')
   }
 
@@ -37,8 +37,8 @@ export class Batch extends RootBase {
    * End Batch
    * @since 1.0.0
    */
-  end() {
-    const segment = this._addSegment("BTS")
+  end (): void {
+    const segment = this._addSegment('BTS')
     segment.set('1', 1) // this will be the number of message segments
     segment.set('2', 'End of Batch') // maybe from options?
   }
@@ -73,7 +73,7 @@ export class Batch extends RootBase {
    * Start Batch
    * @since 1.0.0
    */
-  start() {
+  start (): void {
     this.set('BSH.7', Util.createDate(new Date()))
     // this.set('BSH.10', 'Start of Batch') // maybe from options?
   }
@@ -130,5 +130,4 @@ export class Batch extends RootBase {
     }
     throw new Error('We have a problem.')
   }
-
 }
