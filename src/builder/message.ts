@@ -41,7 +41,7 @@ export class Message extends RootBase {
 
     if (typeof this._opt.messageHeader !== 'undefined') {
       if (this._opt.specification.checkMSH(this._opt.messageHeader) === true) {
-        this.set('MSH.7', Util.createDate(new Date()))
+        this.set('MSH.7', Util.createHL7Date(new Date()))
         this.set('MSH.9.1', this._opt.messageHeader.msh_9.msh_9_1.toString())
         this.set('MSH.9.2', this._opt.messageHeader.msh_9.msh_9_2.toString())
         this.set('MSH.9.3', `${this._opt.messageHeader.msh_9.msh_9_1.toString()}_${this._opt.messageHeader.msh_9.msh_9_2.toString()}`)
@@ -101,14 +101,14 @@ export class Message extends RootBase {
       }
     } else {
       if (typeof segmentName === 'undefined') {
-        throw new Error('We have an error Huston.')
+        throw new HL7FatalError(500, 'segment name is not defined.')
       }
       const segment = this._getFirstSegment(segmentName)
       if (typeof segment !== 'undefined') {
         return segment.read(path)
       }
     }
-    throw new Error('Failure is not an option.')
+    throw new HL7FatalError(500, 'Unable to process the read function correctly.')
   }
 
   /**
@@ -121,7 +121,7 @@ export class Message extends RootBase {
   protected writeCore (path: string[], value: string): Node {
     const segmentName = path.shift() as string
     if (typeof segmentName === 'undefined') {
-      throw new Error('Danger, Will Robinson')
+      throw new HL7FatalError(500, 'segment name is not defined.')
     }
     let index = this._getFirstSegmentIndex(segmentName)
     if (index === undefined) {
@@ -160,7 +160,7 @@ export class Message extends RootBase {
         return segment
       }
     }
-    throw new Error('We have a problem.')
+    throw new HL7FatalError(500, 'Unable to process _getFirstSegment.')
   }
 
   /** @internal */
