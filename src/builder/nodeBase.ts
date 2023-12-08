@@ -48,28 +48,23 @@ export class NodeBase implements Node {
   }
 
   set (path: string | number, value?: any): Node {
-    /** If there is only one argument, we make sure the path exists and return it. */
     if (arguments.length === 1) {
       return this.ensure(path)
     }
 
     if (typeof path === 'string') {
       if (Array.isArray(value)) {
-        /** If the value is an array, write each item in the array using the index of the item as an additional
-                step in the path. */
-        for (let i = 0, l = value.length; i < l; i++) {
-          this.set(`${path}.${i + 1}`, value[i])
+        for (let i = 0; i < value.length; i++) {
+          this.set(`${path}.${i+1}`, value[i])
         }
       } else {
-        const _path = this.preparePath(path)
-        this.write(_path, this.prepareValue(value))
+        const _path = this.preparePath(path as string)
+        this.write( _path, this.prepareValue(value))
       }
 
       return this
     } else if (Util.isNumber(path)) {
       if (Array.isArray(value)) {
-        /** If the value is an array, write each item in the array using the index of the item as an additional
-                step in the path. */
         const child = this.ensure(path)
         for (let i = 0, l = value.length; i < l; i++) {
           child.set(i, value[i])
@@ -127,7 +122,6 @@ export class NodeBase implements Node {
   }
 
   toArray (): Node[] {
-    // @review This has been changed from: return [].concat(this.children);
     return this.children
   }
 
@@ -164,14 +158,14 @@ export class NodeBase implements Node {
   }
 
   protected preparePath (path: string): string[] {
-    let parts = path.split('.')
+    let parts = path.split(`.`)
     if (parts[0] === '') {
       parts.shift()
       parts = this.path.concat(parts)
     }
 
     if (!this._isSubPath(parts)) {
-      throw new Error("'" + parts.toString() + "' is not a sub-path of '" + this.path.toString() + "'")
+      throw new HL7FatalError(500, "'" + parts.toString() + "' is not a sub-path of '" + this.path.toString() + "'")
     }
 
     return this._remainderOf(parts)
@@ -228,11 +222,9 @@ export class NodeBase implements Node {
     if (path.length === 0) {
       child = this.createChild(typeof value !== 'undefined' ? value : emptyValue, index)
     } else {
-      // check if we already have a child at that index
       if (index < this.children.length) {
         child = this.children[index]
       } else {
-        // if not, create a new one
         child = this.createChild(emptyValue, index)
       }
     }
@@ -283,9 +275,9 @@ export class NodeBase implements Node {
     return this._children
   }
 
-  protected addChild<T extends Node>(text: string): T {
+  protected addChild(text: string): Node {
     this.setDirty()
-    const child = this.createChild(text, this.children.length) as T
+    const child = this.createChild(text, this.children.length) as Node
     this.children.push(child)
     return child
   }
@@ -297,13 +289,10 @@ export class NodeBase implements Node {
   protected setChild (child: Node, index: number): Node {
     this.setDirty()
     const children = this.children
-    /** if we already have a child at that index, then replace it. */
     if (index < children.length) {
       children[index] = child
       return child
     }
-    /** otherwise, fill the @children array with empty children for any indexes between the end of the list
-         and the specified index. */
     for (let i = children.length; i < index; i++) {
       children.push(this.createChild('', i))
     }

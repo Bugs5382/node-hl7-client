@@ -39,7 +39,7 @@ export class EmptyNode implements Node {
   }
 
   isEmpty (): boolean {
-    throw new Error('Not implemented')
+    return  true
   }
 
   toDate (): Date {

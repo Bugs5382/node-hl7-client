@@ -48,11 +48,11 @@ export class HL7_2_7 extends HL7_SPEC_BASE {
     }
 
     if (typeof msh.msh_10 === 'undefined') {
-      throw new Error('MSH.9.10 must be defined.')
+      throw new Error('MSH.10 must be defined.')
     }
 
     if (msh.msh_10.length === 0 || msh.msh_10.length > 199) {
-      throw new Error('MSH.9.10 must be greater than 0 and less than 199 characters.')
+      throw new Error('MSH.10 must be greater than 0 and less than 199 characters.')
     }
 
     return true
