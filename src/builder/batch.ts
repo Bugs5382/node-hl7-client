@@ -1,24 +1,28 @@
-import * as Util from "../utils";
-import {HL7FatalError} from "../utils/exception";
+import * as Util from '../utils'
+import { HL7FatalError } from '../utils/exception'
 import {
   ClientBuilderBatchOptions,
-  normalizedClientBatchBuilderOptions,
-} from "../utils/normalize";
-import {RootNode} from "./modules/rootNode";
+  normalizedClientBatchBuilderOptions
+} from '../utils/normalize'
+import { RootBase } from './modules/rootBase'
 
 /**
  * Batch Class
  * @since 1.0.0
- * @extends RootNode
+ * @extends RootBase
  */
-export class Batch extends RootNode {
-
+export class Batch extends RootBase {
+  /** @internal **/
   _opt: ReturnType<typeof normalizedClientBatchBuilderOptions>
 
-  constructor(props?: ClientBuilderBatchOptions) {
+  /**
+   * @since 1.0.0
+   * @param props
+   */
+  constructor (props?: ClientBuilderBatchOptions) {
     const opt = normalizedClientBatchBuilderOptions(props)
 
-    super(props);
+    super(opt)
 
     this._opt = opt
 
@@ -29,7 +33,9 @@ export class Batch extends RootNode {
     } else {
       throw new HL7FatalError(500, 'Unable to fully build a new HL7 batch framework.')
     }
-
   }
 
+  addMessage () {
+    throw new Error('Not Implemented')
+  }
 }

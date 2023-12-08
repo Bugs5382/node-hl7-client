@@ -11,9 +11,10 @@ import { SegmentList } from './builder/modules/segmentList'
 import { HL7_2_7 } from './specification/2.7.js'
 import { HL7_SPEC, HL7_SPEC_BASE } from './specification/specification.js'
 import { SubComponent } from './builder/modules/subComponent'
+import { Batch } from './builder/batch'
 
 export default Client
-export { Client, Listener, Parser, ParserPlan, Message, Delimiters, Segment, SegmentList, Component, SubComponent, Field, FieldRepetition }
+export { Client, Listener, Parser, ParserPlan, Batch, Message, Delimiters, Segment, SegmentList, Component, SubComponent, Field, FieldRepetition }
 export * from './utils/index'
 
 /** HL7 Specs **/
