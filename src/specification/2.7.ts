@@ -5,7 +5,7 @@ import { HL7_SPEC_BASE } from './specification.js'
  * HL7 2.7 MSH Specification
  * @since 1.0.0
  */
-export interface HL7_2_7_MSH {
+export type HL7_2_7_MSH = {
   /** Message Type
    * @description The message type of the Hl7 message we are sending.
    * @since 1.0.0 */
@@ -17,6 +17,12 @@ export interface HL7_2_7_MSH {
 }
 
 /**
+ * HL7 2.7 BSH Specification
+ * @since 1.0.0
+ */
+export type HL7_2_7_BSH = {}
+
+/**
  * Hl7 Specification Version 2.7
  * @description Used to indicate that the message should follow 2.7 specification for retrieval or building a message.
  * @since 1.0.0
@@ -25,6 +31,16 @@ export class HL7_2_7 extends HL7_SPEC_BASE {
   constructor () {
     super()
     this.name = '2.7'
+  }
+
+  /**
+   * Check BSH Header Properties for HL7 2.7
+   * @since 1.0.0
+   * @param _bsh
+   * @return boolean
+   */
+  checkBSH (_bsh: any): boolean {
+    return true
   }
 
   /**

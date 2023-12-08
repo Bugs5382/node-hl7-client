@@ -1,7 +1,7 @@
 import { TcpSocketConnectOpts } from 'node:net'
 import type { ConnectionOptions as TLSOptions } from 'node:tls'
 import { HL7_2_7 } from '../specification/2.7'
-import { MSH } from '../specification/specification'
+import {BSH, MSH} from '../specification/specification'
 import * as Util from './index'
 
 const DEFAULT_CLIENT_OPTS = {
@@ -77,11 +77,6 @@ export interface ClientListenerOptions {
  * @since 1.0.0
  */
 export interface ClientBuilderOptions {
-  /**
-   * MSH Header Options
-   * @since 1.0.0
-   */
-  mshHeader?: MSH
   /** At the end of each line, add this as the new line character.
    * @since 1.0.0
    * @default \r */
@@ -116,9 +111,20 @@ export interface ClientBuilderOptions {
   text?: string
 }
 
+export interface ClientBuilderMessageOptions extends ClientBuilderOptions {
+  /**
+   * MSH Header Options
+   * @since 1.0.0
+   */
+  messageHeader?: MSH
+}
+
 export interface ClientBuilderBatchOptions extends ClientBuilderOptions {
-  /** */
-  batchHeader?: any
+  /**
+   * BSH Header Options
+   * @since 1.0.0
+   */
+  batchHeader?: BSH
 }
 
 export interface ClientBuilderFileOptions extends ClientBuilderOptions {
@@ -184,12 +190,12 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
   return props
 }
 
-export function normalizedClientBuilderOptions (raw?: ClientBuilderOptions): ClientBuilderOptions {
+export function normalizedClientBuilderOptions (raw?: ClientBuilderMessageOptions): ClientBuilderMessageOptions {
   const props = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
-  if (typeof props.mshHeader === 'undefined' && props.text === '') {
+  if (typeof props.messageHeader === 'undefined' && props.text === '') {
     throw new Error('mshHeader must be set if no HL7 message is being passed.')
-  } else if (typeof props.mshHeader === 'undefined' && props.text.slice(0, 3) !== 'MSH') {
+  } else if (typeof props.messageHeader === 'undefined' && props.text.slice(0, 3) !== 'MSH') {
     throw new Error('text must begin with the MSH segment.')
   }
 
@@ -209,7 +215,7 @@ export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderBatchOpt
 
   if (typeof props.batchHeader === 'undefined' && props.text !== '') {
     throw new Error('batchHeader must be set if no HL7 message is being passed.')
-  } else if (typeof props.batchHeader !== 'undefined' && typeof props.mshHeader === 'undefined' && props.text !== '') {
+  } else if (typeof props.batchHeader !== 'undefined' && props.text !== '') {
     throw new Error('batchHeader and mshHeader must be set if no HL7 message is being passed.')
   } else if (props.text.slice(0, 3) !== 'BHS') {
     throw new Error('text must begin with the BHS segment.')
@@ -217,6 +223,10 @@ export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderBatchOpt
 
   if ((typeof props.newLine !== 'undefined' && props.newLine === '\\r') || props.newLine === '\\n') {
     throw new Error('newLine must be \r or \n')
+  }
+
+  if (props.text === '') {
+    props.text = `BSH${props.separatorField}${props.separatorComponent}${props.separatorRepetition}${props.separatorEscape}${props.separatorSubComponent}`
   }
 
   return props
