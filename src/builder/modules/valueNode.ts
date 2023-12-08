@@ -1,4 +1,4 @@
-import { Delimiters } from './decorators/delimiters'
+import { Delimiters } from '../decorators/delimiters'
 import { NodeBase } from './nodeBase'
 
 /** @internal */

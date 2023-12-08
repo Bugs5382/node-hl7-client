@@ -1,7 +1,7 @@
 import { Component } from './component'
-import { Delimiters } from './decorators/delimiters'
-import { Node } from './interface/node'
-import { HL7FatalError } from '../utils/exception'
+import { Delimiters } from '../decorators/delimiters'
+import { Node } from '../interface/node'
+import { HL7FatalError } from '../../utils/exception'
 import { NodeBase } from './nodeBase'
 import { ValueNode } from './valueNode'
 

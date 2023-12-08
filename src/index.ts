@@ -1,16 +1,16 @@
 import { Client } from './client/client'
-import { Component } from './builder/component'
+import { Component } from './builder/modules/component'
 import { Delimiters } from './builder/decorators/delimiters'
-import { Field } from './builder/field'
-import { FieldRepetition } from './builder/fieldRepetition'
+import { Field } from './builder/modules/field'
+import { FieldRepetition } from './builder/modules/fieldRepetition'
 import { Listener } from './client/listener'
 import { Message } from './builder/message'
 import { Parser, ParserPlan } from './client/parser'
-import { Segment } from './builder/segment'
-import { SegmentList } from './builder/segmentList'
+import { Segment } from './builder/modules/segment'
+import { SegmentList } from './builder/modules/segmentList'
 import { HL7_2_7 } from './specification/2.7.js'
 import { HL7_SPEC, HL7_SPEC_BASE } from './specification/specification.js'
-import { SubComponent } from './builder/subComponent'
+import { SubComponent } from './builder/modules/subComponent'
 
 export default Client
 export { Client, Listener, Parser, ParserPlan, Message, Delimiters, Segment, SegmentList, Component, SubComponent, Field, FieldRepetition }

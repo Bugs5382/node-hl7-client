@@ -1,5 +1,5 @@
-import { Delimiters } from './decorators/delimiters'
-import { Node } from './interface/node'
+import { Delimiters } from '../decorators/delimiters'
+import { Node } from '../interface/node'
 import { FieldRepetition } from './fieldRepetition'
 import { NodeBase } from './nodeBase'
 import { ValueNode } from './valueNode'
