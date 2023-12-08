@@ -1,33 +1,19 @@
 import { HL7FatalError } from '../utils/exception'
-import { NodeBase } from './modules/nodeBase'
+import { RootBase } from './modules/rootBase'
 import { Segment } from './modules/segment'
 import { SegmentList } from './modules/segmentList'
 import * as Util from '../utils/'
-import { Delimiters } from './decorators/delimiters'
-import {ClientBuilderMessageOptions, normalizedClientBuilderOptions} from '../utils/normalize'
+import { ClientBuilderMessageOptions, normalizedClientMessageBuilderOptions } from '../utils/normalize'
 import { Node } from './interface/node'
 
 /**
  * Message Class
  * @since 1.0.0
- * @extends NodeBase
+ * @extends RootBase
  */
-export class Message extends NodeBase {
+export class Message extends RootBase {
   /** @internal */
-  private readonly _delimiters: string
-  /** @internal */
-  private readonly _opt: ReturnType<typeof normalizedClientBuilderOptions>
-  /** @internal */
-  private readonly _matchEscape: RegExp
-  /** @internal */
-  private readonly _matchUnescape: RegExp
-
-  /** @internal */
-  private static readonly _defaultDelimiters = '\r|^~\\&'
-  /** @internal */
-  private static readonly _defaultMatchUnescape = Message._makeMatchUnescape(Message._defaultDelimiters)
-  /** @internal */
-  private static readonly _defaultMatchEscape = Message._makeMatchEscape(Message._defaultDelimiters)
+  _opt: ReturnType<typeof normalizedClientMessageBuilderOptions>
 
   /**
    * Build the Message or Parse It
@@ -41,26 +27,17 @@ export class Message extends NodeBase {
    *
    * If you are building out a message, do this:
    *
-   * const message = new Message({header: { ... MSH Header Required Values ... }});
+   * const message = new Message({messageHeader: { ... MSH Header Required Values Here ... }});
    *
    * which then you add segments with fields and values for your Hl7 message.
    *
    */
   constructor (props?: ClientBuilderMessageOptions) {
-    const opt = normalizedClientBuilderOptions(props)
+    const opt = normalizedClientMessageBuilderOptions(props)
 
-    super(null, opt.text, Delimiters.Segment)
+    super(opt)
 
     this._opt = opt
-    this._delimiters = `${this._opt.newLine}${this._opt.separatorField}${this._opt.separatorComponent}${this._opt.separatorRepetition}${this._opt.separatorEscape}${this._opt.separatorSubComponent}`
-
-    if (this._delimiters === Message._defaultDelimiters) {
-      this._matchUnescape = Message._defaultMatchUnescape
-      this._matchEscape = Message._defaultMatchEscape
-    } else {
-      this._matchUnescape = Message._makeMatchUnescape(this._delimiters)
-      this._matchEscape = Message._makeMatchEscape(this._delimiters)
-    }
 
     if (typeof this._opt.messageHeader !== 'undefined') {
       if (this._opt.specification.checkMSH(this._opt.messageHeader) === true) {
@@ -74,126 +51,6 @@ export class Message extends NodeBase {
     } else {
       throw new HL7FatalError(500, 'Unable to fully build a new HL7 message.')
     }
-  }
-
-  /**
-   * @internal
-   * @since 1.0.0
-   * @param delimiters
-   * @private
-   */
-  private static _makeMatchEscape (delimiters: string): RegExp {
-    const sequences = [
-      Util.escapeForRegExp(delimiters[Delimiters.Escape]),
-      Util.escapeForRegExp(delimiters[Delimiters.Field]),
-      Util.escapeForRegExp(delimiters[Delimiters.Repetition]),
-      Util.escapeForRegExp(delimiters[Delimiters.Component]),
-      Util.escapeForRegExp(delimiters[Delimiters.SubComponent])
-    ]
-    return new RegExp(sequences.join('|'), 'g')
-  }
-
-  /**
-   * @internal
-   * @since 1.0.0
-   * @param delimiters
-   * @private
-   */
-  private static _makeMatchUnescape (delimiters: string): RegExp {
-    // setup regular expression for matching escape sequences, see http://www.hl7standards.com/blog/2006/11/02/hl7-escape-sequences/
-    const matchEscape = Util.escapeForRegExp(delimiters[Delimiters.Escape])
-    return new RegExp([matchEscape, '[^', matchEscape, ']*', matchEscape].join(''), 'g')
-  }
-
-  /**
-   * Get Delimiters
-   * @since 1.0.0
-   */
-  get delimiters (): string {
-    return this._delimiters
-  }
-
-  /**
-   * Unescape Text
-   * @since 1.0.0
-   * @param text
-   */
-  unescape (text: string): string {
-    if (text === null) {
-      throw new HL7FatalError(500, 'text must be passed in unescape function.')
-    }
-
-    // Slightly faster for a normal case of no escape sequences in text
-    if (!text.includes(this._delimiters[Delimiters.Escape])) {
-      return text
-    }
-
-    return text.replace(this._matchUnescape, (match: string) => {
-      switch (match.slice(1, 2)) {
-        case 'E':
-          return this._delimiters[Delimiters.Escape]
-        case 'F':
-          return this._delimiters[Delimiters.Field]
-        case 'R':
-          return this._delimiters[Delimiters.Repetition]
-        case 'S':
-          return this._delimiters[Delimiters.Component]
-        case 'T':
-          return this._delimiters[Delimiters.SubComponent]
-        case 'X':
-          return Util.decodeHexString(match.slice(2, match.length - 1))
-        case 'C':
-        case 'H':
-        case 'M':
-        case 'N':
-        case 'Z':
-          break
-        default:
-          return match
-      }
-
-      return ''
-    })
-  }
-
-  /**
-   * Escape String
-   * @since 1.0.0
-   * @param text
-   */
-  escape (text: string): string {
-    if (text === null) {
-      throw new HL7FatalError(500, 'text must be passed in escape function.')
-    }
-
-    return text.replace(this._matchEscape, (match: string) => {
-      let ch: string = ''
-
-      switch (match) {
-        case this._delimiters[Delimiters.Escape]:
-          ch = 'E'
-          break
-        case this._delimiters[Delimiters.Field]:
-          ch = 'F'
-          break
-        case this._delimiters[Delimiters.Repetition]:
-          ch = 'R'
-          break
-        case this._delimiters[Delimiters.Component]:
-          ch = 'S'
-          break
-        case this._delimiters[Delimiters.SubComponent]:
-          ch = 'T'
-          break
-      }
-
-      if (typeof ch !== 'undefined') {
-        const escape = this._delimiters[Delimiters.Escape]
-        return `${escape}${ch}${escape}`
-      }
-
-      throw new Error(`Escape sequence for ${match} is not known.`)
-    })
   }
 
   /**
@@ -222,7 +79,7 @@ export class Message extends NodeBase {
 
     const preparedPath = this.preparePath(path)
     if (preparedPath.length !== 1) {
-      throw new HL7FatalError(500,`"Invalid segment ${path}."`)
+      throw new HL7FatalError(500, `"Invalid segment ${path}."`)
     }
 
     return this.addChild(preparedPath[0]) as Segment

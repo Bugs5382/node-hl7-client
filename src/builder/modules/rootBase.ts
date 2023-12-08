@@ -1,10 +1,15 @@
-import {HL7FatalError} from "../../utils/exception";
-import {Delimiters} from "../decorators/delimiters";
-import {NodeBase} from "./nodeBase";
+import { HL7FatalError } from '../../utils/exception'
+import { ClientBuilderOptions } from '../../utils/normalize'
+import { Delimiters } from '../decorators/delimiters'
+import { NodeBase } from './nodeBase'
 import * as Util from '../../utils/'
 
-export class RootNode extends NodeBase {
-
+/**
+ * Root Base
+ * @since 1.0.0
+ * @extends NodeBase
+ */
+export class RootBase extends NodeBase {
   /** @internal */
   _opt: any
 
@@ -18,24 +23,23 @@ export class RootNode extends NodeBase {
   /** @internal */
   private static readonly _defaultDelimiters = '\r|^~\\&'
   /** @internal */
-  private static readonly _defaultMatchUnescape = RootNode._makeMatchUnescape(RootNode._defaultDelimiters)
+  private static readonly _defaultMatchUnescape = RootBase._makeMatchUnescape(RootBase._defaultDelimiters)
   /** @internal */
-  private static readonly _defaultMatchEscape = RootNode._makeMatchEscape(RootNode._defaultDelimiters)
+  private static readonly _defaultMatchEscape = RootBase._makeMatchEscape(RootBase._defaultDelimiters)
 
-  constructor(props: any) {
-    super(null, props.opt.text, Delimiters.Segment)
+  constructor (opt: ClientBuilderOptions) {
+    super(null, opt.text, Delimiters.Segment)
 
-    this._delimiters = `${this._opt.newLine}${this._opt.separatorField}${this._opt.separatorComponent}${this._opt.separatorRepetition}${this._opt.separatorEscape}${this._opt.separatorSubComponent}`
+    this._delimiters = `${opt.newLine}${opt.separatorField}${opt.separatorComponent}${opt.separatorRepetition}${opt.separatorEscape}${opt.separatorSubComponent}`
 
-    if (this._delimiters === RootNode._defaultDelimiters) {
-      this._matchUnescape = RootNode._defaultMatchUnescape
-      this._matchEscape = RootNode._defaultMatchEscape
+    if (this._delimiters === RootBase._defaultDelimiters) {
+      this._matchUnescape = RootBase._defaultMatchUnescape
+      this._matchEscape = RootBase._defaultMatchEscape
     } else {
-      this._matchUnescape = RootNode._makeMatchUnescape(this._delimiters)
-      this._matchEscape = RootNode._makeMatchEscape(this._delimiters)
+      this._matchUnescape = RootBase._makeMatchUnescape(this._delimiters)
+      this._matchEscape = RootBase._makeMatchEscape(this._delimiters)
     }
   }
-
 
   /**
    * @internal
@@ -79,7 +83,7 @@ export class RootNode extends NodeBase {
    * @since 1.0.0
    * @param text
    */
-  protected unescape (text: string): string {
+  unescape (text: string): string {
     if (text === null) {
       throw new HL7FatalError(500, 'text must be passed in unescape function.')
     }
@@ -122,7 +126,7 @@ export class RootNode extends NodeBase {
    * @since 1.0.0
    * @param text
    */
-  protected escape (text: string): string {
+  escape (text: string): string {
     if (text === null) {
       throw new HL7FatalError(500, 'text must be passed in escape function.')
     }
@@ -156,5 +160,4 @@ export class RootNode extends NodeBase {
       throw new HL7FatalError(500, `Escape sequence for ${match} is not known.`)
     })
   }
-
 }

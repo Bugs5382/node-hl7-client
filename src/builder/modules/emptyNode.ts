@@ -39,7 +39,7 @@ export class EmptyNode implements Node {
   }
 
   isEmpty (): boolean {
-    return  true
+    return true
   }
 
   toDate (): Date {

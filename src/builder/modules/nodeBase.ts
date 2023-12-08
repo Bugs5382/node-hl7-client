@@ -1,3 +1,4 @@
+import { Batch } from '../batch'
 import { EmptyNode } from './emptyNode'
 import { HL7FatalError } from '../../utils/exception'
 import * as Util from '../../utils'
@@ -14,7 +15,7 @@ export class NodeBase implements Node {
   private readonly _delimiter: Delimiters | undefined
   private _delimiterText: string
   private _children: Node[]
-  private _message: Message | undefined
+  private _message: Message | Batch | undefined
   private _path: string[]
   private _dirty: boolean
 
@@ -55,11 +56,11 @@ export class NodeBase implements Node {
     if (typeof path === 'string') {
       if (Array.isArray(value)) {
         for (let i = 0; i < value.length; i++) {
-          this.set(`${path}.${i+1}`, value[i])
+          this.set(`${path}.${i + 1}`, value[i])
         }
       } else {
-        const _path = this.preparePath(path as string)
-        this.write( _path, this.prepareValue(value))
+        const _path = this.preparePath(path)
+        this.write(_path, this.prepareValue(value))
       }
 
       return this
@@ -158,7 +159,7 @@ export class NodeBase implements Node {
   }
 
   protected preparePath (path: string): string[] {
-    let parts = path.split(`.`)
+    let parts = path.split('.')
     if (parts[0] === '') {
       parts.shift()
       parts = this.path.concat(parts)
@@ -195,7 +196,7 @@ export class NodeBase implements Node {
     return value.toString()
   }
 
-  protected get message (): Message | undefined {
+  protected get message (): Message | Batch | undefined {
     if (typeof this._message !== 'undefined') {
       return this._message
     }
@@ -275,9 +276,9 @@ export class NodeBase implements Node {
     return this._children
   }
 
-  protected addChild(text: string): Node {
+  protected addChild (text: string): Node {
     this.setDirty()
-    const child = this.createChild(text, this.children.length) as Node
+    const child = this.createChild(text, this.children.length)
     this.children.push(child)
     return child
   }

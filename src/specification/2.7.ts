@@ -5,7 +5,7 @@ import { HL7_SPEC_BASE } from './specification.js'
  * HL7 2.7 MSH Specification
  * @since 1.0.0
  */
-export type HL7_2_7_MSH = {
+export interface HL7_2_7_MSH {
   /** Message Type
    * @description The message type of the Hl7 message we are sending.
    * @since 1.0.0 */
@@ -20,7 +20,7 @@ export type HL7_2_7_MSH = {
  * HL7 2.7 BSH Specification
  * @since 1.0.0
  */
-export type HL7_2_7_BSH = {}
+export interface HL7_2_7_BSH {}
 
 /**
  * Hl7 Specification Version 2.7

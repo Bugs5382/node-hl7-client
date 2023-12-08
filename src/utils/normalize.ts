@@ -1,7 +1,7 @@
 import { TcpSocketConnectOpts } from 'node:net'
 import type { ConnectionOptions as TLSOptions } from 'node:tls'
 import { HL7_2_7 } from '../specification/2.7'
-import {BSH, MSH} from '../specification/specification'
+import { BSH, MSH } from '../specification/specification'
 import * as Util from './index'
 
 const DEFAULT_CLIENT_OPTS = {
@@ -190,7 +190,7 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
   return props
 }
 
-export function normalizedClientBuilderOptions (raw?: ClientBuilderMessageOptions): ClientBuilderMessageOptions {
+export function normalizedClientMessageBuilderOptions (raw?: ClientBuilderMessageOptions): ClientBuilderMessageOptions {
   const props = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
   if (typeof props.messageHeader === 'undefined' && props.text === '') {
