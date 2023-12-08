@@ -217,15 +217,15 @@ export class Message extends NodeBase {
    */
   addSegment (path: string): Segment {
     if (typeof path === 'undefined') {
-      throw new Error('Missing segment path.')
+      throw new HL7FatalError(404, 'Missing segment path.')
     }
 
     const preparedPath = this.preparePath(path)
     if (preparedPath.length !== 1) {
-      throw new Error("Invalid segment path '" + path + "'.")
+      throw new HL7FatalError(500,`"Invalid segment ${path}."`)
     }
 
-    return this.addChild(preparedPath[0])
+    return this.addChild(preparedPath[0]) as Segment
   }
 
   /**
@@ -235,7 +235,7 @@ export class Message extends NodeBase {
    * @param path
    */
   read (path: string[]): Node {
-    const segmentName = path.shift()
+    const segmentName = path.shift() as string
     if (path.length === 0) {
       // only the segment name was in the path so return a SegmentList
       const segments = this.children.filter(x => (x as Segment).name === segmentName) as Segment[]
@@ -262,7 +262,7 @@ export class Message extends NodeBase {
    * @protected
    */
   protected writeCore (path: string[], value: string): Node {
-    const segmentName = path.shift()
+    const segmentName = path.shift() as string
     if (typeof segmentName === 'undefined') {
       throw new Error('Danger, Will Robinson')
     }

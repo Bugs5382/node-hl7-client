@@ -11,7 +11,7 @@ export function assertNumber (props: Record<string, number>, name: string, min: 
 /** @internal */
 export const isNumber = (value: string | number): boolean => {
   value = typeof value === 'string' ? parseInt(value) : value
-  return isNaN(value) || !Number.isFinite(value)
+  return !isNaN(value) || !Number.isFinite(value)
 }
 
 /** @internal */

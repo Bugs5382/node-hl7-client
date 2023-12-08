@@ -24,7 +24,7 @@ export class Segment extends NodeBase {
   constructor (parent: NodeBase, text: string) {
     super(parent, text, Delimiters.Field)
     if (!Util.isString(text) || text.length === 0) {
-      throw new Error('Segment must have a name.')
+      throw new HL7FatalError(500, 'Segment must have a name.')
     }
     this._segmentName = text.slice(0, 3)
     this._name = this._segmentName
@@ -61,8 +61,8 @@ export class Segment extends NodeBase {
      */
   protected writeCore (path: string[], value: string): Node {
     let index = parseInt(path.shift() as string)
-    if (index < 1) {
-      throw new Error("Can't have an index < 1")
+    if (index < 1 || isNaN(index)) {
+      throw new HL7FatalError(500, "Can't have an index < 1 or not be a valid number.")
     }
     if (this._name === 'MSH') {
       if (index === 1 || index === 2) {

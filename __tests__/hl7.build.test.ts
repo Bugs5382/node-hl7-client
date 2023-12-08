@@ -1,4 +1,5 @@
 import {randomUUID} from "crypto";
+// import * as Util from '../src/utils/'
 import {Message} from "../src";
 
 describe('node hl7 client - builder tests', () => {
@@ -120,7 +121,7 @@ describe('node hl7 client - builder tests', () => {
           }
         })
       } catch (err) {
-        expect(err).toEqual(new Error('MSH.9.10 must be greater than 0 and less than 199 characters.'))
+        expect(err).toEqual(new Error('MSH.10 must be greater than 0 and less than 199 characters.'))
       }
     })
 
@@ -136,7 +137,7 @@ describe('node hl7 client - builder tests', () => {
           }
         })
       } catch (err) {
-        expect(err).toEqual(new Error('MSH.9.10 must be greater than 0 and less than 199 characters.'))
+        expect(err).toEqual(new Error('MSH.10 must be greater than 0 and less than 199 characters.'))
       }
     })
 
@@ -148,7 +149,6 @@ describe('node hl7 client - builder tests', () => {
     const randomControlID = randomUUID()
 
     beforeEach(async () => {
-
       message = new Message({
         mshHeader: {
           msh_9: {
@@ -158,24 +158,77 @@ describe('node hl7 client - builder tests', () => {
           msh_10: randomControlID
         }
       })
-
     })
 
-    test("basic build", async () => {
+    test("... initial build", async () => {
       expect(message.toString()).toContain("MSH|^~\\&")
       expect(message.toString()).toContain(`|ADT^A01^ADT_A01|${randomControlID}||2.7`)
     })
 
-    test("basic build - verify MSH header is correct", async () => {
-      expect(message.toString()).toContain("MSH|^~\\&")
-      expect(message.get('MSH.1').toRaw()).toBe("|")
-      expect(message.get('MSH.2').toRaw()).toBe("^~\\&")
-      expect(message.get('MSH.3').toRaw()).toBe("")
-      expect(message.get('MSH.9.1').toRaw()).toBe("ADT")
-      expect(message.get('MSH.9.2').toRaw()).toBe("A01")
-      expect(message.get('MSH.9.3').toRaw()).toBe("ADT_A01")
-      expect(message.get('MSH.10').toRaw()).toBe(randomControlID)
-      expect(message.get('MSH.12').toRaw()).toBe("2.7")
+    test("... verify MSH header is correct", async () => {
+      expect(message.toString().substring(0, 8)).toBe("MSH|^~\\&")
+      expect(message.get('MSH.1').toString()).toBe("|")
+      expect(message.get('MSH.2').toString()).toBe("^~\\&")
+      expect(message.get('MSH.3').exists("")).toBe(false)
+      expect(message.get('MSH.9.1').toString()).toBe("ADT")
+      expect(message.get('MSH.9.2').toString()).toBe("A01")
+      expect(message.get('MSH.9.3').toString()).toBe("ADT_A01")
+      expect(message.get('MSH.10').toString()).toBe(randomControlID)
+      expect(message.get('MSH.12').toString()).toBe("2.7")
+    })
+
+    test('... add onto the MSH header', async () => {
+      message.set("MSH.3", "SendingApp");
+      message.set("MSH.4", "SendingFacility");
+      message.set("MSH.5", "ReceivingApp");
+      message.set("MSH.6", "ReceivingFacility");
+
+      expect(message.get("MSH.3").toString()).toBe("SendingApp");
+      expect(message.get("MSH.4").toString()).toBe( "SendingFacility");
+      expect(message.get("MSH.5").toString()).toBe( "ReceivingApp");
+      expect(message.get("MSH.6").toString()).toBe( "ReceivingFacility");
+    })
+
+    test.todo('...override MSH.7 (Date/Time/Field)')
+
+    test.todo('...override MSH.7 to short - error out')
+
+    test.todo('...override MSH.7 to long - error out')
+
+    test('... MSH.3.1 can be gotten with MSH.3', async () => {
+      message.set("MSH.3.1", "SendingApp");
+      expect(message.get("MSH.3").toString()).toBe("SendingApp");
+    })
+
+    test('... MSH.3 can be gotten with MSH.3.1', async () => {
+      message.set("MSH.3", "SendingApp");
+      expect(message.get("MSH.3.1").toString()).toBe("SendingApp");
+    })
+
+  })
+
+  describe('complex builder tests', () => {
+
+    let message: Message
+    //const randomControlID = randomUUID()
+
+    beforeEach(async () => {
+      message = new Message({
+        mshHeader: {
+          msh_9: {
+            msh_9_1: "ADT",
+            msh_9_2: "A01"
+          },
+          msh_10: "12345"
+        }
+      })
+      message.set('MSH.7', '20081231')
+    })
+
+    test('... add segment EVN field', async () => {
+      const segment = message.addSegment('EVN')
+      segment.set('EVN.2', '20081231')
+      expect(message.toString()).toBe("MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231")
     })
 
   })
