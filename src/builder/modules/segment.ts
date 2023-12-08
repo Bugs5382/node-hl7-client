@@ -40,7 +40,7 @@ export class Segment extends NodeBase {
     if (index < 1) {
       throw new HL7FatalError(500, 'index must be 1 or greater.')
     }
-    if (this._name === 'MSH') {
+    if ((this._name === 'MSH') || (this._name === 'BHS')) {
       if (typeof this.message !== 'undefined' && index === 1) {
         return new SubComponent(this, '1', this.message.delimiters[Delimiters.Field])
       } else {
@@ -64,7 +64,7 @@ export class Segment extends NodeBase {
     if (index < 1 || isNaN(index)) {
       throw new HL7FatalError(500, "Can't have an index < 1 or not be a valid number.")
     }
-    if (this._name === 'MSH') {
+    if ((this._name === 'MSH')  || (this._name === 'BHS'))  {
       if (index === 1 || index === 2) {
         throw new Error('You cannot assign the field separator or encoding characters')
       } else {

@@ -217,7 +217,7 @@ export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderBatchOpt
     throw new Error('batchHeader must be set if no HL7 message is being passed.')
   } else if (typeof props.batchHeader !== 'undefined' && props.text !== '') {
     throw new Error('batchHeader and mshHeader must be set if no HL7 message is being passed.')
-  } else if (props.text.slice(0, 3) !== 'BHS') {
+  } else if (props.text !== '' && props.text.slice(0, 3) !== 'BHS') {
     throw new Error('text must begin with the BHS segment.')
   }
 
@@ -226,7 +226,7 @@ export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderBatchOpt
   }
 
   if (props.text === '') {
-    props.text = `BSH${props.separatorField}${props.separatorComponent}${props.separatorRepetition}${props.separatorEscape}${props.separatorSubComponent}`
+    props.text = `BHS${props.separatorField}${props.separatorComponent}${props.separatorRepetition}${props.separatorEscape}${props.separatorSubComponent}`
   }
 
   return props

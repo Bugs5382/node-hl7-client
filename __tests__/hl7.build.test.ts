@@ -1,6 +1,6 @@
 import {randomUUID} from "crypto";
 // import * as Util from '../src/utils/'
-import {Message} from "../src";
+import {Batch, Message} from "../src";
 
 describe('node hl7 client - builder tests', () => {
 
@@ -210,7 +210,6 @@ describe('node hl7 client - builder tests', () => {
   describe('complex builder message tests', () => {
 
     let message: Message
-    //const randomControlID = randomUUID()
 
     beforeEach(async () => {
       message = new Message({
@@ -254,9 +253,41 @@ describe('node hl7 client - builder tests', () => {
 
   describe('basic batch basics', () => {
 
-    test.todo('... initial build')
-    test.todo('... verify BSH header is correct')
-    test.todo('... add onto the BSH header')
+    let batch: Batch
+
+    beforeEach(async () => {
+      batch = new Batch()
+      batch.start()
+    })
+
+    test('... initial build', async() => {
+      batch.end()
+      expect(batch.toString()).toContain("BHS|^~\\&")
+      expect(batch.toString()).toContain("BTS|")
+    })
+
+    test('... verify BHS header is correct', async() => {
+      batch.set('BHS.7', '20081231')
+      batch.end()
+      expect(batch.get('BHS.7').toString()).toBe("20081231")
+      expect(batch.toString()).toBe("BHS|^~\\&|||||20081231\rBTS|1|End of Batch")
+    })
+
+    test('... add onto the BHS header', async() => {
+      batch.set('BHS.7', '20081231')
+      batch.set("BHS.3", "SendingApp");
+      batch.set("BHS.4", "SendingFacility");
+      batch.set("BHS.5", "ReceivingApp");
+      batch.set("BHS.6", "ReceivingFacility");
+      batch.end()
+
+      expect(batch.get("BHS.3").toString()).toBe("SendingApp");
+      expect(batch.get("BHS.4").toString()).toBe( "SendingFacility");
+      expect(batch.get("BHS.5").toString()).toBe( "ReceivingApp");
+      expect(batch.get("BHS.6").toString()).toBe( "ReceivingFacility");
+      expect(batch.toString()).toBe("BHS|^~\\&|SendingApp|SendingFacility|ReceivingApp|ReceivingFacility|20081231\rBTS|1|End of Batch")
+    })
+
     test.todo('...override BSH.7 (Date/Time/Field)')
     test.todo('...override BSH.7 to short - error out')
     test.todo('...override BSH.7 to long - error out')
