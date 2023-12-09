@@ -3,7 +3,7 @@ import { Node } from '../interface/node'
 /** @internal */
 export class EmptyNode implements Node {
   get name (): string {
-    throw new Error('Not implemented')
+    throw new Error('Method not implemented')
   }
 
   get length (): number {
@@ -23,15 +23,15 @@ export class EmptyNode implements Node {
   }
 
   forEach (_callback: (value: Node, index: number) => void): void {
-    throw new Error('Not implemented')
+    throw new Error('Method not implemented')
   }
 
   toString (): string {
-    throw new Error('Not implemented')
+    throw new Error('Method not implemented')
   }
 
   toRaw (): string {
-    throw new Error('Not implemented')
+    throw new Error('Method not implemented')
   }
 
   toArray (): Node[] {
@@ -43,23 +43,23 @@ export class EmptyNode implements Node {
   }
 
   toDate (): Date {
-    throw new Error('Not implemented')
+    throw new Error('Method not implemented')
   }
 
   toInteger (): number {
-    throw new Error('Not implemented')
+    throw new Error('Method not implemented')
   }
 
   toFloat (): number {
-    throw new Error('Not implemented')
+    throw new Error('Method not implemented')
   }
 
   toBoolean (): boolean {
-    throw new Error('Not implemented')
+    throw new Error('Method not implemented')
   }
 
   read (_path: string[]): Node {
-    throw new Error('Not implemented')
+    throw new Error('Method not implemented')
   }
 
   write (_path: string[], _value: string): Node {
@@ -67,6 +67,6 @@ export class EmptyNode implements Node {
   }
 
   get path (): string[] {
-    throw new Error('Not implemented')
+    throw new Error('Method not implemented')
   }
 }

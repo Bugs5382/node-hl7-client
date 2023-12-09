@@ -11,6 +11,7 @@ const DEFAULT_CLIENT_OPTS = {
 
 const DEFAULT_CLIENT_BUILDER_OPTS = {
   newLine: '\r',
+  parsing: false,
   separatorComponent: '^',
   separatorEscape: '\\',
   separatorField: '|',
@@ -81,6 +82,11 @@ export interface ClientBuilderOptions {
    * @since 1.0.0
    * @default \r */
   newLine?: string
+  /** Parsing a message?
+   * @since 1.0.0
+   * @default false
+   */
+  parsing?: boolean
   /** The character used to separate different components.
    * @since 1.0.0
    * @default ^ */
@@ -205,6 +211,8 @@ export function normalizedClientMessageBuilderOptions (raw?: ClientBuilderMessag
 
   if (props.text === '') {
     props.text = `MSH${props.separatorField}${props.separatorComponent}${props.separatorRepetition}${props.separatorEscape}${props.separatorSubComponent}`
+  } else {
+    props.parsing = true
   }
 
   return props
@@ -227,6 +235,8 @@ export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderBatchOpt
 
   if (props.text === '') {
     props.text = `BHS${props.separatorField}${props.separatorComponent}${props.separatorRepetition}${props.separatorEscape}${props.separatorSubComponent}`
+  } else {
+    props.parsing = true
   }
 
   return props

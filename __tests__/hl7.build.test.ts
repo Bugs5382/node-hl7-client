@@ -1,4 +1,5 @@
 import {randomUUID} from "crypto";
+import {EmptyNode} from "../src/builder/modules/emptyNode";
 import * as Util from '../src/utils/'
 import {Batch, Message} from "../src";
 
@@ -24,7 +25,7 @@ describe('node hl7 client - builder tests', () => {
 
     test("error - Message Object - text must start with MSH ", async () => {
       try {
-        new Message({ text: "PV1|||||||^Jones\rMSH|^~\\&\r"})
+        new Message({ text: "PV1|||||||^Jones\r"})
       } catch (err) {
         expect(err).toEqual(new Error('text must begin with the MSH segment.'))
       }
@@ -143,7 +144,7 @@ describe('node hl7 client - builder tests', () => {
 
   })
 
-  describe(`'build message basics`, () => {
+  describe('build message basics', () => {
 
     let message: Message
     const randomControlID = randomUUID()
@@ -160,12 +161,12 @@ describe('node hl7 client - builder tests', () => {
       })
     })
 
-    test("... initial build", async () => {
+    test("...initial build", async () => {
       expect(message.toString()).toContain("MSH|^~\\&")
       expect(message.toString()).toContain(`|ADT^A01^ADT_A01|${randomControlID}||2.7`)
     })
 
-    test("... verify MSH header is correct", async () => {
+    test("...verify MSH header is correct", async () => {
       expect(message.toString().substring(0, 8)).toBe("MSH|^~\\&")
       expect(message.get('MSH.1').toString()).toBe("|")
       expect(message.get('MSH.2').toString()).toBe("^~\\&")
@@ -177,7 +178,7 @@ describe('node hl7 client - builder tests', () => {
       expect(message.get('MSH.12').toString()).toBe("2.7")
     })
 
-    test('... add onto the MSH header', async () => {
+    test('...add onto the MSH header', async () => {
       message.set("MSH.3", "SendingApp");
       message.set("MSH.4", "SendingFacility");
       message.set("MSH.5", "ReceivingApp");
@@ -189,23 +190,21 @@ describe('node hl7 client - builder tests', () => {
       expect(message.get("MSH.6").toString()).toBe( "ReceivingFacility");
     })
 
-    test.todo('...override MSH.7 to short - error out')
-
-    test.todo('...override MSH.7 to long - error out')
-
-    test('... MSH.3.1 can be gotten with MSH.3', async () => {
+    test('...MSH.3.1 can be gotten with MSH.3', async () => {
       message.set("MSH.3.1", "SendingApp");
       expect(message.get("MSH.3").toString()).toBe("SendingApp");
     })
 
-    test('... MSH.3 can be gotten with MSH.3.1', async () => {
+    test('...MSH.3 can be gotten with MSH.3.1', async () => {
       message.set("MSH.3", "SendingApp");
       expect(message.get("MSH.3.1").toString()).toBe("SendingApp");
     })
 
+
+
   })
 
-  describe('complex builder message tests', () => {
+  describe('complex builder message', () => {
 
     let message: Message
 
@@ -222,26 +221,105 @@ describe('node hl7 client - builder tests', () => {
       message.set('MSH.7', '20081231')
     })
 
-    // this is currently failing
+    test("...should accept a number as a value", async () => {
+      message.set("EVN.2", 1);
+      expect(message.toString()).toContain("EVN||1");
+    });
+
+    test('...should accept a Date without time as a value', () => {
+      message.set("PV1.1", new Date(2012, 9, 31));
+      expect(message.toString()).toContain( "PV1|20121031");
+    });
+
+    test('...should accept a Date with time as a value', () => {
+      message.set("PV1.1", new Date(2012, 9, 31, 22, 51, 13));
+      expect(message.toString()).toContain( "PV1|20121031225113");
+    });
+
+    test('...should accept a float as a value', () => {
+      message.set("PV1.1", 1.2);
+      expect(message.toString()).toContain( "PV1|1.2");
+    });
+
+    test('...should accept a boolean as a value', () => {
+      message.set("PV1.1", true);
+      expect(message.toString()).toContain( "PV1|Y");
+      message.set("PV1.1", false);
+      expect(message.toString()).toContain( "PV1|N");
+    });
+
+    test('...should set the specified field', () => {
+      message.set("PID.4", "1273462894723");
+      expect(message.toString()).toContain( "PID||||1273462894723");
+    });
+
+    test('...should be able to set more than one field on the same segment', () => {
+      message.set("PID.4", "1273462894723");
+      message.set("PID.10", "TEST");
+      expect(message.toString()).toContain("PID||||1273462894723||||||TEST");
+    });
+
+    test('...should set the specified component', () => {
+      message.set("PV1.7.2", "Jones");
+      expect(message.toString()).toContain( "PV1|||||||^Jones");
+    });
+
+    test('...should be able to set more that one component on the same field', () => {
+      message.set("PV1.7.2", "Jones");
+      message.set("PV1.7.3", "John");
+      expect(message.toString()).toContain("PV1|||||||^Jones^John");
+    });
+
+    test('...should be able to set repeating fields', async () => {
+      message.set('PID.3').set(0).set('PID.3.1', 'abc');
+      message.set('PID.3').set(0).set('PID.3.5', 'MRN');
+      message.set('PID.3').set(1).set('PID.3.1', 123);
+      message.set('PID.3').set(1).set('PID.3.5', 'ID');
+      expect(message.toString()).toContain("PID|||abc^^^^MRN~123^^^^ID");
+    });
+
+    test('...can chain component setters', async () => {
+      message.set("PV1.7").set(0).set("PV1.7.2", "Jones").set("PV1.7.3", "John");
+      message.set("PV1.7").set(1).set("PV1.7.2", "Smith").set("PV1.7.3", "Bob");
+      expect(message.toString()).toContain("PV1|||||||^Jones^John~^Smith^Bob");
+    });
+
+    test('...can chain component setters with numeric indexers', async () => {
+      message.set("PV1.7").set(0).set(1, "Jones").set(2, "John");
+      message.set("PV1.7").set(1).set(1, "Smith").set(2, "Bob");
+      expect(message.toString()).toContain("PV1|||||||^Jones^John~^Smith^Bob");
+    });
+
+    test('...can set field component by number', async () => {
+      message.set("PV1.7").set(0).set(1, "Jones").set(2, "John");
+      expect(message.toString()).toContain("PV1|||||||^Jones^John");
+    });
+
+    test('...can set field component by number and array', async () => {
+      message.set("PV1.7").set(0, ["", "Jones", "John"]).set(1, ["", "Smith", "Bob"]);
+      expect(message.toString()).toContain("PV1|||||||^Jones^John~^Smith^Bob");
+    });
+
+    // This is currently failing, why... I have no idea. Help!
     test.skip('... add segment EVN field - using full path', async () => {
       const segment = message.addSegment('EVN')
       segment.set('EVN.2.1', '20081231')
       expect(message.toString()).toBe("MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231")
     })
 
-    test('... add segment EVN field - using number path', async () => {
+    test('...add segment EVN field - using number path', async () => {
       const segment = message.addSegment('EVN')
       segment.set('2.1', '20081231')
       expect(message.toString()).toBe("MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231")
     })
 
-    test('... add segment EVN field - using simple number path', async () => {
+    test('...add segment EVN field - using simple number path', async () => {
       const segment = message.addSegment('EVN')
       segment.set('2', '20081231')
       expect(message.toString()).toBe("MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231")
     })
 
-    test('... add segment EVN field - using simple number', async () => {
+    test('...add segment EVN field - using simple number', async () => {
       const segment = message.addSegment('EVN')
       segment.set(2, '20081231')
       expect(message.toString()).toBe("MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231")
@@ -286,13 +364,9 @@ describe('node hl7 client - builder tests', () => {
       expect(batch.toString()).toBe("BHS|^~\\&|SendingApp|SendingFacility|ReceivingApp|ReceivingFacility|20081231\rBTS|0")
     })
 
-    test.todo('...override BSH.7 to short - error out')
-
-    test.todo('...override BSH.7 to long - error out')
-
   })
 
-  describe('complex builder batch tests', () => {
+  describe('complex builder batch', () => {
 
     let batch: Batch
     let message: Message
@@ -385,6 +459,59 @@ describe('node hl7 client - builder tests', () => {
       batch.add(message)
       batch.end()
       expect(batch.toString()).toBe("BHS|^~\\&|||||20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1")
+    })
+
+  })
+
+  describe('non standard tests', () => {
+
+    test('...returns true if specified path exists', () => {
+      let message = new Message({text:"MSH|^~\\&|value\rPV1|"});
+      expect(message.exists("MSH.3")).toBe(true)
+      expect(message.exists("PV1")).toBe(true)
+    });
+
+    test('...returns false if specified path does not exists', () => {
+      let message = new Message({text: "MSH|^~\\&|value"});
+      expect(message.exists("MSH.4")).toBe(false)
+      expect(message.exists("PV1")).toBe(false)
+    });
+
+    test('...should return EmptyNode for out-of-range indexes', () => {
+      let message = new Message({text: "MSH|^~\\&|"});
+      expect(message.get(10)).toBeInstanceOf(EmptyNode)
+      expect(message.get("PV1").get(10)).toBeInstanceOf(EmptyNode)
+    });
+
+    test('...should resolve escape sequence for hex character sequence', () => {
+      let field = new Message({text: "MSH|^~\\&|\\X0D\\"}).get("MSH.3");
+      expect(field.toString()).toBe("\r");
+    })
+
+    test('...should pass through invalid escape sequences', () => {
+      expect(new Message({text: "MSH|^~\\&|\\a\\"}).get("MSH.3").toString()).toBe("\\a\\")
+    })
+
+  })
+
+  describe('parse message', () => {
+
+    const hl7_string: string = "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231"
+
+    test('...verify input', async () => {
+
+      const message = new Message({text: hl7_string})
+
+      expect(message.toString().substring(0, 8)).toBe("MSH|^~\\&")
+      expect(message.get('MSH.1').toString()).toBe("|")
+      expect(message.get('MSH.2').toString()).toBe("^~\\&")
+      expect(message.get('MSH.3').exists("")).toBe(false)
+      expect(message.get('MSH.9.1').toString()).toBe("ADT")
+      expect(message.get('MSH.9.2').toString()).toBe("A01")
+      expect(message.get('MSH.9.3').toString()).toBe("ADT_A01")
+      expect(message.get('MSH.10').toString()).toBe("12345")
+      expect(message.get('MSH.12').toString()).toBe("2.7")
+      expect(message.get('EVN.2').toString()).toBe("20081231")
     })
 
   })

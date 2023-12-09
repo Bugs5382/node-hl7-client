@@ -1,3 +1,4 @@
+import { HL7FatalError } from '../../utils/exception'
 import { Delimiters } from '../decorators/delimiters'
 import { NodeBase } from './nodeBase'
 
@@ -27,7 +28,7 @@ export class ValueNode extends NodeBase {
       /** YYYYMMDDHHMMSS **/
       return new Date(parseInt(text.slice(0, 4)), parseInt(text.slice(4, 6)) - 1, parseInt(text.slice(6, 8)), parseInt(text.slice(8, 10)), parseInt(text.slice(10, 12)), parseInt(text.slice(12, 14)))
     }
-    throw new Error('Invalid Date Format')
+    throw new HL7FatalError(500, 'Invalid Date Format')
   }
 
   toInteger (): number {
@@ -45,12 +46,12 @@ export class ValueNode extends NodeBase {
       case 'N':
         return false
     }
-    throw new Error('Not a valid value for boolean value.')
+    throw new HL7FatalError(500, 'Not a valid value for boolean value.')
   }
 
   protected pathCore (): string[] {
     if (this.parent === null) {
-      throw new Error('Somehow, this.parent is null.')
+      throw new HL7FatalError(404, 'Somehow, this.parent is null.')
     }
     return this.parent.path.concat([this.key])
   }

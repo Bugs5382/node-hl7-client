@@ -8,15 +8,6 @@ import { ValueNode } from './valueNode'
  * @extends ValueNode
  */
 export class SubComponent extends ValueNode {
-  /**
-     * @since 1.0.0
-     * @param parent
-     * @param key
-     * @param text
-     */
-  /* constructor (parent: NodeBase, key: string, text: string) {
-    super(parent, key, text)
-  } */
 
   /**
      * Get Value as String
