@@ -158,7 +158,6 @@ export class Message extends RootBase {
       }
     }
     return undefined
-    // throw new HL7FatalError(500, 'Unable to process _getFirstSegment.')
   }
 
   /** @internal */
