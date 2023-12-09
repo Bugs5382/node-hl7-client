@@ -427,7 +427,7 @@ describe('node hl7 client - builder tests', () => {
           msh_10: 'CONTROL_ID'
         }
       })
-      message.set('MSH.7', date)
+      message.set('MSH.7', '20231208')
 
       const segment = message.addSegment('EVN')
       segment.set(2, '20081231')
@@ -448,7 +448,7 @@ describe('node hl7 client - builder tests', () => {
           msh_10: 'CONTROL_ID'
         }
       })
-      message.set('MSH.7', date)
+      message.set('MSH.7', '20231208')
 
       let segment = message.addSegment('EVN')
       segment.set(2, '20081231')
