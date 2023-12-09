@@ -5,7 +5,6 @@ import { Field } from './builder/modules/field'
 import { FieldRepetition } from './builder/modules/fieldRepetition'
 import { Listener } from './client/listener'
 import { Message } from './builder/message'
-import { Parser } from './client/parser'
 import { Segment } from './builder/modules/segment'
 import { SegmentList } from './builder/modules/segmentList'
 import { HL7_2_7 } from './specification/2.7.js'
@@ -15,7 +14,7 @@ import { Batch } from './builder/batch'
 import { ParserPlan } from './utils/parserPlan'
 
 export default Client
-export { Client, Listener, Parser, ParserPlan, Batch, Message, Delimiters, Segment, SegmentList, Component, SubComponent, Field, FieldRepetition }
+export { Client, Listener, ParserPlan, Batch, Message, Delimiters, Segment, SegmentList, Component, SubComponent, Field, FieldRepetition }
 export * from './utils/index'
 
 /** HL7 Specs **/

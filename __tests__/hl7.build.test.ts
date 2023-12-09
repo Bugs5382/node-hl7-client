@@ -526,8 +526,12 @@ describe('node hl7 client - builder tests', () => {
   describe('parse message and batch', () => {
 
     const hl7_string: string = "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231"
+    const hl7_non_standard: string = "MSH:-+?*:field2:field3component1-field3component2:field4repeat1+field4repeat2:field5subcomponent1*field5subcomponent2:field6?R?"
+    const hl7_batch: string = "BHS|^~\\&|||||20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1"
+    const hl7_batch_non_standard: string = "BHS:-+?*:::::20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1"
+    // const hl7_batch_non_standard_mixed: string = "BHS:-+?*:::::20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1"
 
-    test('...verify input', async () => {
+    test('...verify MSH input', async () => {
 
       const message = new Message({text: hl7_string})
 
@@ -541,11 +545,20 @@ describe('node hl7 client - builder tests', () => {
       expect(message.get('MSH.10').toString()).toBe("12345")
       expect(message.get('MSH.12').toString()).toBe("2.7")
       expect(message.get('EVN.2').toString()).toBe("20081231")
+
+      let count: number = 0
+      message.get("EVN").forEach((segment: Node): void => {
+        expect(segment.name).toBe( "EVN");
+        count++;
+      });
+
+      expect(count).toBe(1)
+
     })
 
     test('...parse non standard delimiters defined in MSH header', async () => {
 
-      const message = new Message({text: "MSH:-+?*:field2:field3component1-field3component2:field4repeat1+field4repeat2:field5subcomponent1*field5subcomponent2:field6?R?"});
+      const message = new Message({text: hl7_non_standard});
 
       expect(message.get("MSH.3").toString()).toBe( "field2");
       expect(message.get("MSH.4.2").toString()).toBe( "field3component2");
@@ -554,6 +567,41 @@ describe('node hl7 client - builder tests', () => {
       expect(message.get("MSH.6.1").toString()).toBe( "field5subcomponent1*field5subcomponent2");
       expect(message.get("MSH.6.1.2").toString()).toBe( "field5subcomponent2");
       expect(message.get("MSH.7").toString()).toBe( "field6+");
+    })
+
+    test('...verify BHS input', async () => {
+
+      const batch = new Batch({text: hl7_batch})
+
+      expect(batch.toString().substring(0, 8)).toBe("BHS|^~\\&")
+      expect(batch.get('BHS.1').toString()).toBe("|")
+      expect(batch.get('BHS.2').toString()).toBe("^~\\&")
+    })
+
+    test('...parse non standard delimiters defined in BHS header', async () => {
+
+      const batch = new Batch({text: hl7_batch_non_standard})
+
+      expect(batch.toString().substring(0, 8)).toBe("BHS:-+?*")
+      expect(batch.get('BHS.1').toString()).toBe(":")
+      expect(batch.get('BHS.2').toString()).toBe("-+?*")
+    })
+
+    test('...verify BHS input ... 1 message should exist ... 2 EVN segments inside', async () => {
+
+      const batch = new Batch({text: hl7_batch})
+      const messages = batch.messages()
+      expect(messages.length).toBe(1)
+
+      messages.forEach((message: Message): void  => {
+
+        let count: number = 0
+        message.get("EVN").forEach((segment: Node): void => {
+          expect(segment.name).toBe( "EVN");
+          count++;
+        });
+        expect(count).toBe(2)
+      })
 
     })
 

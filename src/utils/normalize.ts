@@ -228,13 +228,9 @@ export function normalizedClientMessageBuilderOptions (raw?: ClientBuilderMessag
 }
 
 export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderBatchOptions): ClientBuilderBatchOptions {
-  const props = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
+  const props: ClientBuilderBatchOptions = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
-  if (typeof props.batchHeader === 'undefined' && props.text !== '') {
-    throw new Error('batchHeader must be set if no HL7 message is being passed.')
-  } else if (typeof props.batchHeader !== 'undefined' && props.text !== '') {
-    throw new Error('batchHeader and mshHeader must be set if no HL7 message is being passed.')
-  } else if (props.text !== '' && props.text.slice(0, 3) !== 'BHS') {
+  if (typeof props.batchHeader === 'undefined' && typeof props.text !== 'undefined' && props.text !== '' && props.text.slice(0, 3) !== 'BHS') {
     throw new Error('text must begin with the BHS segment.')
   }
 
@@ -244,8 +240,16 @@ export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderBatchOpt
 
   if (props.text === '') {
     props.text = `BHS${props.separatorField}${props.separatorComponent}${props.separatorRepetition}${props.separatorEscape}${props.separatorSubComponent}`
-  } else {
+  } else if (typeof props.text !== 'undefined') {
+    const plan: ParserPlan = new ParserPlan(props.text.slice(3, 8))
     props.parsing = true
+    // check to make sure that we set the correct properties
+    props.newLine = props.text.includes('\r') ? '\r' : '\n'
+    props.separatorField = plan.separatorField
+    props.separatorComponent = plan.separatorComponent
+    props.separatorRepetition = plan.separatorRepetition
+    props.separatorEscape = plan.separatorEscape
+    props.separatorSubComponent = plan.separatorSubComponent
   }
 
   return props
