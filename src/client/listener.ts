@@ -2,8 +2,8 @@ import EventEmitter from 'events'
 import { Socket } from 'net'
 import * as net from 'net'
 import * as tls from 'tls'
-import { Client } from './client'
-import { ClientListenerOptions, normalizeClientListenerOptions } from '../utils/normalize'
+import { Client } from './client.js'
+import { ClientListenerOptions, normalizeClientListenerOptions } from '../utils/normalize.js'
 
 /** Listener Class
  * @since 1.0.0 */

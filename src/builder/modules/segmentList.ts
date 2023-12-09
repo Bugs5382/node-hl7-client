@@ -1,6 +1,6 @@
-import { Node } from '../interface/node'
-import { NodeBase } from './nodeBase'
-import { Segment } from './segment'
+import { Node } from '../interface/node.js'
+import { NodeBase } from './nodeBase.js'
+import { Segment } from './segment.js'
 
 /**
  * Segment List

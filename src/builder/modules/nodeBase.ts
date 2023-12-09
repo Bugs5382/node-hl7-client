@@ -1,10 +1,10 @@
-import { Batch } from '../batch'
-import { EmptyNode } from './emptyNode'
-import { HL7FatalError } from '../../utils/exception'
+import { Batch } from '../batch.js'
+import { EmptyNode } from './emptyNode.js'
+import { HL7FatalError } from '../../utils/exception.js'
 import * as Util from '../../utils'
-import { Delimiters } from '../decorators/delimiters'
-import { Node } from '../interface/node'
-import { Message } from '../message'
+import { Delimiters } from '../decorators/delimiters.js'
+import { Node } from '../interface/node.js'
+import { Message } from '../message.js'
 
 /** @internal */
 export class NodeBase implements Node {

@@ -1,6 +1,6 @@
 import * as Util from '../../utils'
-import { HL7FatalError } from '../../utils/exception'
-import { ValueNode } from './valueNode'
+import { HL7FatalError } from '../../utils/exception.js'
+import { ValueNode } from './valueNode.js'
 
 /**
  * Sub Components

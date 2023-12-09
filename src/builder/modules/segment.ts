@@ -1,10 +1,10 @@
-import { Delimiters } from '../decorators/delimiters'
-import { HL7FatalError } from '../../utils/exception'
-import { Field } from './field'
-import { NodeBase } from './nodeBase'
-import { Node } from '../interface/node'
+import { Delimiters } from '../decorators/delimiters.js'
+import { HL7FatalError } from '../../utils/exception.js'
+import { Field } from './field.js'
+import { NodeBase } from './nodeBase.js'
+import { Node } from '../interface/node.js'
 import * as Util from '../../utils'
-import { SubComponent } from './subComponent'
+import { SubComponent } from './subComponent.js'
 
 /**
  * Segment Class

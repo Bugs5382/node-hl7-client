@@ -1,9 +1,9 @@
-import { HL7FatalError } from '../../utils/exception'
-import { Delimiters } from '../decorators/delimiters'
-import { Node } from '../interface/node'
-import { FieldRepetition } from './fieldRepetition'
-import { NodeBase } from './nodeBase'
-import { ValueNode } from './valueNode'
+import { HL7FatalError } from '../../utils/exception.js'
+import { Delimiters } from '../decorators/delimiters.js'
+import { Node } from '../interface/node.js'
+import { FieldRepetition } from './fieldRepetition.js'
+import { NodeBase } from './nodeBase.js'
+import { ValueNode } from './valueNode.js'
 
 /**
  * Field Area of the HL7 Segment

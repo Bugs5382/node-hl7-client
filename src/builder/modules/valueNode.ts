@@ -1,6 +1,6 @@
-import { HL7FatalError } from '../../utils/exception'
-import { Delimiters } from '../decorators/delimiters'
-import { NodeBase } from './nodeBase'
+import { HL7FatalError } from '../../utils/exception.js'
+import { Delimiters } from '../decorators/delimiters.js'
+import { NodeBase } from './nodeBase.js'
 
 /** @internal */
 export class ValueNode extends NodeBase {

@@ -1,9 +1,9 @@
 import { TcpSocketConnectOpts } from 'node:net'
 import type { ConnectionOptions as TLSOptions } from 'node:tls'
-import { HL7_2_7 } from '../specification/2.7'
-import { BSH, MSH } from '../specification/specification'
-import * as Util from './index'
-import { ParserPlan } from './parserPlan'
+import { HL7_2_7 } from '../specification/2.7.js'
+import { BSH, MSH } from '../specification/specification.js'
+import * as Util from './index.js'
+import { ParserPlan } from './parserPlan.js'
 
 const DEFAULT_CLIENT_OPTS = {
   acquireTimeout: 20000,

@@ -1,9 +1,9 @@
-import { Component } from './component'
-import { Delimiters } from '../decorators/delimiters'
-import { Node } from '../interface/node'
-import { HL7FatalError } from '../../utils/exception'
-import { NodeBase } from './nodeBase'
-import { ValueNode } from './valueNode'
+import { Component } from './component.js'
+import { Delimiters } from '../decorators/delimiters.js'
+import { Node } from '../interface/node.js'
+import { HL7FatalError } from '../../utils/exception.js'
+import { NodeBase } from './nodeBase.js'
+import { ValueNode } from './valueNode.js'
 
 /**
  * Create a Field Repetition in an HL7 message segment

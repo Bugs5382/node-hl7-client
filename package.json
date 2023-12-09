@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "clean": "rm -rf coverage docs lib",
-    "build": "npm run clean && tsc && tsc -p tsconfig.cjs.json && tsc -p tsconfig.types.json && ./bin/build-types.sh",
+    "build": "tsc && tsc -p tsconfig.cjs.json && tsc -p tsconfig.types.json && ./bin/build-types.sh",
     "build:watch": "tsc -w",
     "lint": "ts-standard --parser @typescript-eslint/parser | snazzy",
     "lint:fix": "ts-standard --fix --parser @typescript-eslint/parser | snazzy",
@@ -68,7 +68,7 @@
     "semantic-release": "^22.0.10",
     "snazzy": "^9.0.0",
     "ts-jest": "^29.1.1",
-    "ts-node": "^10.9.1",
+    "ts-node": "^10.9.2",
     "ts-standard": "^12.0.2",
     "tsd": "^0.29.0",
     "typedoc": "^0.25.4",

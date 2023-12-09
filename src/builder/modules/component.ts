@@ -1,8 +1,8 @@
-import { Delimiters } from '../decorators/delimiters'
-import { Node } from '../interface/node'
-import { NodeBase } from './nodeBase'
-import { SubComponent } from './subComponent'
-import { ValueNode } from './valueNode'
+import { Delimiters } from '../decorators/delimiters.js'
+import { Node } from '../interface/node.js'
+import { NodeBase } from './nodeBase.js'
+import { SubComponent } from './subComponent.js'
+import { ValueNode } from './valueNode.js'
 
 /**
  * Component Field of an HL7 Segment

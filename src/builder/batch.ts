@@ -1,14 +1,14 @@
 import * as Util from '../utils'
-import { HL7FatalError, HL7ParserError } from '../utils/exception'
+import { HL7FatalError, HL7ParserError } from '../utils/exception.js'
 import {
   ClientBuilderBatchOptions,
   normalizedClientBatchBuilderOptions
-} from '../utils/normalize'
-import { Node } from './interface/node'
-import { Message } from './message'
-import { RootBase } from './modules/rootBase'
-import { Segment } from './modules/segment'
-import { SegmentList } from './modules/segmentList'
+} from '../utils/normalize.js'
+import { Node } from './interface/node.js'
+import { Message } from './message.js'
+import { RootBase } from './modules/rootBase.js'
+import { Segment } from './modules/segment.js'
+import { SegmentList } from './modules/segmentList.js'
 
 /**
  * Batch Class

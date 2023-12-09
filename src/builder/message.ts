@@ -1,10 +1,10 @@
-import { HL7FatalError } from '../utils/exception'
-import { RootBase } from './modules/rootBase'
-import { Segment } from './modules/segment'
-import { SegmentList } from './modules/segmentList'
-import * as Util from '../utils/'
-import { ClientBuilderMessageOptions, normalizedClientMessageBuilderOptions } from '../utils/normalize'
-import { Node } from './interface/node'
+import { HL7FatalError } from '../utils/exception.js'
+import { RootBase } from './modules/rootBase.js'
+import { Segment } from './modules/segment.js'
+import { SegmentList } from './modules/segmentList.js'
+import * as Util from '../utils'
+import { ClientBuilderMessageOptions, normalizedClientMessageBuilderOptions } from '../utils/normalize.js'
+import { Node } from './interface/node.js'
 
 /**
  * Message Class
