@@ -8,7 +8,6 @@ import { ValueNode } from './valueNode'
  * @extends ValueNode
  */
 export class SubComponent extends ValueNode {
-
   /**
      * Get Value as String
      * @since 1.0.0

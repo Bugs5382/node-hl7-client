@@ -1,5 +1,6 @@
 import { HL7ParserError } from '../utils/exception'
 import { ParserProcessRawData } from '../utils/normalize'
+import { ParserPlan } from '../utils/parserPlan'
 
 /** Parser Class
  * @since 1.0.0 */
@@ -113,70 +114,5 @@ export class Parser {
       batch.push(data.slice(start, end))
     }
     return batch
-  }
-}
-
-/**
- * Used to figure out the current HL7 message(s) stings used to encode this particular HL7 message.
- * @since 1.0.0
- * @example
- *
- * let parsePlan = new ParserPlan(<HL7 Message>)
- *
- *
- */
-export class ParserPlan {
-  _escape?: string
-  _separators?: string
-
-  /**
-   * Gets passed an HL7 message. Batched or Non-Batched.
-   * @since
-   * @param data
-   */
-  constructor (data: string) {
-    if (!data.startsWith('MSH') &&
-        !data.startsWith('FHS') &&
-        !data.startsWith('BHS') &&
-        !data.startsWith('BTS') &&
-        !data.startsWith('FTS')) {
-      this._throwError('message does not start as a proper hl7 message')
-    }
-
-    let esc: string = ''
-    let separators = '\r\n'
-
-    const sep0 = data.substring(3, 4)
-    const seps = data.substring(data.indexOf(sep0), 8).split('')
-
-    separators += seps[0]
-    if (seps.length > 2) {
-      separators += seps[2]
-    } else {
-      separators += '~'
-    }
-    if (seps.length > 1) {
-      separators += seps[1]
-    } else {
-      separators += '^'
-    }
-    if (seps.length > 4) {
-      separators += seps[4]
-    } else {
-      separators += '&'
-    }
-    if (seps.length > 3) {
-      esc = seps[3]
-    } else {
-      esc = '\\'
-    }
-
-    this._escape = esc
-    this._separators = separators
-  }
-
-  /** @internal */
-  private _throwError (message: string): Error {
-    throw new HL7ParserError(500, message)
   }
 }
