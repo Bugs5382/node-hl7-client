@@ -51,12 +51,7 @@ export class Batch extends RootBase {
     segment.set('1', this._messagesCount)
   }
 
-  /**
-   * Read a path of a batch.
-   * @description Could return {@link SegmentList}
-   * @since 1.0.0
-   * @param path
-   */
+  /** @internal */
   read (path: string[]): Node {
     const segmentName = path.shift() as string
     if (path.length === 0) {
@@ -84,13 +79,7 @@ export class Batch extends RootBase {
     this.set('BSH.7', Util.createHL7Date(new Date()))
   }
 
-  /**
-   * Write Core of the Batch
-   * @since 1.0.0
-   * @param path
-   * @param value
-   * @protected
-   */
+  /** @internal */
   protected writeCore (path: string[], value: string): Node {
     const segmentName = path.shift() as string
     if (typeof segmentName === 'undefined') {
@@ -99,14 +88,7 @@ export class Batch extends RootBase {
     return this.writeAtIndex(path, value, 0, segmentName)
   }
 
-  /**
-   * Create a new child of a batch which is a segment.
-   * @since
-   * @see {@link Segment}
-   * @param text Segment string. Must be 3 characters long.
-   * @param _index Not used to create a segment.
-   * @protected
-   */
+  /** @internal */
   protected createChild (text: string, _index: number): Node {
     return new Segment(this, text.trim())
   }

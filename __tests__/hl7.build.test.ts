@@ -189,8 +189,6 @@ describe('node hl7 client - builder tests', () => {
       expect(message.get("MSH.6").toString()).toBe( "ReceivingFacility");
     })
 
-    test.todo('...override MSH.7 (Date/Time/Field)')
-
     test.todo('...override MSH.7 to short - error out')
 
     test.todo('...override MSH.7 to long - error out')
@@ -288,8 +286,8 @@ describe('node hl7 client - builder tests', () => {
       expect(batch.toString()).toBe("BHS|^~\\&|SendingApp|SendingFacility|ReceivingApp|ReceivingFacility|20081231\rBTS|0")
     })
 
-    test.todo('...override BSH.7 (Date/Time/Field)')
     test.todo('...override BSH.7 to short - error out')
+
     test.todo('...override BSH.7 to long - error out')
 
   })
@@ -322,6 +320,71 @@ describe('node hl7 client - builder tests', () => {
       batch.add(message)
       batch.end()
       expect(batch.toString()).toBe([`BHS|^~\\&|||||${date}`, `MSH|^~\\&|||||${date}||ADT^A01^ADT_A01|CONTROL_ID||2.7`, "BTS|1"].join("\r"))
+    })
+
+    test('... add 10 message to batch', async () => {
+
+      message = new Message({
+        messageHeader: {
+          msh_9: {
+            msh_9_1: "ADT",
+            msh_9_2: "A01"
+          },
+          msh_10: 'CONTROL_ID'
+        }
+      })
+      message.set('MSH.7', date)
+
+      for (let i = 0; i < 10; i ++) {
+        batch.add(message)
+      }
+      batch.end()
+      expect(batch.toString()).toContain("BTS|10")
+    })
+
+    test('... add message to batch with additional segments in message', async () => {
+
+      message = new Message({
+        messageHeader: {
+          msh_9: {
+            msh_9_1: "ADT",
+            msh_9_2: "A01"
+          },
+          msh_10: 'CONTROL_ID'
+        }
+      })
+      message.set('MSH.7', date)
+
+      const segment = message.addSegment('EVN')
+      segment.set(2, '20081231')
+
+      batch.add(message)
+      batch.end()
+      expect(batch.toString()).toBe("BHS|^~\\&|||||20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rBTS|1")
+    })
+
+    test('... add message to batch with 2x additional segments in message', async () => {
+
+      message = new Message({
+        messageHeader: {
+          msh_9: {
+            msh_9_1: "ADT",
+            msh_9_2: "A01"
+          },
+          msh_10: 'CONTROL_ID'
+        }
+      })
+      message.set('MSH.7', date)
+
+      let segment = message.addSegment('EVN')
+      segment.set(2, '20081231')
+
+      segment = message.addSegment('EVN')
+      segment.set(2, '20081231')
+
+      batch.add(message)
+      batch.end()
+      expect(batch.toString()).toBe("BHS|^~\\&|||||20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1")
     })
 
   })
