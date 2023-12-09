@@ -3,6 +3,7 @@ import type { ConnectionOptions as TLSOptions } from 'node:tls'
 import { HL7_2_7 } from '../specification/2.7'
 import { BSH, MSH } from '../specification/specification'
 import * as Util from './index'
+import { ParserPlan } from './parserPlan'
 
 const DEFAULT_CLIENT_OPTS = {
   acquireTimeout: 20000,
@@ -197,11 +198,11 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
 }
 
 export function normalizedClientMessageBuilderOptions (raw?: ClientBuilderMessageOptions): ClientBuilderMessageOptions {
-  const props = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
+  const props: ClientBuilderMessageOptions = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
   if (typeof props.messageHeader === 'undefined' && props.text === '') {
     throw new Error('mshHeader must be set if no HL7 message is being passed.')
-  } else if (typeof props.messageHeader === 'undefined' && props.text.slice(0, 3) !== 'MSH') {
+  } else if (typeof props.messageHeader === 'undefined' && typeof props.text !== 'undefined' && props.text.slice(0, 3) !== 'MSH') {
     throw new Error('text must begin with the MSH segment.')
   }
 
@@ -211,8 +212,16 @@ export function normalizedClientMessageBuilderOptions (raw?: ClientBuilderMessag
 
   if (props.text === '') {
     props.text = `MSH${props.separatorField}${props.separatorComponent}${props.separatorRepetition}${props.separatorEscape}${props.separatorSubComponent}`
-  } else {
+  } else if (typeof props.text !== 'undefined') {
+    const plan: ParserPlan = new ParserPlan(props.text.slice(3, 8))
     props.parsing = true
+    // check to make sure that we set the correct properties
+    props.newLine = props.text.includes('\r') ? '\r' : '\n'
+    props.separatorField = plan.separatorField
+    props.separatorComponent = plan.separatorComponent
+    props.separatorRepetition = plan.separatorRepetition
+    props.separatorEscape = plan.separatorEscape
+    props.separatorSubComponent = plan.separatorSubComponent
   }
 
   return props
