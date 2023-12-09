@@ -48,8 +48,6 @@ export class Message extends RootBase {
         this.set('MSH.10', this._opt.messageHeader.msh_10.toString())
         this.set('MSH.12', this._opt.specification.name.toString())
       }
-    } else {
-      throw new HL7FatalError(500, 'Unable to fully build a new HL7 message.')
     }
   }
 
@@ -94,7 +92,6 @@ export class Message extends RootBase {
   read (path: string[]): Node {
     const segmentName = path.shift() as string
     if (path.length === 0) {
-      // only the segment name was in the path so return a SegmentList
       const segments = this.children.filter(x => (x as Segment).name === segmentName) as Segment[]
       if (segments.length > 0) {
         return new SegmentList(this, segments) as Node
@@ -108,7 +105,7 @@ export class Message extends RootBase {
         return segment.read(path)
       }
     }
-    throw new HL7FatalError(500, 'Unable to process the read function correctly.')
+    return Message.empty
   }
 
   /**
@@ -152,7 +149,7 @@ export class Message extends RootBase {
   }
 
   /** @internal */
-  private _getFirstSegment (name: string): Segment {
+  private _getFirstSegment (name: string): Segment | undefined {
     const children = this.children
     for (let i = 0, l = children.length; i < l; i++) {
       const segment = children[i] as Segment
@@ -160,11 +157,12 @@ export class Message extends RootBase {
         return segment
       }
     }
-    throw new HL7FatalError(500, 'Unable to process _getFirstSegment.')
+    return undefined
+    // throw new HL7FatalError(500, 'Unable to process _getFirstSegment.')
   }
 
   /** @internal */
-  private _getFirstSegmentIndex (name: string): number {
+  private _getFirstSegmentIndex (name: string): number | undefined {
     const children = this.children
     for (let i = 0, l = children.length; i < l; i++) {
       const segment = children[i] as Segment
@@ -172,6 +170,6 @@ export class Message extends RootBase {
         return i
       }
     }
-    return 0
+    return undefined
   }
 }

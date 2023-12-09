@@ -253,11 +253,11 @@ export class NodeBase implements Node {
 
   protected get delimiter (): string {
     if (typeof this.message === 'undefined') {
-      throw new Error('this.message is not defined.')
+      throw new HL7FatalError(500, 'this.message is not defined.')
     }
 
     if (typeof this._delimiter === 'undefined') {
-      throw new Error('this.message is not defined.')
+      throw new HL7FatalError(500, 'this.message is not defined.')
     }
 
     this._delimiterText = this.message.delimiters[this._delimiter]

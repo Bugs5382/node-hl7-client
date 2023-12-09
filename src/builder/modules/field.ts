@@ -1,3 +1,4 @@
+import { HL7FatalError } from '../../utils/exception'
 import { Delimiters } from '../decorators/delimiters'
 import { Node } from '../interface/node'
 import { FieldRepetition } from './fieldRepetition'
@@ -29,7 +30,7 @@ export class Field extends ValueNode {
     if (this.children.length > 0) {
       return this.children[0].read(path)
     }
-    throw new Error('We have a problem.')
+    throw new HL7FatalError(500, 'We have a problem.')
   }
 
   /**

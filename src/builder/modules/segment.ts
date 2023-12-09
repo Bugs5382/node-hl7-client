@@ -66,7 +66,7 @@ export class Segment extends NodeBase {
     }
     if ((this._name === 'MSH') || (this._name === 'BHS')) {
       if (index === 1 || index === 2) {
-        throw new Error('You cannot assign the field separator or encoding characters')
+        throw new HL7FatalError(500, 'You cannot assign the field separator or encoding characters')
       } else {
         index = index - 1
       }
