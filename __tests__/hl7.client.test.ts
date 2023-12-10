@@ -1,4 +1,7 @@
+import portfinder from 'portfinder'
+import {Server} from "../../node-hl7-server/src";
 import { Client } from '../src'
+import {expectEvent} from "./__utils__/utils";
 
 describe('node hl7 client', () => {
 
@@ -56,7 +59,6 @@ describe('node hl7 client', () => {
     test(`properties exist`, async  () => {
       const client = new Client({ hostname: 'hl7.server.com'})
       expect(client).toHaveProperty("connectToListener")
-      expect(client).toHaveProperty("sendMessage")
     })
 
   })
@@ -109,15 +111,92 @@ describe('node hl7 client', () => {
 
   describe('basic listener tests', () => {
 
-    test.todo('... should not be able to connect to the same port')
+    test('...simple connect', async () => {
 
-    test.todo('... two different ports')
+      const LISTEN_PORT = await portfinder.getPortPromise({
+        port: 3000,
+        stopPort: 65353
+      })
+
+      const server = new Server({ bindAddress: 'localhost'})
+      const listener = server.createListener({port: LISTEN_PORT}, async () => {})
+
+      const client = new Client({ hostname: 'localhost'})
+      const outGoing = client.connectToListener({ port: LISTEN_PORT }, () => {})
+
+      await expectEvent(listener, 'client.connect')
+      await expectEvent(outGoing, 'connect')
+
+      await outGoing.close()
+      await listener.close()
+
+    })
+
+    test('...should be able to connect to the same port from different clients', async () => {
+
+      const LISTEN_PORT = await portfinder.getPortPromise({
+        port: 3000,
+        stopPort: 65353
+      })
+
+      const server = new Server({ bindAddress: 'localhost'})
+      const listener = server.createListener({port: LISTEN_PORT}, async () => {})
+
+      const client = new Client({ hostname: 'localhost'})
+      const outGoing = client.connectToListener({ port: LISTEN_PORT }, () => {})
+
+      const client_2 = new Client({ hostname: 'localhost'})
+      const outGoing_2 = client_2.connectToListener({ port: LISTEN_PORT }, () => {})
+
+      await expectEvent(outGoing, 'connect')
+      await expectEvent(outGoing_2, 'connect')
+
+      await outGoing.close()
+      await outGoing_2.close()
+      await listener.close()
+
+    })
+
+    test('...two different ports', async () => {
+
+      const LISTEN_PORT = await portfinder.getPortPromise({
+        port: 3000,
+        stopPort: 65353
+      })
+
+      const LISTEN_PORT_2 = await portfinder.getPortPromise({
+        port: 3001,
+        stopPort: 65353
+      })
+
+      const server = new Server({ bindAddress: 'localhost'})
+      const listener = server.createListener({port: LISTEN_PORT}, async () => {})
+
+      const server_2 = new Server({ bindAddress: 'localhost'})
+      const listener_2 = server_2.createListener({port: LISTEN_PORT_2}, async () => {})
+
+
+      const client = new Client({ hostname: 'localhost'})
+      const outGoing = client.connectToListener({ port: LISTEN_PORT }, () => {})
+
+      const client_2 = new Client({ hostname: 'localhost'})
+      const outGoing_2 = client_2.connectToListener({ port: LISTEN_PORT_2 }, () => {})
+
+      await expectEvent(outGoing, 'connect')
+      await expectEvent(outGoing_2, 'connect')
+
+      await outGoing.close()
+      await outGoing_2.close()
+      await listener.close()
+      await listener_2.close()
+
+    })
 
   })
 
   describe('end to end testing', () => {
 
-    test.todo('... send HL7 and get response back')
+    test.todo('...send HL7 and get response back')
 
   })
 

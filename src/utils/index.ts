@@ -1,5 +1,5 @@
 /** @internal */
-export function assertNumber (props: Record<string, number>, name: string, min: number, max?: number): void {
+export const assertNumber = (props: Record<string, number>, name: string, min: number, max?: number): void => {
   const val = props[name]
   if (isNaN(val) || !Number.isFinite(val) || val < min || (max != null && val > max)) {
     throw new TypeError(max != null
