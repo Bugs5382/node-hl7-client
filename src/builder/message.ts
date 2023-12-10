@@ -1,9 +1,9 @@
 import { HL7FatalError } from '../utils/exception.js'
+import { ClientBuilderMessageOptions, normalizedClientMessageBuilderOptions } from '../utils/normalizedBuilder.js'
 import { RootBase } from './modules/rootBase.js'
 import { Segment } from './modules/segment.js'
 import { SegmentList } from './modules/segmentList.js'
 import * as Util from '../utils'
-import { ClientBuilderMessageOptions, normalizedClientMessageBuilderOptions } from '../utils/normalize.js'
 import { Node } from './interface/node.js'
 
 /**

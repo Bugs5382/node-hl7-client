@@ -1,9 +1,6 @@
 import * as Util from '../utils'
 import { HL7FatalError, HL7ParserError } from '../utils/exception.js'
-import {
-  ClientBuilderBatchOptions,
-  normalizedClientBatchBuilderOptions
-} from '../utils/normalize.js'
+import { ClientBuilderBatchOptions, normalizedClientBatchBuilderOptions } from '../utils/normalizedBuilder.js'
 import { Node } from './interface/node.js'
 import { Message } from './message.js'
 import { RootBase } from './modules/rootBase.js'

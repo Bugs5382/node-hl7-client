@@ -1,6 +1,6 @@
 import EventEmitter from 'events'
 import { Listener } from './listener.js'
-import { normalizeClientOptions, ClientListenerOptions, ClientOptions } from '../utils/normalize.js'
+import { normalizeClientOptions, ClientListenerOptions, ClientOptions } from '../utils/normalizeClient.js'
 
 /**
  * Client Class
