@@ -1,6 +1,6 @@
 import portfinder from 'portfinder'
-import {Server} from "../../node-hl7-server/src";
-import { Client } from '../src'
+import {Server, Listener as ServerListener} from "../../node-hl7-server/src";
+import {Client, Listener, Message} from '../src'
 import {expectEvent} from "./__utils__/utils";
 
 describe('node hl7 client', () => {
@@ -196,7 +196,102 @@ describe('node hl7 client', () => {
 
   describe('end to end testing', () => {
 
-    test.todo('...send HL7 and get response back')
+    let waitAck: number = 0
+
+    let server: Server
+    let listener: ServerListener
+
+    let client: Client
+    let outGoing: Listener
+
+    beforeEach(async () => {
+
+      const LISTEN_PORT = await portfinder.getPortPromise({
+        port: 3000,
+        stopPort: 65353
+      })
+
+      server = new Server({bindAddress: 'localhost'})
+      listener = server.createListener({port: LISTEN_PORT}, async () => {})
+
+      client = new Client({hostname: 'localhost'})
+      outGoing = client.connectToListener({port: LISTEN_PORT, waitAck: waitAck !== 2}, async () => {})
+
+    })
+
+    afterEach(async () => {
+      await outGoing.close()
+      await listener.close()
+
+      waitAck = waitAck + 1;
+    })
+
+    test('...send simple message, just to make sure it sends, no data checks', async () => {
+
+      let message = new Message({
+        messageHeader: {
+          msh_9: {
+            msh_9_1: "ADT",
+            msh_9_2: "A01"
+          },
+          msh_10: 'CONTROL_ID'
+        }
+      })
+
+      await outGoing.sendMessage(message)
+
+    })
+
+    test('...send simple message twice, fails because no ACK of the first', async () => {
+
+      try {
+        let message = new Message({
+          messageHeader: {
+            msh_9: {
+              msh_9_1: "ADT",
+              msh_9_2: "A01"
+            },
+            msh_10: 'CONTROL_ID'
+          }
+        })
+
+        await outGoing.sendMessage(message)
+        await outGoing.sendMessage(message)
+
+      } catch (err: any) {
+        expect(err.message).toBe(`Can't send message while we are waiting for a response.`)
+      }
+
+    })
+
+    // Note: For this test to pass, you must run it from the describe block!
+    test('...send simple message twice, no ACK needed', async () => {
+
+        let message = new Message({
+          messageHeader: {
+            msh_9: {
+              msh_9_1: "ADT",
+              msh_9_2: "A01"
+            },
+            msh_10: 'CONTROL_ID'
+          }
+        })
+
+        await outGoing.sendMessage(message)
+
+        message = new Message({
+          messageHeader: {
+            msh_9: {
+              msh_9_1: "ADT",
+              msh_9_2: "A01"
+            },
+            msh_10: 'CONTROL_ID'
+          }
+        })
+
+        await outGoing.sendMessage(message)
+
+    })
 
   })
 

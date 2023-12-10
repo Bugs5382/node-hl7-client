@@ -1,5 +1,6 @@
 import { HL7FatalError } from '../../utils/exception.js'
-import { ClientBuilderOptions } from '../../utils/normalize.js'
+
+import { ClientBuilderOptions } from '../../utils/normalizedBuilder'
 import { Delimiters } from '../decorators/delimiters.js'
 import { NodeBase } from './nodeBase.js'
 import * as Util from '../../utils'
