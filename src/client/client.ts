@@ -1,6 +1,6 @@
 import EventEmitter from 'events'
-import { Listener } from './listener.js'
 import { normalizeClientOptions, ClientListenerOptions, ClientOptions } from '../utils/normalizeClient.js'
+import {HL7Outbound} from "./hl7Outbound";
 
 /**
  * Client Class
@@ -16,7 +16,12 @@ export class Client extends EventEmitter {
 
   /** Connect to a listener to a specified port.
    *  @since 1.0.0 */
-  connectToListener (props: ClientListenerOptions, handler: any): Listener {
-    return new Listener(this, props, handler)
+  createOutbound (props: ClientListenerOptions, handler?: any): HL7Outbound {
+    return new HL7Outbound(this, props, handler)
   }
+
+  getHost(): string {
+    return this._opt.host
+  }
+
 }

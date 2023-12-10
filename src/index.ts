@@ -3,7 +3,6 @@ import { Component } from './builder/modules/component.js'
 import { Delimiters } from './builder/decorators/delimiters.js'
 import { Field } from './builder/modules/field.js'
 import { FieldRepetition } from './builder/modules/fieldRepetition.js'
-import { Listener } from './client/listener.js'
 import { Message } from './builder/message.js'
 import { Segment } from './builder/modules/segment.js'
 import { SegmentList } from './builder/modules/segmentList.js'
@@ -12,9 +11,10 @@ import { HL7_SPEC, HL7_SPEC_BASE } from './specification/specification.js'
 import { SubComponent } from './builder/modules/subComponent.js'
 import { Batch } from './builder/batch.js'
 import { ParserPlan } from './utils/parserPlan.js'
+import { HL7Outbound } from './client/hl7Outbound.js'
 
 export default Client
-export { Client, Listener, ParserPlan, Batch, Message, Delimiters, Segment, SegmentList, Component, SubComponent, Field, FieldRepetition }
+export { Client, HL7Outbound, ParserPlan, Batch, Message, Delimiters, Segment, SegmentList, Component, SubComponent, Field, FieldRepetition }
 export { assertNumber, isBatch, isFile, createHL7Date, validIPv6, validIPv4 } from './utils/index.js'
 
 /** HL7 Specs **/

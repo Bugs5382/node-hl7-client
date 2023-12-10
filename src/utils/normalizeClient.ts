@@ -5,6 +5,7 @@ import * as Util from './index.js'
 const DEFAULT_CLIENT_OPTS = {
   acquireTimeout: 20000,
   connectionTimeout: 10000,
+  maxConnections: 10,
   waitAck: true
 }
 
@@ -20,8 +21,8 @@ export interface ClientOptions {
   /** Max wait time, in milliseconds, for a connection attempt
    * @default 10_000 */
   connectionTimeout?: number
-  /** Hostname - You can do a FQDN or the IPv(4|6) address. */
-  hostname: string
+  /** Host - You can do a FQDN or the IPv(4|6) address. */
+  host: string
   /** IPv4 - If this is set to true, only IPv4 address will be used and also validated upon installation from the hostname property.
    * @default false */
   ipv4?: boolean
@@ -50,6 +51,10 @@ export interface ClientListenerOptions {
   /** Keep the connection alive after sending data and getting a response.
    * @default true */
   keepAlive?: boolean
+  /** Max Connections this connection makes.
+   * Has to be greater than 1.
+   * @default 10 */
+  maxConnections?: number
   /** Additional options when creating the TCP socket with net.connect(). */
   socket?: TcpSocketConnectOpts
   /** The port we should connect on the server. */
@@ -61,25 +66,20 @@ export interface ClientListenerOptions {
 type ValidatedClientKeys =
   | 'acquireTimeout'
   | 'connectionTimeout'
-  | 'hostname'
+  | 'host'
 
 type ValidatedClientListenerKeys =
   | 'port'
 
 interface ValidatedClientOptions extends Pick<Required<ClientOptions>, ValidatedClientKeys> {
-  hostname: string
-  socket?: TcpSocketConnectOpts
-  tls?: TLSOptions
-}
-
-interface ValidatedClientOptions extends Pick<Required<ClientOptions>, ValidatedClientKeys> {
-  hostname: string
+  host: string
   socket?: TcpSocketConnectOpts
   tls?: TLSOptions
 }
 
 interface ValidatedClientListenerOptions extends Pick<Required<ClientListenerOptions>, ValidatedClientListenerKeys> {
   port: number
+  maxConnections: number
   waitAck: boolean
 }
 
@@ -87,7 +87,7 @@ interface ValidatedClientListenerOptions extends Pick<Required<ClientListenerOpt
 export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOptions {
   const props: any = { ...DEFAULT_CLIENT_OPTS, ...raw }
 
-  if (typeof props.hostname === 'undefined' || props.hostname.length <= 0) {
+  if (typeof props.host === 'undefined' || props.host.length <= 0) {
     throw new Error('hostname is not defined or the length is less than 0.')
   }
 
@@ -95,20 +95,21 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
     throw new Error('ipv4 and ipv6 both can\'t be set to be both used exclusively.')
   }
 
-  if (typeof props.hostname !== 'string' && props.ipv4 === false && props.ipv6 === false) {
+  if (typeof props.host !== 'string' && props.ipv4 === false && props.ipv6 === false) {
     throw new Error('hostname is not valid string.')
-  } else if (typeof props.hostname === 'string' && props.ipv4 === true && props.ipv6 === false) {
-    if (!Util.validIPv4(props.hostname)) {
+  } else if (typeof props.host === 'string' && props.ipv4 === true && props.ipv6 === false) {
+    if (!Util.validIPv4(props.host)) {
       throw new Error('hostname is not a valid IPv4 address.')
     }
-  } else if (typeof props.hostname === 'string' && props.ipv4 === false && props.ipv6 === true) {
-    if (!Util.validIPv6(props.hostname)) {
+  } else if (typeof props.host === 'string' && props.ipv4 === false && props.ipv6 === true) {
+    if (!Util.validIPv6(props.host)) {
       throw new Error('hostname is not a valid IPv6 address.')
     }
   }
 
   Util.assertNumber(props, 'acquireTimeout', 0)
   Util.assertNumber(props, 'connectionTimeout', 0)
+  Util.assertNumber(props, 'maxConnections', 1)
 
   if (props.tls === true) {
     props.tls = {}
