@@ -521,6 +521,54 @@ describe('node hl7 client - builder tests', () => {
 
     })
 
+    test('...isFile - on Message - false', async() => {
+
+      const message = new Message({
+        messageHeader: {
+          msh_9: {
+            msh_9_1: "ADT",
+            msh_9_2: "A01"
+          },
+          msh_10: 'CONTROL_ID'
+        }
+      })
+      expect(Util.isFile(message.toString())).toBe(false)
+
+    })
+
+    test('...isBatch - on Message - false', async() => {
+
+      const message = new Message({
+        messageHeader: {
+          msh_9: {
+            msh_9_1: "ADT",
+            msh_9_2: "A01"
+          },
+          msh_10: 'CONTROL_ID'
+        }
+      })
+      expect(Util.isBatch(message.toString())).toBe(false)
+
+    })
+
+    test('...isBatch -should be false', async() => {
+
+      let batch = new Batch()
+      batch.start()
+      batch.end()
+      expect(Util.isFile(batch.toString())).toBe(false)
+
+    })
+
+    test('...isBatch - should now be true', async() => {
+
+      let batch = new Batch()
+      batch.start()
+      batch.end()
+      expect(Util.isBatch(batch.toString())).toBe(true)
+
+    })
+
   })
 
   describe('parse message and batch', () => {
