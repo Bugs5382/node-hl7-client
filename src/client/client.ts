@@ -1,6 +1,6 @@
 import EventEmitter from 'events'
 import { Listener } from './listener.js'
-import { normalizeClientOptions, normalizeClientListenerOptions, ClientListenerOptions, ClientOptions } from '../utils/normalize.js'
+import { normalizeClientOptions, ClientListenerOptions, ClientOptions } from '../utils/normalize.js'
 
 /**
  * Client Class
@@ -17,13 +17,6 @@ export class Client extends EventEmitter {
   /** Connect to a listener to a specified port.
    *  @since 1.0.0 */
   connectToListener (props: ClientListenerOptions, handler: any): Listener {
-    return new Listener(this, normalizeClientListenerOptions(props), handler)
-  }
-
-  /** Send a HL7 Message to the Listener
-   * @since 1.0.0
-   */
-  sendMessage (): void {
-    /* noop */
+    return new Listener(this, props, handler)
   }
 }
