@@ -15,7 +15,7 @@ import { ParserPlan } from './utils/parserPlan.js'
 
 export default Client
 export { Client, Listener, ParserPlan, Batch, Message, Delimiters, Segment, SegmentList, Component, SubComponent, Field, FieldRepetition }
-export * from './utils/index.js'
+export { isBatch, isFile, createHL7Date, validIPv6, validIPv4 } from './utils/index.js'
 
 /** HL7 Specs **/
 export type { MSH } from './specification/specification.js'

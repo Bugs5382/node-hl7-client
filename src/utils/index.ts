@@ -70,6 +70,24 @@ export const createHL7Date = (date: Date, length: '8' | '12' | '14' = '14'): str
 }
 
 /**
+ * Check to see if the message is loaded from a batch message.
+ * @since 1.0.0
+ * @param data
+ */
+export const isBatch = (data: string): boolean => {
+  return data.startsWith('BHS')
+}
+
+/**
+ * Check to see if the message is loaded from a file.
+ * @since 1.0.0
+ * @param data
+ */
+export const isFile = (data: string): boolean => {
+  return data.startsWith('FSH')
+}
+
+/**
  * Converts a number to a string-padded n characters.
  * From http://stackoverflow.com/questions/10073699/pad-a-number-with-leading-zeros-in-javascript.
  * @since 1.0.0
