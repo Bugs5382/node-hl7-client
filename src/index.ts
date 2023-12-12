@@ -19,7 +19,6 @@ export { assertNumber, isBatch, isFile, createHL7Date, validIPv6, validIPv4 } fr
 
 /** HL7 Specs **/
 export type { MSH } from './specification/specification.js'
-export type { HL7_MSH_MESSAGE_TYPE } from './specification/generic.js'
 export type { HL7_2_7_MSH } from './specification/2.7.js'
 /** HL7 Class **/
 export { HL7_SPEC, HL7_SPEC_BASE, HL7_2_7 }

@@ -118,10 +118,10 @@ describe('node hl7 client', () => {
         stopPort: 65353
       })
 
-      const server = new Server({ bindAddress: 'localhost'})
+      const server = new Server({ bindAddress: '0.0.0.0'})
       const listener = server.createInbound({port: LISTEN_PORT}, async () => {})
 
-      const client = new Client({ host: 'localhost'})
+      const client = new Client({ host: '0.0.0.0'})
       const outGoing = client.createOutbound({ port: LISTEN_PORT }, async () => {})
 
       await expectEvent(listener, 'client.connect')
@@ -151,10 +151,10 @@ describe('node hl7 client', () => {
         stopPort: 65353
       })
 
-      server = new Server({bindAddress: 'localhost'})
+      server = new Server({bindAddress: '0.0.0.0'})
       listener = server.createInbound({port: LISTEN_PORT}, async () => {})
 
-      client = new Client({host: 'localhost'})
+      client = new Client({host: '0.0.0.0'})
       outGoing = client.createOutbound({port: LISTEN_PORT, waitAck: waitAck !== 2}, async () => {})
 
     })
@@ -170,10 +170,8 @@ describe('node hl7 client', () => {
 
       let message = new Message({
         messageHeader: {
-          msh_9: {
-            msh_9_1: "ADT",
-            msh_9_2: "A01"
-          },
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
           msh_10: 'CONTROL_ID'
         }
       })
@@ -187,10 +185,8 @@ describe('node hl7 client', () => {
       try {
         let message = new Message({
           messageHeader: {
-            msh_9: {
-              msh_9_1: "ADT",
-              msh_9_2: "A01"
-            },
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
             msh_10: 'CONTROL_ID'
           }
         })
@@ -209,10 +205,8 @@ describe('node hl7 client', () => {
 
         let message = new Message({
           messageHeader: {
-            msh_9: {
-              msh_9_1: "ADT",
-              msh_9_2: "A01"
-            },
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
             msh_10: 'CONTROL_ID'
           }
         })
@@ -221,10 +215,8 @@ describe('node hl7 client', () => {
 
         message = new Message({
           messageHeader: {
-            msh_9: {
-              msh_9_1: "ADT",
-              msh_9_2: "A01"
-            },
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
             msh_10: 'CONTROL_ID'
           }
         })

@@ -35,15 +35,13 @@ describe('node hl7 client - builder tests', () => {
     test("error - Message Object - msh 9.1 is empty ", async () => {
       try {
         new Message({
+          // @ts-expect-error 9.1 should be not empty
           messageHeader: {
-            // @ts-expect-error 9.1 should be not empty
-            msh_9: {
-              msh_9_1: "",
-            },
+            msh_9_1: "",
           }
         })
       } catch (err) {
-        expect(err).toEqual(new Error('MSH.9.1 & MSH 9.2 & MSH 9.3 must be defined.'))
+        expect(err).toEqual(new Error('MSH.9.1 & MSH 9.2 must be defined.'))
       }
     })
 
@@ -52,10 +50,8 @@ describe('node hl7 client - builder tests', () => {
         new Message({
           // @ts-expect-error 9.2 should be not empty
           messageHeader: {
-            msh_9: {
-              msh_9_1: "ADT",
-              msh_9_2: "",
-            },
+            msh_9_1: "ADT",
+            msh_9_2: "",
           }
         })
       } catch (err) {
@@ -67,10 +63,8 @@ describe('node hl7 client - builder tests', () => {
       try {
         new Message({
           messageHeader: {
-            msh_9: {
-              msh_9_1: "ADTY",
-              msh_9_2: "A01"
-            },
+            msh_9_1: "ADTY",
+            msh_9_2: "A01",
             msh_10: "123456"
           }
         })
@@ -83,10 +77,8 @@ describe('node hl7 client - builder tests', () => {
       try {
         new Message({
           messageHeader: {
-            msh_9: {
-              msh_9_1: "ADT",
-              msh_9_2: "A01Y"
-            },
+            msh_9_1: "ADT",
+            msh_9_2: "A01Y",
             msh_10: "123456"
           }
         })
@@ -99,10 +91,8 @@ describe('node hl7 client - builder tests', () => {
       try {
         new Message({
           messageHeader: {
-            msh_9: {
-              msh_9_1: "ADT",
-              msh_9_2: "A01"
-            },
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
             msh_10: "AaasdfjlsdjflskdfsdflkjjsdlkflkasdflsjdflkjasdlfjsldkjlskjdfksajflksjdfAaasdfjlsdjflskdfsdflkjjsdlkflkasdflsjdflkjasdlfjsldkjlskjdfksajflksjdfAaasdfjlsdjflskdfsdflkjjsdlkflkasdflsjdflkjasdlfjsldkjlskjdfksajflksjdf"
           }
         })
@@ -115,10 +105,8 @@ describe('node hl7 client - builder tests', () => {
       try {
         new Message({
           messageHeader: {
-            msh_9: {
-              msh_9_1: "ADT",
-              msh_9_2: "A01"
-            },
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
             msh_10: ""
           }
         })
@@ -137,10 +125,8 @@ describe('node hl7 client - builder tests', () => {
     beforeEach(async () => {
       message = new Message({
         messageHeader: {
-          msh_9: {
-            msh_9_1: "ADT",
-            msh_9_2: "A01"
-          },
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
           msh_10: randomControlID
         }
       })
@@ -194,10 +180,8 @@ describe('node hl7 client - builder tests', () => {
     beforeEach(async () => {
       message = new Message({
         messageHeader: {
-          msh_9: {
-            msh_9_1: "ADT",
-            msh_9_2: "A01"
-          },
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
           msh_10: "12345"
         }
       })
@@ -367,10 +351,8 @@ describe('node hl7 client - builder tests', () => {
 
       message = new Message({
         messageHeader: {
-          msh_9: {
-            msh_9_1: "ADT",
-            msh_9_2: "A01"
-          },
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
           msh_10: 'CONTROL_ID'
         }
       })
@@ -385,10 +367,8 @@ describe('node hl7 client - builder tests', () => {
 
       message = new Message({
         messageHeader: {
-          msh_9: {
-            msh_9_1: "ADT",
-            msh_9_2: "A01"
-          },
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
           msh_10: 'CONTROL_ID'
         }
       })
@@ -405,10 +385,8 @@ describe('node hl7 client - builder tests', () => {
 
       message = new Message({
         messageHeader: {
-          msh_9: {
-            msh_9_1: "ADT",
-            msh_9_2: "A01"
-          },
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
           msh_10: 'CONTROL_ID'
         }
       })
@@ -426,10 +404,8 @@ describe('node hl7 client - builder tests', () => {
 
       message = new Message({
         messageHeader: {
-          msh_9: {
-            msh_9_1: "ADT",
-            msh_9_2: "A01"
-          },
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
           msh_10: 'CONTROL_ID'
         }
       })
@@ -481,10 +457,8 @@ describe('node hl7 client - builder tests', () => {
 
       let message = new Message({
         messageHeader: {
-          msh_9: {
-            msh_9_1: "ADT",
-            msh_9_2: "A01"
-          },
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
           msh_10: 'CONTROL_ID'
         }
       })
@@ -509,10 +483,8 @@ describe('node hl7 client - builder tests', () => {
 
       const message = new Message({
         messageHeader: {
-          msh_9: {
-            msh_9_1: "ADT",
-            msh_9_2: "A01"
-          },
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
           msh_10: 'CONTROL_ID'
         }
       })
@@ -524,10 +496,8 @@ describe('node hl7 client - builder tests', () => {
 
       const message = new Message({
         messageHeader: {
-          msh_9: {
-            msh_9_1: "ADT",
-            msh_9_2: "A01"
-          },
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
           msh_10: 'CONTROL_ID'
         }
       })
