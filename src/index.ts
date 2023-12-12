@@ -24,6 +24,6 @@ export type { HL7_2_7_MSH } from './specification/2.7.js'
 /** HL7 Class **/
 export { HL7_SPEC, HL7_SPEC_BASE, HL7_2_7 }
 
-export type { ClientOptions, ClientListenerOptions, ParserProcessRawData } from './utils/normalizeClient.js'
+export type { ClientOptions, ClientListenerOptions, ParserProcessRawData } from './utils/normalizedClient.js'
 export type { ClientBuilderFileOptions, ClientBuilderBatchOptions, ClientBuilderOptions } from './utils/normalizedBuilder.js'
 export type { HL7Error, HL7FatalError, HL7ParserError } from './utils/exception.js'

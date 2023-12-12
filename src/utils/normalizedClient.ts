@@ -5,6 +5,7 @@ import * as Util from './index.js'
 const DEFAULT_CLIENT_OPTS = {
   acquireTimeout: 20000,
   connectionTimeout: 10000,
+  encoding: 'utf-8',
   maxConnections: 10,
   waitAck: true
 }
@@ -48,6 +49,10 @@ export interface ClientListenerOptions {
    * This will override the overall client connection for this particular connection.
    * @default 10_000 */
   connectionTimeout?: number
+  /** Encoding of the messages we expect from the HL7 message.
+   * @default "utf-8"
+   */
+  encoding?: BufferEncoding
   /** Keep the connection alive after sending data and getting a response.
    * @default true */
   keepAlive?: boolean
@@ -78,6 +83,7 @@ interface ValidatedClientOptions extends Pick<Required<ClientOptions>, Validated
 }
 
 interface ValidatedClientListenerOptions extends Pick<Required<ClientListenerOptions>, ValidatedClientListenerKeys> {
+  encoding: BufferEncoding
   port: number
   maxConnections: number
   waitAck: boolean
