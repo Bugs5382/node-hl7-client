@@ -4,10 +4,11 @@ import * as tls from 'tls'
 import {Batch} from '../builder/batch.js'
 import {Message} from '../builder/message.js'
 import {randomString} from "../utils";
-//import { CR, FS, VT } from '../utils/constants.js'
 import {HL7FatalError} from '../utils/exception'
-import {ClientListenerOptions, normalizeClientListenerOptions} from '../utils/normalizeClient.js'
+import {ClientListenerOptions, normalizeClientListenerOptions} from '../utils/normalizedClient.js'
 import {Client} from './client.js'
+
+export type OutboundHandler = (res: Buffer) => Promise<void>
 
 /** HL7 Outbound Class
  * @since 1.0.0 */
@@ -15,11 +16,11 @@ export class HL7Outbound extends EventEmitter {
   /** @internal */
   private _awaitingResponse: boolean
   /** @internal */
-  _handler?: any | undefined // @todo is this needed?
+  private readonly _handler: (res: Buffer) => void
   /** @internal */
   private _main: Client
   /** @internal */
-  private _nodeId: string
+  private readonly _nodeId: string
   /** @internal */
   private _opt: ReturnType<typeof normalizeClientListenerOptions>
   /** @internal */
@@ -27,21 +28,21 @@ export class HL7Outbound extends EventEmitter {
   /** @internal */
   private _sockets: Map<any, any>
 
-  constructor (client: Client, props: ClientListenerOptions, handler?: any) {
+  constructor (client: Client, props: ClientListenerOptions, handler: OutboundHandler) {
     super()
+    this._awaitingResponse = false
+    this._handler = handler
     this._main = client
     this._nodeId = randomString(5)
-
-    this._awaitingResponse = false
-
-    // process listener options
     this._opt = normalizeClientListenerOptions(props)
-
     this._sockets = new Map()
-    this._handler = handler
 
     this._connect = this._connect.bind(this)
     this._server = this._connect()
+  }
+
+  getHost(): string {
+    return this._main._opt.host
   }
 
   getPort(): string {
@@ -54,7 +55,7 @@ export class HL7Outbound extends EventEmitter {
   async sendMessage (message: Message | Batch): Promise<boolean> {
     // if we are waiting for an ack before we can send something else, and we are in that process.
     if (this._opt.waitAck && this._awaitingResponse) {
-      throw new HL7FatalError(500, 'Can\'t send message while we are waiting for a response.')
+      throw new HL7FatalError(500, `Can't send message while we are waiting for a response.`)
     }
 
     // ok, if our options are to wait for an acknowledgement, set the var to "true"
@@ -62,10 +63,17 @@ export class HL7Outbound extends EventEmitter {
       this._awaitingResponse = true
     }
 
-    const toSendData =  Buffer.from(message.toString())
+    let messageToSend = Buffer.from(message.toString())
 
-    return this._server?.write(toSendData, 'utf8', () => {
-      // console.log(toSendData)
+    const header = Buffer.alloc(6);
+    header.writeInt32BE(messageToSend.length + 6, 1);
+    header.writeInt8(2, 5);
+    header[0] = header[1] ^ header[2] ^ header[3] ^ header[4] ^ header[5];
+
+    const payload = Buffer.concat([header, messageToSend]);
+
+    return this._server.write(payload, this._opt.encoding, () => {
+      // FOR DEBUGGING ONLY: console.log(toSendData)
     })
 
   }
@@ -78,10 +86,9 @@ export class HL7Outbound extends EventEmitter {
     let _opt_tls = this._main._opt.tls
 
       if (typeof _opt_tls !== 'undefined') {
-        // @todo this needs to be expanded on for TLS options
+        // @TODO this needs to be expanded on for TLS options
         server = tls.connect({host, port})
       } else {
-
         server = net.createConnection({host, port}, () => {
 
           // set no delay
@@ -101,8 +108,8 @@ export class HL7Outbound extends EventEmitter {
         this.emit('connect')
       })
 
-      server.on('data', buffer => {
-        this.emit('data', buffer.toString())
+      server.on('data', (buffer: Buffer) => {
+        this._handler(buffer)
       })
 
       server.on('error', err => {

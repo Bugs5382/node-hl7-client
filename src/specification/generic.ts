@@ -1,9 +1,9 @@
 /** @internal */
 export interface HL7_MSH_MESSAGE_TYPE {
   /** Message Code */
-  msh_9_1: 'ACK' | 'ADR' | 'ADT'
+  msh_9_1: string
   /** Trigger Event */
-  msh_9_2: 'A01'
+  msh_9_2: string
 }
 
 /** @internal */

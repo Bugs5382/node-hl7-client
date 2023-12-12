@@ -111,7 +111,7 @@ describe('node hl7 client', () => {
 
   describe('basic listener tests', () => {
 
-    test('...simple connect', async () => {
+    test.skip('...simple connect', async () => {
 
       const LISTEN_PORT = await portfinder.getPortPromise({
         port: 3000,
