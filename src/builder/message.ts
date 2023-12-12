@@ -42,9 +42,9 @@ export class Message extends RootBase {
     if (typeof this._opt.messageHeader !== 'undefined') {
       if (this._opt.specification.checkMSH(this._opt.messageHeader) === true) {
         this.set('MSH.7', Util.createHL7Date(new Date()))
-        this.set('MSH.9.1', this._opt.messageHeader.msh_9.msh_9_1.toString())
-        this.set('MSH.9.2', this._opt.messageHeader.msh_9.msh_9_2.toString())
-        this.set('MSH.9.3', `${this._opt.messageHeader.msh_9.msh_9_1.toString()}_${this._opt.messageHeader.msh_9.msh_9_2.toString()}`)
+        this.set('MSH.9.1', this._opt.messageHeader.msh_9_1.toString())
+        this.set('MSH.9.2', this._opt.messageHeader.msh_9_2.toString())
+        this.set('MSH.9.3', `${this._opt.messageHeader.msh_9_1.toString()}_${this._opt.messageHeader.msh_9_2.toString()}`)
         this.set('MSH.10', this._opt.messageHeader.msh_10.toString())
         this.set('MSH.12', this._opt.specification.name.toString())
       }

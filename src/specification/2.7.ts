@@ -1,4 +1,3 @@
-import { HL7_MSH_MESSAGE_TYPE } from './generic.js'
 import { HL7_SPEC_BASE } from './specification.js'
 
 /**
@@ -6,10 +5,18 @@ import { HL7_SPEC_BASE } from './specification.js'
  * @since 1.0.0
  */
 export interface HL7_2_7_MSH {
-  /** Message Type
-   * @description The message type of the Hl7 message we are sending.
+  /** Message Code
    * @since 1.0.0 */
-  msh_9: HL7_MSH_MESSAGE_TYPE
+  msh_9_1: string
+  /** Trigger Event
+   * @since 1.0.0 */
+  msh_9_2: string
+  /** Processing ID
+   * @since 1.0.0 */
+  msh_11_1?: 'D' | 'P' | 'T'
+  /** Processing Mode
+   * @since 1.0.0 */
+  msh_11_2?: 'A' | 'I' | 'R' | 'T' | ''
   /** Message Control ID
    * @description The message control ID that should ID this actual message.
    * @since 1.0.0 */
@@ -50,16 +57,16 @@ export class HL7_2_7 extends HL7_SPEC_BASE {
    * @return boolean
    */
   checkMSH (msh: HL7_2_7_MSH): boolean {
-    if (typeof msh.msh_9.msh_9_1 === 'undefined' ||
-      typeof msh.msh_9.msh_9_2 === 'undefined') {
-      throw new Error('MSH.9.1 & MSH 9.2 & MSH 9.3 must be defined.')
+    if (typeof msh.msh_9_1 === 'undefined' ||
+      typeof msh.msh_9_2 === 'undefined') {
+      throw new Error('MSH.9.1 & MSH 9.2 must be defined.')
     }
 
-    if (msh.msh_9.msh_9_1.length !== 3) {
+    if (msh.msh_9_1.length !== 3) {
       throw new Error('MSH.9.1 must be 3 characters in length.')
     }
 
-    if (msh.msh_9.msh_9_2.length !== 3) {
+    if (msh.msh_9_2.length !== 3) {
       throw new Error('MSH.9.2 must be 3 characters in length.')
     }
 
