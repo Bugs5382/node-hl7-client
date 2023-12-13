@@ -9,11 +9,12 @@ import { HL7_2_7 } from './specification/2.7.js'
 import { HL7_SPEC, HL7_SPEC_BASE } from './specification/specification.js'
 import { SubComponent } from './builder/modules/subComponent.js'
 import { Batch } from './builder/batch.js'
+import { FileBatch } from "./builder/fileBatch.js";
 import { ParserPlan } from './utils/parserPlan.js'
 import { HL7Outbound } from './client/hl7Outbound.js'
 
 export default Client
-export { Client, HL7Outbound, ParserPlan, Batch, Message, Segment, SegmentList, Component, SubComponent, Field, FieldRepetition }
+export { Client, HL7Outbound, ParserPlan, FileBatch, Batch, Message, Segment, SegmentList, Component, SubComponent, Field, FieldRepetition }
 export { Delimiters, READY_STATE } from './utils/enum.js'
 export * from './utils/utils.js'
 

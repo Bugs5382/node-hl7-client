@@ -144,14 +144,26 @@ export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderBatchOpt
 export function normalizedClientFileBuilderOptions (raw?: ClientBuilderFileOptions): ClientBuilderFileOptions {
   const props = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
-  if (typeof props.fileHeader === 'undefined' && props.text !== '') {
-    throw new Error('fileHeader must be set if no HL7 message is being passed.')
-  } else if (props.text.slice(0, 3) !== 'FHS') {
+  if (typeof props.fileHeader === 'undefined' && typeof props.text !== 'undefined' && props.text !== '' && props.text.slice(0, 3) !== 'FHS') {
     throw new Error('text must begin with the FHS segment.')
   }
 
   if ((typeof props.newLine !== 'undefined' && props.newLine === '\\r') || props.newLine === '\\n') {
     throw new Error('newLine must be \r or \n')
+  }
+
+  if (props.text === '') {
+    props.text = `FHS${props.separatorField}${props.separatorComponent}${props.separatorRepetition}${props.separatorEscape}${props.separatorSubComponent}`
+  } else if (typeof props.text !== 'undefined') {
+    const plan: ParserPlan = new ParserPlan(props.text.slice(3, 8))
+    props.parsing = true
+    // check to make sure that we set the correct properties
+    props.newLine = props.text.includes('\r') ? '\r' : '\n'
+    props.separatorField = plan.separatorField
+    props.separatorComponent = plan.separatorComponent
+    props.separatorRepetition = plan.separatorRepetition
+    props.separatorEscape = plan.separatorEscape
+    props.separatorSubComponent = plan.separatorSubComponent
   }
 
   return props

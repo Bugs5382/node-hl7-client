@@ -1,6 +1,6 @@
 import {randomUUID} from "crypto";
 import {EmptyNode} from "../src/builder/modules/emptyNode";
-import {Batch, createHL7Date, isBatch, isFile, Message} from "../src";
+import {FileBatch, Batch, Message, createHL7Date, isBatch, isFile} from "../src";
 import { Node } from "../src/builder/interface/node";
 
 describe('node hl7 client - builder tests', () => {
@@ -422,6 +422,49 @@ describe('node hl7 client - builder tests', () => {
     })
 
   })
+
+  describe('basic file basics', () => {
+
+    let file: FileBatch
+
+    beforeEach(async () => {
+      file = new FileBatch()
+      file.start()
+    })
+
+    test('...initial build', async() => {
+
+      file.set('FHS.7', '20081231')
+
+      let message: Message
+
+      message = new Message({
+        messageHeader: {
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: 'CONTROL_ID'
+        }
+      })
+      message.set('MSH.7', '20081231')
+
+      // add this message to the file
+      file.add(message)
+
+      // end making a file batch
+      file.end()
+
+      // unit checking
+      expect(file.toString()).toBe(
+        [
+          "FHS|^~\\&||||||20081231",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID||2.7",
+          "FTS|1"
+        ].join("\r"))
+    })
+
+  })
+
+  describe('complex file generation', () => {})
 
   describe('non standard tests', () => {
 
