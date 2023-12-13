@@ -13,6 +13,7 @@ const DEFAULT_CLIENT_OPTS = {
 const DEFAULT_LISTEN_CLIENT_OPTS = {
   connectionTimeout: 10000,
   encoding: 'utf-8',
+  maxAttempts: 10,
   maxConnections: 10,
   retryHigh: 30000,
   retryLow: 1000,
@@ -39,6 +40,10 @@ export interface ClientOptions {
   /** Keep the connection alive after sending data and getting a response.
    * @default true */
   keepAlive?: boolean
+  /** Max Connections this connection makes.
+   * Has to be greater than 1. You cannot exceed 50.
+   * @default 10 */
+  maxAttempts?: number
   /** Max delay, in milliseconds, for exponential-backoff when reconnecting
    * @default 30_000 */
   retryHigh?: number
@@ -58,6 +63,10 @@ export interface ClientListenerOptions {
    */
   encoding?: BufferEncoding
   /** Max Connections this connection makes.
+   * Has to be greater than 1. You cannot exceed 50.
+   * @default 10 */
+  maxAttempts?: number
+  /** Max Connections this connection makes.
    * Has to be greater than 1.
    * @default 10 */
   maxConnections?: number
@@ -76,12 +85,16 @@ export interface ClientListenerOptions {
 type ValidatedClientKeys =
   | 'connectionTimeout'
   | 'host'
+  | 'maxAttempts'
 
 type ValidatedClientListenerKeys =
   | 'port'
+  | 'maxAttempts'
+  | 'maxConnections'
 
 interface ValidatedClientOptions extends Pick<Required<ClientOptions>, ValidatedClientKeys> {
   host: string
+  maxAttempts: number
   retryHigh: number
   retryLow: number
   socket?: TcpSocketConnectOpts
@@ -91,6 +104,7 @@ interface ValidatedClientOptions extends Pick<Required<ClientOptions>, Validated
 interface ValidatedClientListenerOptions extends Pick<Required<ClientListenerOptions>, ValidatedClientListenerKeys> {
   encoding: BufferEncoding
   port: number
+  maxAttempts: number
   maxConnections: number
   retryHigh: number
   retryLow: number
@@ -122,7 +136,7 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
   }
 
   assertNumber(props, 'connectionTimeout', 0)
-  assertNumber(props, 'maxConnections', 1)
+  assertNumber(props, 'maxConnections', 1, 50)
 
   if (props.tls === true) {
     props.tls = {}
@@ -144,6 +158,8 @@ export function normalizeClientListenerOptions (raw?: ClientListenerOptions): Va
   }
 
   assertNumber(props, 'connectionTimeout', 0)
+  assertNumber(props, 'maxAttempts', 1, 50)
+  assertNumber(props, 'maxConnections', 1, 50)
   assertNumber(props, 'port', 0, 65353)
 
   return props

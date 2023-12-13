@@ -13,8 +13,8 @@ Benefits:
 - No dependencies, making this ultra-fast.
 - Automatically re-connect or retry sending
 - Written in typescript and published with heavily commented type definitions
-- Peer `node-hl7-server' npm package that in conjunction with this one could create a powerfull Hl7 system.
-- Works in Windows or Linux based systems
+- Peer `node-hl7-server' npm package that in conjunction with this one could create a powerful HL7 system.
+- Works in Windows or Linux-based systems
 
 ## Table of Contents
 
