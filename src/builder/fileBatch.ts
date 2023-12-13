@@ -58,9 +58,9 @@ export class FileBatch extends RootBase {
         const seg = batch.getFirstSegment('BTS')
         seg.set(1, batch._messagesCount + 1)
         // add the message to the batch
-        batch.add(item, batch._messagesCount+1)
+        batch.add(item, batch._messagesCount + 1)
       } else {
-         this._messagesCount = this._messagesCount + 1
+        this._messagesCount = this._messagesCount + 1
         this.children.push(item)
       }
     } else {

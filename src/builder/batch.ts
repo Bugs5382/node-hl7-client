@@ -60,13 +60,12 @@ export class Batch extends RootBase {
     segment.set('1', this._messagesCount)
   }
 
-
   /**
    * Get First Segment
    * @since 1.0.0
    * @param name
    */
-  getFirstSegment(name: string): Segment {
+  getFirstSegment (name: string): Segment {
     return this._getFirstSegment(name)
   }
 
