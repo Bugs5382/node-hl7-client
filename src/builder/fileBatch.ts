@@ -1,6 +1,7 @@
 import { HL7FatalError, HL7ParserError } from '../utils/exception.js'
-import { ClientBuilderBatchOptions, normalizedClientBatchBuilderOptions } from '../utils/normalizedBuilder.js'
+import { ClientBuilderFileOptions, normalizedClientFileBuilderOptions } from '../utils/normalizedBuilder.js'
 import { createHL7Date } from '../utils/utils'
+import {Batch} from "./batch";
 import { Node } from './interface/node.js'
 import { Message } from './message.js'
 import { RootBase } from './modules/rootBase.js'
@@ -8,15 +9,17 @@ import { Segment } from './modules/segment.js'
 import { SegmentList } from './modules/segmentList.js'
 
 /**
- * Batch Class
+ * File Class
  * @since 1.0.0
  * @extends RootBase
  */
-export class Batch extends RootBase {
+export class FileBatch extends RootBase {
   /** @internal **/
-  _opt: ReturnType<typeof normalizedClientBatchBuilderOptions>
+  _opt: ReturnType<typeof normalizedClientFileBuilderOptions>
   /** @internal */
   _lines?: string[]
+  /** @internal */
+  _batchCount: number
   /** @internal */
   _messagesCount: number
 
@@ -24,10 +27,11 @@ export class Batch extends RootBase {
    * @since 1.0.0
    * @param props
    */
-  constructor (props?: ClientBuilderBatchOptions) {
-    const opt = normalizedClientBatchBuilderOptions(props)
+  constructor (props?: ClientBuilderFileOptions) {
+    const opt = normalizedClientFileBuilderOptions(props)
     super(opt)
     this._opt = opt
+    this._batchCount = 0
     this._messagesCount = 0
 
     if (typeof opt.text !== 'undefined' && opt.parsing === true && opt.text !== '') {
@@ -36,14 +40,31 @@ export class Batch extends RootBase {
   }
 
   /**
-   * Add a Message to the Batch
+   * Add a Message or a Batch to the File
    * @since 1.0.0
-   * @param message
+   * @param item
    */
-  add (message: Message): void {
-    this.setDirty()
-    this._messagesCount = this._messagesCount + 1
-    this.children.push(message)
+  add (item: Message | Batch): void {
+    // if we are adding a message to a file
+    if (item instanceof Message) {
+      // and we already added a batch segment, we need to add it to the batch segment since we can not add a batch and then a MSH segment.
+      // That would violate HL7 specification.
+      if (this._batchCount >= 1 ) {
+        // @todo add to first batch segment that is already in this.children
+      } else {
+        this.setDirty()
+        this._messagesCount = this._messagesCount + 1
+        this.children.push(item)
+      }
+    } else {
+      // if there are already messages added before a batch
+      if (this._messagesCount >= 1 ) {
+        throw new HL7ParserError(500, 'Unable to add a batch segment, since there is already messages added individually.')
+      }
+      this.setDirty()
+      this._batchCount = this._batchCount + 1
+      this.children.push(item)
+    }
   }
 
   /**
@@ -51,8 +72,8 @@ export class Batch extends RootBase {
    * @since 1.0.0
    */
   end (): void {
-    const segment = this._addSegment('BTS')
-    segment.set('1', this._messagesCount)
+    const segment = this._addSegment('FTS')
+    segment.set('1', this._batchCount + this._messagesCount)
   }
 
   /**
@@ -96,7 +117,7 @@ export class Batch extends RootBase {
    * @since 1.0.0
    */
   start (): void {
-    this.set('BHS.7', createHL7Date(new Date()))
+    this.set('FHS.7', createHL7Date(new Date()))
   }
 
   /** @internal */

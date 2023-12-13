@@ -5,15 +5,15 @@
  */
 export class ParserPlan {
   /** @internal */
-  separatorField?: string
+  separatorField: string
   /** @internal */
-  separatorComponent?: string
+  separatorComponent: string
   /** @internal */
-  separatorRepetition?: string
+  separatorRepetition: string
   /** @internal */
-  separatorEscape?: string
+  separatorEscape: string
   /** @internal */
-  separatorSubComponent?: string
+  separatorSubComponent: string
 
   /**
    * @since 1.0.0
