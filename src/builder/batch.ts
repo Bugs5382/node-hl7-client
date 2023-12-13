@@ -39,11 +39,16 @@ export class Batch extends RootBase {
    * Add a Message to the Batch
    * @since 1.0.0
    * @param message
+   * @param index
    */
-  add (message: Message): void {
+  add (message: Message, index: number | undefined = undefined): void {
     this.setDirty()
     this._messagesCount = this._messagesCount + 1
-    this.children.push(message)
+    if (typeof index !== 'undefined') {
+      this.children.splice(index, 0, message)
+    } else {
+      this.children.push(message)
+    }
   }
 
   /**
@@ -53,6 +58,16 @@ export class Batch extends RootBase {
   end (): void {
     const segment = this._addSegment('BTS')
     segment.set('1', this._messagesCount)
+  }
+
+
+  /**
+   * Get First Segment
+   * @since 1.0.0
+   * @param name
+   */
+  getFirstSegment(name: string): Segment {
+    return this._getFirstSegment(name)
   }
 
   /**
@@ -71,7 +86,10 @@ export class Batch extends RootBase {
     throw new HL7ParserError(500, 'No messages inside batch')
   }
 
-  /** @internal */
+  /**
+   * Read Path
+   * @since 1.0.0
+   */
   read (path: string[]): Node {
     const segmentName = path.shift() as string
     if (path.length === 0) {

@@ -430,11 +430,10 @@ describe('node hl7 client - builder tests', () => {
     beforeEach(async () => {
       file = new FileBatch()
       file.start()
+      file.set('FHS.7', '20081231')
     })
 
     test('...initial build', async() => {
-
-      file.set('FHS.7', '20081231')
 
       let message: Message
 
@@ -456,9 +455,210 @@ describe('node hl7 client - builder tests', () => {
       // unit checking
       expect(file.toString()).toBe(
         [
-          "FHS|^~\\&||||||20081231",
+          "FHS|^~\\&|||||20081231",
           "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID||2.7",
           "FTS|1"
+        ].join("\r"))
+    })
+
+    test('...add 10 message', async() => {
+
+      let message: Message
+
+      for (let i = 0; i < 10; i++ ) {
+        message = new Message({
+          messageHeader: {
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
+            msh_10: `CONTROL_ID${i+1}`
+          }
+        })
+        message.set('MSH.7', '20081231')
+
+        // add this message to the file
+        file.add(message)
+      }
+
+      // end making a file batch
+      file.end()
+
+      // unit checking
+      expect(file.toString()).toBe(
+        [
+          "FHS|^~\\&|||||20081231",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID1||2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID2||2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID3||2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID4||2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID5||2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID6||2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID7||2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID8||2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID9||2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID10||2.7",
+          "FTS|10"
+        ].join("\r"))
+    })
+
+    test('...add single a batch', async() => {
+
+      // basic batch
+      let batch = new Batch()
+      batch.start()
+      batch.set('BHS.7', '20081231')
+      batch.end()
+
+      // add this message to the file
+      file.add(batch)
+
+      // end making a file batch for output
+      file.end()
+
+      // unit checking
+      expect(file.toString()).toBe(
+        [
+          "FHS|^~\\&|||||20081231",
+          "BHS|^~\\&|||||20081231",
+          "BTS|0",
+          "FTS|1"
+        ].join("\r"))
+    })
+
+    test('...add single a batch with a single message', async() => {
+
+      let batch = new Batch()
+      batch.start()
+      batch.set('BHS.7', '20081231')
+
+      let message = new Message({
+        messageHeader: {
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: 'CONTROL_ID'
+        }
+      })
+      message.set('MSH.7', '20081231')
+
+      // add message to the batch
+      batch.add(message)
+
+      // batch ended
+      batch.end()
+
+      // add this message to the file
+      file.add(batch)
+
+      // end making a file batch
+      file.end()
+
+      // unit checking
+      expect(file.toString()).toBe(
+        [
+          "FHS|^~\\&|||||20081231",
+          "BHS|^~\\&|||||20081231",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID||2.7",
+          "BTS|1",
+          "FTS|1"
+        ].join("\r"))
+
+    })
+
+    test('...add single a batch with a single message, if add a message to the file, it should add it to the batch', async() => {
+
+      let batch = new Batch()
+      batch.start()
+      batch.set('BHS.7', '20081231')
+
+      let message = new Message({
+        messageHeader: {
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: 'CONTROL_ID1'
+        }
+      })
+      message.set('MSH.7', '20081231')
+
+      // add message to the batch
+      batch.add(message)
+
+      // batch ended
+      batch.end()
+
+      // add this message to the file
+      file.add(batch)
+
+      // create a new message
+      message = new Message({
+        messageHeader: {
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: 'CONTROL_ID2'
+        }
+      })
+      message.set('MSH.7', '20081231')
+
+      // add this message to the file, but it will get added to the batch segment since there is a batch segment,
+      // and you can't add a msh outside the BHS if it exists already
+      file.add(message)
+
+      message = new Message({
+        messageHeader: {
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: 'CONTROL_ID3'
+        }
+      })
+      message.set('MSH.7', '20081231')
+
+      // add this message to the file, but it will get added to the batch segment since there is a batch segment,
+      // and you can't add a msh outside the BHS if it exists already
+      file.add(message)
+
+      // end making a file batch
+      file.end()
+
+      // unit checking
+      expect(file.toString()).toBe(
+        [
+          "FHS|^~\\&|||||20081231",
+          "BHS|^~\\&|||||20081231",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID1||2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID2||2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID3||2.7",
+          "BTS|3",
+          "FTS|1"
+        ].join("\r"))
+    })
+
+    test('...add 2 batch', async() => {
+
+      let batch = new Batch()
+      batch.start()
+      batch.set('BHS.7', '20081231')
+      batch.end()
+
+      // add this message to the file
+      file.add(batch)
+
+      batch = new Batch()
+      batch.start()
+      batch.set('BHS.7', '20081231')
+      batch.end()
+
+      file.add(batch)
+
+      // end making a file batch
+      file.end()
+
+      // unit checking
+      expect(file.toString()).toBe(
+        [
+          "FHS|^~\\&|||||20081231",
+          "BHS|^~\\&|||||20081231",
+          "BTS|0",
+          "BHS|^~\\&|||||20081231",
+          "BTS|0",
+          "FTS|2"
         ].join("\r"))
     })
 
@@ -562,6 +762,15 @@ describe('node hl7 client - builder tests', () => {
       batch.start()
       batch.end()
       expect(isBatch(batch.toString())).toBe(true)
+
+    })
+
+    test('...isFile - should now be true', async() => {
+
+      let file = new FileBatch()
+      file.start()
+      file.end()
+      expect(isFile(file.toString())).toBe(true)
 
     })
 
