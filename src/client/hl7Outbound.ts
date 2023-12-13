@@ -198,10 +198,11 @@ export class HL7Outbound extends EventEmitter {
 
     socket.on('connect', () => {
       this._readyState = READY_STATE.CONNECTED
-      this.emit('connect')
+      this.emit('connect', true, this._socket)
     })
 
     socket.on('data', (buffer: Buffer) => {
+      this._awaitingResponse = false
       this._handler(buffer)
     })
 

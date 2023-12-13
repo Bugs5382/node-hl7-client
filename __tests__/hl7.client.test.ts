@@ -1,6 +1,6 @@
 import portfinder from 'portfinder'
 import {Hl7Inbound, Server} from "../../node-hl7-server/src";
-import {Client, expectEvent, HL7Outbound, Message} from '../src'
+import {Client, expectEvent, HL7Outbound, Message, sleep} from '../src'
 
 describe('node hl7 client', () => {
 
@@ -227,9 +227,82 @@ describe('node hl7 client', () => {
   })
 
   describe('end to end tests', () => {
+    let LISTEN_PORT: number;
 
-    test.skip('...send message, get proper ACK', async () => {
+    beforeEach(async () => {
+      LISTEN_PORT = await portfinder.getPortPromise({
+        port: 3000,
+        stopPort: 65353
+      })
+    })
 
+    test('...send message, get proper ACK', async () => {
+
+      const server = new Server({bindAddress: '0.0.0.0'})
+      const IB_ADT = server.createInbound({port: LISTEN_PORT}, async (req, res) => {
+        const messageReq = req.getMessage()
+        const messageRes = res.getAckMessage()
+        expect(messageRes.get('MSA.1').toString()).toBe('AA')
+        expect(messageReq.get('MSH.12').toString()).toBe('2.7')
+      })
+
+      await sleep(5)
+
+      const client = new Client({host: '0.0.0.0'})
+
+      const OB_ADT = client.createOutbound({ port: LISTEN_PORT }, async (res) => {
+        expect(res.toString()).not.toContain('ADT^A01^ADT_A01')
+      })
+
+      await sleep(5)
+
+      let message = new Message({
+        messageHeader: {
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: 'CONTROL_ID'
+        }
+      })
+
+      await OB_ADT.sendMessage(message)
+
+      await sleep(10)
+
+      await OB_ADT.close()
+      await IB_ADT.close()
+
+    })
+
+    test('...send message, but the connection was closed -- error out', async () => {
+
+      let IB_ADT: Hl7Inbound
+      try {
+        const server = new Server({bindAddress: '0.0.0.0'})
+        IB_ADT = server.createInbound({port: LISTEN_PORT}, async (_req, _res) => {})
+
+        await sleep(5)
+
+        const client = new Client({host: '0.0.0.0'})
+        const OB_ADT = client.createOutbound({port: LISTEN_PORT, maxAttempts: 1}, async (_res) => {})
+
+        await sleep(5)
+
+        let message = new Message({
+          messageHeader: {
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
+            msh_10: 'CONTROL_ID'
+          }
+        })
+
+        await OB_ADT.close() // @todo there needs to be a way we kill the server?
+        await IB_ADT.close() // make sure we close the server
+
+        await OB_ADT.sendMessage(message)
+
+      } catch (err: any) {
+        expect(err.message).toBe('In an invalid state to be able to send message.')
+      }
     })
 
   })
