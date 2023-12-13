@@ -109,7 +109,7 @@ export const isBatch = (data: string): boolean => {
 
 /** @internal */
 export const isFile = (data: string): boolean => {
-  return data.startsWith('FSH')
+  return data.startsWith('FHS')
 }
 
 /** @internal */

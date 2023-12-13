@@ -1,7 +1,7 @@
 import { HL7FatalError, HL7ParserError } from '../utils/exception.js'
 import { ClientBuilderFileOptions, normalizedClientFileBuilderOptions } from '../utils/normalizedBuilder.js'
 import { createHL7Date } from '../utils/utils'
-import {Batch} from "./batch";
+import { Batch } from './batch.js'
 import { Node } from './interface/node.js'
 import { Message } from './message.js'
 import { RootBase } from './modules/rootBase.js'
@@ -35,7 +35,8 @@ export class FileBatch extends RootBase {
     this._messagesCount = 0
 
     if (typeof opt.text !== 'undefined' && opt.parsing === true && opt.text !== '') {
-      this._lines = this._splitBatch(opt.text).filter(line => line.includes('MSH'))
+      // @todo if we find BHS segments, we want to get these first and then the messages inside them
+      // @todo or if the FHS is just has message
     }
   }
 
@@ -45,23 +46,28 @@ export class FileBatch extends RootBase {
    * @param item
    */
   add (item: Message | Batch): void {
+    this.setDirty()
     // if we are adding a message to a file
     if (item instanceof Message) {
-      // and we already added a batch segment, we need to add it to the batch segment since we can not add a batch and then a MSH segment.
+      // and we already added a batch segment, we need to add it to the batch segment since we cannot add a batch and then a MSH segment.
       // That would violate HL7 specification.
-      if (this._batchCount >= 1 ) {
-        // @todo add to first batch segment that is already in this.children
+      if (this._batchCount >= 1) {
+        // get the first batch segment we find
+        const batch = this._getFirstBatch()
+        // update the count of the BTS segment by 1
+        const seg = batch.getFirstSegment('BTS')
+        seg.set(1, batch._messagesCount + 1)
+        // add the message to the batch
+        batch.add(item, batch._messagesCount+1)
       } else {
-        this.setDirty()
-        this._messagesCount = this._messagesCount + 1
+         this._messagesCount = this._messagesCount + 1
         this.children.push(item)
       }
     } else {
       // if there are already messages added before a batch
-      if (this._messagesCount >= 1 ) {
+      if (this._messagesCount >= 1) {
         throw new HL7ParserError(500, 'Unable to add a batch segment, since there is already messages added individually.')
       }
-      this.setDirty()
       this._batchCount = this._batchCount + 1
       this.children.push(item)
     }
@@ -149,6 +155,17 @@ export class FileBatch extends RootBase {
   }
 
   /** @internal */
+  private _getFirstBatch (): Batch {
+    const children = this.children
+    for (let i = 0, l = children.length; i < l; i++) {
+      if (children[i] instanceof Batch) {
+        return children[i] as Batch
+      }
+    }
+    throw new HL7FatalError(500, 'Unable to process _getFirstBatch.')
+  }
+
+  /** @internal */
   private _getFirstSegment (name: string): Segment {
     const children = this.children
     for (let i = 0, l = children.length; i < l; i++) {
@@ -182,6 +199,7 @@ export class FileBatch extends RootBase {
   }
 
   /** @internal */
+  // @ts-expect-error
   private _splitBatch (data: string, batch: string[] = []): string[] {
     const getSegIndex = this._getSegIndexes(['FHS', 'BHS', 'MSH', 'BTS', 'FTS'], data)
     getSegIndex.sort((a, b) => parseInt(a) - parseInt(b))
