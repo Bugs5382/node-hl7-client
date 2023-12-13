@@ -1,12 +1,21 @@
 import { TcpSocketConnectOpts } from 'node:net'
 import type { ConnectionOptions as TLSOptions } from 'node:tls'
-import * as Util from './index.js'
+import { assertNumber, validIPv4, validIPv6 } from './utils'
 
 const DEFAULT_CLIENT_OPTS = {
-  acquireTimeout: 20000,
   connectionTimeout: 10000,
   encoding: 'utf-8',
   maxConnections: 10,
+  retryHigh: 30000,
+  retryLow: 1000
+}
+
+const DEFAULT_LISTEN_CLIENT_OPTS = {
+  connectionTimeout: 10000,
+  encoding: 'utf-8',
+  maxConnections: 10,
+  retryHigh: 30000,
+  retryLow: 1000,
   waitAck: true
 }
 
@@ -16,14 +25,11 @@ export interface ParserProcessRawData {
 }
 
 export interface ClientOptions {
-  /** Milliseconds to wait before aborting a connection attempt
-   * @default 20_000 */
-  acquireTimeout?: number
   /** Max wait time, in milliseconds, for a connection attempt
    * @default 10_000 */
   connectionTimeout?: number
   /** Host - You can do a FQDN or the IPv(4|6) address. */
-  host: string
+  host?: string
   /** IPv4 - If this is set to true, only IPv4 address will be used and also validated upon installation from the hostname property.
    * @default false */
   ipv4?: boolean
@@ -33,6 +39,12 @@ export interface ClientOptions {
   /** Keep the connection alive after sending data and getting a response.
    * @default true */
   keepAlive?: boolean
+  /** Max delay, in milliseconds, for exponential-backoff when reconnecting
+   * @default 30_000 */
+  retryHigh?: number
+  /** Step size, in milliseconds, for exponential-backoff when reconnecting
+   * @default 1000 */
+  retryLow?: number
   /** Additional options when creating the TCP socket with net.connect(). */
   socket?: TcpSocketConnectOpts
   /** Enable TLS, or set TLS specific options like overriding the CA for
@@ -41,27 +53,20 @@ export interface ClientOptions {
 }
 
 export interface ClientListenerOptions {
-  /** Milliseconds to wait before aborting a connection attempt.
-   * This will override the overall client connection for this particular connection.
-   * @default 20_000 */
-  acquireTimeout?: number
-  /** Max wait time, in milliseconds, for a connection attempt.
-   * This will override the overall client connection for this particular connection.
-   * @default 10_000 */
-  connectionTimeout?: number
   /** Encoding of the messages we expect from the HL7 message.
    * @default "utf-8"
    */
   encoding?: BufferEncoding
-  /** Keep the connection alive after sending data and getting a response.
-   * @default true */
-  keepAlive?: boolean
   /** Max Connections this connection makes.
    * Has to be greater than 1.
    * @default 10 */
   maxConnections?: number
-  /** Additional options when creating the TCP socket with net.connect(). */
-  socket?: TcpSocketConnectOpts
+  /** Max delay, in milliseconds, for exponential-backoff when reconnecting
+   * @default 30_000 */
+  retryHigh?: number
+  /** Step size, in milliseconds, for exponential-backoff when reconnecting
+   * @default 1000 */
+  retryLow?: number
   /** The port we should connect on the server. */
   port: number
   /** Wait for ACK **/
@@ -69,7 +74,6 @@ export interface ClientListenerOptions {
 }
 
 type ValidatedClientKeys =
-  | 'acquireTimeout'
   | 'connectionTimeout'
   | 'host'
 
@@ -78,6 +82,8 @@ type ValidatedClientListenerKeys =
 
 interface ValidatedClientOptions extends Pick<Required<ClientOptions>, ValidatedClientKeys> {
   host: string
+  retryHigh: number
+  retryLow: number
   socket?: TcpSocketConnectOpts
   tls?: TLSOptions
 }
@@ -86,6 +92,8 @@ interface ValidatedClientListenerOptions extends Pick<Required<ClientListenerOpt
   encoding: BufferEncoding
   port: number
   maxConnections: number
+  retryHigh: number
+  retryLow: number
   waitAck: boolean
 }
 
@@ -104,18 +112,17 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
   if (typeof props.host !== 'string' && props.ipv4 === false && props.ipv6 === false) {
     throw new Error('hostname is not valid string.')
   } else if (typeof props.host === 'string' && props.ipv4 === true && props.ipv6 === false) {
-    if (!Util.validIPv4(props.host)) {
+    if (!validIPv4(props.host)) {
       throw new Error('hostname is not a valid IPv4 address.')
     }
   } else if (typeof props.host === 'string' && props.ipv4 === false && props.ipv6 === true) {
-    if (!Util.validIPv6(props.host)) {
+    if (!validIPv6(props.host)) {
       throw new Error('hostname is not a valid IPv6 address.')
     }
   }
 
-  Util.assertNumber(props, 'acquireTimeout', 0)
-  Util.assertNumber(props, 'connectionTimeout', 0)
-  Util.assertNumber(props, 'maxConnections', 1)
+  assertNumber(props, 'connectionTimeout', 0)
+  assertNumber(props, 'maxConnections', 1)
 
   if (props.tls === true) {
     props.tls = {}
@@ -126,7 +133,7 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
 
 /** @internal */
 export function normalizeClientListenerOptions (raw?: ClientListenerOptions): ValidatedClientListenerOptions {
-  const props: any = { ...DEFAULT_CLIENT_OPTS, ...raw }
+  const props: any = { ...DEFAULT_LISTEN_CLIENT_OPTS, ...raw }
 
   if (typeof props.port === 'undefined') {
     throw new Error('port is not defined.')
@@ -136,9 +143,8 @@ export function normalizeClientListenerOptions (raw?: ClientListenerOptions): Va
     throw new Error('port is not valid number.')
   }
 
-  Util.assertNumber(props, 'acquireTimeout', 0)
-  Util.assertNumber(props, 'connectionTimeout', 0)
-  Util.assertNumber(props, 'port', 0, 65353)
+  assertNumber(props, 'connectionTimeout', 0)
+  assertNumber(props, 'port', 0, 65353)
 
   return props
 }

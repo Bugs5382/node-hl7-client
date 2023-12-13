@@ -1,6 +1,5 @@
 import { Client } from './client/client.js'
 import { Component } from './builder/modules/component.js'
-import { Delimiters } from './builder/decorators/delimiters.js'
 import { Field } from './builder/modules/field.js'
 import { FieldRepetition } from './builder/modules/fieldRepetition.js'
 import { Message } from './builder/message.js'
@@ -14,8 +13,9 @@ import { ParserPlan } from './utils/parserPlan.js'
 import { HL7Outbound } from './client/hl7Outbound.js'
 
 export default Client
-export { Client, HL7Outbound, ParserPlan, Batch, Message, Delimiters, Segment, SegmentList, Component, SubComponent, Field, FieldRepetition }
-export { assertNumber, isBatch, isFile, createHL7Date, validIPv6, validIPv4 } from './utils/index.js'
+export { Client, HL7Outbound, ParserPlan, Batch, Message, Segment, SegmentList, Component, SubComponent, Field, FieldRepetition }
+export { Delimiters, READY_STATE } from './utils/enum.js'
+export * from './utils/utils.js'
 
 /** HL7 Specs **/
 export type { MSH } from './specification/specification.js'

@@ -1,9 +1,9 @@
-import { Delimiters } from '../decorators/delimiters.js'
+import { Delimiters } from '../../utils/enum'
 import { HL7FatalError } from '../../utils/exception.js'
+import { isString } from '../../utils/utils'
 import { Field } from './field.js'
 import { NodeBase } from './nodeBase.js'
 import { Node } from '../interface/node.js'
-import * as Util from '../../utils'
 import { SubComponent } from './subComponent.js'
 
 /**
@@ -23,7 +23,7 @@ export class Segment extends NodeBase {
      */
   constructor (parent: NodeBase, text: string) {
     super(parent, text, Delimiters.Field)
-    if (!Util.isString(text) || text.length === 0) {
+    if (!isString(text) || text.length === 0) {
       throw new HL7FatalError(500, 'Segment must have a name.')
     }
     this._segmentName = text.slice(0, 3)
