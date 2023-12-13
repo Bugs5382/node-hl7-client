@@ -1,7 +1,6 @@
 import portfinder from 'portfinder'
 import {Hl7Inbound, Server} from "../../node-hl7-server/src";
-import {Client, HL7Outbound, Message} from '../src'
-import {expectEvent} from "./__utils__/utils";
+import {Client, expectEvent, HL7Outbound, Message} from '../src'
 
 describe('node hl7 client', () => {
 

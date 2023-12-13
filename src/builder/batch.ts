@@ -1,6 +1,6 @@
-import * as Util from '../utils'
 import { HL7FatalError, HL7ParserError } from '../utils/exception.js'
 import { ClientBuilderBatchOptions, normalizedClientBatchBuilderOptions } from '../utils/normalizedBuilder.js'
+import { createHL7Date } from '../utils/utils'
 import { Node } from './interface/node.js'
 import { Message } from './message.js'
 import { RootBase } from './modules/rootBase.js'
@@ -96,7 +96,7 @@ export class Batch extends RootBase {
    * @since 1.0.0
    */
   start (): void {
-    this.set('BSH.7', Util.createHL7Date(new Date()))
+    this.set('BSH.7', createHL7Date(new Date()))
   }
 
   /** @internal */

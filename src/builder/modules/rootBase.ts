@@ -1,10 +1,8 @@
 import { HL7FatalError } from '../../utils/exception.js'
-
 import { ClientBuilderOptions } from '../../utils/normalizedBuilder'
-import { Delimiters } from '../decorators/delimiters.js'
+import { Delimiters } from '../../utils/enum'
+import { decodeHexString, escapeForRegExp } from '../../utils/utils'
 import { NodeBase } from './nodeBase.js'
-import * as Util from '../../utils'
-
 /**
  * Root Base
  * @since 1.0.0
@@ -50,11 +48,11 @@ export class RootBase extends NodeBase {
    */
   protected static _makeMatchEscape (delimiters: string): RegExp {
     const sequences = [
-      Util.escapeForRegExp(delimiters[Delimiters.Escape]),
-      Util.escapeForRegExp(delimiters[Delimiters.Field]),
-      Util.escapeForRegExp(delimiters[Delimiters.Repetition]),
-      Util.escapeForRegExp(delimiters[Delimiters.Component]),
-      Util.escapeForRegExp(delimiters[Delimiters.SubComponent])
+      escapeForRegExp(delimiters[Delimiters.Escape]),
+      escapeForRegExp(delimiters[Delimiters.Field]),
+      escapeForRegExp(delimiters[Delimiters.Repetition]),
+      escapeForRegExp(delimiters[Delimiters.Component]),
+      escapeForRegExp(delimiters[Delimiters.SubComponent])
     ]
     return new RegExp(sequences.join('|'), 'g')
   }
@@ -67,7 +65,7 @@ export class RootBase extends NodeBase {
    */
   protected static _makeMatchUnescape (delimiters: string): RegExp {
     // setup regular expression for matching escape sequences, see http://www.hl7standards.com/blog/2006/11/02/hl7-escape-sequences/
-    const matchEscape = Util.escapeForRegExp(delimiters[Delimiters.Escape])
+    const matchEscape = escapeForRegExp(delimiters[Delimiters.Escape])
     return new RegExp([matchEscape, '[^', matchEscape, ']*', matchEscape].join(''), 'g')
   }
 
@@ -107,7 +105,7 @@ export class RootBase extends NodeBase {
         case 'T':
           return this._delimiters[Delimiters.SubComponent]
         case 'X':
-          return Util.decodeHexString(match.slice(2, match.length - 1))
+          return decodeHexString(match.slice(2, match.length - 1))
         case 'C':
         case 'H':
         case 'M':

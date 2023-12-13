@@ -1,4 +1,4 @@
-import { Delimiters } from '../decorators/delimiters.js'
+import { Delimiters } from '../../utils/enum'
 import { Node } from '../interface/node.js'
 import { NodeBase } from './nodeBase.js'
 import { SubComponent } from './subComponent.js'

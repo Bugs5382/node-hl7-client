@@ -1,8 +1,8 @@
+import { isNumber, isString, pad } from '../../utils/utils'
 import { Batch } from '../batch.js'
 import { EmptyNode } from './emptyNode.js'
 import { HL7FatalError } from '../../utils/exception.js'
-import * as Util from '../../utils'
-import { Delimiters } from '../decorators/delimiters.js'
+import { Delimiters } from '../../utils/enum'
 import { Node } from '../interface/node.js'
 import { Message } from '../message.js'
 
@@ -64,7 +64,7 @@ export class NodeBase implements Node {
       }
 
       return this
-    } else if (Util.isNumber(path)) {
+    } else if (isNumber(path)) {
       if (Array.isArray(value)) {
         const child = this.ensure(path)
         for (let i = 0, l = value.length; i < l; i++) {
@@ -152,7 +152,7 @@ export class NodeBase implements Node {
     }
     if (typeof path === 'number') {
       return this.setChild(this.createChild('', path), path)
-    } else if (Util.isString(path)) {
+    } else if (isString(path)) {
       return this.write(this.preparePath(path), '')
     }
     throw new HL7FatalError(500, 'There seems to be a problem.')
@@ -331,12 +331,12 @@ export class NodeBase implements Node {
   private _formatDateTime (date: Date): string {
     // check if there is a time component
     if (date.getHours() !== 0 || date.getMinutes() !== 0 || date.getSeconds() !== 0 || date.getMilliseconds() !== 0) {
-      return this._formatDate(date) + Util.pad(date.getHours(), 2) + Util.pad(date.getMinutes(), 2) + Util.pad(date.getSeconds(), 2)
+      return this._formatDate(date) + pad(date.getHours(), 2) + pad(date.getMinutes(), 2) + pad(date.getSeconds(), 2)
     }
     return this._formatDate(date)
   }
 
   private _formatDate (date: Date): string {
-    return date.getFullYear().toString() + Util.pad(date.getMonth() + 1, 2) + Util.pad(date.getDate(), 2)
+    return date.getFullYear().toString() + pad(date.getMonth() + 1, 2) + pad(date.getDate(), 2)
   }
 }

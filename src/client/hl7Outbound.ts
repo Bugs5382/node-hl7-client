@@ -1,11 +1,12 @@
 import EventEmitter from 'events'
-import * as net from 'net'
-import * as tls from 'tls'
+import net, { Socket } from 'node:net'
+import tls from 'node:tls'
 import { Batch } from '../builder/batch.js'
 import { Message } from '../builder/message.js'
-import { randomString } from '../utils'
+import { READY_STATE } from '../utils/enum'
 import { HL7FatalError } from '../utils/exception'
 import { ClientListenerOptions, normalizeClientListenerOptions } from '../utils/normalizedClient.js'
+import { expBackoff, randomString } from '../utils/utils'
 import { Client } from './client.js'
 
 export type OutboundHandler = (res: Buffer) => Promise<void>
@@ -16,6 +17,8 @@ export class HL7Outbound extends EventEmitter {
   /** @internal */
   private _awaitingResponse: boolean
   /** @internal */
+  _connectionTimer: NodeJS.Timeout | undefined
+  /** @internal */
   private readonly _handler: (res: Buffer) => void
   /** @internal */
   private readonly _main: Client
@@ -24,21 +27,31 @@ export class HL7Outbound extends EventEmitter {
   /** @internal */
   private readonly _opt: ReturnType<typeof normalizeClientListenerOptions>
   /** @internal */
-  private readonly _server: net.Socket | tls.TLSSocket
+  private _retryCount: number
+  /** @internal */
+  _retryTimer: NodeJS.Timeout | undefined
+  /** @internal */
+  private readonly _socket: Socket
   /** @internal */
   private readonly _sockets: Map<any, any>
+  /** @internal */
+  protected _readyState: READY_STATE
 
   constructor (client: Client, props: ClientListenerOptions, handler: OutboundHandler) {
     super()
     this._awaitingResponse = false
+    this._connectionTimer = undefined
     this._handler = handler
     this._main = client
     this._nodeId = randomString(5)
     this._opt = normalizeClientListenerOptions(props)
     this._sockets = new Map()
+    this._retryCount = 1
+    this._retryTimer = undefined
+    this._readyState = READY_STATE.CONNECTING
 
     this._connect = this._connect.bind(this)
-    this._server = this._connect()
+    this._socket = this._connect()
   }
 
   getHost (): string {
@@ -72,62 +85,85 @@ export class HL7Outbound extends EventEmitter {
 
     const payload = Buffer.concat([header, messageToSend])
 
-    return this._server.write(payload, this._opt.encoding, () => {
+    return this._socket.write(payload, this._opt.encoding, () => {
       // FOR DEBUGGING ONLY: console.log(toSendData)
     })
   }
 
+  private _listener (socket: Socket): void {
+    // set no delay
+    socket.setNoDelay(true)
+
+    // add socket
+    this._addSocket(this._nodeId, socket, true)
+
+    // check to make sure we do not max out on connections, we shouldn't...
+    if (this._sockets.size > this._opt.maxConnections) {
+      this._manageConnections()
+    }
+
+    this._readyState = READY_STATE.CONNECTED
+  }
+
   /** @internal */
-  private _connect (): net.Socket | tls.TLSSocket {
-    let server: net.Socket | tls.TLSSocket
+  private _connect (): Socket {
+    let socket: Socket
     const host = this._main._opt.host
     const port = this._opt.port
     const _optTls = this._main._opt.tls
 
     if (typeof _optTls !== 'undefined') {
       // @TODO this needs to be expanded on for TLS options
-      server = tls.connect({ host, port })
+      socket = tls.connect({ host, port }, () => this._listener(socket))
     } else {
-      server = net.createConnection({ host, port }, () => {
-        // set no delay
-        server.setNoDelay(true)
-
-        // add socket
-        this._addSocket(this._nodeId, server, true)
-
-        // check to make sure we do not max out on connections, we shouldn't...
-        if (this._sockets.size > this._opt.maxConnections) {
-          this._manageConnections()
-        }
-      })
+      socket = net.createConnection({ host, port }, () => this._listener(socket))
     }
 
-    server.on('connect', () => {
-      this.emit('connect')
-    })
-
-    server.on('data', (buffer: Buffer) => {
-      this._handler(buffer)
-    })
-
-    server.on('error', err => {
+    socket.on('error', err => {
       this._removeSocket(this._nodeId)
       this.emit('client.error', err, this._nodeId)
     })
 
-    server.on('end', () => {
+    socket.on('close', () => {
+      if (this._readyState === READY_STATE.CLOSING) {
+        this._readyState = READY_STATE.CLOSED
+      } else {
+        const retryHigh = typeof this._opt.retryHigh === 'undefined' ? this._main._opt.retryHigh : this._opt.retryLow
+        const retryLow = typeof this._opt.retryLow === 'undefined' ? this._main._opt.retryLow : this._opt.retryLow
+        const retryCount = this._retryCount++
+        const delay = expBackoff(retryLow, retryHigh, retryCount)
+        this._readyState = READY_STATE.OPEN
+        this._retryTimer = setTimeout(this._connect, delay)
+        if (retryCount <= 1) {
+          this.emit('error')
+        }
+      }
+    })
+
+    socket.on('connect', () => {
+      this._readyState = READY_STATE.CONNECTED
+      this.emit('connect')
+    })
+
+    socket.on('data', (buffer: Buffer) => {
+      this._handler(buffer)
+    })
+
+    socket.on('end', () => {
       this._removeSocket(this._nodeId)
       this.emit('client.end')
     })
 
-    server.unref()
+    socket.unref()
 
-    return server
+    return socket
   }
 
   /** Close Client Listener Instance.
    * @since 1.0.0 */
   async close (): Promise<boolean> {
+    // mark that we set our internal that we are closing, so we do not try to re-connect
+    this._readyState = READY_STATE.CLOSING
     this._sockets.forEach((socket) => {
       if (typeof socket.destroyed !== 'undefined') {
         socket.end()

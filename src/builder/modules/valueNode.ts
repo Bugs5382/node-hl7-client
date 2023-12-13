@@ -1,5 +1,5 @@
 import { HL7FatalError } from '../../utils/exception.js'
-import { Delimiters } from '../decorators/delimiters.js'
+import { Delimiters } from '../../utils/enum'
 import { NodeBase } from './nodeBase.js'
 
 /** @internal */

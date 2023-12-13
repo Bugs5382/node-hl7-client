@@ -7,3 +7,12 @@ export enum Delimiters {
   Escape,
   SubComponent
 }
+
+/** @internal */
+export enum READY_STATE {
+  CONNECTING,
+  CONNECTED,
+  OPEN,
+  CLOSING,
+  CLOSED
+}

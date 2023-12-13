@@ -1,7 +1,6 @@
 import {randomUUID} from "crypto";
 import {EmptyNode} from "../src/builder/modules/emptyNode";
-import * as Util from '../src/utils/'
-import {Batch, Message} from "../src";
+import {Batch, createHL7Date, isBatch, isFile, Message} from "../src";
 import { Node } from "../src/builder/interface/node";
 
 describe('node hl7 client - builder tests', () => {
@@ -339,7 +338,7 @@ describe('node hl7 client - builder tests', () => {
 
     let batch: Batch
     let message: Message
-    const date = Util.createHL7Date(new Date(), "8")
+    const date = createHL7Date(new Date(), "8")
 
     beforeEach(async () => {
       batch = new Batch()
@@ -488,7 +487,7 @@ describe('node hl7 client - builder tests', () => {
           msh_10: 'CONTROL_ID'
         }
       })
-      expect(Util.isFile(message.toString())).toBe(false)
+      expect(isFile(message.toString())).toBe(false)
 
     })
 
@@ -501,7 +500,7 @@ describe('node hl7 client - builder tests', () => {
           msh_10: 'CONTROL_ID'
         }
       })
-      expect(Util.isBatch(message.toString())).toBe(false)
+      expect(isBatch(message.toString())).toBe(false)
 
     })
 
@@ -510,7 +509,7 @@ describe('node hl7 client - builder tests', () => {
       let batch = new Batch()
       batch.start()
       batch.end()
-      expect(Util.isFile(batch.toString())).toBe(false)
+      expect(isFile(batch.toString())).toBe(false)
 
     })
 
@@ -519,7 +518,7 @@ describe('node hl7 client - builder tests', () => {
       let batch = new Batch()
       batch.start()
       batch.end()
-      expect(Util.isBatch(batch.toString())).toBe(true)
+      expect(isBatch(batch.toString())).toBe(true)
 
     })
 
