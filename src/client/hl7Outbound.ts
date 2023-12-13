@@ -97,7 +97,7 @@ export class HL7Outbound extends EventEmitter {
               this._pendingSetup = checkConnection().finally(() => { this._pendingSetup = false })
             }
           } else if (this._readyState === READY_STATE.CONNECTED && this._opt.waitAck && this._awaitingResponse) {
-          // Ok, we ar now conformed connected.
+          // Ok, we ar now confirmed connected.
           // However, since we are checking
           // to make sure we wait for an ACKNOWLEDGEMENT from the server,
           // that the message was gotten correctly from the last one we sent.
