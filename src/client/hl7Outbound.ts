@@ -36,6 +36,8 @@ export class HL7Outbound extends EventEmitter {
   private readonly _sockets: Map<any, any>
   /** @internal */
   protected _readyState: READY_STATE
+  /** @internal */
+  _pendingSetup: Promise<boolean> | boolean
 
   constructor (client: Client, props: ClientListenerOptions, handler: OutboundHandler) {
     super()
@@ -45,6 +47,7 @@ export class HL7Outbound extends EventEmitter {
     this._main = client
     this._nodeId = randomString(5)
     this._opt = normalizeClientListenerOptions(props)
+    this._pendingSetup = true
     this._sockets = new Map()
     this._retryCount = 1
     this._retryTimer = undefined
@@ -66,17 +69,70 @@ export class HL7Outbound extends EventEmitter {
    * @since 1.0.0
    */
   async sendMessage (message: Message | Batch): Promise<boolean> {
-    // if we are waiting for an ack before we can send something else, and we are in that process.
-    if (this._opt.waitAck && this._awaitingResponse) {
-      throw new HL7FatalError(500, 'Can\'t send message while we are waiting for a response.')
+    let attempts = 0
+    const maxAttempts = typeof this._opt.maxAttempts === 'undefined' ? this._main._opt.maxAttempts : this._opt.maxAttempts
+
+    const checkConnection = async (): Promise<boolean> => {
+      return this._readyState === READY_STATE.CONNECTED
     }
+
+    const checkAck = async (): Promise<boolean> => {
+      return this._awaitingResponse
+    }
+
+    const checkSend = async (_message: string): Promise<boolean> => {
+      // noinspection InfiniteLoopJS
+      while (true) {
+        try {
+        // first, if we are closed, sorry, no more sending messages
+          if ((this._readyState === READY_STATE.CLOSED) || (this._readyState === READY_STATE.CLOSING)) {
+            // noinspection ExceptionCaughtLocallyJS
+            throw new HL7FatalError(500, 'In an invalid state to be able to send message.')
+          }
+          if (this._readyState !== READY_STATE.CONNECTED) {
+          // if we are not connected,
+          // check to see if we are now connected.
+            if (this._pendingSetup === false) {
+              // @todo in the future, add here to store the messages in a file or a
+              this._pendingSetup = checkConnection().finally(() => { this._pendingSetup = false })
+            }
+          } else if (this._readyState === READY_STATE.CONNECTED && this._opt.waitAck && this._awaitingResponse) {
+          // Ok, we ar now conformed connected.
+          // However, since we are checking
+          // to make sure we wait for an ACKNOWLEDGEMENT from the server,
+          // that the message was gotten correctly from the last one we sent.
+          // We are still waiting, we need to recheck again
+          // if we are not connected,
+          // check to see if we are now connected.
+            if (this._pendingSetup === false) {
+              this._pendingSetup = checkAck().finally(() => { this._pendingSetup = false })
+            }
+          }
+          return await this._pendingSetup
+        } catch (err: any) {
+          Error.captureStackTrace(err)
+          if (++attempts >= maxAttempts) {
+            throw err
+          } else {
+            emitter.emit('retry', err)
+          }
+        }
+      }
+    }
+
+    const emitter = new EventEmitter()
+
+    const theMessage = message.toString()
+
+    // check to see if we should be sending
+    await checkSend(theMessage)
 
     // ok, if our options are to wait for an acknowledgement, set the var to "true"
     if (this._opt.waitAck) {
       this._awaitingResponse = true
     }
 
-    const messageToSend = Buffer.from(message.toString())
+    const messageToSend = Buffer.from(theMessage)
 
     const header = Buffer.alloc(6)
     header.writeInt32BE(messageToSend.length + 6, 1)
@@ -164,6 +220,8 @@ export class HL7Outbound extends EventEmitter {
   async close (): Promise<boolean> {
     // mark that we set our internal that we are closing, so we do not try to re-connect
     this._readyState = READY_STATE.CLOSING
+    // @todo Remove all pending messages that might be pending sending.
+    // @todo Do we dare save them as a file so if the kube process fails and restarts up, it can send them again??
     this._sockets.forEach((socket) => {
       if (typeof socket.destroyed !== 'undefined') {
         socket.end()
