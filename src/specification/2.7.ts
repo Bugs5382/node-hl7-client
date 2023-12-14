@@ -27,7 +27,13 @@ export interface HL7_2_7_MSH {
  * HL7 2.7 BSH Specification
  * @since 1.0.0
  */
-export interface HL7_2_7_BSH {}
+export interface HL7_2_7_BHS {}
+
+/**
+ * HL7 2.7 FSH Specification
+ * @since 1.0.0
+ */
+export interface HL7_2_7_FHS {}
 
 /**
  * Hl7 Specification Version 2.7
@@ -41,12 +47,22 @@ export class HL7_2_7 extends HL7_SPEC_BASE {
   }
 
   /**
-   * Check BSH Header Properties for HL7 2.7
+   * Check BHS Header Properties for HL7 2.7
    * @since 1.0.0
-   * @param _bsh
+   * @param _bhs
    * @return boolean
    */
-  checkBSH (_bsh: any): boolean {
+  checkBHS (_bhs: HL7_2_7_FHS): boolean {
+    return true
+  }
+
+  /**
+   * Check FHS Header Properties for HL7 2.7
+   * @since 1.0.0
+   * @param _fhs
+   * @return boolean
+   */
+  checkFHS (_fhs: HL7_2_7_FHS): boolean {
     return true
   }
 
