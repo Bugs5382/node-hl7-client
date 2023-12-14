@@ -1,3 +1,5 @@
+import fs from 'node:fs'
+import path from "node:path";
 import { HL7FatalError, HL7ParserError } from '../utils/exception.js'
 import { ClientBuilderFileOptions, normalizedClientFileBuilderOptions } from '../utils/normalizedBuilder.js'
 import { createHL7Date } from '../utils/utils'
@@ -70,6 +72,37 @@ export class FileBatch extends RootBase {
       }
       this._batchCount = this._batchCount + 1
       this.children.push(item)
+    }
+  }
+
+  /**
+   * Create a file to be stored.
+   * @internal
+   */
+  createFile(name: string): void {
+    const getFSHDate = this.get('FHS.7').toString()
+
+    if (typeof name === undefined) {
+      throw new HL7FatalError( 404, 'Missing file name.')
+    }
+
+    const nameFormat = /[ `!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~]/ //eslint-disable-line
+
+    if (nameFormat.test(name)) {
+        throw new HL7FatalError(500, 'name must not contain certain characters: `!@#$%^&*()+\\-=\\[\\]{};\':"\\\\|,.<>\\/?~.')
+    }
+
+    if (typeof this._opt.location !== 'undefined') {
+
+      if (!fs.existsSync(this._opt.location)){
+        fs.mkdir(this._opt.location, { recursive: true }, () => {});
+      }
+
+      fs.appendFile(path.join(this._opt.location, `hl7.${name}.${getFSHDate}.${this._opt.extension}`), this.toString(), (err) => {
+        if (typeof err !== 'undefined') {
+          throw new HL7FatalError(500, `Unable to save file: ${err?.message}`)
+        }
+      })
     }
   }
 

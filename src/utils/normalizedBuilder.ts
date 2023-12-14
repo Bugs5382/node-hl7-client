@@ -1,5 +1,5 @@
 import { HL7_2_7 } from '../specification/2.7'
-import { BSH, MSH } from '../specification/specification'
+import { FHS, BHS, MSH } from '../specification/specification'
 import { ParserPlan } from './parserPlan'
 
 const DEFAULT_CLIENT_BUILDER_OPTS = {
@@ -12,6 +12,11 @@ const DEFAULT_CLIENT_BUILDER_OPTS = {
   separatorSubComponent: '&',
   specification: new HL7_2_7(),
   text: ''
+}
+
+const DEFAULT_CLIENT_FILE_OPTS = {
+  extension: "hl7",
+  location: ""
 }
 
 /**
@@ -72,15 +77,34 @@ export interface ClientBuilderMessageOptions extends ClientBuilderOptions {
 
 export interface ClientBuilderBatchOptions extends ClientBuilderOptions {
   /**
-   * BSH Header Options
+   * BHS Header Options
    * @since 1.0.0
    */
-  batchHeader?: BSH
+  batchHeader?: BHS
 }
 
 export interface ClientBuilderFileOptions extends ClientBuilderOptions {
-  /** */
-  fileHeader?: any
+  /**
+   * Extension of the file when it gets created.
+   * @since 1.0.0
+   * @default hl7
+   */
+  extension?: string
+  /**
+   * FHS Header Options
+   * @since 1.0.0
+   */
+  fileHeader?: FHS
+  /**
+   * Location where the file will be saved.
+   * If this is not set,
+   * the files will get save it in the same directory of the executing file that is calling the function.
+   * If running this package inside a DOCKER/KUBERNETES node,
+   * if the container is destroyed and the files are not saved on a folder mounted outside the node,
+   * the files will be lost on restart.
+   * @default ""
+   */
+  location?: string
 }
 
 export function normalizedClientMessageBuilderOptions (raw?: ClientBuilderMessageOptions): ClientBuilderMessageOptions {
@@ -142,7 +166,7 @@ export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderBatchOpt
 }
 
 export function normalizedClientFileBuilderOptions (raw?: ClientBuilderFileOptions): ClientBuilderFileOptions {
-  const props = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
+  const props: ClientBuilderFileOptions = { ...DEFAULT_CLIENT_FILE_OPTS, ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
   if (typeof props.fileHeader === 'undefined' && typeof props.text !== 'undefined' && props.text !== '' && props.text.slice(0, 3) !== 'FHS') {
     throw new Error('text must begin with the FHS segment.')
@@ -150,6 +174,10 @@ export function normalizedClientFileBuilderOptions (raw?: ClientBuilderFileOptio
 
   if ((typeof props.newLine !== 'undefined' && props.newLine === '\\r') || props.newLine === '\\n') {
     throw new Error('newLine must be \r or \n')
+  }
+
+  if (typeof props.extension !== 'undefined' && props.extension.length !== 3) {
+    throw new Error(`The extension for file save must be 3 characters long.`)
   }
 
   if (props.text === '') {

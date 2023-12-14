@@ -664,7 +664,19 @@ describe('node hl7 client - builder tests', () => {
 
   })
 
-  describe('complex file generation', () => {})
+  describe('complex file generation', () => {
+
+    test('...create file', async () => {
+
+      let file = new FileBatch({ location: "temp/" })
+      file.start()
+      file.set('FHS.7', '20081231')
+      file.end()
+      file.createFile('empty')
+
+    })
+
+  })
 
   describe('non standard tests', () => {
 

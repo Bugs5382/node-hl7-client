@@ -40,7 +40,7 @@ export class Segment extends NodeBase {
     if (index < 1) {
       throw new HL7FatalError(500, 'index must be 1 or greater.')
     }
-    if ((this._name === 'MSH') || (this._name === 'BHS')) {
+    if ((this._name === 'MSH') || (this._name === 'BHS') || (this._name === 'FHS')) {
       if (typeof this.message !== 'undefined' && index === 1) {
         return new SubComponent(this, '1', this.message.delimiters[Delimiters.Field])
       } else {
