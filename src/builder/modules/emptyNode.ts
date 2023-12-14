@@ -27,7 +27,11 @@ export class EmptyNode implements Node {
   }
 
   toString (): string {
-    throw new Error('Method not implemented')
+    return ''
+  }
+
+  toFile (_name: string, _newLine?: boolean, _location?: string): void {
+    throw new Error('Method not implemented.')
   }
 
   toRaw (): string {

@@ -1,6 +1,7 @@
 import { HL7FatalError, HL7ParserError } from '../utils/exception.js'
 import { ClientBuilderBatchOptions, normalizedClientBatchBuilderOptions } from '../utils/normalizedBuilder.js'
 import { createHL7Date } from '../utils/utils'
+import { FileBatch } from './fileBatch'
 import { Node } from './interface/node.js'
 import { Message } from './message.js'
 import { RootBase } from './modules/rootBase.js'
@@ -114,6 +115,30 @@ export class Batch extends RootBase {
    */
   start (): void {
     this.set('BHS.7', createHL7Date(new Date()))
+  }
+
+  /**
+   * Create File
+   * @param name
+   * @param newLine
+   * @param location
+   */
+  toFile (name: string, newLine?: boolean, location?: string): void {
+    const fileBatch = new FileBatch({ location, newLine: newLine === true ? '\n' : '' })
+    fileBatch.start()
+
+    fileBatch.set('FHS.3', this.get('BHS.3').toString())
+    fileBatch.set('FHS.4', this.get('BHS.4').toString())
+    fileBatch.set('FHS.5', this.get('BHS.5').toString())
+    fileBatch.set('FHS.6', this.get('BHS.6').toString())
+    fileBatch.set('FHS.7', this.get('BHS.7').toString())
+    fileBatch.set('FHS.9', `hl7.${name}.${this.get('BHS.7').toString()}.${fileBatch._opt.extension}`)
+
+    fileBatch.add(this)
+
+    fileBatch.end()
+
+    fileBatch.createFile(name)
   }
 
   /** @internal */

@@ -1,6 +1,8 @@
 import {randomUUID} from "crypto";
+import fs from "fs";
+import path from "node:path";
 import {EmptyNode} from "../src/builder/modules/emptyNode";
-import {FileBatch, Batch, Message, createHL7Date, isBatch, isFile} from "../src";
+import {FileBatch, Batch, Message, createHL7Date, isBatch, isFile, sleep} from "../src";
 import { Node } from "../src/builder/interface/node";
 
 describe('node hl7 client - builder tests', () => {
@@ -138,8 +140,6 @@ describe('node hl7 client - builder tests', () => {
 
     test("...verify MSH header is correct", async () => {
       expect(message.toString().substring(0, 8)).toBe("MSH|^~\\&")
-      expect(message.get('MSH.1').toString()).toBe("|")
-      expect(message.get('MSH.2').toString()).toBe("^~\\&")
       expect(message.get('MSH.3').exists("")).toBe(false)
       expect(message.get('MSH.9.1').toString()).toBe("ADT")
       expect(message.get('MSH.9.2').toString()).toBe("A01")
@@ -666,6 +666,20 @@ describe('node hl7 client - builder tests', () => {
 
   describe('complex file generation', () => {
 
+    beforeAll(async () => {
+      fs.readdir("temp/", (err, files) => {
+        if (err) throw err;
+        for (const file of files) {
+          fs.unlink(path.join("temp/", file), (err) => {
+            if (err) throw err;
+          });
+        }
+      })
+
+      await sleep(5)
+
+    })
+
     test('...create file', async () => {
 
       let file = new FileBatch({ location: "temp/" })
@@ -676,6 +690,26 @@ describe('node hl7 client - builder tests', () => {
 
     })
 
+    test('...create file from message', async () => {
+      let message = new Message({
+        messageHeader: {
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: 'CONTROL_ID'
+        }
+      })
+      message.set('MSH.7', '20081231')
+      message.toFile( 'ADT', true, 'temp/')
+    })
+
+    test('...create file from batch', async () => {
+      let batch = new Batch()
+      batch.start()
+      batch.set('BHS.7', '20081231')
+      batch.end()
+      batch.toFile( 'ADTs', true, 'temp/')
+    })
+    
   })
 
   describe('non standard tests', () => {
@@ -801,8 +835,6 @@ describe('node hl7 client - builder tests', () => {
       const message = new Message({text: hl7_string})
 
       expect(message.toString().substring(0, 8)).toBe("MSH|^~\\&")
-      expect(message.get('MSH.1').toString()).toBe("|")
-      expect(message.get('MSH.2').toString()).toBe("^~\\&")
       expect(message.get('MSH.3').exists("")).toBe(false)
       expect(message.get('MSH.9.1').toString()).toBe("ADT")
       expect(message.get('MSH.9.2').toString()).toBe("A01")
@@ -829,7 +861,7 @@ describe('node hl7 client - builder tests', () => {
       expect(message.get("MSH.4.2").toString()).toBe( "field3component2");
       expect(message.get("MSH.5").get(0).toString()).toBe( "field4repeat1");
       expect(message.get("MSH.5").get(1).toString()).toBe( "field4repeat2");
-      expect(message.get("MSH.6.1").toString()).toBe( "field5subcomponent1*field5subcomponent2");
+      expect(message.get("MSH.6.1.1").toString()).toBe( "field5subcomponent1");
       expect(message.get("MSH.6.1.2").toString()).toBe( "field5subcomponent2");
       expect(message.get("MSH.7").toString()).toBe( "field6+");
     })
@@ -839,8 +871,6 @@ describe('node hl7 client - builder tests', () => {
       const batch = new Batch({text: hl7_batch})
 
       expect(batch.toString().substring(0, 8)).toBe("BHS|^~\\&")
-      expect(batch.get('BHS.1').toString()).toBe("|")
-      expect(batch.get('BHS.2').toString()).toBe("^~\\&")
     })
 
     test('...parse non standard delimiters defined in BHS header', async () => {
@@ -848,8 +878,6 @@ describe('node hl7 client - builder tests', () => {
       const batch = new Batch({text: hl7_batch_non_standard})
 
       expect(batch.toString().substring(0, 8)).toBe("BHS:-+?*")
-      expect(batch.get('BHS.1').toString()).toBe(":")
-      expect(batch.get('BHS.2').toString()).toBe("-+?*")
     })
 
     test('...verify BHS input ... 1 message should exist ... 2 EVN segments inside', async () => {

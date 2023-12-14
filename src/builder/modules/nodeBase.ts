@@ -97,6 +97,10 @@ export class NodeBase implements Node {
     throw new Error('Method not implemented.')
   }
 
+  toFile (_name: string, _newLine?: boolean, _location?: string): void {
+    throw new Error('Method not implemented.')
+  }
+
   toInteger (): number {
     throw new Error('Method not implemented.')
   }
