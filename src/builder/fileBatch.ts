@@ -80,7 +80,7 @@ export class FileBatch extends RootBase {
 
   /**
    * Create a file to be stored.
-   * @internal
+   * @since 1.0.0
    */
   createFile (name: string): void {
     const getFSHDate = this.get('FHS.7').toString()
@@ -102,11 +102,7 @@ export class FileBatch extends RootBase {
 
       this._fileName = `hl7.${name}.${getFSHDate}.${this._opt.extension}`
 
-      fs.appendFile(path.join(this._opt.location, this._fileName), this.toString(), (err) => {
-        if (typeof err !== 'undefined') {
-          throw new HL7FatalError(500, `Unable to save file: ${err?.message}`)
-        }
-      })
+      fs.appendFile(path.join(this._opt.location, this._fileName), this.toString(), () => {})
     }
   }
 

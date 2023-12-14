@@ -686,7 +686,7 @@ describe('node hl7 client - builder tests', () => {
       file.start()
       file.set('FHS.7', '20081231')
       file.end()
-      file.createFile('empty')
+      file.createFile('HELLO')
 
     })
 
@@ -709,7 +709,7 @@ describe('node hl7 client - builder tests', () => {
       batch.end()
       batch.toFile( 'ADTs', true, 'temp/')
     })
-    
+
   })
 
   describe('non standard tests', () => {
