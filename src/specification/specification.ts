@@ -1,4 +1,4 @@
-import {HL7_2_7_BHS, HL7_2_7_FHS, HL7_2_7_MSH} from './2.7.js'
+import { HL7_2_7_BHS, HL7_2_7_FHS, HL7_2_7_MSH } from './2.7.js'
 
 /** @internal Unions **/
 export type MSH = HL7_2_7_MSH

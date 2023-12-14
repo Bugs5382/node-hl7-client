@@ -15,8 +15,8 @@ const DEFAULT_CLIENT_BUILDER_OPTS = {
 }
 
 const DEFAULT_CLIENT_FILE_OPTS = {
-  extension: "hl7",
-  location: ""
+  extension: 'hl7',
+  location: ''
 }
 
 /**
@@ -177,7 +177,7 @@ export function normalizedClientFileBuilderOptions (raw?: ClientBuilderFileOptio
   }
 
   if (typeof props.extension !== 'undefined' && props.extension.length !== 3) {
-    throw new Error(`The extension for file save must be 3 characters long.`)
+    throw new Error('The extension for file save must be 3 characters long.')
   }
 
   if (props.text === '') {

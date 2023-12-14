@@ -13,7 +13,7 @@ export class ValueNode extends NodeBase {
 
   toString (): string {
     const children = this.children
-    return children.length > 1 ? this.toRaw() : children[0].toString()
+    return children.length === 0 ? this.toRaw() : children[0].toString()
   }
 
   toDate (): Date {

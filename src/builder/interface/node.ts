@@ -17,6 +17,7 @@ export interface Node {
   toInteger: () => number
   toFloat: () => number
   toBoolean: () => boolean
+  toFile: (name: string, newLine?: boolean, location?: string) => void
 
   read: (path: string[]) => Node
   write: (path: string[], value: string) => Node

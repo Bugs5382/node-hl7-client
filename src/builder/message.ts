@@ -1,6 +1,7 @@
 import { HL7FatalError } from '../utils/exception.js'
 import { ClientBuilderMessageOptions, normalizedClientMessageBuilderOptions } from '../utils/normalizedBuilder.js'
 import { createHL7Date } from '../utils/utils'
+import { FileBatch } from './fileBatch'
 import { RootBase } from './modules/rootBase.js'
 import { Segment } from './modules/segment.js'
 import { SegmentList } from './modules/segmentList.js'
@@ -106,6 +107,25 @@ export class Message extends RootBase {
       }
     }
     return Message.empty
+  }
+
+  toFile (name: string, newLine?: boolean, location?: string): void {
+    const fileBatch = new FileBatch({ location, newLine: newLine === true ? '\n' : '' })
+    fileBatch.start()
+
+    fileBatch.set('FHS.3', this.get('MSH.3').toString())
+    fileBatch.set('FHS.4', this.get('MSH.4').toString())
+    fileBatch.set('FHS.5', this.get('MSH.5').toString())
+    fileBatch.set('FHS.6', this.get('MSH.6').toString())
+    fileBatch.set('FHS.7', this.get('MSH.7').toString())
+    fileBatch.set('FHS.9', `hl7.${name}.${this.get('MSH.7').toString()}.${fileBatch._opt.extension}`)
+    fileBatch.set('FHS.11', this.get('MSH.10').toString())
+
+    fileBatch.add(this)
+
+    fileBatch.end()
+
+    fileBatch.createFile(name)
   }
 
   /**
