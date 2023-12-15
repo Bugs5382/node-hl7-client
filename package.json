@@ -22,7 +22,7 @@
     "build:watch": "tsc -w",
     "lint": "ts-standard --parser @typescript-eslint/parser | snazzy",
     "lint:fix": "ts-standard --fix --parser @typescript-eslint/parser | snazzy",
-    "pack": "npm run clean && npm run test:ci && npm run build && npm pack",
+    "pack": "npm run test:ci && npm pack",
     "prepublishOnly": "npm run clean && npm run build",
     "test": "jest",
     "test:open": "jest --detectOpenHandles",
@@ -37,7 +37,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Bugs5382/node-hl7-client"
+    "url": "git+https://github.com/Bugs5382/node-hl7-client.git"
   },
   "keywords": [
     "HL7",
