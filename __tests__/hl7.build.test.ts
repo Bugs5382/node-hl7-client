@@ -668,7 +668,7 @@ describe('node hl7 client - builder tests', () => {
 
     beforeAll(async () => {
       fs.readdir("temp/", (err, files) => {
-        if (err) throw err;
+        if (err) return;
         for (const file of files) {
           fs.unlink(path.join("temp/", file), (err) => {
             if (err) throw err;

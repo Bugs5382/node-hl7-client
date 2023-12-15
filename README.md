@@ -5,8 +5,10 @@ It can also parse and then you can extract message segments out.
 
 This includes a:
 * the Client, which can connect to a HL7 server and send messages and get response back from that Hl7 Server and do something with the results if needed.
-* The Parser, will decode an HL7 messages
-* the Builder, can create a properly formatted HL7 message(s) to be sent either a single message, batch of messages, or batch of messages written into a file.
+* The Parser, will decode an HL7 messages for your manipulation.
+* the Builder can create a properly formatted HL7 message(s) to be sent either a single message, batch of messages, or batch of messages written into a file for further processing.
+
+**Note: This is under active development. Something might still break and not work correctly. API and Documentation are still under development.**
 
 Benefits:
 
@@ -23,8 +25,7 @@ Benefits:
 
 ## Acknowledgements
 
-- Code Design/Auto Re-Connect/Resend, Inspiration:
-- [node-rabbitmq-client](https://github.com/cody-greene/node-rabbitmq-client)
+- Code Design/Auto Re-Connect/Resend, Inspiration: [node-rabbitmq-client](https://github.com/cody-greene/node-rabbitmq-client)
 - [artifacthealth/hl7parser](https://github.com/artifacthealth/hl7parser)
 - My Wife and Baby Girl.
 
