@@ -3,10 +3,10 @@ import net, { Socket } from 'node:net'
 import tls from 'node:tls'
 import { Batch } from '../builder/batch.js'
 import { Message } from '../builder/message.js'
-import { READY_STATE } from '../utils/enum'
-import { HL7FatalError } from '../utils/exception'
+import { READY_STATE } from '../utils/enum.js'
+import { HL7FatalError } from '../utils/exception.js'
 import { ClientListenerOptions, normalizeClientListenerOptions } from '../utils/normalizedClient.js'
-import { expBackoff, randomString } from '../utils/utils'
+import { expBackoff, randomString } from '../utils/utils.js'
 import { Client } from './client.js'
 
 export type OutboundHandler = (res: Buffer) => Promise<void>

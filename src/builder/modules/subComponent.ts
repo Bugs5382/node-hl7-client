@@ -1,5 +1,5 @@
 import { HL7FatalError } from '../../utils/exception.js'
-import { isString } from '../../utils/utils'
+import { isString } from '../../utils/utils.js'
 import { ValueNode } from './valueNode.js'
 
 /**

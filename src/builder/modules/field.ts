@@ -1,5 +1,5 @@
 import { HL7FatalError } from '../../utils/exception.js'
-import { Delimiters } from '../../utils/enum'
+import { Delimiters } from '../../utils/enum.js'
 import { Node } from '../interface/node.js'
 import { FieldRepetition } from './fieldRepetition.js'
 import { NodeBase } from './nodeBase.js'

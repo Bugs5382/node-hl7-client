@@ -1,6 +1,6 @@
 import EventEmitter from 'events'
 import { normalizeClientOptions, ClientListenerOptions, ClientOptions } from '../utils/normalizedClient.js'
-import { HL7Outbound, OutboundHandler } from './hl7Outbound'
+import { HL7Outbound, OutboundHandler } from './hl7Outbound.js'
 
 /**
  * Client Class

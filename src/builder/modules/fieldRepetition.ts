@@ -1,5 +1,5 @@
 import { Component } from './component.js'
-import { Delimiters } from '../../utils/enum'
+import { Delimiters } from '../../utils/enum.js'
 import { Node } from '../interface/node.js'
 import { HL7FatalError } from '../../utils/exception.js'
 import { NodeBase } from './nodeBase.js'

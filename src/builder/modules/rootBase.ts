@@ -1,7 +1,7 @@
 import { HL7FatalError } from '../../utils/exception.js'
-import { ClientBuilderOptions } from '../../utils/normalizedBuilder'
-import { Delimiters } from '../../utils/enum'
-import { decodeHexString, escapeForRegExp } from '../../utils/utils'
+import { ClientBuilderOptions } from '../../utils/normalizedBuilder.js'
+import { Delimiters } from '../../utils/enum.js'
+import { decodeHexString, escapeForRegExp } from '../../utils/utils.js'
 import { NodeBase } from './nodeBase.js'
 /**
  * Root Base

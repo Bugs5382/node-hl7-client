@@ -1,6 +1,6 @@
 import { TcpSocketConnectOpts } from 'node:net'
 import type { ConnectionOptions as TLSOptions } from 'node:tls'
-import { assertNumber, validIPv4, validIPv6 } from './utils'
+import { assertNumber, validIPv4, validIPv6 } from './utils.js'
 
 const DEFAULT_CLIENT_OPTS = {
   connectionTimeout: 10000,

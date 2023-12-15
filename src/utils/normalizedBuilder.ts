@@ -1,6 +1,6 @@
-import { HL7_2_7 } from '../specification/2.7'
-import { FHS, BHS, MSH } from '../specification/specification'
-import { ParserPlan } from './parserPlan'
+import { HL7_2_7 } from '../specification/2.7.js'
+import { FHS, BHS, MSH } from '../specification/specification.js'
+import { ParserPlan } from './parserPlan.js'
 
 const DEFAULT_CLIENT_BUILDER_OPTS = {
   newLine: '\r',

@@ -1,6 +1,6 @@
-import { Delimiters } from '../../utils/enum'
+import { Delimiters } from '../../utils/enum.js'
 import { HL7FatalError } from '../../utils/exception.js'
-import { isString } from '../../utils/utils'
+import { isString } from '../../utils/utils.js'
 import { Field } from './field.js'
 import { NodeBase } from './nodeBase.js'
 import { Node } from '../interface/node.js'

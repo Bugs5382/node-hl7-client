@@ -1,8 +1,8 @@
-import { isNumber, isString, pad } from '../../utils/utils'
+import { isNumber, isString, pad } from '../../utils/utils.js'
 import { Batch } from '../batch.js'
 import { EmptyNode } from './emptyNode.js'
 import { HL7FatalError } from '../../utils/exception.js'
-import { Delimiters } from '../../utils/enum'
+import { Delimiters } from '../../utils/enum.js'
 import { Node } from '../interface/node.js'
 import { Message } from '../message.js'
 
