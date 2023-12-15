@@ -25,6 +25,7 @@
     "pack": "npm run clean && npm run test:ci && npm run build && npm pack",
     "prepublishOnly": "npm run clean && npm run build",
     "test": "jest",
+    "test:open": "jest --detectOpenHandles",
     "test:watch": "jest --watch",
     "test:ci": "jest --ci",
     "test:coverage": "jest --coverage",

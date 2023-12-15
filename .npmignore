@@ -3,6 +3,7 @@
 .idea
 src
 temp
+certs
 __tests__
 coverage
 
