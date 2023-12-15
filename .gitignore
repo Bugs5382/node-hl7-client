@@ -133,6 +133,7 @@ docs
 
 # NPM
 lib
+.npmrc
 package-lock.json
 .npmrc
 

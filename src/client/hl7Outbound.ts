@@ -166,9 +166,8 @@ export class HL7Outbound extends EventEmitter {
     let socket: Socket
     const host = this._main._opt.host
     const port = this._opt.port
-    const _optTls = this._main._opt.tls
 
-    if (typeof _optTls !== 'undefined') {
+    if (typeof this._main._opt.tls !== 'undefined') {
       socket = tls.connect({ host, port, ...this._main._opt.socket, ...this._main._opt.tls }, () => this._listener(socket))
     } else {
       socket = net.createConnection({ host, port }, () => this._listener(socket))
