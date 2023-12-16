@@ -78,6 +78,61 @@ export class RootBase extends NodeBase {
   }
 
   /**
+   * Escape String
+   * @since 1.0.0
+   * @param text
+   */
+  escape (text: string): string {
+    if (text === null) {
+      throw new HL7FatalError(500, 'text must be passed in escape function.')
+    }
+
+    return text.replace(this._matchEscape, (match: string) => {
+      let ch: string = ''
+
+      switch (match) {
+        case this._delimiters[Delimiters.Escape]:
+          ch = 'E'
+          break
+        case this._delimiters[Delimiters.Field]:
+          ch = 'F'
+          break
+        case this._delimiters[Delimiters.Repetition]:
+          ch = 'R'
+          break
+        case this._delimiters[Delimiters.Component]:
+          ch = 'S'
+          break
+        case this._delimiters[Delimiters.SubComponent]:
+          ch = 'T'
+          break
+      }
+
+      if (typeof ch !== 'undefined') {
+        const escape = this._delimiters[Delimiters.Escape]
+        return `${escape}${ch}${escape}`
+      }
+
+      throw new HL7FatalError(500, `Escape sequence for ${match} is not known.`)
+    })
+  }
+
+  /** @internal */
+  split (data: string, segments: string[] = []): string[] {
+    const getSegIndex = [...this._getSegIndexes(['FHS', 'BHS', 'MSH', 'BTS', 'FTS'], data)]
+    getSegIndex.sort((a, b) => parseInt(a) - parseInt(b))
+    for (let i = 0; i < getSegIndex.length; i++) {
+      const start = parseInt(getSegIndex[i])
+      let end = parseInt(getSegIndex[i + 1])
+      if (i + 1 === getSegIndex.length) {
+        end = data.length
+      }
+      segments.push(data.slice(start, end))
+    }
+    return segments
+  }
+
+  /**
    * Unescape Text
    * @since 1.0.0
    * @param text
@@ -120,43 +175,26 @@ export class RootBase extends NodeBase {
     })
   }
 
-  /**
-   * Escape String
-   * @since 1.0.0
-   * @param text
-   */
-  escape (text: string): string {
-    if (text === null) {
-      throw new HL7FatalError(500, 'text must be passed in escape function.')
+  /** @internal */
+  private _getSegIndexes (names: string[], data: string, list: string[] = []): string[] {
+    for (let i = 0; i < names.length; i++) {
+      const regex = new RegExp( `(\\n|\\r|)(${names[i]})\\|`, 'g')
+      let m
+      while ((m = regex.exec(data)) != null) {
+        const s = m[0]
+        if (s.includes('\r\n')) {
+          m.index = m.index + 2
+        } else if (s.includes('\n')) {
+          m.index++
+        } else if (s.includes('\r')) {
+          m.index++
+        }
+        if (m.index !== null) {
+          list.push(m.index.toString())
+        }
+      }
     }
-
-    return text.replace(this._matchEscape, (match: string) => {
-      let ch: string = ''
-
-      switch (match) {
-        case this._delimiters[Delimiters.Escape]:
-          ch = 'E'
-          break
-        case this._delimiters[Delimiters.Field]:
-          ch = 'F'
-          break
-        case this._delimiters[Delimiters.Repetition]:
-          ch = 'R'
-          break
-        case this._delimiters[Delimiters.Component]:
-          ch = 'S'
-          break
-        case this._delimiters[Delimiters.SubComponent]:
-          ch = 'T'
-          break
-      }
-
-      if (typeof ch !== 'undefined') {
-        const escape = this._delimiters[Delimiters.Escape]
-        return `${escape}${ch}${escape}`
-      }
-
-      throw new HL7FatalError(500, `Escape sequence for ${match} is not known.`)
-    })
+    return list
   }
+
 }
