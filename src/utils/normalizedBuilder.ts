@@ -1,3 +1,4 @@
+import fs from 'fs'
 import { HL7_2_7 } from '../specification/2.7.js'
 import { FHS, BHS, MSH } from '../specification/specification.js'
 import { ParserPlan } from './parserPlan.js'
@@ -90,18 +91,23 @@ export interface ClientBuilderFileOptions extends ClientBuilderOptions {
    * @default hl7
    */
   extension?: string
-  /**
-   * FHS Header Options
+  /** The file as a buffer passed onto the constructor
+   * @since 1.0.0  */
+  fileBuffer?: Buffer
+  /** If you are providing the full file path, please set it here.
+   * @since 1.0.0 */
+  fullFilePath?: string
+  /** FHS Header Options
    * @since 1.0.0
    */
   fileHeader?: FHS
-  /**
-   * Location where the file will be saved.
+  /** Location where the file will be saved.
    * If this is not set,
    * the files will get save it in the same directory of the executing file that is calling the function.
    * If running this package inside a DOCKER/KUBERNETES node,
    * if the container is destroyed and the files are not saved on a folder mounted outside the node,
    * the files will be lost on restart.
+   * @since 1.0.0
    * @default ""
    */
   location?: string
@@ -178,6 +184,20 @@ export function normalizedClientFileBuilderOptions (raw?: ClientBuilderFileOptio
 
   if (typeof props.extension !== 'undefined' && props.extension.length !== 3) {
     throw new Error('The extension for file save must be 3 characters long.')
+  }
+
+  if (typeof props.fullFilePath !== 'undefined' && typeof props.fileBuffer !== 'undefined') {
+    throw new Error('You can not have specified a file path and a buffer. Please choose one or the other.')
+  }
+
+  const regex = /\n/mg
+  const subst = '\\r'
+  if (typeof props.fullFilePath !== 'undefined' && typeof props.fileBuffer === 'undefined') {
+
+    const fileBuffer = fs.readFileSync(props.fullFilePath)
+    props.text = fileBuffer.toString().replace(regex, subst)
+  } else if (typeof props.fullFilePath === 'undefined' && typeof props.fileBuffer !== 'undefined') {
+    props.text = props.fileBuffer.toString().replace(regex, subst)
   }
 
   if (props.text === '') {
