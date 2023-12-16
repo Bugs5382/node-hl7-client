@@ -1,3 +1,10 @@
+# [1.0.0-beta.6](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.5...v1.0.0-beta.6) (2023-12-16)
+
+
+### Bug Fixes
+
+* get/set now accessible ([1b4d45d](https://github.com/Bugs5382/node-hl7-client/commit/1b4d45dbc185395c28835bc12919d0ad03536140)), closes [#29](https://github.com/Bugs5382/node-hl7-client/issues/29)
+
 # [1.0.0-beta.5](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.4...v1.0.0-beta.5) (2023-12-16)
 
 
