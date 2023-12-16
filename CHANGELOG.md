@@ -1,3 +1,11 @@
+# [1.0.0-beta.5](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.4...v1.0.0-beta.5) (2023-12-16)
+
+
+### Features
+
+* able to parse files ([8a20ff3](https://github.com/Bugs5382/node-hl7-client/commit/8a20ff38a4014b2eaa06c9dc038a5a112cc54378))
+* update file batch options ([9561962](https://github.com/Bugs5382/node-hl7-client/commit/956196211bb360203d88ac86a9c1bf19834f3671))
+
 # [1.0.0-beta.4](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.3...v1.0.0-beta.4) (2023-12-16)
 
 
