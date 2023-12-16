@@ -1,3 +1,10 @@
+# [1.0.0-beta.3](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2023-12-16)
+
+
+### Bug Fixes
+
+* package.json x2 ([4572d45](https://github.com/Bugs5382/node-hl7-client/commit/4572d45f203b5c2dde182437a610a45a157d2e9d))
+
 # [1.0.0-beta.2](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.1...v1.0.0-beta.2) (2023-12-15)
 
 
