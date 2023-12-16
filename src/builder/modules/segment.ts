@@ -1,6 +1,6 @@
 import { Delimiters } from '../../utils/enum.js'
 import { HL7FatalError } from '../../utils/exception.js'
-import { isString } from '../../utils/utils.js'
+import { isNumber, isString } from '../../utils/utils.js'
 import { Field } from './field.js'
 import { NodeBase } from './nodeBase.js'
 import { Node } from '../interface/node.js'
@@ -50,6 +50,45 @@ export class Segment extends NodeBase {
 
     const field = this.children[index]
     return path.length > 0 ? field.read(path) : field
+  }
+
+  /**
+   * Set HL7 Segment at Path with a Value
+   * @since 1.0.0
+   * @param path
+   * @param value
+   */
+  set (path: string | number, value?: any): Node {
+    if (arguments.length === 1) {
+      return this.ensure(path)
+    }
+
+    if (typeof path === 'string') {
+      if (Array.isArray(value)) {
+        for (let i = 0; i < value.length; i++) {
+          this.set(`${path}.${i + 1}`, value[i])
+        }
+      } else {
+        const _path = this.preparePath(path)
+        this.write(_path, this.prepareValue(value))
+      }
+
+      return this
+    } else if (isNumber(path)) {
+      if (Array.isArray(value)) {
+        const child = this.ensure(path)
+        for (let i = 0, l = value.length; i < l; i++) {
+          child.set(i, value[i])
+        }
+        return this
+      } else {
+        this.setChild(this.createChild(this.prepareValue(value), path), path)
+      }
+
+      return this
+    }
+
+    throw new HL7FatalError(500, 'Path must be a string or number.')
   }
 
   /**
