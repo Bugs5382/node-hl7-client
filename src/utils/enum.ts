@@ -1,4 +1,8 @@
-/** @internal */
+/**
+ * Type of Segments Values
+ * @description Used during the class creation to give each type its own index value.
+ * @since 1.0.0
+ */
 export enum Delimiters {
   Segment,
   Field,
@@ -8,7 +12,10 @@ export enum Delimiters {
   SubComponent
 }
 
-/** @internal */
+/**
+ * State of the Connected to the Server
+ * @since 1.0.0
+ */
 export enum ReadyState {
   CONNECTING,
   CONNECTED,

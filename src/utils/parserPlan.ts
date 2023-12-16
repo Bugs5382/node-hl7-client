@@ -1,7 +1,9 @@
 
 /**
- * Used to figure out the current HL7 message(s)/batch delimited used to encode this particular HL7 message.
- * @internal
+ * Parse Plan
+ * @description Used to figure out the current HL7
+ * message(s)/batch delimited used to encode this particular HL7 message
+ * @since 1.0.0
  */
 export class ParserPlan {
   /** @internal */

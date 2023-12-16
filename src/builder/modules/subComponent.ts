@@ -1,5 +1,5 @@
 import { HL7FatalError } from '../../utils/exception.js'
-import { isString } from '../../utils/utils.js'
+import { isHL7String } from '../../utils/utils.js'
 import { ValueNode } from './valueNode.js'
 
 /**
@@ -24,6 +24,6 @@ export class SubComponent extends ValueNode {
      * @since 1.0.0
      */
   isEmpty (): boolean {
-    return !isString(this.toString())
+    return !isHL7String(this.toString())
   }
 }

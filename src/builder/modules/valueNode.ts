@@ -2,7 +2,10 @@ import { HL7FatalError } from '../../utils/exception.js'
 import { Delimiters } from '../../utils/enum.js'
 import { NodeBase } from './nodeBase.js'
 
-/** @internal */
+/**
+ * Value Node
+ * @since 1.0.0
+ */
 export class ValueNode extends NodeBase {
   protected key: string
 
