@@ -1,3 +1,10 @@
+# [1.0.0-beta.8](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.7...v1.0.0-beta.8) (2023-12-16)
+
+
+### Bug Fixes
+
+* fixed types ([270baba](https://github.com/Bugs5382/node-hl7-client/commit/270baba7a9dcc08c5b69b45b714900adbe38a996)), closes [#13](https://github.com/Bugs5382/node-hl7-client/issues/13)
+
 # [1.0.0-beta.7](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.6...v1.0.0-beta.7) (2023-12-16)
 
 
