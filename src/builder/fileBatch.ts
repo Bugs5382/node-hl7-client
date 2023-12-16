@@ -2,10 +2,11 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { HL7FatalError, HL7ParserError } from '../utils/exception.js'
 import { ClientBuilderFileOptions, normalizedClientFileBuilderOptions } from '../utils/normalizedBuilder.js'
-import { createHL7Date } from '../utils/utils.js'
+import { createHL7Date, isNumber } from '../utils/utils.js'
 import { Batch } from './batch.js'
 import { Node } from './interface/node.js'
 import { Message } from './message.js'
+import { NodeBase } from './modules/nodeBase.js'
 import { RootBase } from './modules/rootBase.js'
 import { Segment } from './modules/segment.js'
 import { SegmentList } from './modules/segmentList.js'
@@ -115,6 +116,26 @@ export class FileBatch extends RootBase {
   }
 
   /**
+   * Get HL7 Segment at Path
+   * @since 1.0.0
+   * @param path
+   */
+  get (path: string | number): Node {
+    let ret: any
+
+    if (typeof path === 'number') {
+      if (path >= 0 && path < this.children.length) {
+        ret = this.children[path]
+      }
+    } else if (path !== '') {
+      const _path = this.preparePath(path)
+      ret = this.read(_path)
+    }
+
+    return typeof ret !== 'undefined' ? ret as Node : NodeBase.empty as Node
+  }
+
+  /**
    * Get Messages
    * @since 1.0.0
    */
@@ -148,6 +169,45 @@ export class FileBatch extends RootBase {
       }
     }
     throw new HL7FatalError(500, 'Unable to process the read function correctly.')
+  }
+
+  /**
+   * Set HL7 Segment at Path with a Value
+   * @since 1.0.0
+   * @param path
+   * @param value
+   */
+  set (path: string | number, value?: any): Node {
+    if (arguments.length === 1) {
+      return this.ensure(path)
+    }
+
+    if (typeof path === 'string') {
+      if (Array.isArray(value)) {
+        for (let i = 0; i < value.length; i++) {
+          this.set(`${path}.${i + 1}`, value[i])
+        }
+      } else {
+        const _path = this.preparePath(path)
+        this.write(_path, this.prepareValue(value))
+      }
+
+      return this
+    } else if (isNumber(path)) {
+      if (Array.isArray(value)) {
+        const child = this.ensure(path)
+        for (let i = 0, l = value.length; i < l; i++) {
+          child.set(i, value[i])
+        }
+        return this
+      } else {
+        this.setChild(this.createChild(this.prepareValue(value), path), path)
+      }
+
+      return this
+    }
+
+    throw new HL7FatalError(500, 'Path must be a string or number.')
   }
 
   /**

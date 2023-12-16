@@ -1,6 +1,7 @@
 # Folders
 .github
 .idea
+docs
 src
 temp
 certs
