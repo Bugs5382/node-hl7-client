@@ -899,17 +899,46 @@ describe('node hl7 client - builder tests', () => {
 
       beforeAll(async () => {
 
+        fs.readdir("temp/", (err, files) => {
+          if (err) return;
+          for (const file of files) {
+            fs.unlink(path.join("temp/", file), (err) => {
+              if (err) throw err;
+            });
+          }
+        })
+
+        await sleep(2)
+
         const message = new Message({text: hl7_string})
         message.toFile('readTestMSH', true, 'temp/')
 
         const batch = new Batch({text: hl7_batch})
         batch.toFile('readTestBHS', true, 'temp/')
 
+        await sleep(2)
+
       })
 
-      test.todo('...read file with MSH only')
+      beforeEach(async () => {
+        await sleep(1)
+      })
 
-      test.todo('...read file BSH and 1xMSH only')
+      test('...test parsing - file path', async() => {
+        const fileBatch_one = new FileBatch({ fullFilePath: path.join('temp/', `hl7.readTestMSH.20081231.hl7`)})
+        expect(fileBatch_one._opt.text).toContain(hl7_string)
+
+        const fileBatch_two = new FileBatch({ fullFilePath: path.join('temp/', `hl7.readTestBHS.20231208.hl7`)})
+        expect(fileBatch_two._opt.text).toContain(hl7_batch)
+      })
+
+      test('...test parsing - buffer', async() => {
+        const fileBatch_one = new FileBatch({ fileBuffer: fs.readFileSync(path.join('temp/', `hl7.readTestMSH.20081231.hl7`))})
+        expect(fileBatch_one._opt.text).toContain(hl7_string)
+
+        const fileBatch_two = new FileBatch({ fileBuffer: fs.readFileSync(path.join('temp/', `hl7.readTestBHS.20231208.hl7`))})
+        expect(fileBatch_two._opt.text).toContain(hl7_batch)
+      })
 
     })
 

@@ -20,11 +20,6 @@ const DEFAULT_LISTEN_CLIENT_OPTS = {
   waitAck: true
 }
 
-export interface ParserProcessRawData {
-  /** Data that needs to be processed. */
-  data: string
-}
-
 export interface ClientOptions {
   /** Max wait time, in milliseconds, for a connection attempt
    * @default 10_000 */
