@@ -40,8 +40,7 @@ export class FileBatch extends RootBase {
     this._messagesCount = 0
 
     if (typeof opt.text !== 'undefined' && opt.parsing === true && opt.text !== '') {
-      // @todo if we find BHS segments, we want to get these first and then the messages inside them
-      // @todo or if the FHS is just has message
+      this._lines = this.split(opt.text).filter(line => line.startsWith('MSH'))
     }
   }
 
@@ -128,7 +127,7 @@ export class FileBatch extends RootBase {
       }
       return message
     }
-    throw new HL7ParserError(500, 'No messages inside batch')
+    throw new HL7ParserError(500, 'No messages inside file segment.')
   }
 
   /** @internal */
@@ -210,40 +209,4 @@ export class FileBatch extends RootBase {
     throw new HL7FatalError(500, 'Unable to process _getFirstSegment.')
   }
 
-  /** @internal */
-  private _getSegIndexes (names: string[], data: string, list: string[] = []): string[] {
-    for (let i = 0; i < names.length; i++) {
-      const regexp = new RegExp(`(\n|\r\n|^|\r)${names[i]}\\|`, 'g'); let m
-      while ((m = regexp.exec(data)) != null) {
-        const s = m[0]
-        if (s.includes('\r\n')) {
-          m.index = m.index + 2
-        } else if (s.includes('\n')) {
-          m.index++
-        } else if (s.includes('\r')) {
-          m.index++
-        }
-        if (m.index !== null) {
-          list.push(m.index.toString())
-        }
-      }
-    }
-    return list
-  }
-
-  /** @internal */
-  // @ts-expect-error
-  private _splitBatch (data: string, batch: string[] = []): string[] {
-    const getSegIndex = this._getSegIndexes(['FHS', 'BHS', 'MSH', 'BTS', 'FTS'], data)
-    getSegIndex.sort((a, b) => parseInt(a) - parseInt(b))
-    for (let i = 0; i < getSegIndex.length; i++) {
-      const start = parseInt(getSegIndex[i])
-      let end = parseInt(getSegIndex[i + 1])
-      if (i + 1 === getSegIndex.length) {
-        end = data.length
-      }
-      batch.push(data.slice(start, end))
-    }
-    return batch
-  }
 }

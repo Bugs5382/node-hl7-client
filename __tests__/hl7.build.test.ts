@@ -895,49 +895,92 @@ describe('node hl7 client - builder tests', () => {
 
     })
 
-    describe('file tests', () => {
+  })
 
-      beforeAll(async () => {
+  describe('file tests', () => {
 
-        fs.readdir("temp/", (err, files) => {
-          if (err) return;
-          for (const file of files) {
-            fs.unlink(path.join("temp/", file), (err) => {
-              if (err) throw err;
-            });
-          }
-        })
+    const hl7_string: string = "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231"
+    const hl7_batch: string = "BHS|^~\\&|||||20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1"
 
-        await sleep(2)
+    beforeAll(async () => {
 
-        const message = new Message({text: hl7_string})
-        message.toFile('readTestMSH', true, 'temp/')
-
-        const batch = new Batch({text: hl7_batch})
-        batch.toFile('readTestBHS', true, 'temp/')
-
-        await sleep(2)
-
+      fs.readdir("temp/", (err, files) => {
+        if (err) return;
+        for (const file of files) {
+          fs.unlink(path.join("temp/", file), (err) => {
+            if (err) throw err;
+          });
+        }
       })
 
-      beforeEach(async () => {
-        await sleep(1)
+      await sleep(2)
+
+      const message = new Message({text: hl7_string})
+      message.toFile('readTestMSH', true, 'temp/')
+
+      const batch = new Batch({text: hl7_batch})
+      batch.toFile('readTestBHS', true, 'temp/')
+
+      await sleep(2)
+
+    })
+
+    beforeEach(async () => {
+      await sleep(1)
+    })
+
+    test('...test parsing - file path', async() => {
+      const fileBatch_one = new FileBatch({ fullFilePath: path.join('temp/', `hl7.readTestMSH.20081231.hl7`)})
+      expect(fileBatch_one._opt.text).toContain(hl7_string)
+
+      const fileBatch_two = new FileBatch({ fullFilePath: path.join('temp/', `hl7.readTestBHS.20231208.hl7`)})
+      expect(fileBatch_two._opt.text).toContain(hl7_batch)
+    })
+
+    test('...test parsing - buffer', async() => {
+      const fileBatch_one = new FileBatch({ fileBuffer: fs.readFileSync(path.join('temp/', `hl7.readTestMSH.20081231.hl7`))})
+      expect(fileBatch_one._opt.text).toContain(hl7_string)
+
+      const fileBatch_two = new FileBatch({ fileBuffer: fs.readFileSync(path.join('temp/', `hl7.readTestBHS.20231208.hl7`))})
+      expect(fileBatch_two._opt.text).toContain(hl7_batch)
+    })
+
+    test('...get MSH', async () => {
+
+      const fileBatch = new FileBatch({ fullFilePath: path.join('temp/', `hl7.readTestMSH.20081231.hl7`)})
+      expect(fileBatch._opt.text).toContain(hl7_string)
+
+      const messages = fileBatch.messages()
+      expect(messages.length).toBe(1)
+
+      messages.forEach((message: Message): void  => {
+
+        let count: number = 0
+        message.get("EVN").forEach((segment: Node): void => {
+          expect(segment.name).toBe( "EVN");
+          count++;
+        });
+        expect(count).toBe(1)
       })
 
-      test('...test parsing - file path', async() => {
-        const fileBatch_one = new FileBatch({ fullFilePath: path.join('temp/', `hl7.readTestMSH.20081231.hl7`)})
-        expect(fileBatch_one._opt.text).toContain(hl7_string)
+    })
 
-        const fileBatch_two = new FileBatch({ fullFilePath: path.join('temp/', `hl7.readTestBHS.20231208.hl7`)})
-        expect(fileBatch_two._opt.text).toContain(hl7_batch)
-      })
+    test('...get MSH in a BHS', async () => {
 
-      test('...test parsing - buffer', async() => {
-        const fileBatch_one = new FileBatch({ fileBuffer: fs.readFileSync(path.join('temp/', `hl7.readTestMSH.20081231.hl7`))})
-        expect(fileBatch_one._opt.text).toContain(hl7_string)
+      const fileBatch = new FileBatch({ fullFilePath: path.join('temp/', `hl7.readTestBHS.20231208.hl7`)})
+      expect(fileBatch._opt.text).toContain(hl7_batch)
 
-        const fileBatch_two = new FileBatch({ fileBuffer: fs.readFileSync(path.join('temp/', `hl7.readTestBHS.20231208.hl7`))})
-        expect(fileBatch_two._opt.text).toContain(hl7_batch)
+      const messages = fileBatch.messages()
+      expect(messages.length).toBe(1)
+
+      messages.forEach((message: Message): void  => {
+
+        let count: number = 0
+        message.get("EVN").forEach((segment: Node): void => {
+          expect(segment.name).toBe( "EVN");
+          count++;
+        });
+        expect(count).toBe(2)
       })
 
     })
