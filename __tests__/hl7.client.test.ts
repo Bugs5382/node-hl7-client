@@ -1,9 +1,9 @@
-// import fs from "fs";
-// import path from "node:path";
-// import portfinder from 'portfinder'
-// import {Hl7Inbound, Server} from "../../node-hl7-server/src";
-// import {Client, expectEvent, HL7Outbound, Message, sleep} from '../src'
-import {Client} from '../src'
+ import fs from "fs";
+ import path from "node:path";
+ import portfinder from 'portfinder'
+ import {Hl7Inbound, Server} from "node-hl7-server";
+ import {Client, HL7Outbound, Message} from '../src'
+ import {expectEvent, sleep} from "./__utils__";
 
 describe('node hl7 client', () => {
 
@@ -111,7 +111,7 @@ describe('node hl7 client', () => {
 
   })
 
-  /*test('...simple connect', async () => {
+  test('...simple connect', async () => {
 
       const LISTEN_PORT = await portfinder.getPortPromise({
         port: 3000,
@@ -130,9 +130,9 @@ describe('node hl7 client', () => {
       await outGoing.close()
       await listener.close()
 
-    })*/
+    })
 
-  /*describe('server/client sanity checks', () => {
+  describe('server/client sanity checks', () => {
 
     let waitAck: number = 0
 
@@ -223,9 +223,9 @@ describe('node hl7 client', () => {
 
     })
 
-  })*/
+  })
 
-  /*describe('end to end tests', () => {
+  describe('end to end tests', () => {
 
     describe('...send message, get proper ACK', () => {
 
@@ -359,6 +359,6 @@ describe('node hl7 client', () => {
       }
     })
 
-  })*/
+  })
 
 })
