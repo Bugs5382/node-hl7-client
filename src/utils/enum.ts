@@ -9,7 +9,7 @@ export enum Delimiters {
 }
 
 /** @internal */
-export enum READY_STATE {
+export enum ReadyState {
   CONNECTING,
   CONNECTED,
   OPEN,

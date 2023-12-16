@@ -8,6 +8,7 @@ __tests__
 coverage
 
 # Files
+bin
 jest.config.ts
 release.config.js
 *.tgz

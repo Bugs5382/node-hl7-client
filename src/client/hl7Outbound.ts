@@ -3,7 +3,7 @@ import net, { Socket } from 'node:net'
 import tls from 'node:tls'
 import { Batch } from '../builder/batch.js'
 import { Message } from '../builder/message.js'
-import { READY_STATE } from '../utils/enum.js'
+import { ReadyState } from '../utils/enum.js'
 import { HL7FatalError } from '../utils/exception.js'
 import { ClientListenerOptions, normalizeClientListenerOptions } from '../utils/normalizedClient.js'
 import { expBackoff, randomString } from '../utils/utils.js'
@@ -35,7 +35,7 @@ export class HL7Outbound extends EventEmitter {
   /** @internal */
   private readonly _sockets: Map<any, any>
   /** @internal */
-  protected _readyState: READY_STATE
+  protected _readyState: ReadyState
   /** @internal */
   _pendingSetup: Promise<boolean> | boolean
 
@@ -51,7 +51,7 @@ export class HL7Outbound extends EventEmitter {
     this._sockets = new Map()
     this._retryCount = 1
     this._retryTimer = undefined
-    this._readyState = READY_STATE.CONNECTING
+    this._readyState = ReadyState.CONNECTING
 
     this._connect = this._connect.bind(this)
     this._socket = this._connect()
@@ -73,7 +73,7 @@ export class HL7Outbound extends EventEmitter {
     const maxAttempts = typeof this._opt.maxAttempts === 'undefined' ? this._main._opt.maxAttempts : this._opt.maxAttempts
 
     const checkConnection = async (): Promise<boolean> => {
-      return this._readyState === READY_STATE.CONNECTED
+      return this._readyState === ReadyState.CONNECTED
     }
 
     const checkAck = async (): Promise<boolean> => {
@@ -85,18 +85,18 @@ export class HL7Outbound extends EventEmitter {
       while (true) {
         try {
         // first, if we are closed, sorry, no more sending messages
-          if ((this._readyState === READY_STATE.CLOSED) || (this._readyState === READY_STATE.CLOSING)) {
+          if ((this._readyState === ReadyState.CLOSED) || (this._readyState === ReadyState.CLOSING)) {
             // noinspection ExceptionCaughtLocallyJS
             throw new HL7FatalError(500, 'In an invalid state to be able to send message.')
           }
-          if (this._readyState !== READY_STATE.CONNECTED) {
+          if (this._readyState !== ReadyState.CONNECTED) {
           // if we are not connected,
           // check to see if we are now connected.
             if (this._pendingSetup === false) {
               // @todo in the future, add here to store the messages in a file or a
               this._pendingSetup = checkConnection().finally(() => { this._pendingSetup = false })
             }
-          } else if (this._readyState === READY_STATE.CONNECTED && this._opt.waitAck && this._awaitingResponse) {
+          } else if (this._readyState === ReadyState.CONNECTED && this._opt.waitAck && this._awaitingResponse) {
           // Ok, we ar now confirmed connected.
           // However, since we are checking
           // to make sure we wait for an ACKNOWLEDGEMENT from the server,
@@ -158,7 +158,7 @@ export class HL7Outbound extends EventEmitter {
       this._manageConnections()
     }
 
-    this._readyState = READY_STATE.CONNECTED
+    this._readyState = ReadyState.CONNECTED
   }
 
   /** @internal */
@@ -179,14 +179,14 @@ export class HL7Outbound extends EventEmitter {
     })
 
     socket.on('close', () => {
-      if (this._readyState === READY_STATE.CLOSING) {
-        this._readyState = READY_STATE.CLOSED
+      if (this._readyState === ReadyState.CLOSING) {
+        this._readyState = ReadyState.CLOSED
       } else {
         const retryHigh = typeof this._opt.retryHigh === 'undefined' ? this._main._opt.retryHigh : this._opt.retryLow
         const retryLow = typeof this._opt.retryLow === 'undefined' ? this._main._opt.retryLow : this._opt.retryLow
         const retryCount = this._retryCount++
         const delay = expBackoff(retryLow, retryHigh, retryCount)
-        this._readyState = READY_STATE.OPEN
+        this._readyState = ReadyState.OPEN
         this._retryTimer = setTimeout(this._connect, delay)
         if (retryCount <= 1) {
           this.emit('error')
@@ -195,7 +195,7 @@ export class HL7Outbound extends EventEmitter {
     })
 
     socket.on('connect', () => {
-      this._readyState = READY_STATE.CONNECTED
+      this._readyState = ReadyState.CONNECTED
       this.emit('connect', true, this._socket)
     })
 
@@ -218,7 +218,7 @@ export class HL7Outbound extends EventEmitter {
    * @since 1.0.0 */
   async close (): Promise<boolean> {
     // mark that we set our internal that we are closing, so we do not try to re-connect
-    this._readyState = READY_STATE.CLOSING
+    this._readyState = ReadyState.CLOSING
     // @todo Remove all pending messages that might be pending sending.
     // @todo Do we dare save them as a file so if the kube process fails and restarts up, it can send them again??
     this._sockets.forEach((socket) => {
