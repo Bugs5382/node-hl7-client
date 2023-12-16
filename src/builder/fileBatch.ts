@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { HL7FatalError, HL7ParserError } from '../utils/exception.js'
 import { ClientBuilderFileOptions, normalizedClientFileBuilderOptions } from '../utils/normalizedBuilder.js'
-import { createHL7Date, isNumber } from '../utils/utils.js'
+import { createHL7Date, isHL7Number } from '../utils/utils.js'
 import { Batch } from './batch.js'
 import { Node } from './interface/node.js'
 import { Message } from './message.js'
@@ -193,7 +193,7 @@ export class FileBatch extends RootBase {
       }
 
       return this
-    } else if (isNumber(path)) {
+    } else if (isHL7Number(path)) {
       if (Array.isArray(value)) {
         const child = this.ensure(path)
         for (let i = 0, l = value.length; i < l; i++) {

@@ -1,13 +1,25 @@
 import { HL7_2_7_BHS, HL7_2_7_FHS, HL7_2_7_MSH } from './2.7.js'
 
-/** @internal Unions **/
+/**
+ * MSH Unions
+ * @since 1.0.0
+ */
 export type MSH = HL7_2_7_MSH
-/** @internal Unions **/
+/**
+ * BHS Unions
+ * @since 1.0.0
+ */
 export type BHS = HL7_2_7_BHS
-/** @internal Unions **/
+/**
+ * FHS Unions
+ * @since 1.0.0
+ */
 export type FHS = HL7_2_7_FHS
 
-/** @internal */
+/**
+ * HL7 Base Interface
+ * @since 1.0.0
+ */
 export interface HL7_SPEC {
   /** Name of the HL7 Spec */
   name: string
@@ -17,12 +29,15 @@ export interface HL7_SPEC {
   checkFHS: (options: FHS) => boolean
   /** Check the MSH Header for this Specification */
   checkMSH: (options: MSH) => boolean
-
 }
 
-/** @internal */
+/**
+ * Base Class of an HL7 Specification
+ * @since 1.0.0
+ */
 export class HL7_SPEC_BASE implements HL7_SPEC {
-  /** @internal */
+  /** Name
+   * @since 1.0.0 */
   name = ''
 
   /**

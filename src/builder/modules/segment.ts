@@ -1,6 +1,6 @@
 import { Delimiters } from '../../utils/enum.js'
 import { HL7FatalError } from '../../utils/exception.js'
-import { isNumber, isString } from '../../utils/utils.js'
+import { isHL7Number, isHL7String } from '../../utils/utils.js'
 import { Field } from './field.js'
 import { NodeBase } from './nodeBase.js'
 import { Node } from '../interface/node.js'
@@ -23,7 +23,7 @@ export class Segment extends NodeBase {
      */
   constructor (parent: NodeBase, text: string) {
     super(parent, text, Delimiters.Field)
-    if (!isString(text) || text.length === 0) {
+    if (!isHL7String(text) || text.length === 0) {
       throw new HL7FatalError(500, 'Segment must have a name.')
     }
     this._segmentName = text.slice(0, 3)
@@ -74,7 +74,7 @@ export class Segment extends NodeBase {
       }
 
       return this
-    } else if (isNumber(path)) {
+    } else if (isHL7Number(path)) {
       if (Array.isArray(value)) {
         const child = this.ensure(path)
         for (let i = 0, l = value.length; i < l; i++) {

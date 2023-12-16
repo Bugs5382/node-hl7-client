@@ -1,7 +1,9 @@
 import {randomUUID} from "crypto";
 import fs from "fs";
 import path from "node:path";
-import {FileBatch, Batch, Message, createHL7Date, isBatch, isFile, sleep, EmptyNode, Node} from "../src";
+import {FileBatch, Batch, Message, createHL7Date, isBatch, isFile } from "../src";
+import {Node, EmptyNode} from "../src";
+import {sleep} from "./__utils__";
 
 describe('node hl7 client - builder tests', () => {
 

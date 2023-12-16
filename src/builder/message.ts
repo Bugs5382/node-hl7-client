@@ -1,6 +1,6 @@
 import { HL7FatalError } from '../utils/exception.js'
 import { ClientBuilderMessageOptions, normalizedClientMessageBuilderOptions } from '../utils/normalizedBuilder.js'
-import { createHL7Date, isNumber } from '../utils/utils.js'
+import { createHL7Date, isHL7Number } from '../utils/utils.js'
 import { FileBatch } from './fileBatch.js'
 import { NodeBase } from './modules/nodeBase.js'
 import { RootBase } from './modules/rootBase.js'
@@ -152,7 +152,7 @@ export class Message extends RootBase {
       }
 
       return this
-    } else if (isNumber(path)) {
+    } else if (isHL7Number(path)) {
       if (Array.isArray(value)) {
         const child = this.ensure(path)
         for (let i = 0, l = value.length; i < l; i++) {

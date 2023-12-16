@@ -1,15 +1,3 @@
-import EventEmitter from 'node:events'
-
-/** @internal */
-export const sleep = async (ms: number): Promise<unknown> => {
-  return await new Promise(resolve => setTimeout(resolve, ms))
-}
-
-/** @internal */
-export const expectEvent = async <T=any>(emitter: EventEmitter, name: string | symbol): Promise<T> => {
-  return await new Promise<T>((resolve) => { emitter.once(name, resolve) })
-}
-
 /**
  * Calculate exponential backoff/retry delay.
  * Where attempts >= 1, exp > 1
@@ -24,7 +12,11 @@ export const expectEvent = async <T=any>(emitter: EventEmitter, name: string | s
  *        5    | 1000 to 30000
  *   ---------------------------------
  * Attempts required before max delay is possible = Math.ceil(Math.log(high/step) / Math.log(exp))
- * @internal
+ * @since
+ * @param step
+ * @param high
+ * @param attempts
+ * @param exp
  */
 export const expBackoff = (step: number, high: number, attempts: number, exp = 2): number => {
   const slots = Math.ceil(Math.min(high / step, Math.pow(exp, attempts)))
@@ -32,28 +24,15 @@ export const expBackoff = (step: number, high: number, attempts: number, exp = 2
   return Math.floor(Math.random() * (max - step) + step)
 }
 
-/** @internal */
-export interface Deferred<T=any> {
-  resolve: (value: T | PromiseLike<T>) => void
-  reject: (reason?: any) => void
-  promise: Promise<T>
-}
 
-/** @internal */
-export const createDeferred = <T=any>(noUncaught?: boolean): Deferred<T> => {
-  const dfd: any = {}
-  dfd.promise = new Promise((resolve, reject) => {
-    dfd.resolve = resolve
-    dfd.reject = reject
-  })
-  /* istanbul ignore next */
-  if (noUncaught === false) {
-    dfd.promise.catch(() => {})
-  }
-  return dfd
-}
-
-/** @internal */
+/**
+ * Assert Number on a Property
+ * @since 1.0.0
+ * @param props
+ * @param name
+ * @param min
+ * @param max
+ */
 export const assertNumber = (props: Record<string, number>, name: string, min: number, max?: number): void => {
   const val = props[name]
   if (isNaN(val) || !Number.isFinite(val) || val < min || (max != null && val > max)) {
@@ -63,16 +42,30 @@ export const assertNumber = (props: Record<string, number>, name: string, min: n
   }
 }
 
-/** @internal */
-export const isNumber = (value: string | number): boolean => {
+/**
+ * Is Number
+ * @description Custom for this package.
+ * @since 1.0.0
+ * @param value
+ */
+export const isHL7Number = (value: string | number): boolean => {
   value = typeof value === 'string' ? parseInt(value) : value
   return !isNaN(value) || !Number.isFinite(value)
 }
 
-/** @internal */
-export const isString = (value: any): boolean => typeof value === 'string'
+/**
+ * Is String
+ * @description Custom for this package.
+ * @since 1.0.0
+ * @param value
+ */
+export const isHL7String = (value: any): boolean => typeof value === 'string'
 
-/** @internal */
+/**
+ * Valid IPv4 Checker
+ * @since 1.0.0
+ * @param ip
+ */
 export const validIPv4 = (ip: string): boolean => {
   const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/
   if (ipv4Regex.test(ip)) {
@@ -81,7 +74,11 @@ export const validIPv4 = (ip: string): boolean => {
   return false
 }
 
-/** @internal */
+/**
+ * Valid IPv6 Checker
+ * @since 1.0.0
+ * @param ip
+ */
 export const validIPv6 = (ip: string): boolean => {
   const ipv6Regex = /^([\da-f]{1,4}:){7}[\da-f]{1,4}$/i
   if (ipv6Regex.test(ip)) {
@@ -90,40 +87,68 @@ export const validIPv6 = (ip: string): boolean => {
   return false
 }
 
-/** @internal */
-export const createHL7Date = (date: Date, length: '8' | '12' | '14' = '14'): string => {
-  switch (length) {
-    case '14':
-      return `${date.getFullYear()}${pad(date.getMonth() + 1, 2)}${pad(date.getDate(), 2)}${pad(date.getHours(), 2)}${pad(date.getMinutes(), 2)}${pad(date.getSeconds(), 2)}`
-    case '12':
-      return `${date.getFullYear()}${pad(date.getMonth() + 1, 2)}${pad(date.getDate(), 2)}${pad(date.getHours(), 2)}${pad(date.getMinutes(), 2)}`
-    case '8':
-      return `${date.getFullYear()}${pad(date.getMonth() + 1, 2)}${pad(date.getDate(), 2)}`
-  }
-}
-
-/** @internal */
-export const isBatch = (data: string): boolean => {
-  return data.startsWith('BHS')
-}
-
-/** @internal */
-export const isFile = (data: string): boolean => {
-  return data.startsWith('FHS')
-}
-
-/** @internal */
-export const pad = (n: number, width: number, z: string = '0'): string => {
+/**
+ * HL7 Padding for Date
+ * @since 1.0.0
+ * @param n
+ * @param width
+ * @param z
+ */
+export const padHL7Date = (n: number, width: number, z: string = '0'): string => {
   const s = n.toString()
   return s.length >= width ? s : new Array(width - s.length + 1).join(z) + s
 }
 
-/** @internal */
+/**
+ * Create a valid HL7 Date.
+ * @description Custom for this package and based of HL7 specification.
+ * @since 1.0.0
+ * @param date
+ * @param length
+ */
+export const createHL7Date = (date: Date, length: '8' | '12' | '14' = '14'): string => {
+  switch (length) {
+    case '14':
+      return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}${padHL7Date(date.getHours(), 2)}${padHL7Date(date.getMinutes(), 2)}${padHL7Date(date.getSeconds(), 2)}`
+    case '12':
+      return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}${padHL7Date(date.getHours(), 2)}${padHL7Date(date.getMinutes(), 2)}`
+    case '8':
+      return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}`
+  }
+}
+
+/**
+ * Check to see if the message is a Batch (BHS)
+ * @since 1.0.0
+ * @param message
+ */
+export const isBatch = (message: string): boolean => {
+  return message.startsWith('BHS')
+}
+
+/**
+ * Check to see if the message is a File Batch (FHS)
+ * @param message
+ */
+export const isFile = (message: string): boolean => {
+  return message.startsWith('FHS')
+}
+
+
+/**
+ * Escape for RegEx Expressing
+ * @since 1.0.0
+ * @param value
+ */
 export const escapeForRegExp = (value: string): string => {
   return value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
 }
 
-/** @internal */
+/**
+ * Decode Hex String
+ * @since 1.0.0
+ * @param value
+ */
 export const decodeHexString = (value: string): string => {
   const result = new Array(value.length / 2)
   for (let i = 0; i < value.length; i += 2) {
@@ -132,7 +157,11 @@ export const decodeHexString = (value: string): string => {
   return result.join('')
 }
 
-/** @internal */
+/**
+ * Generate a random String
+ * @since 1.0.0
+ * @param length
+ */
 export const randomString = (length = 20): string => {
   let result = ''
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_'
