@@ -178,7 +178,7 @@ export class RootBase extends NodeBase {
   /** @internal */
   private _getSegIndexes (names: string[], data: string, list: string[] = []): string[] {
     for (let i = 0; i < names.length; i++) {
-      const regex = new RegExp( `(\\n|\\r|)(${names[i]})\\|`, 'g')
+      const regex = new RegExp(`(\\n|\\r|)(${names[i]})\\|`, 'g')
       let m
       while ((m = regex.exec(data)) != null) {
         const s = m[0]
@@ -196,5 +196,4 @@ export class RootBase extends NodeBase {
     }
     return list
   }
-
 }

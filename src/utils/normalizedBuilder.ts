@@ -193,7 +193,6 @@ export function normalizedClientFileBuilderOptions (raw?: ClientBuilderFileOptio
   const regex = /\n/mg
   const subst = '\\r'
   if (typeof props.fullFilePath !== 'undefined' && typeof props.fileBuffer === 'undefined') {
-
     const fileBuffer = fs.readFileSync(props.fullFilePath)
     props.text = fileBuffer.toString().replace(regex, subst)
   } else if (typeof props.fullFilePath === 'undefined' && typeof props.fileBuffer !== 'undefined') {
