@@ -1,9 +1,7 @@
 import {randomUUID} from "crypto";
 import fs from "fs";
 import path from "node:path";
-import {EmptyNode} from "../src/builder/modules/emptyNode";
-import {FileBatch, Batch, Message, createHL7Date, isBatch, isFile, sleep} from "../src";
-import { Node } from "../src/builder/interface/node";
+import {FileBatch, Batch, Message, createHL7Date, isBatch, isFile, sleep, EmptyNode, Node} from "../src";
 
 describe('node hl7 client - builder tests', () => {
 
@@ -822,13 +820,12 @@ describe('node hl7 client - builder tests', () => {
 
   })
 
-  describe('parse message and batch', () => {
+  describe('parse message, batch, and file', () => {
 
     const hl7_string: string = "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231"
     const hl7_non_standard: string = "MSH:-+?*:field2:field3component1-field3component2:field4repeat1+field4repeat2:field5subcomponent1*field5subcomponent2:field6?R?"
     const hl7_batch: string = "BHS|^~\\&|||||20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1"
     const hl7_batch_non_standard: string = "BHS:-+?*:::::20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1"
-    // const hl7_batch_non_standard_mixed: string = "BHS:-+?*:::::20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1"
 
     test('...verify MSH input', async () => {
 
@@ -895,6 +892,24 @@ describe('node hl7 client - builder tests', () => {
         });
         expect(count).toBe(2)
       })
+
+    })
+
+    describe('file tests', () => {
+
+      beforeAll(async () => {
+
+        const message = new Message({text: hl7_string})
+        message.toFile('readTestMSH', true, 'temp/')
+
+        const batch = new Batch({text: hl7_batch})
+        batch.toFile('readTestBHS', true, 'temp/')
+
+      })
+
+      test.todo('...read file with MSH only')
+
+      test.todo('...read file BSH and 1xMSH only')
 
     })
 
