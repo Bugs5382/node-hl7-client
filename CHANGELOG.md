@@ -1,3 +1,10 @@
+# [1.0.0-beta.7](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.6...v1.0.0-beta.7) (2023-12-16)
+
+
+### Bug Fixes
+
+* set now accessible via segment class ([116e7fe](https://github.com/Bugs5382/node-hl7-client/commit/116e7fe5a2c3f82efc21d9e380e9c15a0ed80ef7)), closes [#31](https://github.com/Bugs5382/node-hl7-client/issues/31)
+
 # [1.0.0-beta.6](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.5...v1.0.0-beta.6) (2023-12-16)
 
 
