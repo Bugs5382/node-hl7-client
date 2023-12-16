@@ -9,5 +9,9 @@ coverage
 
 # Files
 jest.config.ts
+release.config.js
+*.tgz
 *.json
 *.yml
+.env
+.eslintignore

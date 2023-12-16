@@ -13,17 +13,14 @@
       "default": "./lib/cjs/index.js"
     }
   },
-  "files": [
-    "lib/**/*"
-  ],
   "scripts": {
     "clean": "rm -rf coverage docs lib temp",
     "build": "tsc && tsc -p tsconfig.cjs.json && tsc -p tsconfig.types.json && ./bin/build-types.sh",
     "build:watch": "tsc -w",
     "lint": "ts-standard --parser @typescript-eslint/parser | snazzy",
     "lint:fix": "ts-standard --fix --parser @typescript-eslint/parser | snazzy",
-    "pack": "npm run test:ci && npm pack",
-    "prepublishOnly": "npm run clean && npm run build && npm run pack",
+    "pack": "npm pack",
+    "prepublishOnly": "npm run clean && npm run test:ci && npm run build && npm run pack",
     "test": "jest",
     "test:open": "jest --detectOpenHandles",
     "test:watch": "jest --watch",
