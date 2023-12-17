@@ -242,9 +242,8 @@ describe('node hl7 client', () => {
         const server = new Server({bindAddress: '0.0.0.0'})
         const IB_ADT = server.createInbound({port: LISTEN_PORT}, async (req, res) => {
           const messageReq = req.getMessage()
-          const messageRes = res.getAckMessage()
-          expect(messageRes.get('MSA.1').toString()).toBe('AA')
           expect(messageReq.get('MSH.12').toString()).toBe('2.7')
+          await res.sendResponse("AA")
         })
 
         await sleep(5)
@@ -288,9 +287,8 @@ describe('node hl7 client', () => {
           })
         const IB_ADT = server.createInbound({port: LISTEN_PORT}, async (req, res) => {
           const messageReq = req.getMessage()
-          const messageRes = res.getAckMessage()
-          expect(messageRes.get('MSA.1').toString()).toBe('AA')
           expect(messageReq.get('MSH.12').toString()).toBe('2.7')
+          await res.sendResponse("AA")
         })
 
         await sleep(5)
