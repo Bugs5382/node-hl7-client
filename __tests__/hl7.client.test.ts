@@ -2,8 +2,14 @@
  import path from "node:path";
  import portfinder from 'portfinder'
  import {Hl7Inbound, Server} from "node-hl7-server";
- import {Client, HL7Outbound, Message} from '../src'
+ import {Client, HL7_2_7_MSH, HL7Outbound, Message} from '../src'
  import {expectEvent, sleep} from "./__utils__";
+
+ const MSH_HEADER: HL7_2_7_MSH = {
+   msh_9_1: "ADT",
+   msh_9_2: "A01",
+   msh_11_1: "D"
+ }
 
 describe('node hl7 client', () => {
 
@@ -168,8 +174,7 @@ describe('node hl7 client', () => {
 
       let message = new Message({
         messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
+          ...MSH_HEADER,
           msh_10: 'CONTROL_ID'
         }
       })
@@ -183,8 +188,7 @@ describe('node hl7 client', () => {
       try {
         let message = new Message({
           messageHeader: {
-            msh_9_1: "ADT",
-            msh_9_2: "A01",
+            ...MSH_HEADER,
             msh_10: 'CONTROL_ID'
           }
         })
@@ -203,8 +207,7 @@ describe('node hl7 client', () => {
 
         let message = new Message({
           messageHeader: {
-            msh_9_1: "ADT",
-            msh_9_2: "A01",
+            ...MSH_HEADER,
             msh_10: 'CONTROL_ID'
           }
         })
@@ -213,8 +216,7 @@ describe('node hl7 client', () => {
 
         message = new Message({
           messageHeader: {
-            msh_9_1: "ADT",
-            msh_9_2: "A01",
+            ...MSH_HEADER,
             msh_10: 'CONTROL_ID'
           }
         })
@@ -258,8 +260,7 @@ describe('node hl7 client', () => {
 
         let message = new Message({
           messageHeader: {
-            msh_9_1: "ADT",
-            msh_9_2: "A01",
+            ...MSH_HEADER,
             msh_10: 'CONTROL_ID'
           }
         })
@@ -302,8 +303,7 @@ describe('node hl7 client', () => {
 
         let message = new Message({
           messageHeader: {
-            msh_9_1: "ADT",
-            msh_9_2: "A01",
+            ...MSH_HEADER,
             msh_10: 'CONTROL_ID'
           }
         })
@@ -340,8 +340,7 @@ describe('node hl7 client', () => {
 
         let message = new Message({
           messageHeader: {
-            msh_9_1: "ADT",
-            msh_9_2: "A01",
+            ...MSH_HEADER,
             msh_10: 'CONTROL_ID'
           }
         })
