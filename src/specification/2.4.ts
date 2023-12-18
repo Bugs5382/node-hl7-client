@@ -1,5 +1,5 @@
 import { Message } from '../builder/message.js'
-import {HL7_2_3_1} from "./2.3.1";
+import { HL7_2_3_1 } from './2.3.1.js'
 
 /**
  * HL7 2.4 MSH Specification
@@ -48,7 +48,7 @@ export interface HL7_2_4_MSH {
 }
 
 /**
- * Hl7 Specification Version 2.7
+ * Hl7 Specification Version 2.4
  * @description Used to indicate that the message should follow 2.7 specification for retrieval or building a message.
  * @since 1.0.0
  */
@@ -59,7 +59,7 @@ export class HL7_2_4 extends HL7_2_3_1 {
   }
 
   /**
-   * Check MSH Header Properties for HL7 2.1
+   * Check MSH Header Properties for HL7 2.4
    * @since 1.0.0
    * @param msh
    * @return boolean
@@ -71,6 +71,7 @@ export class HL7_2_4 extends HL7_2_3_1 {
 
   /**
    * Build HL7 MSH Segment
+   * @since 1.0.0
    * @param mshHeader
    * @param message
    */

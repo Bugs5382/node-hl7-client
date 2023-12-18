@@ -41,7 +41,7 @@ export interface HL7_2_1_MSH {
 }
 
 /**
- * Hl7 Specification Version 2.7
+ * Hl7 Specification Version 2.1
  * @description Used to indicate that the message should follow 2.7 specification for retrieval or building a message.
  * @since 1.0.0
  */
@@ -71,6 +71,7 @@ export class HL7_2_1 extends HL7_SPEC_BASE {
 
   /**
    * Build HL7 MSH Segment
+   * @since 1.0.0
    * @param mshHeader
    * @param message
    */
