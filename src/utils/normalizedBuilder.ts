@@ -1,6 +1,6 @@
 import fs from 'fs'
 import { HL7_2_7 } from '../specification/2.7.js'
-import { FHS, BHS, MSH } from '../specification/specification.js'
+import { MSH } from '../specification/specification'
 import { ParserPlan } from './parserPlan.js'
 
 const DEFAULT_CLIENT_BUILDER_OPTS = {
@@ -76,14 +76,6 @@ export interface ClientBuilderMessageOptions extends ClientBuilderOptions {
   messageHeader?: MSH
 }
 
-export interface ClientBuilderBatchOptions extends ClientBuilderOptions {
-  /**
-   * BHS Header Options
-   * @since 1.0.0
-   */
-  batchHeader?: BHS
-}
-
 export interface ClientBuilderFileOptions extends ClientBuilderOptions {
   /**
    * Extension of the file when it gets created.
@@ -97,10 +89,6 @@ export interface ClientBuilderFileOptions extends ClientBuilderOptions {
   /** If you are providing the full file path, please set it here.
    * @since 1.0.0 */
   fullFilePath?: string
-  /** FHS Header Options
-   * @since 1.0.0
-   */
-  fileHeader?: FHS
   /** Location where the file will be saved.
    * If this is not set,
    * the files will get save it in the same directory of the executing file that is calling the function.
@@ -143,10 +131,10 @@ export function normalizedClientMessageBuilderOptions (raw?: ClientBuilderMessag
   return props
 }
 
-export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderBatchOptions): ClientBuilderBatchOptions {
-  const props: ClientBuilderBatchOptions = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
+export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderOptions): ClientBuilderOptions {
+  const props: ClientBuilderOptions = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
-  if (typeof props.batchHeader === 'undefined' && typeof props.text !== 'undefined' && props.text !== '' && props.text.slice(0, 3) !== 'BHS') {
+  if (typeof props.text !== 'undefined' && props.text !== '' && props.text.slice(0, 3) !== 'BHS') {
     throw new Error('text must begin with the BHS segment.')
   }
 
@@ -174,7 +162,7 @@ export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderBatchOpt
 export function normalizedClientFileBuilderOptions (raw?: ClientBuilderFileOptions): ClientBuilderFileOptions {
   const props: ClientBuilderFileOptions = { ...DEFAULT_CLIENT_FILE_OPTS, ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
-  if (typeof props.fileHeader === 'undefined' && typeof props.text !== 'undefined' && props.text !== '' && props.text.slice(0, 3) !== 'FHS') {
+  if (typeof props.text !== 'undefined' && props.text !== '' && props.text.slice(0, 3) !== 'FHS') {
     throw new Error('text must begin with the FHS segment.')
   }
 

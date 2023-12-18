@@ -24,7 +24,6 @@ export const expBackoff = (step: number, high: number, attempts: number, exp = 2
   return Math.floor(Math.random() * (max - step) + step)
 }
 
-
 /**
  * Assert Number on a Property
  * @since 1.0.0
@@ -133,7 +132,6 @@ export const isBatch = (message: string): boolean => {
 export const isFile = (message: string): boolean => {
   return message.startsWith('FHS')
 }
-
 
 /**
  * Escape for RegEx Expressing

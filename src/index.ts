@@ -1,4 +1,4 @@
-import { HL7_2_7, HL7_2_7_BHS, HL7_2_7_FHS } from './specification/2.7.js'
+import { HL7_2_7 } from './specification/2.7.js'
 import { HL7_SPEC, HL7_SPEC_BASE } from './specification/specification.js'
 import { NodeBase } from './builder/modules/nodeBase.js'
 import { EmptyNode } from './builder/modules/emptyNode.js'
@@ -20,14 +20,14 @@ import { Delimiters, ReadyState } from './utils/enum.js'
 export { expBackoff, assertNumber, isHL7Number, isHL7String, validIPv4, validIPv6, createHL7Date, isBatch, isFile, padHL7Date, escapeForRegExp, decodeHexString, randomString } from './utils/utils.js'
 
 /** HL7 Specs **/
-export { MSH, BHS, FHS } from './specification/specification.js'
+export { MSH } from './specification/specification.js'
 export { HL7_2_7_MSH } from './specification/2.7.js'
 
 /** HL7 Class **/
-export { HL7_2_7_BHS, HL7_2_7_FHS, HL7_2_7, HL7_SPEC, HL7_SPEC_BASE }
+export { HL7_2_7, HL7_SPEC, HL7_SPEC_BASE }
 
 export type { ClientOptions, ClientListenerOptions } from './utils/normalizedClient.js'
-export type { ClientBuilderFileOptions, ClientBuilderBatchOptions, ClientBuilderMessageOptions, ClientBuilderOptions } from './utils/normalizedBuilder.js'
+export type { ClientBuilderFileOptions, ClientBuilderMessageOptions, ClientBuilderOptions } from './utils/normalizedBuilder.js'
 export type { HL7Error, HL7FatalError, HL7ParserError } from './utils/exception.js'
 
 export default Client

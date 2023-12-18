@@ -1,9 +1,15 @@
 import {randomUUID} from "crypto";
 import fs from "fs";
-import path from "node:path";
-import {FileBatch, Batch, Message, createHL7Date, isBatch, isFile } from "../src";
+import path from "path";
+import {FileBatch, Batch, Message, createHL7Date, isBatch, isFile, HL7_2_7_MSH} from "../src";
 import {Node, EmptyNode} from "../src";
 import {sleep} from "./__utils__";
+
+const MSH_HEADER: HL7_2_7_MSH = {
+  msh_9_1: "ADT",
+  msh_9_2: "A01",
+  msh_11_1: "D"
+}
 
 describe('node hl7 client - builder tests', () => {
 
@@ -63,6 +69,7 @@ describe('node hl7 client - builder tests', () => {
     test("error - Message Object - msh 9.1 is not 3 character long ", async () => {
       try {
         new Message({
+          // @ts-expect-error not filling this out for unit testing
           messageHeader: {
             msh_9_1: "ADTY",
             msh_9_2: "A01",
@@ -77,6 +84,7 @@ describe('node hl7 client - builder tests', () => {
     test("error - Message Object - msh 9.2 is not 3 character long ", async () => {
       try {
         new Message({
+          // @ts-expect-error not filling this out for unit testing
           messageHeader: {
             msh_9_1: "ADT",
             msh_9_2: "A01Y",
@@ -91,6 +99,7 @@ describe('node hl7 client - builder tests', () => {
     test("error - Message Object - msh 10 is more than 199 characters ", async () => {
       try {
         new Message({
+          // @ts-expect-error not filling this out for unit testing
           messageHeader: {
             msh_9_1: "ADT",
             msh_9_2: "A01",
@@ -105,6 +114,7 @@ describe('node hl7 client - builder tests', () => {
     test("error - Message Object - msh 10 can not be blank", async () => {
       try {
         new Message({
+          // @ts-expect-error not filling this out for unit testing
           messageHeader: {
             msh_9_1: "ADT",
             msh_9_2: "A01",
@@ -125,6 +135,7 @@ describe('node hl7 client - builder tests', () => {
 
     beforeEach(async () => {
       message = new Message({
+        // @ts-expect-error not filling this out for unit testing
         messageHeader: {
           msh_9_1: "ADT",
           msh_9_2: "A01",
@@ -178,6 +189,7 @@ describe('node hl7 client - builder tests', () => {
 
     beforeEach(async () => {
       message = new Message({
+        // @ts-expect-error not filling this out for unit testing
         messageHeader: {
           msh_9_1: "ADT",
           msh_9_2: "A01",
@@ -186,6 +198,10 @@ describe('node hl7 client - builder tests', () => {
       })
       message.set('MSH.7', '20081231')
     })
+
+    test("...real basic", async () => {
+      expect(message.toString()).toBe("MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7");
+    });
 
     test("...should accept a number as a value", async () => {
       message.set("EVN.2", 1);
@@ -350,8 +366,7 @@ describe('node hl7 client - builder tests', () => {
 
       message = new Message({
         messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
+          ...MSH_HEADER,
           msh_10: 'CONTROL_ID'
         }
       })
@@ -359,15 +374,14 @@ describe('node hl7 client - builder tests', () => {
 
       batch.add(message)
       batch.end()
-      expect(batch.toString()).toBe([`BHS|^~\\&|||||${date}`, `MSH|^~\\&|||||${date}||ADT^A01^ADT_A01|CONTROL_ID||2.7`, "BTS|1"].join("\r"))
+      expect(batch.toString()).toBe([`BHS|^~\\&|||||${date}`, `MSH|^~\\&|||||${date}||ADT^A01^ADT_A01|CONTROL_ID|D|2.7`, "BTS|1"].join("\r"))
     })
 
     test('...add 10 message to batch', async () => {
 
       message = new Message({
         messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
+          ...MSH_HEADER,
           msh_10: 'CONTROL_ID'
         }
       })
@@ -384,8 +398,7 @@ describe('node hl7 client - builder tests', () => {
 
       message = new Message({
         messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
+          ...MSH_HEADER,
           msh_10: 'CONTROL_ID'
         }
       })
@@ -396,15 +409,14 @@ describe('node hl7 client - builder tests', () => {
 
       batch.add(message)
       batch.end()
-      expect(batch.toString()).toBe(`BHS|^~\\&|||||${date}\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rBTS|1`)
+      expect(batch.toString()).toBe(`BHS|^~\\&|||||${date}\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID|D|2.7\rEVN||20081231\rBTS|1`)
     })
 
     test('...add message to batch with 2x additional segments in message', async () => {
 
       message = new Message({
         messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
+          ...MSH_HEADER,
           msh_10: 'CONTROL_ID'
         }
       })
@@ -418,7 +430,7 @@ describe('node hl7 client - builder tests', () => {
 
       batch.add(message)
       batch.end()
-      expect(batch.toString()).toBe(`BHS|^~\\&|||||${date}\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1`)
+      expect(batch.toString()).toBe(`BHS|^~\\&|||||${date}\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID|D|2.7\rEVN||20081231\rEVN||20081231\rBTS|1`)
     })
 
   })
@@ -439,8 +451,7 @@ describe('node hl7 client - builder tests', () => {
 
       message = new Message({
         messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
+          ...MSH_HEADER,
           msh_10: 'CONTROL_ID'
         }
       })
@@ -456,7 +467,7 @@ describe('node hl7 client - builder tests', () => {
       expect(file.toString()).toBe(
         [
           "FHS|^~\\&|||||20081231",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID||2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID|D|2.7",
           "FTS|1"
         ].join("\r"))
     })
@@ -468,8 +479,7 @@ describe('node hl7 client - builder tests', () => {
       for (let i = 0; i < 10; i++ ) {
         message = new Message({
           messageHeader: {
-            msh_9_1: "ADT",
-            msh_9_2: "A01",
+            ...MSH_HEADER,
             msh_10: `CONTROL_ID${i+1}`
           }
         })
@@ -486,16 +496,16 @@ describe('node hl7 client - builder tests', () => {
       expect(file.toString()).toBe(
         [
           "FHS|^~\\&|||||20081231",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID1||2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID2||2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID3||2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID4||2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID5||2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID6||2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID7||2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID8||2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID9||2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID10||2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID1|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID2|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID3|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID4|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID5|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID6|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID7|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID8|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID9|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID10|D|2.7",
           "FTS|10"
         ].join("\r"))
     })
@@ -532,8 +542,7 @@ describe('node hl7 client - builder tests', () => {
 
       let message = new Message({
         messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
+          ...MSH_HEADER,
           msh_10: 'CONTROL_ID'
         }
       })
@@ -556,7 +565,7 @@ describe('node hl7 client - builder tests', () => {
         [
           "FHS|^~\\&|||||20081231",
           "BHS|^~\\&|||||20081231",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID||2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID|D|2.7",
           "BTS|1",
           "FTS|1"
         ].join("\r"))
@@ -571,8 +580,7 @@ describe('node hl7 client - builder tests', () => {
 
       let message = new Message({
         messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
+          ...MSH_HEADER,
           msh_10: 'CONTROL_ID1'
         }
       })
@@ -590,8 +598,7 @@ describe('node hl7 client - builder tests', () => {
       // create a new message
       message = new Message({
         messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
+          ...MSH_HEADER,
           msh_10: 'CONTROL_ID2'
         }
       })
@@ -603,8 +610,7 @@ describe('node hl7 client - builder tests', () => {
 
       message = new Message({
         messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
+          ...MSH_HEADER,
           msh_10: 'CONTROL_ID3'
         }
       })
@@ -622,9 +628,9 @@ describe('node hl7 client - builder tests', () => {
         [
           "FHS|^~\\&|||||20081231",
           "BHS|^~\\&|||||20081231",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID1||2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID2||2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID3||2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID1|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID2|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID3|D|2.7",
           "BTS|3",
           "FTS|1"
         ].join("\r"))
@@ -693,8 +699,7 @@ describe('node hl7 client - builder tests', () => {
     test('...create file from message', async () => {
       let message = new Message({
         messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
+          ...MSH_HEADER,
           msh_10: 'CONTROL_ID'
         }
       })
@@ -745,8 +750,7 @@ describe('node hl7 client - builder tests', () => {
 
       let message = new Message({
         messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
+          ...MSH_HEADER,
           msh_10: 'CONTROL_ID'
         }
       })
@@ -771,8 +775,7 @@ describe('node hl7 client - builder tests', () => {
 
       const message = new Message({
         messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
+          ...MSH_HEADER,
           msh_10: 'CONTROL_ID'
         }
       })
@@ -784,8 +787,7 @@ describe('node hl7 client - builder tests', () => {
 
       const message = new Message({
         messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
+          ...MSH_HEADER,
           msh_10: 'CONTROL_ID'
         }
       })

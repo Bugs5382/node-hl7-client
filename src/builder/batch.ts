@@ -1,5 +1,5 @@
 import { HL7FatalError, HL7ParserError } from '../utils/exception.js'
-import { ClientBuilderBatchOptions, normalizedClientBatchBuilderOptions } from '../utils/normalizedBuilder.js'
+import { ClientBuilderOptions, normalizedClientBatchBuilderOptions } from '../utils/normalizedBuilder.js'
 import { isHL7Number, createHL7Date } from '../utils/utils.js'
 import { FileBatch } from './fileBatch.js'
 import { Node } from './interface/node.js'
@@ -26,7 +26,7 @@ export class Batch extends RootBase {
    * @since 1.0.0
    * @param props
    */
-  constructor (props?: ClientBuilderBatchOptions) {
+  constructor (props?: ClientBuilderOptions) {
     const opt = normalizedClientBatchBuilderOptions(props)
     super(opt)
     this._opt = opt
@@ -34,6 +34,8 @@ export class Batch extends RootBase {
 
     if (typeof opt.text !== 'undefined' && opt.parsing === true && opt.text !== '') {
       this._lines = this.split(opt.text).filter(line => line.startsWith('MSH'))
+    } else {
+      this.set('BHS.7', createHL7Date(new Date()))
     }
   }
 
