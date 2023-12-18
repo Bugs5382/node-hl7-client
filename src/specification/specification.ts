@@ -1,12 +1,15 @@
 import { Message } from '../builder/message.js'
 import { HL7_2_1_MSH } from './2.1'
+import { HL7_2_2_MSH } from './2.2'
+import { HL7_2_3_MSH } from './2.3'
+import { HL7_2_3_1_MSH } from './2.3.1'
 import { HL7_2_7_MSH } from './2.7.js'
 
 /**
  * MSH Unions
  * @since 1.0.0
  */
-export type MSH = HL7_2_7_MSH | HL7_2_1_MSH
+export type MSH = HL7_2_7_MSH | HL7_2_2_MSH | HL7_2_3_MSH | HL7_2_3_1_MSH | HL7_2_1_MSH
 
 /**
  * HL7 Base Interface
