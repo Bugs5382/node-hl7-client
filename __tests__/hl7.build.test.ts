@@ -1,7 +1,7 @@
 import {randomUUID} from "crypto";
 import fs from "fs";
 import path from "path";
-import {FileBatch, Batch, Message, createHL7Date, isBatch, isFile, HL7_2_7_MSH} from "../src";
+import {FileBatch, Batch, Message, createHL7Date, isBatch, isFile, HL7_2_7_MSH, HL7_2_1, HL7_2_7} from "../src";
 import {Node, EmptyNode} from "../src";
 import {sleep} from "./__utils__";
 
@@ -183,24 +183,57 @@ describe('node hl7 client - builder tests', () => {
 
   })
 
+  describe('builder message (MSH) specification', () => {
+
+    test('2.1 - build', async () => {
+
+      const message = new Message({
+        specification: new HL7_2_1(),
+        messageHeader: {
+          msh_9: "ADT",
+          msh_10: "12345",
+          msh_11: "D"
+        }
+      })
+      message.set('MSH.7', '20081231')
+      expect(message.toString()).toBe("MSH|^~\\&|||||20081231||ADT|12345|D|2.1");
+    })
+
+    test('2.7 - build', async () => {
+
+      const message = new Message({
+        specification: new HL7_2_7(),
+        messageHeader: {
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "12345",
+          msh_11_1: "D"
+        }
+      })
+      message.set('MSH.7', '20081231')
+      expect(message.toString()).toBe("MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7");
+    })
+
+  })
+
   describe('complex builder message', () => {
 
     let message: Message
 
     beforeEach(async () => {
       message = new Message({
-        // @ts-expect-error not filling this out for unit testing
         messageHeader: {
           msh_9_1: "ADT",
           msh_9_2: "A01",
-          msh_10: "12345"
+          msh_10: "12345",
+          msh_11_1: "D"
         }
       })
       message.set('MSH.7', '20081231')
     })
 
     test("...real basic", async () => {
-      expect(message.toString()).toBe("MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7");
+      expect(message.toString()).toBe("MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7");
     });
 
     test("...should accept a number as a value", async () => {
@@ -294,19 +327,19 @@ describe('node hl7 client - builder tests', () => {
     test('...add segment EVN field - using number path', async () => {
       const segment = message.addSegment('EVN')
       segment.set('2.1', '20081231')
-      expect(message.toString()).toBe("MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231")
+      expect(message.toString()).toBe("MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7\rEVN||20081231")
     })
 
     test('...add segment EVN field - using simple number path', async () => {
       const segment = message.addSegment('EVN')
       segment.set('2', '20081231')
-      expect(message.toString()).toBe("MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231")
+      expect(message.toString()).toBe("MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7\rEVN||20081231")
     })
 
     test('...add segment EVN field - using simple number', async () => {
       const segment = message.addSegment('EVN')
       segment.set(2, '20081231')
-      expect(message.toString()).toBe("MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231")
+      expect(message.toString()).toBe("MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7\rEVN||20081231")
     })
 
   })
