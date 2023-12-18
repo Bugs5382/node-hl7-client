@@ -55,6 +55,7 @@
     "@semantic-release/commit-analyzer": "^11.1.0",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/release-notes-generator": "^12.1.0",
+    "@the-rabbit-hole/semantic-release-config": "^1.4.0",
     "@types/jest": "^29.5.11",
     "@types/node": "^20.10.4",
     "@typescript-eslint/parser": "^6.14.0",
