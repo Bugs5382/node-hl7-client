@@ -49,7 +49,7 @@ export interface HL7_2_3_1_MSH {
 }
 
 /**
- * Hl7 Specification Version 2.7
+ * Hl7 Specification Version 2.3.1
  * @description Used to indicate that the message should follow 2.7 specification for retrieval or building a message.
  * @since 1.0.0
  */
@@ -60,7 +60,7 @@ export class HL7_2_3_1 extends HL7_SPEC_BASE {
   }
 
   /**
-   * Check MSH Header Properties for HL7 2.1
+   * Check MSH Header Properties for HL7 2.3.1
    * @since 1.0.0
    * @param msh
    * @return boolean
@@ -88,6 +88,7 @@ export class HL7_2_3_1 extends HL7_SPEC_BASE {
 
   /**
    * Build HL7 MSH Segment
+   * @since 1.0.0
    * @param mshHeader
    * @param message
    */
@@ -103,7 +104,9 @@ export class HL7_2_3_1 extends HL7_SPEC_BASE {
         message.set('MSH.10', mshHeader.msh_10.toString())
       }
       message.set('MSH.11.1', mshHeader.msh_11_1)
-      message.set('MSH.11.2', mshHeader.msh_11_2)
+      if (typeof mshHeader.msh_11_2 !== 'undefined') {
+        message.set('MSH.11.2', mshHeader.msh_11_2)
+      }
       message.set('MSH.12', this.name)
     }
   }

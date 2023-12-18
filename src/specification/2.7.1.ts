@@ -1,9 +1,9 @@
 import { Message } from '../builder/message.js'
 import { randomString } from '../utils/utils.js'
-import { HL7_2_6 } from './2.6.js'
+import { HL7_2_7 } from './2.7.js'
 
 /**
- * HL7 2.7 MSH Specification
+ * HL7 2.7.1 MSH Specification
  * @description Only the required ones are listed below for typescript validation to pass.
  * @since 1.0.0
  * @example
@@ -24,7 +24,7 @@ import { HL7_2_6 } from './2.6.js'
  * so this way your code is much neater.
  *
  */
-export interface HL7_2_7_MSH {
+export interface HL7_2_7_1_MSH {
   /** Message Code
    * @since 1.0.0 */
   msh_9_1: string
@@ -47,14 +47,14 @@ export interface HL7_2_7_MSH {
 }
 
 /**
- * Hl7 Specification Version 2.7
+ * Hl7 Specification Version 2.7.1
  * @description Used to indicate that the message should follow 2.7 specification for retrieval or building a message.
  * @since 1.0.0
  */
-export class HL7_2_7 extends HL7_2_6 {
+export class HL7_2_7_1 extends HL7_2_7 {
   constructor () {
     super()
-    this.name = '2.7'
+    this.name = '2.7.1'
   }
 
   /**
@@ -63,25 +63,8 @@ export class HL7_2_7 extends HL7_2_6 {
    * @param msh
    * @return boolean
    */
-  checkMSH (msh: HL7_2_7_MSH): boolean {
-    if (typeof msh.msh_9_1 === 'undefined' ||
-      typeof msh.msh_9_2 === 'undefined') {
-      throw new Error('MSH.9.1 & MSH 9.2 must be defined.')
-    }
-
-    if (msh.msh_9_1.length !== 3) {
-      throw new Error('MSH.9.1 must be 3 characters in length.')
-    }
-
-    if (msh.msh_9_2.length !== 3) {
-      throw new Error('MSH.9.2 must be 3 characters in length.')
-    }
-
-    if (typeof msh.msh_10 !== 'undefined' && msh.msh_10.length > 199) {
-      throw new Error('MSH.10 must be greater than 0 and less than 199 characters.')
-    }
-
-    return true
+  checkMSH (msh: HL7_2_7_1_MSH): boolean {
+    return super.checkMSH(msh)
   }
 
   /**
@@ -89,7 +72,7 @@ export class HL7_2_7 extends HL7_2_6 {
    * @param mshHeader
    * @param message
    */
-  buildMSH (mshHeader: HL7_2_7_MSH, message: Message): void {
+  buildMSH (mshHeader: HL7_2_7_1_MSH, message: Message): void {
     super.buildMSH(mshHeader, message)
   }
 }
