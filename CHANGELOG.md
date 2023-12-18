@@ -1,3 +1,11 @@
+# [1.0.0-beta.9](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.8...v1.0.0-beta.9) (2023-12-18)
+
+
+### Features
+
+* all specs ([4bdf8fd](https://github.com/Bugs5382/node-hl7-client/commit/4bdf8fd510920e933ecf45589d63494e87f7596e)), closes [#12](https://github.com/Bugs5382/node-hl7-client/issues/12)
+* MSH, BHS, and FHS ([02dd239](https://github.com/Bugs5382/node-hl7-client/commit/02dd239b66ea6cab8aef1d04d39b4728d546ed66))
+
 # [1.0.0-beta.8](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.7...v1.0.0-beta.8) (2023-12-16)
 
 
