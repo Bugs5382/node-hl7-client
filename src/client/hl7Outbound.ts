@@ -3,13 +3,15 @@ import net, { Socket } from 'node:net'
 import tls from 'node:tls'
 import { Batch } from '../builder/batch.js'
 import { Message } from '../builder/message.js'
+import {CR, FS, VT} from "../utils/constants";
 import { ReadyState } from '../utils/enum.js'
 import { HL7FatalError } from '../utils/exception.js'
 import { ClientListenerOptions, normalizeClientListenerOptions } from '../utils/normalizedClient.js'
 import { expBackoff, randomString } from '../utils/utils.js'
 import { Client } from './client.js'
+import {InboundResponse} from "./module/inboundResponse";
 
-export type OutboundHandler = (res: Buffer) => Promise<void>
+export type OutboundHandler = (res: InboundResponse) => Promise<void>
 
 /** HL7 Outbound Class
  * @since 1.0.0 */
@@ -19,7 +21,7 @@ export class HL7Outbound extends EventEmitter {
   /** @internal */
   _connectionTimer: NodeJS.Timeout | undefined
   /** @internal */
-  private readonly _handler: (res: Buffer) => void
+  private readonly _handler: (res: InboundResponse) => void
   /** @internal */
   private readonly _main: Client
   /** @internal */
@@ -122,6 +124,7 @@ export class HL7Outbound extends EventEmitter {
 
     const emitter = new EventEmitter()
 
+    // get the message
     const theMessage = message.toString()
 
     // check to see if we should be sending
@@ -132,16 +135,10 @@ export class HL7Outbound extends EventEmitter {
       this._awaitingResponse = true
     }
 
-    const messageToSend = Buffer.from(theMessage)
+    // add MLLP settings to the message
+    const messageToSend = Buffer.from(`${VT}${theMessage}${FS}${CR}`)
 
-    const header = Buffer.alloc(6)
-    header.writeInt32BE(messageToSend.length + 6, 1)
-    header.writeInt8(2, 5)
-    header[0] = header[1] ^ header[2] ^ header[3] ^ header[4] ^ header[5]
-
-    const payload = Buffer.concat([header, messageToSend])
-
-    return this._socket.write(payload, this._opt.encoding, () => {
+    return this._socket.write(messageToSend, this._opt.encoding, () => {
       // FOR DEBUGGING ONLY: console.log(toSendData)
     })
   }
@@ -201,7 +198,8 @@ export class HL7Outbound extends EventEmitter {
 
     socket.on('data', (buffer: Buffer) => {
       this._awaitingResponse = false
-      this._handler(buffer)
+      const response = new InboundResponse(buffer.toString())
+      this._handler(response)
     })
 
     socket.on('end', () => {
