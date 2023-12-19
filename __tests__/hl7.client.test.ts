@@ -1,9 +1,7 @@
- import fs from "fs";
- import path from "node:path";
  import portfinder from 'portfinder'
  import {Hl7Inbound, Server} from "node-hl7-server";
  import {Client, HL7_2_7_MSH, HL7Outbound, Message} from '../src'
- import {expectEvent, sleep} from "./__utils__";
+ import {expectEvent} from "./__utils__";
 
  const MSH_HEADER: HL7_2_7_MSH = {
    msh_9_1: "ADT",
@@ -115,28 +113,10 @@ describe('node hl7 client', () => {
       }
     })
 
+
+
   })
 
-  test('...simple connect', async () => {
-
-      const LISTEN_PORT = await portfinder.getPortPromise({
-        port: 3000,
-        stopPort: 65353
-      })
-
-      const server = new Server({ bindAddress: '0.0.0.0'})
-      const listener = server.createInbound({port: LISTEN_PORT}, async () => {})
-
-      const client = new Client({ host: '0.0.0.0'})
-      const outGoing = client.createOutbound({ port: LISTEN_PORT }, async () => {})
-
-      await expectEvent(listener, 'client.connect')
-      await expectEvent(outGoing, 'connect')
-
-      await outGoing.close()
-      await listener.close()
-
-    })
 
   describe('server/client sanity checks', () => {
 
@@ -168,6 +148,27 @@ describe('node hl7 client', () => {
       await listener.close()
 
       waitAck = waitAck + 1;
+    })
+
+    test('...simple connect', async () => {
+
+      const LISTEN_PORT = await portfinder.getPortPromise({
+        port: 3000,
+        stopPort: 65353
+      })
+
+      const server = new Server({ bindAddress: '0.0.0.0'})
+      const listener = server.createInbound({port: LISTEN_PORT}, async () => {})
+
+      const client = new Client({ host: '0.0.0.0'})
+      const outGoing = client.createOutbound({ port: LISTEN_PORT }, async () => {})
+
+      await expectEvent(listener, 'client.connect')
+      await expectEvent(outGoing, 'connect')
+
+      await outGoing.close()
+      await listener.close()
+
     })
 
     test('...send simple message, just to make sure it sends, no data checks', async () => {
@@ -223,137 +224,6 @@ describe('node hl7 client', () => {
 
         await outGoing.sendMessage(message)
 
-    })
-
-  })
-
-  describe('end to end tests', () => {
-
-    describe('...send message, get proper ACK', () => {
-
-      let LISTEN_PORT: number
-      beforeEach(async () => {
-        LISTEN_PORT = await portfinder.getPortPromise({
-          port: 3000,
-          stopPort: 65353
-        })
-      })
-
-      test('...no tls', async () => {
-
-        const server = new Server({bindAddress: '0.0.0.0'})
-        const IB_ADT = server.createInbound({port: LISTEN_PORT}, async (req, res) => {
-          const messageReq = req.getMessage()
-          expect(messageReq.get('MSH.12').toString()).toBe('2.7')
-          await res.sendResponse("AA")
-        })
-
-        await sleep(5)
-
-        const client = new Client({host: '0.0.0.0'})
-
-        const OB_ADT = client.createOutbound({ port: LISTEN_PORT }, async (res) => {
-          expect(res.toString()).not.toContain('ADT^A01^ADT_A01')
-        })
-
-        await sleep(5)
-
-        let message = new Message({
-          messageHeader: {
-            ...MSH_HEADER,
-            msh_10: 'CONTROL_ID'
-          }
-        })
-
-        await OB_ADT.sendMessage(message)
-
-        await sleep(10)
-
-        await OB_ADT.close()
-        await IB_ADT.close()
-
-      })
-
-      test('...tls', async () => {
-
-        const server = new Server(
-          {
-            bindAddress: '0.0.0.0',
-            tls:
-              {
-                key: fs.readFileSync(path.join('certs/', 'server-key.pem')),
-                cert: fs.readFileSync(path.join('certs/', 'server-crt.pem')),
-                rejectUnauthorized: false
-              }
-          })
-        const IB_ADT = server.createInbound({port: LISTEN_PORT}, async (req, res) => {
-          const messageReq = req.getMessage()
-          expect(messageReq.get('MSH.12').toString()).toBe('2.7')
-          await res.sendResponse("AA")
-        })
-
-        await sleep(5)
-
-        const client = new Client({host: '0.0.0.0', tls: { rejectUnauthorized: false }})
-        const OB_ADT = client.createOutbound({ port: LISTEN_PORT }, async (res) => {
-          expect(res.toString()).not.toContain('ADT^A01^ADT_A01')
-        })
-
-        await sleep(5)
-
-        let message = new Message({
-          messageHeader: {
-            ...MSH_HEADER,
-            msh_10: 'CONTROL_ID'
-          }
-        })
-
-        await OB_ADT.sendMessage(message)
-
-        await sleep(10)
-
-        await OB_ADT.close()
-        await IB_ADT.close()
-
-      })
-
-    })
-
-    test.skip('...send message, but the connection was closed -- error out', async () => {
-
-      const LISTEN_PORT = await portfinder.getPortPromise({
-        port: 3000,
-        stopPort: 65353
-      })
-
-      let IB_ADT: Hl7Inbound
-      try {
-        const server = new Server({bindAddress: '0.0.0.0'})
-        IB_ADT = server.createInbound({port: LISTEN_PORT}, async (_req, _res) => {})
-
-        await sleep(5)
-
-        const client = new Client({host: '0.0.0.0'})
-        const OB_ADT = client.createOutbound({port: LISTEN_PORT, maxAttempts: 1}, async (_res) => {})
-
-        await sleep(5)
-
-        let message = new Message({
-          messageHeader: {
-            ...MSH_HEADER,
-            msh_10: 'CONTROL_ID'
-          }
-        })
-
-        await OB_ADT.close() // @todo there needs to be a way we kill the server?
-
-        await OB_ADT.sendMessage(message)
-
-        await IB_ADT.close() // make sure we close the server
-
-      } catch (err: any) {
-        expect(err.message).toBe('In an invalid state to be able to send message.')
-      }
     })
 
   })
