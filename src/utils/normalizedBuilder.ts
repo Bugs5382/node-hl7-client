@@ -126,6 +126,8 @@ export function normalizedClientMessageBuilderOptions (raw?: ClientBuilderMessag
     props.separatorRepetition = plan.separatorRepetition
     props.separatorEscape = plan.separatorEscape
     props.separatorSubComponent = plan.separatorSubComponent
+    // remove default specs
+    props.specification = undefined
   }
 
   return props
