@@ -1,3 +1,10 @@
+# [1.0.0-beta.10](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.9...v1.0.0-beta.10) (2023-12-19)
+
+
+### Features
+
+* issue with sent header is fixed ([aea29a4](https://github.com/Bugs5382/node-hl7-client/commit/aea29a4ccf0880f07769111fa8dcfdc444f85813))
+
 # [1.0.0-beta.9](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.8...v1.0.0-beta.9) (2023-12-18)
 
 
