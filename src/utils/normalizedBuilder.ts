@@ -4,6 +4,7 @@ import { MSH } from '../specification/specification'
 import { ParserPlan } from './parserPlan.js'
 
 const DEFAULT_CLIENT_BUILDER_OPTS = {
+  date: "14",
   newLine: '\r',
   parsing: false,
   separatorComponent: '^',
@@ -29,6 +30,11 @@ const DEFAULT_CLIENT_FILE_OPTS = {
  * @since 1.0.0
  */
 export interface ClientBuilderOptions {
+  /** The date type for the date field. Usually generated at the time of the class being initialized.
+   * @since 1.0.0
+   * @default 14
+   */
+  date?: string
   /** At the end of each line, add this as the new line character.
    * @since 1.0.0
    * @default \r */
@@ -114,6 +120,10 @@ export function normalizedClientMessageBuilderOptions (raw?: ClientBuilderMessag
     throw new Error('newLine must be \r or \n')
   }
 
+  if (props.date !== '8' && props.date !== '12' && props.date !== '14') {
+    props.date = "14"
+  }
+
   if (props.text === '') {
     props.text = `MSH${props.separatorField}${props.separatorComponent}${props.separatorRepetition}${props.separatorEscape}${props.separatorSubComponent}`
   } else if (typeof props.text !== 'undefined') {
@@ -142,6 +152,10 @@ export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderOptions)
 
   if ((typeof props.newLine !== 'undefined' && props.newLine === '\\r') || props.newLine === '\\n') {
     throw new Error('newLine must be \r or \n')
+  }
+
+  if (props.date !== '8' && props.date !== '12' && props.date !== '14') {
+    props.date = "14"
   }
 
   if (props.text === '') {
@@ -178,6 +192,10 @@ export function normalizedClientFileBuilderOptions (raw?: ClientBuilderFileOptio
 
   if (typeof props.fullFilePath !== 'undefined' && typeof props.fileBuffer !== 'undefined') {
     throw new Error('You can not have specified a file path and a buffer. Please choose one or the other.')
+  }
+
+  if (props.date !== '8' && props.date !== '12' && props.date !== '14') {
+    props.date = "14"
   }
 
   const regex = /\n/mg

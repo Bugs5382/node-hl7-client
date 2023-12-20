@@ -38,7 +38,7 @@ export class Batch extends RootBase {
     if (typeof opt.text !== 'undefined' && opt.parsing === true && opt.text !== '') {
       this._lines = this.split(opt.text).filter(line => line.startsWith('MSH'))
     } else {
-      this.set('BHS.7', createHL7Date(new Date()))
+      this.set('BHS.7', createHL7Date(new Date(), this._opt.date))
     }
   }
 
