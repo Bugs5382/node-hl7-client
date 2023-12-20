@@ -1,3 +1,10 @@
+# [1.0.0-beta.14](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.13...v1.0.0-beta.14) (2023-12-20)
+
+
+### Features
+
+* reading file is no issue ([c966d26](https://github.com/Bugs5382/node-hl7-client/commit/c966d26886e1b952f9ab8fd492fb6df76b049b84))
+
 # [1.0.0-beta.13](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.12...v1.0.0-beta.13) (2023-12-20)
 
 
