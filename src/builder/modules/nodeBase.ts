@@ -6,11 +6,7 @@ import { Delimiters } from '../../utils/enum.js'
 import { Node } from '../interface/node.js'
 import { Message } from '../message.js'
 
-/**
- * Node Base
- * @since 1.0.0
- * @implements Node
- */
+/** @internal */
 export class NodeBase implements Node {
   protected parent: NodeBase | null
 
@@ -37,6 +33,7 @@ export class NodeBase implements Node {
 
   static empty = new EmptyNode()
 
+  /** @internal */
   get (path: string | number): Node {
     let ret: any
 
@@ -52,6 +49,7 @@ export class NodeBase implements Node {
     return typeof ret !== 'undefined' ? ret as Node : NodeBase.empty as Node
   }
 
+  /** @internal */
   set (path: string | number, value?: any): Node {
     if (arguments.length === 1) {
       return this.ensure(path)
@@ -85,6 +83,7 @@ export class NodeBase implements Node {
     throw new HL7FatalError(500, 'Path must be a string or number.')
   }
 
+  /** @internal */
   get name (): string {
     if (this._name !== undefined) {
       return this._name
@@ -93,34 +92,42 @@ export class NodeBase implements Node {
     return this._name
   }
 
+  /** @internal */
   get length (): number {
     return this.children.length
   }
 
+  /** @internal */
   toDate (): Date {
     throw new Error('Method not implemented.')
   }
 
+  /** @internal */
   toFile (_name: string, _newLine?: boolean, _location?: string): void {
     throw new Error('Method not implemented.')
   }
 
+  /** @internal */
   toInteger (): number {
     throw new Error('Method not implemented.')
   }
 
+  /** @internal */
   toFloat (): number {
     throw new Error('Method not implemented.')
   }
 
+  /** @internal */
   toBoolean (): boolean {
     throw new Error('Method not implemented.')
   }
 
+  /** @internal */
   toString (): string {
     return this.toRaw()
   }
 
+  /** @internal */
   toRaw (): string {
     if (!this._dirty) {
       return typeof this._text !== 'undefined' ? this._text : ''
@@ -130,10 +137,12 @@ export class NodeBase implements Node {
     return this._text
   }
 
+  /** @internal */
   toArray (): Node[] {
     return this.children
   }
 
+  /** @internal */
   forEach (callback: (value: Node, index: number) => void): void {
     const children = this.children
     for (let i = 0, l = children.length; i < l; i++) {
@@ -141,6 +150,7 @@ export class NodeBase implements Node {
     }
   }
 
+  /** @internal */
   exists (path: string | number): boolean {
     const value = this.get(path)
     if (value == null) {
@@ -149,10 +159,12 @@ export class NodeBase implements Node {
     return !value.isEmpty()
   }
 
+  /** @internal */
   isEmpty (): boolean {
     return this.children.length === 0
   }
 
+  /** @internal */
   protected ensure (path: string | number): Node {
     const ret = this.get(path)
     if (ret !== NodeBase.empty) {
@@ -166,6 +178,7 @@ export class NodeBase implements Node {
     throw new HL7FatalError(500, 'There seems to be a problem.')
   }
 
+  /** @internal */
   protected preparePath (path: string): string[] {
     let parts = path.split('.')
     if (parts[0] === '') {
@@ -180,6 +193,7 @@ export class NodeBase implements Node {
     return this._remainderOf(parts)
   }
 
+  /** @internal */
   protected prepareValue (value: any): string {
     if (value == null) return ''
 
@@ -204,6 +218,7 @@ export class NodeBase implements Node {
     return value.toString()
   }
 
+  /** @internal */
   protected get message (): Message | Batch | undefined {
     if (typeof this._message !== 'undefined') {
       return this._message
@@ -212,19 +227,23 @@ export class NodeBase implements Node {
     return this._message
   }
 
+  /** @internal */
   read (_path: string[]): Node {
     throw new Error('Method not implemented.')
   }
 
+  /** @internal */
   write (path: string[], value: string): Node {
     this.setDirty()
     return this.writeCore(path, value == null ? '' : value)
   }
 
+  /** @internal */
   protected writeCore (_path: string[], _value: string): Node {
     throw new Error('Method not implemented.')
   }
 
+  /** @internal */
   protected writeAtIndex (path: string[], value: string, index: number, emptyValue = ''): Node {
     let child: Node
 
@@ -247,6 +266,7 @@ export class NodeBase implements Node {
     return child
   }
 
+  /** @internal */
   get path (): string[] {
     if (typeof this._path !== 'undefined') {
       return this._path
@@ -255,10 +275,12 @@ export class NodeBase implements Node {
     return this._path
   }
 
+  /** @internal */
   protected pathCore (): string[] {
     throw new Error('Method not implemented.')
   }
 
+  /** @internal */
   protected get delimiter (): string {
     if (typeof this.message === 'undefined') {
       throw new HL7FatalError(500, 'this.message is not defined.')
@@ -272,6 +294,7 @@ export class NodeBase implements Node {
     return this._delimiterText
   }
 
+  /** @internal */
   protected get children (): Node[] {
     if (this._text !== '' && this._children.length === 0) {
       const parts = this._text.split(this.delimiter)
@@ -284,6 +307,7 @@ export class NodeBase implements Node {
     return this._children
   }
 
+  /** @internal */
   protected addChild (text: string): Node {
     this.setDirty()
     const child = this.createChild(text, this.children.length)
@@ -291,10 +315,12 @@ export class NodeBase implements Node {
     return child
   }
 
+  /** @internal */
   protected createChild (_text: string, _index: number): Node {
     throw new Error('Method not implemented.')
   }
 
+  /** @internal */
   protected setChild (child: Node, index: number): Node {
     this.setDirty()
     const children = this.children
@@ -309,6 +335,7 @@ export class NodeBase implements Node {
     return child
   }
 
+  /** @internal */
   protected setDirty (): void {
     if (!this._dirty) {
       this._dirty = true
@@ -318,6 +345,7 @@ export class NodeBase implements Node {
     }
   }
 
+  /** @internal */
   private _isSubPath (other: string[]): boolean {
     if (this.path.length >= other.length) {
       return false
@@ -331,11 +359,13 @@ export class NodeBase implements Node {
     return true
   }
 
+  /** @internal */
   private _remainderOf (other: string[]): string[] {
     const path = this.path
     return other.slice(path.length)
   }
 
+  /** @internal */
   private _formatDateTime (date: Date): string {
     // check if there is a time component
     if (date.getHours() !== 0 || date.getMinutes() !== 0 || date.getSeconds() !== 0 || date.getMilliseconds() !== 0) {
@@ -344,6 +374,7 @@ export class NodeBase implements Node {
     return this._formatDate(date)
   }
 
+  /** @internal */
   private _formatDate (date: Date): string {
     return date.getFullYear().toString() + padHL7Date(date.getMonth() + 1, 2) + padHL7Date(date.getDate(), 2)
   }

@@ -1,11 +1,6 @@
 import { Node } from '../interface/node.js'
 
-/**
- * Empty Node
- * @description Used for anything not value in a segment index, this will be the defaults of the methods.
- * Some have to be implemented on those segments to work.
- * @since 1.0.0
- */
+/** @internal */
 export class EmptyNode implements Node {
   get name (): string {
     throw new Error('Method not implemented')

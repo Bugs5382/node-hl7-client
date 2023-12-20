@@ -5,27 +5,14 @@ import { FieldRepetition } from './fieldRepetition.js'
 import { NodeBase } from './nodeBase.js'
 import { ValueNode } from './valueNode.js'
 
-/**
- * Field Area of the HL7 Segment
- * @since 1.0.0
- * @extends ValueNode
- */
+/** @internal */
 export class Field extends ValueNode {
-  /**
-     * @since 1.0.0
-     * @param parent
-     * @param key
-     * @param text
-     */
+  /** @internal */
   constructor (parent: NodeBase, key: string, text: string) {
     super(parent, key, text, Delimiters.Repetition)
   }
 
-  /**
-     * Read a Field Path
-     * @since 1.0.0
-     * @param path
-     */
+  /** @internal */
   read (path: string[]): Node {
     if (this.children.length > 0) {
       return this.children[0].read(path)
@@ -33,13 +20,7 @@ export class Field extends ValueNode {
     throw new HL7FatalError(500, 'We have a problem.')
   }
 
-  /**
-     * Write a Field
-     * @since 1.0.0
-     * @param path
-     * @param value
-     * @protected
-     */
+  /** @internal */
   protected writeCore (path: string[], value: string): Node {
     return this._ensureChild().write(path, value)
   }
