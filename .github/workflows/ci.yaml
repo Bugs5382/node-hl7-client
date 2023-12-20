@@ -39,7 +39,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 'lts/*'
-      - run: npm install
+      - name: Install Dependencies
+        run: npm install --ignore-scripts
       - name: Semantic Release
         run: npm run semantic-release
         env:
