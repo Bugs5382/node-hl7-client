@@ -1,5 +1,4 @@
-import {Message} from "../../builder/message.js";
-
+import { Message } from '../../builder/message.js'
 
 /**
  * Inbound Request
@@ -16,7 +15,7 @@ export class InboundResponse {
    * @param data
    */
   constructor (data: string) {
-    this._message = new Message({text: data.toString()})
+    this._message = new Message({ text: data.toString() })
   }
 
   /** '
@@ -27,5 +26,4 @@ export class InboundResponse {
   getMessage (): Message {
     return this._message
   }
-
 }

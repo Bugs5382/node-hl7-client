@@ -3,14 +3,18 @@ import net, { Socket } from 'node:net'
 import tls from 'node:tls'
 import { Batch } from '../builder/batch.js'
 import { Message } from '../builder/message.js'
-import {CR, FS, VT} from "../utils/constants";
+import { CR, FS, VT } from '../utils/constants.js'
 import { ReadyState } from '../utils/enum.js'
 import { HL7FatalError } from '../utils/exception.js'
 import { ClientListenerOptions, normalizeClientListenerOptions } from '../utils/normalizedClient.js'
 import { expBackoff, randomString } from '../utils/utils.js'
 import { Client } from './client.js'
-import {InboundResponse} from "./module/inboundResponse";
+import { InboundResponse } from './module/inboundResponse.js'
 
+/**
+ * Outbound Handler
+ * @since 1.0.0
+ */
 export type OutboundHandler = (res: InboundResponse) => Promise<void>
 
 /** HL7 Outbound Class
