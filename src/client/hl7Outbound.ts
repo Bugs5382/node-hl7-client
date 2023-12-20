@@ -198,8 +198,14 @@ export class HL7Outbound extends EventEmitter {
 
     socket.on('data', (buffer: Buffer) => {
       this._awaitingResponse = false
-      const response = new InboundResponse(buffer.toString())
-      this._handler(response)
+      let loadedMessage = buffer.toString().replace(VT, '')
+      // is there is F5 and CR in this message?
+      if (loadedMessage.includes(FS + CR)) {
+        // strip them out
+        loadedMessage = loadedMessage.replace(FS + CR, '')
+        const response = new InboundResponse(loadedMessage)
+        this._handler(response)
+      }
     })
 
     socket.on('end', () => {
