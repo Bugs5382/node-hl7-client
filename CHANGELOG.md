@@ -1,3 +1,10 @@
+# [1.0.0-beta.16](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.15...v1.0.0-beta.16) (2023-12-20)
+
+
+### Bug Fixes
+
+* fix node-hl7-server build x2 ([5af0217](https://github.com/Bugs5382/node-hl7-client/commit/5af0217f5aac64ff39b6ab0eebdb9c129f0745ac))
+
 # [1.0.0-beta.15](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.14...v1.0.0-beta.15) (2023-12-20)
 
 
