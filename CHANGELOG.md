@@ -1,3 +1,10 @@
+# [1.0.0-beta.11](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.10...v1.0.0-beta.11) (2023-12-20)
+
+
+### Bug Fixes
+
+* needed on client response ([659a64d](https://github.com/Bugs5382/node-hl7-client/commit/659a64db546c54d95e241bd6ddc899afdd5a75b6))
+
 # [1.0.0-beta.10](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.9...v1.0.0-beta.10) (2023-12-19)
 
 
