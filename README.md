@@ -20,8 +20,8 @@ Benefits:
 
 ## Table of Contents
 
-1. [Acknowledgements](#acknowledgements)
-2. [Keyword Definitions](#Keyword-Definitions)
+1. [Keyword Definitions](#Keyword-Definitions)
+2. [Acknowledgements](#acknowledgements)
 3. [License](#license)
 
 ## Keyword Definitions
