@@ -172,7 +172,7 @@ export class Batch extends RootBase {
    * @param style Your options produce: YYYYMMDDHHMMSS = 14 | YYYYMMDDHHMM = 12 | YYYYMMDD = 8
    * @defaultValue YYYYMMDDHHMMSS (14)
    */
-  start (style?: "8" | "12" | "14"): void {
+  start (style?: '8' | '12' | '14'): void {
     this.set('BHS.7', createHL7Date(new Date(), style))
   }
 

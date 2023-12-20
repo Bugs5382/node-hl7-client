@@ -1,6 +1,11 @@
 import EventEmitter from 'events'
-import { normalizeClientOptions, ClientListenerOptions, ClientOptions } from '../utils/normalizedClient.js'
-import { HL7Outbound, OutboundHandler } from './hl7Outbound.js'
+import {
+  normalizeClientOptions,
+  ClientListenerOptions,
+  ClientOptions,
+  OutboundHandler
+} from '../utils/normalizedClient.js'
+import { HL7Outbound } from './hl7Outbound.js'
 
 /**
  * Client Class
@@ -38,5 +43,4 @@ export class Client extends EventEmitter {
   createOutbound (props: ClientListenerOptions, cb: OutboundHandler): HL7Outbound {
     return new HL7Outbound(this, props, cb)
   }
-
 }

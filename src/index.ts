@@ -14,7 +14,7 @@ import { SubComponent } from './builder/modules/subComponent.js'
 import { Batch } from './builder/batch.js'
 import { FileBatch } from './builder/fileBatch.js'
 import { ParserPlan } from './utils/parserPlan.js'
-import { HL7Outbound, OutboundHandler } from './client/hl7Outbound.js'
+import { HL7Outbound } from './client/hl7Outbound.js'
 import { Delimiters, ReadyState } from './utils/enum.js'
 import { HL7_2_1, HL7_2_1_MSH } from './specification/2.1.js'
 import { HL7_2_2, HL7_2_2_MSH } from './specification/2.2.js'
@@ -28,6 +28,8 @@ import { HL7_2_7, HL7_2_7_MSH } from './specification/2.7.js'
 import { HL7_2_7_1, HL7_2_7_1_MSH } from './specification/2.7.1.js'
 import { HL7_2_8, HL7_2_8_MSH } from './specification/2.8.js'
 import { HL7_SPEC, HL7_SPEC_BASE } from './specification/specification.js'
+import { OutboundHandler } from './utils/normalizedClient.js'
+import { InboundResponse } from './client/module/inboundResponse.js'
 export { MSH } from './specification/specification.js'
 
 export { expBackoff, assertNumber, isHL7Number, isHL7String, validIPv4, validIPv6, createHL7Date, isBatch, isFile, padHL7Date, escapeForRegExp, decodeHexString, randomString } from './utils/utils.js'
@@ -54,4 +56,4 @@ export type { ClientBuilderFileOptions, ClientBuilderMessageOptions, ClientBuild
 export type { HL7Error, HL7FatalError, HL7ParserError } from './utils/exception.js'
 
 export default Client
-export { Client, HL7Outbound, OutboundHandler, FileBatch, Batch, Message, Segment, SegmentList, Component, SubComponent, Field, FieldRepetition, ParserPlan, Node, RootBase, NodeBase, ValueNode, EmptyNode, Delimiters, ReadyState }
+export { Client, HL7Outbound, OutboundHandler, InboundResponse, FileBatch, Batch, Message, Segment, SegmentList, Component, SubComponent, Field, FieldRepetition, ParserPlan, Node, RootBase, NodeBase, ValueNode, EmptyNode, Delimiters, ReadyState }
