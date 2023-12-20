@@ -1,6 +1,6 @@
 {
   "name": "node-hl7-client",
-  "version": "1.0.0-beta.12",
+  "version": "1.0.0-beta.13",
   "description": "A pure Node.js HL7 Client that allows for communication to a HL7 Broker/Server that can send properly formatted HL7 messages with ease.It can also parse and then you can extract message segments out.",
   "module": "./lib/esm/index.js",
   "main": "./lib/cjs/index.js",

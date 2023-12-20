@@ -1,3 +1,10 @@
+# [1.0.0-beta.13](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.12...v1.0.0-beta.13) (2023-12-20)
+
+
+### Features
+
+* added date into options ([7f1399a](https://github.com/Bugs5382/node-hl7-client/commit/7f1399a6f7e889c4f6fa3d1874a3644615ceb3b0))
+
 # [1.0.0-beta.12](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.11...v1.0.0-beta.12) (2023-12-20)
 
 
