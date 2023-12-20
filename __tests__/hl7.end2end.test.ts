@@ -2,7 +2,8 @@ import fs from "fs";
 import path from "node:path";
 import portfinder from "portfinder";
 import {Hl7Inbound, Server} from "node-hl7-server";
-import {Batch, Client, HL7_2_7_MSH, HL7Outbound, Message} from "../src";
+import {Batch, Client, HL7Outbound, Message} from "../src";
+import {HL7_2_7_MSH} from "../src/specification/2.7";
 import {expectEvent, sleep} from "./__utils__";
 
 const MSH_HEADER: HL7_2_7_MSH = {
