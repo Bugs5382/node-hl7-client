@@ -6,7 +6,6 @@ import { ValueNode } from './valueNode.js'
 
 /** @internal */
 export class Component extends ValueNode {
-
   /** @internal */
   constructor (parent: NodeBase, key: string, text: string) {
     super(parent, key, text, Delimiters.SubComponent)

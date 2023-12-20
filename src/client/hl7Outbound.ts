@@ -1,7 +1,9 @@
-import EventEmitter from 'events'
+import EventEmitter from 'node:events'
+import fs from 'node:fs'
 import net, { Socket } from 'node:net'
 import tls from 'node:tls'
 import { Batch } from '../builder/batch.js'
+import { FileBatch } from '../builder/fileBatch.js'
 import { Message } from '../builder/message.js'
 import { CR, FS, VT } from '../utils/constants.js'
 import { ReadyState } from '../utils/enum.js'
@@ -95,6 +97,26 @@ export class HL7Outbound extends EventEmitter {
     return true
   }
 
+  /**
+   * Read a file.
+   * @description We need to read a file.
+   * We are not doing anything else other than getting the {@link Buffer} of the file,
+   * so we can pass it onto the File Batch class to send it to the {@link sendMessage} method as a separate step
+   * @since 1.0.0
+   * @param fullFilePath The full file path of the file we need to read.
+   */
+  async readFile (fullFilePath: string): Promise<FileBatch> {
+    try {
+      const regex = /\n/mg
+      const subst = '\\r'
+      const fileBuffer = fs.readFileSync(fullFilePath)
+      const text = fileBuffer.toString().replace(regex, subst)
+      return new FileBatch({ text })
+    } catch (e: any) {
+      throw new HL7FatalError(500, `Unable to read file: ${fullFilePath}`)
+    }
+  }
+
   /** Send a HL7 Message to the Listener
    * @description This function sends a message/batch/file batch to the remote side.
    * It has the ability, if set to auto-retry (defaulted to 1 re-connect before connection closes)
@@ -117,7 +139,7 @@ export class HL7Outbound extends EventEmitter {
    *
    * ```
    */
-  async sendMessage (message: Message | Batch): Promise<boolean> {
+  async sendMessage (message: Message | Batch | FileBatch): Promise<boolean> {
     let attempts = 0
     const maxAttempts = typeof this._opt.maxAttempts === 'undefined' ? this._main._opt.maxAttempts : this._opt.maxAttempts
 
