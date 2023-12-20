@@ -37,7 +37,6 @@ export class NodeBase implements Node {
 
   static empty = new EmptyNode()
 
-  /** @internal */
   get (path: string | number): Node {
     let ret: any
 
@@ -53,7 +52,6 @@ export class NodeBase implements Node {
     return typeof ret !== 'undefined' ? ret as Node : NodeBase.empty as Node
   }
 
-  /** @internal */
   set (path: string | number, value?: any): Node {
     if (arguments.length === 1) {
       return this.ensure(path)
@@ -87,7 +85,6 @@ export class NodeBase implements Node {
     throw new HL7FatalError(500, 'Path must be a string or number.')
   }
 
-  /** @internal */
   get name (): string {
     if (this._name !== undefined) {
       return this._name
@@ -96,42 +93,34 @@ export class NodeBase implements Node {
     return this._name
   }
 
-  /** @internal */
   get length (): number {
     return this.children.length
   }
 
-  /** @internal */
   toDate (): Date {
     throw new Error('Method not implemented.')
   }
 
-  /** @internal */
   toFile (_name: string, _newLine?: boolean, _location?: string): void {
     throw new Error('Method not implemented.')
   }
 
-  /** @internal */
   toInteger (): number {
     throw new Error('Method not implemented.')
   }
 
-  /** @internal */
   toFloat (): number {
     throw new Error('Method not implemented.')
   }
 
-  /** @internal */
   toBoolean (): boolean {
     throw new Error('Method not implemented.')
   }
 
-  /** @internal */
   toString (): string {
     return this.toRaw()
   }
 
-  /** @internal */
   toRaw (): string {
     if (!this._dirty) {
       return typeof this._text !== 'undefined' ? this._text : ''
@@ -141,12 +130,10 @@ export class NodeBase implements Node {
     return this._text
   }
 
-  /** @internal */
   toArray (): Node[] {
     return this.children
   }
 
-  /** @internal */
   forEach (callback: (value: Node, index: number) => void): void {
     const children = this.children
     for (let i = 0, l = children.length; i < l; i++) {
@@ -154,7 +141,6 @@ export class NodeBase implements Node {
     }
   }
 
-  /** @internal */
   exists (path: string | number): boolean {
     const value = this.get(path)
     if (value == null) {
@@ -163,7 +149,6 @@ export class NodeBase implements Node {
     return !value.isEmpty()
   }
 
-  /** @internal */
   isEmpty (): boolean {
     return this.children.length === 0
   }
@@ -231,12 +216,10 @@ export class NodeBase implements Node {
     return this._message
   }
 
-  /** @internal */
   read (_path: string[]): Node {
     throw new Error('Method not implemented.')
   }
 
-  /** @internal */
   write (path: string[], value: string): Node {
     this.setDirty()
     return this.writeCore(path, value == null ? '' : value)
@@ -270,7 +253,6 @@ export class NodeBase implements Node {
     return child
   }
 
-  /** @internal */
   get path (): string[] {
     if (typeof this._path !== 'undefined') {
       return this._path
