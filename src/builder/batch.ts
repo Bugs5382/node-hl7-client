@@ -1,16 +1,18 @@
 import { HL7FatalError, HL7ParserError } from '../utils/exception.js'
 import { ClientBuilderOptions, normalizedClientBatchBuilderOptions } from '../utils/normalizedBuilder.js'
-import { isHL7Number, createHL7Date } from '../utils/utils.js'
+import { createHL7Date } from '../utils/utils.js'
 import { FileBatch } from './fileBatch.js'
 import { Node } from './interface/node.js'
 import { Message } from './message.js'
-import { NodeBase } from './modules/nodeBase.js'
 import { RootBase } from './modules/rootBase.js'
 import { Segment } from './modules/segment.js'
 import { SegmentList } from './modules/segmentList.js'
 
 /**
  * Batch Class
+ * @description Creating a Batch (BHS) which could include hundreds of MSH segments for processing.
+ * Normally used in large data processing.
+ * However, the server usually breaks down a batch MSH into single "elements" to process them and returns that the batch.
  * @since 1.0.0
  * @extends RootBase
  */
@@ -24,7 +26,7 @@ export class Batch extends RootBase {
 
   /**
    * @since 1.0.0
-   * @param props
+   * @param props Passing on options to build the batch.
    */
   constructor (props?: ClientBuilderOptions) {
     const opt = normalizedClientBatchBuilderOptions(props)
@@ -41,11 +43,15 @@ export class Batch extends RootBase {
 
   /**
    * Add a Message to the Batch
+   * @description This must be run _after_ {@link start} method.
+   * This adds a Message (MSH) output into the batch.
+   * It also increases the count of the BTS segment as the batch final result
+   * when in end tells the receiving end how many message (MSH) segments are included.
    * @since 1.0.0
-   * @param message
-   * @param index
+   * @param message The {@link Message} to add into the batch.
+   * @param index Used Internally mostly to add an MSH segment within a BHS segment at a certain index.
    */
-  add (message: Message, index: number | undefined = undefined): void {
+  add (message: Message, index?: number | undefined): void {
     this.setDirty()
     this._messagesCount = this._messagesCount + 1
     if (typeof index !== 'undefined') {
@@ -56,27 +62,13 @@ export class Batch extends RootBase {
   }
 
   /**
-   * Get HL7 Segment at Path
-   * @since 1.0.0
-   * @param path
-   */
-  get (path: string | number): Node {
-    let ret: any
-
-    if (typeof path === 'number') {
-      if (path >= 0 && path < this.children.length) {
-        ret = this.children[path]
-      }
-    } else if (path !== '') {
-      const _path = this.preparePath(path)
-      ret = this.read(_path)
-    }
-
-    return typeof ret !== 'undefined' ? ret as Node : NodeBase.empty as Node
-  }
-
-  /**
    * End Batch
+   * @description At the conclusion of building the batch,
+   * (Usually {@link add} method) will add the Batch Trailing Segment (BTS) to the end.
+   * If a message (MSH) is added after this,
+   * that message (MSH) will get added to the first BHS found if there is more than one.
+   * This might be typical inside a file output process.
+   * {@link FileBatch} for more information.
    * @since 1.0.0
    */
   end (): void {
@@ -85,17 +77,58 @@ export class Batch extends RootBase {
   }
 
   /**
-   * Get First Segment
+   * Get BHS Segment at Path
    * @since 1.0.0
-   * @param name
+   * @param path Could be 'BHS.7' or 7, and it shall get the same result.
+   * @example
+   * ```ts
+   * const date = batch.get('BHS.7')
+   * ```
+   * or
+   * ```ts
+   * const date = batch.get(7)
+   * ```
+   */
+  get (path: string | number): Node {
+    return super.get(path)
+  }
+
+  /**
+   * Get the First Segment
+   * @description Returns the first segment found in the Batch (BHS).
+   * This is only used during the {@link add} method
+   * in determining
+   * if there is more than one Batch of MSH in a File Batch {@link FileBatch}
+   * which can hold more than one Batch groups.
+   * @since 1.0.0
+   * @param name The name of the segment.
+   * At max usually three characters long.
    */
   getFirstSegment (name: string): Segment {
     return this._getFirstSegment(name)
   }
 
   /**
-   * Get Messages
+   * Get Messages within a submitted Batch
+   * @description This will parse the passed on "text"
+   * in the contractor options and get all the messages (MSH) segments within it and return an array of them.
    * @since 1.0.0
+   * @example
+   * ```ts
+   * try {
+   *  // parser the batch
+   *  const parser = new Batch({ text: loadedMessage })
+   *  // load the messages
+   *  const allMessage = parser.messages()
+   *  // loop messages
+   *  allMessage.forEach((message: Message) => {
+   *    const messageParsed = new Message({ text: message.toString() })
+   *  })
+   * } catch (e) {
+   *   // error here
+   * }
+   * ```
+   * @returns Returns an array of messages or a HL7ParserError will throw.
    */
   messages (): Message[] {
     if (typeof this._lines !== 'undefined' && typeof this._opt.newLine !== 'undefined') {
@@ -110,9 +143,80 @@ export class Batch extends RootBase {
   }
 
   /**
-   * Read Path
+   * Set Batch Segment at Path with a Value
    * @since 1.0.0
+   * @example
+   * ```ts
+   * const batch = new Batch()
+   * batch.set('BHS.7', '20231231')
+   * ```
+   * @param path Where you want to set in the segment
+   * @param value The value.
+   * It Can be an Array, String, or Boolean.
+   * If the value is not set, you can chain this to expand the paths
+   * @example
+   * If the value is not used this can be employed:
+   * ```ts
+   * batch.set('BHS.3').set(0).set('BHS.3.1', 'abc');
+   * ```
    */
+  set (path: string | number, value?: any): Node {
+    return super.set(path, value)
+  }
+
+  /**
+   * Start Batch
+   * @description This will start a batch with the proper "BHS" fields that are required.
+   * In this case, 'BHS.7' (Date Field) is fulled in with a 14-character date field with YYYYMMDDHHMMSS entered in by default.
+   * @since 1.0.0
+   * @param style Your options produce: YYYYMMDDHHMMSS = 14 | YYYYMMDDHHMM = 12 | YYYYMMDD = 8
+   * @defaultValue YYYYMMDDHHMMSS (14)
+   */
+  start (style?: "8" | "12" | "14"): void {
+    this.set('BHS.7', createHL7Date(new Date(), style))
+  }
+
+  /**
+   * Create File from a Batch
+   * @description Will procure a file of the saved MSH in the proper format
+   * that includes a FHS and FTS segments with the possibility of more than one BHS segments inside with one or more MSH inside each BHS groups.
+   * @since 1.0.0
+   * @param name File Name
+   * @param newLine Provide a New Line
+   * @param location Where to save the exported file
+   * @param extension Custom extension of the file.
+   * Default: hl7
+   * @example
+   * ```ts
+   * const batch = new Batch({text: hl7_batch_string})
+   * batch.toFile('readTestBHS', true, 'temp/')
+   * ```
+   * You can set an `extension` parameter on Batch to set a custom extension if you don't want to be HL7.
+   */
+  toFile (name: string, newLine?: boolean, location?: string, extension: string = 'hl7'): void {
+    const fileBatch = new FileBatch({ location, newLine: newLine === true ? '\n' : '', extension })
+    fileBatch.start()
+
+    fileBatch.set('FHS.3', this.get('BHS.3').toString())
+    fileBatch.set('FHS.4', this.get('BHS.4').toString())
+    fileBatch.set('FHS.5', this.get('BHS.5').toString())
+    fileBatch.set('FHS.6', this.get('BHS.6').toString())
+    fileBatch.set('FHS.7', this.get('BHS.7').toString())
+    fileBatch.set('FHS.9', `hl7.${name}.${this.get('BHS.7').toString()}.${fileBatch._opt.extension}`)
+
+    fileBatch.add(this)
+
+    fileBatch.end()
+
+    fileBatch.createFile(name)
+  }
+
+  /** @internal */
+  protected createChild (text: string, _index: number): Node {
+    return new Segment(this, text.trim())
+  }
+
+  /** @internal */
   read (path: string[]): Node {
     const segmentName = path.shift() as string
     if (path.length === 0) {
@@ -132,77 +236,6 @@ export class Batch extends RootBase {
     throw new HL7FatalError(500, 'Unable to process the read function correctly.')
   }
 
-  /**
-   * Set HL7 Segment at Path with a Value
-   * @since 1.0.0
-   * @param path
-   * @param value
-   */
-  set (path: string | number, value?: any): Node {
-    if (arguments.length === 1) {
-      return this.ensure(path)
-    }
-
-    if (typeof path === 'string') {
-      if (Array.isArray(value)) {
-        for (let i = 0; i < value.length; i++) {
-          this.set(`${path}.${i + 1}`, value[i])
-        }
-      } else {
-        const _path = this.preparePath(path)
-        this.write(_path, this.prepareValue(value))
-      }
-
-      return this
-    } else if (isHL7Number(path)) {
-      if (Array.isArray(value)) {
-        const child = this.ensure(path)
-        for (let i = 0, l = value.length; i < l; i++) {
-          child.set(i, value[i])
-        }
-        return this
-      } else {
-        this.setChild(this.createChild(this.prepareValue(value), path), path)
-      }
-
-      return this
-    }
-
-    throw new HL7FatalError(500, 'Path must be a string or number.')
-  }
-
-  /**
-   * Start Batch
-   * @since 1.0.0
-   */
-  start (): void {
-    this.set('BHS.7', createHL7Date(new Date()))
-  }
-
-  /**
-   * Create File
-   * @param name
-   * @param newLine
-   * @param location
-   */
-  toFile (name: string, newLine?: boolean, location?: string): void {
-    const fileBatch = new FileBatch({ location, newLine: newLine === true ? '\n' : '' })
-    fileBatch.start()
-
-    fileBatch.set('FHS.3', this.get('BHS.3').toString())
-    fileBatch.set('FHS.4', this.get('BHS.4').toString())
-    fileBatch.set('FHS.5', this.get('BHS.5').toString())
-    fileBatch.set('FHS.6', this.get('BHS.6').toString())
-    fileBatch.set('FHS.7', this.get('BHS.7').toString())
-    fileBatch.set('FHS.9', `hl7.${name}.${this.get('BHS.7').toString()}.${fileBatch._opt.extension}`)
-
-    fileBatch.add(this)
-
-    fileBatch.end()
-
-    fileBatch.createFile(name)
-  }
-
   /** @internal */
   protected writeCore (path: string[], value: string): Node {
     const segmentName = path.shift() as string
@@ -210,11 +243,6 @@ export class Batch extends RootBase {
       throw new HL7FatalError(500, 'segment name is not defined.')
     }
     return this.writeAtIndex(path, value, 0, segmentName)
-  }
-
-  /** @internal */
-  protected createChild (text: string, _index: number): Node {
-    return new Segment(this, text.trim())
   }
 
   /** @internal **/
