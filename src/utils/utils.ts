@@ -22,14 +22,15 @@ export const assertNumber = (props: Record<string, number>, name: string, min: n
  * @param date
  * @param length
  */
-export const createHL7Date = (date: Date, length: '8' | '12' | '14' = '14'): string => {
+export const createHL7Date = (date: Date, length?: string): string => {
   switch (length) {
-    case '14':
-      return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}${padHL7Date(date.getHours(), 2)}${padHL7Date(date.getMinutes(), 2)}${padHL7Date(date.getSeconds(), 2)}`
-    case '12':
-      return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}${padHL7Date(date.getHours(), 2)}${padHL7Date(date.getMinutes(), 2)}`
     case '8':
       return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}`
+    case '12':
+      return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}${padHL7Date(date.getHours(), 2)}${padHL7Date(date.getMinutes(), 2)}`
+    case '14':
+    default:
+      return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}${padHL7Date(date.getHours(), 2)}${padHL7Date(date.getMinutes(), 2)}${padHL7Date(date.getSeconds(), 2)}`
   }
 }
 

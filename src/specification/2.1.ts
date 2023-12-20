@@ -77,7 +77,7 @@ export class HL7_2_1 extends HL7_SPEC_BASE {
    */
   buildMSH (mshHeader: HL7_2_1_MSH, message: Message): void {
     if (typeof mshHeader !== 'undefined') {
-      message.set('MSH.7', createHL7Date(new Date()))
+      message.set('MSH.7', createHL7Date(new Date(), message._opt.date))
       message.set('MSH.9', mshHeader.msh_9.toString())
       // if control ID is blank, then randomize it.
       if (typeof mshHeader.msh_10 === 'undefined') {
