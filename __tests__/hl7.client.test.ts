@@ -104,8 +104,6 @@ describe('node hl7 client', () => {
       }
     })
 
-
-
   })
 
 })
