@@ -1,5 +1,4 @@
 import { Message } from '../builder/message.js'
-import { randomString } from '../utils/utils.js'
 import { HL7_2_7_1 } from './2.7.1.js'
 
 /**

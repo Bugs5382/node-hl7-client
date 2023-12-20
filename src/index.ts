@@ -1,5 +1,7 @@
 import { NodeBase } from './builder/modules/nodeBase.js'
 import { EmptyNode } from './builder/modules/emptyNode.js'
+import { ValueNode } from './builder/modules/valueNode.js'
+import { RootBase } from './builder/modules/rootBase.js'
 import { Node } from './builder/interface/node.js'
 import { Client } from './client/client.js'
 import { Component } from './builder/modules/component.js'
@@ -52,4 +54,4 @@ export type { ClientBuilderFileOptions, ClientBuilderMessageOptions, ClientBuild
 export type { HL7Error, HL7FatalError, HL7ParserError } from './utils/exception.js'
 
 export default Client
-export { Client, HL7Outbound, OutboundHandler, FileBatch, Batch, Message, Segment, SegmentList, Component, SubComponent, Field, FieldRepetition, ParserPlan, Node, NodeBase, EmptyNode, Delimiters, ReadyState }
+export { Client, HL7Outbound, OutboundHandler, FileBatch, Batch, Message, Segment, SegmentList, Component, SubComponent, Field, FieldRepetition, ParserPlan, Node, RootBase, NodeBase, ValueNode, EmptyNode, Delimiters, ReadyState }
