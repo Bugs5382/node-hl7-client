@@ -1,4 +1,61 @@
 /**
+ * Assert Number on a Property
+ * @since 1.0.0
+ * @param props Property Object
+ * @param name Property Name
+ * @param min Min Number
+ * @param max Max Number
+ */
+export const assertNumber = (props: Record<string, number>, name: string, min: number, max?: number): void => {
+  const val = props[name]
+  if (isNaN(val) || !Number.isFinite(val) || val < min || (max != null && val > max)) {
+    throw new TypeError(max != null
+      ? `${name} must be a number (${min}, ${max}).`
+      : `${name} must be a number >= ${min}.`)
+  }
+}
+
+/**
+ * Create a valid HL7 Date.
+ * @description Custom for this package and based of HL7 specification.
+ * @since 1.0.0
+ * @param date
+ * @param length
+ */
+export const createHL7Date = (date: Date, length: '8' | '12' | '14' = '14'): string => {
+  switch (length) {
+    case '14':
+      return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}${padHL7Date(date.getHours(), 2)}${padHL7Date(date.getMinutes(), 2)}${padHL7Date(date.getSeconds(), 2)}`
+    case '12':
+      return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}${padHL7Date(date.getHours(), 2)}${padHL7Date(date.getMinutes(), 2)}`
+    case '8':
+      return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}`
+  }
+}
+
+/**
+ * Decode Hex String
+ * @since 1.0.0
+ * @param value
+ */
+export const decodeHexString = (value: string): string => {
+  const result = new Array(value.length / 2)
+  for (let i = 0; i < value.length; i += 2) {
+    result[i / 2] = String.fromCharCode(parseInt(value.slice(i, i + 2), 16))
+  }
+  return result.join('')
+}
+
+/**
+ * Escape for RegEx Expressing
+ * @since 1.0.0
+ * @param value
+ */
+export const escapeForRegExp = (value: string): string => {
+  return value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
+}
+
+/**
  * Calculate exponential backoff/retry delay.
  * Where attempts >= 1, exp > 1
  * @example expBackoff(1000, 30000, attempts)
@@ -12,7 +69,7 @@
  *        5    | 1000 to 30000
  *   ---------------------------------
  * Attempts required before max delay is possible = Math.ceil(Math.log(high/step) / Math.log(exp))
- * @since
+ * @since 1.0.0
  * @param step
  * @param high
  * @param attempts
@@ -25,20 +82,20 @@ export const expBackoff = (step: number, high: number, attempts: number, exp = 2
 }
 
 /**
- * Assert Number on a Property
+ * Check to see if the message is a Batch (BHS)
  * @since 1.0.0
- * @param props
- * @param name
- * @param min
- * @param max
+ * @param message
  */
-export const assertNumber = (props: Record<string, number>, name: string, min: number, max?: number): void => {
-  const val = props[name]
-  if (isNaN(val) || !Number.isFinite(val) || val < min || (max != null && val > max)) {
-    throw new TypeError(max != null
-      ? `${name} must be a number (${min}, ${max}).`
-      : `${name} must be a number >= ${min}.`)
-  }
+export const isBatch = (message: string): boolean => {
+  return message.startsWith('BHS')
+}
+
+/**
+ * Check to see if the message is a File Batch (FHS)
+ * @param message
+ */
+export const isFile = (message: string): boolean => {
+  return message.startsWith('FHS')
 }
 
 /**
@@ -59,6 +116,18 @@ export const isHL7Number = (value: string | number): boolean => {
  * @param value
  */
 export const isHL7String = (value: any): boolean => typeof value === 'string'
+
+/**
+ * HL7 Padding for Date
+ * @since 1.0.0
+ * @param n
+ * @param width
+ * @param z
+ */
+export const padHL7Date = (n: number, width: number, z: string = '0'): string => {
+  const s = n.toString()
+  return s.length >= width ? s : new Array(width - s.length + 1).join(z) + s
+}
 
 /**
  * Valid IPv4 Checker
@@ -84,75 +153,6 @@ export const validIPv6 = (ip: string): boolean => {
     return ip.split(':').every(part => part.length <= 4)
   }
   return false
-}
-
-/**
- * HL7 Padding for Date
- * @since 1.0.0
- * @param n
- * @param width
- * @param z
- */
-export const padHL7Date = (n: number, width: number, z: string = '0'): string => {
-  const s = n.toString()
-  return s.length >= width ? s : new Array(width - s.length + 1).join(z) + s
-}
-
-/**
- * Create a valid HL7 Date.
- * @description Custom for this package and based of HL7 specification.
- * @since 1.0.0
- * @param date
- * @param length
- */
-export const createHL7Date = (date: Date, length: '8' | '12' | '14' = '14'): string => {
-  switch (length) {
-    case '14':
-      return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}${padHL7Date(date.getHours(), 2)}${padHL7Date(date.getMinutes(), 2)}${padHL7Date(date.getSeconds(), 2)}`
-    case '12':
-      return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}${padHL7Date(date.getHours(), 2)}${padHL7Date(date.getMinutes(), 2)}`
-    case '8':
-      return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}`
-  }
-}
-
-/**
- * Check to see if the message is a Batch (BHS)
- * @since 1.0.0
- * @param message
- */
-export const isBatch = (message: string): boolean => {
-  return message.startsWith('BHS')
-}
-
-/**
- * Check to see if the message is a File Batch (FHS)
- * @param message
- */
-export const isFile = (message: string): boolean => {
-  return message.startsWith('FHS')
-}
-
-/**
- * Escape for RegEx Expressing
- * @since 1.0.0
- * @param value
- */
-export const escapeForRegExp = (value: string): string => {
-  return value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
-}
-
-/**
- * Decode Hex String
- * @since 1.0.0
- * @param value
- */
-export const decodeHexString = (value: string): string => {
-  const result = new Array(value.length / 2)
-  for (let i = 0; i < value.length; i += 2) {
-    result[i / 2] = String.fromCharCode(parseInt(value.slice(i, i + 2), 16))
-  }
-  return result.join('')
 }
 
 /**

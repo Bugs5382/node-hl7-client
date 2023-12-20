@@ -40,12 +40,7 @@ export class RootBase extends NodeBase {
     }
   }
 
-  /**
-   * @internal
-   * @since 1.0.0
-   * @param delimiters
-   * @private
-   */
+  /** @internal */
   protected static _makeMatchEscape (delimiters: string): RegExp {
     const sequences = [
       escapeForRegExp(delimiters[Delimiters.Escape]),
@@ -57,31 +52,19 @@ export class RootBase extends NodeBase {
     return new RegExp(sequences.join('|'), 'g')
   }
 
-  /**
-   * @internal
-   * @since 1.0.0
-   * @param delimiters
-   * @private
-   */
+  /** @internal */
   protected static _makeMatchUnescape (delimiters: string): RegExp {
     // setup regular expression for matching escape sequences, see http://www.hl7standards.com/blog/2006/11/02/hl7-escape-sequences/
     const matchEscape = escapeForRegExp(delimiters[Delimiters.Escape])
     return new RegExp([matchEscape, '[^', matchEscape, ']*', matchEscape].join(''), 'g')
   }
 
-  /**
-   * Get Delimiters
-   * @since 1.0.0
-   */
+  /** @internal */
   get delimiters (): string {
     return this._delimiters
   }
 
-  /**
-   * Escape String
-   * @since 1.0.0
-   * @param text
-   */
+  /** @internal */
   escape (text: string): string {
     if (text === null) {
       throw new HL7FatalError(500, 'text must be passed in escape function.')
@@ -132,11 +115,7 @@ export class RootBase extends NodeBase {
     return segments
   }
 
-  /**
-   * Unescape Text
-   * @since 1.0.0
-   * @param text
-   */
+  /** @internal */
   unescape (text: string): string {
     if (text === null) {
       throw new HL7FatalError(500, 'text must be passed in unescape function.')

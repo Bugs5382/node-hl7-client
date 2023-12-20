@@ -2,74 +2,43 @@ import { Node } from '../interface/node.js'
 import { NodeBase } from './nodeBase.js'
 import { Segment } from './segment.js'
 
-/**
- * Segment List
- * @since 1.0.0
- * @extends NodeBase
- */
+/** @internal */
 export class SegmentList extends NodeBase {
   /** @internal */
   private readonly _segments: Segment[]
 
-  /**
-     * @since 1.0.0
-     * @param parent
-     * @param segments
-     */
+  /** @internal */
   constructor (parent: NodeBase, segments: Segment[]) {
     super(parent)
     this._segments = segments
   }
 
-  /**
-     * To String
-     * @since 1.0.0
-     */
+  /** @internal */
   toString (): string {
     return this._segments[0].toString()
   }
 
-  /**
-     * Get Name
-     * @since 1.0.0
-     */
+  /** @internal */
   get name (): string {
     return this._segments[0].name
   }
 
-  /**
-     * Read Path
-     * @since 1.0.0
-     * @param path
-     */
+  /** @internal */
   read (path: string[]): Node {
     return this._segments[0].read(path)
   }
 
-  /**
-     * Write Core Segment List
-     * @param path
-     * @param value
-     * @protected
-     */
+  /** @internal */
   protected writeCore (path: string[], value: string): Node {
     return this._segments[0].write(path, value)
   }
 
-  /**
-     * Get Path Core
-     * @since 1.0.0
-     * @protected
-     */
+  /** @internal */
   protected pathCore (): string[] {
     return this._segments[0].path
   }
 
-  /**
-     * Get Children
-     * @since 1.0.0
-     * @protected
-     */
+  /** @internal */
   protected get children (): Node[] {
     return this._segments
   }

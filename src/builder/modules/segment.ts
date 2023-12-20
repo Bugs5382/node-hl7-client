@@ -6,21 +6,12 @@ import { NodeBase } from './nodeBase.js'
 import { Node } from '../interface/node.js'
 import { SubComponent } from './subComponent.js'
 
-/**
- * Segment Class
- * @since 1.0.0
- * @extends NodeBase
- */
+/** @internal */
 export class Segment extends NodeBase {
   /** @internal */
   private readonly _segmentName: string
 
-  /**
-     * Create a Segment
-     * @since 1.0.0
-     * @param parent
-     * @param text
-     */
+  /** @internal */
   constructor (parent: NodeBase, text: string) {
     super(parent, text, Delimiters.Field)
     if (!isHL7String(text) || text.length === 0) {
@@ -30,11 +21,7 @@ export class Segment extends NodeBase {
     this._name = this._segmentName
   }
 
-  /**
-     * Read Segment
-     * @since 1.0.0
-     * @param path
-     */
+  /** @internal */
   read (path: string[]): Node {
     let index = parseInt(path.shift() as string)
     if (index < 1) {
@@ -52,12 +39,7 @@ export class Segment extends NodeBase {
     return path.length > 0 ? field.read(path) : field
   }
 
-  /**
-   * Set HL7 Segment at Path with a Value
-   * @since 1.0.0
-   * @param path
-   * @param value
-   */
+  /** @internal */
   set (path: string | number, value?: any): Node {
     if (arguments.length === 1) {
       return this.ensure(path)
@@ -91,13 +73,7 @@ export class Segment extends NodeBase {
     throw new HL7FatalError(500, 'Path must be a string or number.')
   }
 
-  /**
-     * Write Segment Core
-     * @since 1.0.0
-     * @param path
-     * @param value
-     * @protected
-     */
+  /** @internal */
   protected writeCore (path: string[], value: string): Node {
     let index = parseInt(path.shift() as string)
     if (index < 1 || isNaN(index)) {
@@ -114,23 +90,12 @@ export class Segment extends NodeBase {
     return this.writeAtIndex(path, value, index)
   }
 
-  /**
-     * Path Core
-     * @since 1.0.0
-     * @protected
-     */
+  /** @internal */
   protected pathCore (): string[] {
     return [this._segmentName]
   }
 
-  /**
-     * Create a Field from a Segment
-     * @since 1.0.0
-     * @see {@link Field}
-     * @param text
-     * @param index
-     * @protected
-     */
+  /** @internal */
   protected createChild (text: string, index: number): Node {
     return new Field(this, index.toString(), text)
   }

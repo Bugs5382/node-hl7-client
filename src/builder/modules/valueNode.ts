@@ -2,23 +2,24 @@ import { HL7FatalError } from '../../utils/exception.js'
 import { Delimiters } from '../../utils/enum.js'
 import { NodeBase } from './nodeBase.js'
 
-/**
- * Value Node
- * @since 1.0.0
- */
+/** @internal */
 export class ValueNode extends NodeBase {
+  /** @internal */
   protected key: string
 
+  /** @internal */
   constructor (parent: NodeBase, key: string, text: string, delimiter: Delimiters | undefined = undefined) {
     super(parent, text, delimiter)
     this.key = key
   }
 
+  /** @internal */
   toString (): string {
     const children = this.children
     return children.length === 0 ? this.toRaw() : children[0].toString()
   }
 
+  /** @internal */
   toDate (): Date {
     const text = this.toString()
     if (text.length === 8) {
@@ -34,14 +35,17 @@ export class ValueNode extends NodeBase {
     throw new HL7FatalError(500, 'Invalid Date Format')
   }
 
+  /** @internal */
   toInteger (): number {
     return parseInt(this.toString())
   }
 
+  /** @internal */
   toFloat (): number {
     return parseFloat(this.toString())
   }
 
+  /** @internal */
   toBoolean (): boolean {
     switch (this.toString()) {
       case 'Y':
@@ -52,6 +56,7 @@ export class ValueNode extends NodeBase {
     throw new HL7FatalError(500, 'Not a valid value for boolean value.')
   }
 
+  /** @internal */
   protected pathCore (): string[] {
     if (this.parent === null) {
       throw new HL7FatalError(404, 'Somehow, this.parent is null.')
