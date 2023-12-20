@@ -80,5 +80,8 @@
     "tsd": "^0.30.0",
     "typedoc": "^0.25.4",
     "typescript": "5.3.3"
-  }
+  },
+  "pre-commit": [
+    "prepublishOnly"
+  ]
 }
