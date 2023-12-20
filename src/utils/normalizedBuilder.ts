@@ -4,7 +4,7 @@ import { MSH } from '../specification/specification'
 import { ParserPlan } from './parserPlan.js'
 
 const DEFAULT_CLIENT_BUILDER_OPTS = {
-  date: "14",
+  date: '14',
   newLine: '\r',
   parsing: false,
   separatorComponent: '^',
@@ -121,7 +121,7 @@ export function normalizedClientMessageBuilderOptions (raw?: ClientBuilderMessag
   }
 
   if (props.date !== '8' && props.date !== '12' && props.date !== '14') {
-    props.date = "14"
+    props.date = '14'
   }
 
   if (props.text === '') {
@@ -155,7 +155,7 @@ export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderOptions)
   }
 
   if (props.date !== '8' && props.date !== '12' && props.date !== '14') {
-    props.date = "14"
+    props.date = '14'
   }
 
   if (props.text === '') {
@@ -195,7 +195,7 @@ export function normalizedClientFileBuilderOptions (raw?: ClientBuilderFileOptio
   }
 
   if (props.date !== '8' && props.date !== '12' && props.date !== '14') {
-    props.date = "14"
+    props.date = '14'
   }
 
   const regex = /\n/mg
