@@ -1,6 +1,10 @@
 import { Node } from '../interface/node.js'
 
-/** @internal */
+/**
+ * Empty Node
+ * @since 1.0.0
+ * @extends Node
+ */
 export class EmptyNode implements Node {
   get name (): string {
     throw new Error('Method not implemented')

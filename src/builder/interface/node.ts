@@ -1,4 +1,7 @@
-/** @internal */
+/**
+ * Node Base
+ * @since 1.0.0
+ */
 export interface Node {
   name: string
   length: number

@@ -6,7 +6,11 @@ import { Delimiters } from '../../utils/enum.js'
 import { Node } from '../interface/node.js'
 import { Message } from '../message.js'
 
-/** @internal */
+/**
+ * Node Base
+ * @since 1.0.0
+ * @extends Node
+ */
 export class NodeBase implements Node {
   protected parent: NodeBase | null
 

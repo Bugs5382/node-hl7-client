@@ -6,7 +6,11 @@ import { NodeBase } from './nodeBase.js'
 import { Node } from '../interface/node.js'
 import { SubComponent } from './subComponent.js'
 
-/** @internal */
+/**
+ * Segment
+ * @since 1.0.0
+ * @extends NodeBase
+ */
 export class Segment extends NodeBase {
   /** @internal */
   private readonly _segmentName: string
