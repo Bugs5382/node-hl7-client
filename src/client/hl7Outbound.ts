@@ -6,18 +6,13 @@ import { Message } from '../builder/message.js'
 import { CR, FS, VT } from '../utils/constants.js'
 import { ReadyState } from '../utils/enum.js'
 import { HL7FatalError } from '../utils/exception.js'
-import { ClientListenerOptions, normalizeClientListenerOptions } from '../utils/normalizedClient.js'
+import { ClientListenerOptions, normalizeClientListenerOptions, OutboundHandler } from '../utils/normalizedClient.js'
 import { expBackoff, randomString } from '../utils/utils.js'
 import { Client } from './client.js'
 import { InboundResponse } from './module/inboundResponse.js'
 
-/**
- * Outbound Handler
- * @since 1.0.0
- */
-export type OutboundHandler = (res: InboundResponse) => Promise<void>
-
 /** HL7 Outbound Class
+ * @description Create a connection to a server on a particular port.
  * @since 1.0.0 */
 export class HL7Outbound extends EventEmitter {
   /** @internal */
@@ -45,6 +40,17 @@ export class HL7Outbound extends EventEmitter {
   /** @internal */
   _pendingSetup: Promise<boolean> | boolean
 
+  /**
+   * @since 1.0.0
+   * @param client The client parent that we are connecting too.
+   * @param props The individual port connection options.
+   * Some values will be defaulted by the parent server connection.
+   * @param handler The function that will send the returned information back to the client after we got a response from the server.
+   * @example
+   * ```ts
+   * const OB = client.createOutbound({ port: 3000 }, async (res) => {})
+   * ```
+   */
   constructor (client: Client, props: ClientListenerOptions, handler: OutboundHandler) {
     super()
     this._awaitingResponse = false
@@ -63,16 +69,53 @@ export class HL7Outbound extends EventEmitter {
     this._socket = this._connect()
   }
 
-  getHost (): string {
-    return this._main._opt.host
-  }
+  /** Close Client Listener Instance.
+   * @description Force close a connection.
+   * It Will stop any re-connection timers.
+   * If you want to restart, your app has to restart the connection.
+   * @since 1.0.0
+   * @example
+   * ```ts
+   *  OB.close()
+   * ```
+   */
+  async close (): Promise<boolean> {
+    // mark that we set our internal that we are closing, so we do not try to re-connect
+    this._readyState = ReadyState.CLOSING
+    this._sockets.forEach((socket) => {
+      if (typeof socket.destroyed !== 'undefined') {
+        socket.end()
+        socket.destroy()
+      }
+    })
+    this._sockets.clear()
 
-  getPort (): string {
-    return this._opt.port.toString()
+    this.emit('client.close')
+
+    return true
   }
 
   /** Send a HL7 Message to the Listener
+   * @description This function sends a message/batch/file batch to the remote side.
+   * It has the ability, if set to auto-retry (defaulted to 1 re-connect before connection closes)
    * @since 1.0.0
+   * @param message The message we need to send to the port.
+   * @example
+   * ```ts
+   *
+   * // OB was set from the orginial 'createOutbound' method.
+   *
+   * let message = new Message({
+   *  messageHeader: {
+   *    msh_9_1: "ADT",
+   *    msh_9_2: "A01",
+   *    msh_11_1: "P" // marked for production here in the example
+   *  }
+   * })
+   *
+   * await OB.sendMessage(message)
+   *
+   * ```
    */
   async sendMessage (message: Message | Batch): Promise<boolean> {
     let attempts = 0
@@ -99,7 +142,6 @@ export class HL7Outbound extends EventEmitter {
           // if we are not connected,
           // check to see if we are now connected.
             if (this._pendingSetup === false) {
-              // @todo in the future, add here to store the messages in a file or a
               this._pendingSetup = checkConnection().finally(() => { this._pendingSetup = false })
             }
           } else if (this._readyState === ReadyState.CONNECTED && this._opt.waitAck && this._awaitingResponse) {
@@ -147,19 +189,13 @@ export class HL7Outbound extends EventEmitter {
     })
   }
 
-  private _listener (socket: Socket): void {
-    // set no delay
-    socket.setNoDelay(true)
-
-    // add socket
-    this._addSocket(this._nodeId, socket, true)
-
-    // check to make sure we do not max out on connections, we shouldn't...
-    if (this._sockets.size > this._opt.maxConnections) {
-      this._manageConnections()
+  /** @internal */
+  private _addSocket (nodeId: string, socket: any, b: boolean): void {
+    const s = this._sockets.get(nodeId)
+    if (!b && typeof s !== 'undefined' && typeof s.destroyed !== 'undefined') {
+      return
     }
-
-    this._readyState = ReadyState.CONNECTED
+    this._sockets.set(nodeId, socket)
   }
 
   /** @internal */
@@ -222,42 +258,20 @@ export class HL7Outbound extends EventEmitter {
     return socket
   }
 
-  /** Close Client Listener Instance.
-   * @since 1.0.0 */
-  async close (): Promise<boolean> {
-    // mark that we set our internal that we are closing, so we do not try to re-connect
-    this._readyState = ReadyState.CLOSING
-    // @todo Remove all pending messages that might be pending sending.
-    // @todo Do we dare save them as a file so if the kube process fails and restarts up, it can send them again??
-    this._sockets.forEach((socket) => {
-      if (typeof socket.destroyed !== 'undefined') {
-        socket.end()
-        socket.destroy()
-      }
-    })
-    this._sockets.clear()
-
-    this.emit('client.close')
-
-    return true
-  }
-
   /** @internal */
-  private _addSocket (nodeId: string, socket: any, b: boolean): void {
-    const s = this._sockets.get(nodeId)
-    if (!b && typeof s !== 'undefined' && typeof s.destroyed !== 'undefined') {
-      return
-    }
-    this._sockets.set(nodeId, socket)
-  }
+  private _listener (socket: Socket): void {
+    // set no delay
+    socket.setNoDelay(true)
 
-  /** @internal */
-  private _removeSocket (nodeId: string): void {
-    const socket = this._sockets.get(nodeId)
-    if (typeof socket !== 'undefined' && typeof socket.destroyed !== 'undefined') {
-      socket.destroy()
+    // add socket
+    this._addSocket(this._nodeId, socket, true)
+
+    // check to make sure we do not max out on connections, we shouldn't...
+    if (this._sockets.size > this._opt.maxConnections) {
+      this._manageConnections()
     }
-    this._sockets.delete(nodeId)
+
+    this._readyState = ReadyState.CONNECTED
   }
 
   /** @internal */
@@ -275,5 +289,14 @@ export class HL7Outbound extends EventEmitter {
     const removable = list.slice(0, count)
 
     removable.forEach(({ nodeID }) => this._removeSocket(nodeID))
+  }
+
+  /** @internal */
+  private _removeSocket (nodeId: string): void {
+    const socket = this._sockets.get(nodeId)
+    if (typeof socket !== 'undefined' && typeof socket.destroyed !== 'undefined') {
+      socket.destroy()
+    }
+    this._sockets.delete(nodeId)
   }
 }

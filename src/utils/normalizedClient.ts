@@ -1,6 +1,15 @@
 import { TcpSocketConnectOpts } from 'node:net'
 import type { ConnectionOptions as TLSOptions } from 'node:tls'
+import { InboundResponse } from '../client/module/inboundResponse.js'
 import { assertNumber, validIPv4, validIPv6 } from './utils.js'
+
+/**
+ * Outbound Handler
+ * @description Used to receive a response from the server
+ * @since 1.0.0
+ * @param res
+ */
+export type OutboundHandler = (res: InboundResponse) => Promise<void>
 
 const DEFAULT_CLIENT_OPTS = {
   connectionTimeout: 10000,
