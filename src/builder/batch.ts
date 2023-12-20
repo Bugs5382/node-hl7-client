@@ -20,17 +20,18 @@ export class Batch extends RootBase {
   /** @internal **/
   _opt: ReturnType<typeof normalizedClientBatchBuilderOptions>
   /** @internal */
-  _lines?: string[]
+  protected _lines: string[]
   /** @internal */
   _messagesCount: number
 
   /**
    * @since 1.0.0
-   * @param props Passing on options to build the batch.
+   * @param props Passing the options to build the batch.
    */
   constructor (props?: ClientBuilderOptions) {
     const opt = normalizedClientBatchBuilderOptions(props)
     super(opt)
+    this._lines = []
     this._opt = opt
     this._messagesCount = 0
 
@@ -43,8 +44,7 @@ export class Batch extends RootBase {
 
   /**
    * Add a Message to the Batch
-   * @description This must be run _after_ {@link start} method.
-   * This adds a Message (MSH) output into the batch.
+   * @description This adds a Message (MSH) output into the batch.
    * It also increases the count of the BTS segment as the batch final result
    * when in end tells the receiving end how many message (MSH) segments are included.
    * @since 1.0.0
@@ -64,7 +64,7 @@ export class Batch extends RootBase {
   /**
    * End Batch
    * @description At the conclusion of building the batch,
-   * (Usually {@link add} method) will add the Batch Trailing Segment (BTS) to the end.
+   * (Usually {@link add} method will be before this) will add the Batch Trailing Segment (BTS) to the end.
    * If a message (MSH) is added after this,
    * that message (MSH) will get added to the first BHS found if there is more than one.
    * This might be typical inside a file output process.
@@ -166,8 +166,9 @@ export class Batch extends RootBase {
 
   /**
    * Start Batch
-   * @description This will start a batch with the proper "BHS" fields that are required.
-   * In this case, 'BHS.7' (Date Field) is fulled in with a 14-character date field with YYYYMMDDHHMMSS entered in by default.
+   * @description This allows you to override the orginial contractor BHS fields that are required.
+   * In this case, 'BHS.7'
+   * (Date Field) is filled out with a 14-character date field with YYYYMMDDHHMMSS entered in by default.
    * @since 1.0.0
    * @param style Your options produce: YYYYMMDDHHMMSS = 14 | YYYYMMDDHHMM = 12 | YYYYMMDD = 8
    * @defaultValue YYYYMMDDHHMMSS (14)

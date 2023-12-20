@@ -2,17 +2,21 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { HL7FatalError, HL7ParserError } from '../utils/exception.js'
 import { ClientBuilderFileOptions, normalizedClientFileBuilderOptions } from '../utils/normalizedBuilder.js'
-import { createHL7Date, isHL7Number } from '../utils/utils.js'
+import { createHL7Date } from '../utils/utils.js'
 import { Batch } from './batch.js'
 import { Node } from './interface/node.js'
 import { Message } from './message.js'
-import { NodeBase } from './modules/nodeBase.js'
 import { RootBase } from './modules/rootBase.js'
 import { Segment } from './modules/segment.js'
 import { SegmentList } from './modules/segmentList.js'
 
 /**
- * File Class
+ * File Batch Class
+ * @description Create a File Batch (FHS) which will could include many BHS/BTS segments,
+ * which could include many Message (MSH) segments to output the contents into a file on the OS.
+ * These files could then be used to send manually or read by another system to interpret the contents.
+ * This class helps
+ * in generating the particulars for that file generation to make sure that it follows the correct format.
  * @since 1.0.0
  * @extends RootBase
  */
@@ -22,7 +26,7 @@ export class FileBatch extends RootBase {
   /** @internal **/
   _opt: ReturnType<typeof normalizedClientFileBuilderOptions>
   /** @internal */
-  protected _lines?: string[]
+  protected _lines: string[]
   /** @internal */
   protected _batchCount: number
   /** @internal */
@@ -30,12 +34,13 @@ export class FileBatch extends RootBase {
 
   /**
    * @since 1.0.0
-   * @param props
+   * @param props Passing the options to build the file batch.
    */
   constructor (props?: ClientBuilderFileOptions) {
     const opt = normalizedClientFileBuilderOptions(props)
     super(opt)
     this._fileName = ''
+    this._lines = []
     this._opt = opt
     this._batchCount = 0
     this._messagesCount = 0
@@ -48,14 +53,16 @@ export class FileBatch extends RootBase {
   }
 
   /**
-   * Add a Message or a Batch to the File
+   * AAdd a Message or a Batch to the File
+   * @description This adds a Message (MSH) output into the file batch.
+   * If there is a Batch ("BHS") already part of this file, any new Message type will be added to the first found BHS regardless if the second Batch is added last.
    * @since 1.0.0
-   * @param item
+   * @param message The {@link Message} or {@link Batch} to add into the batch.
    */
-  add (item: Message | Batch): void {
+  add (message: Message | Batch): void {
     this.setDirty()
     // if we are adding a message to a file
-    if (item instanceof Message) {
+    if (message instanceof Message) {
       // and we already added a batch segment, we need to add it to the batch segment since we cannot add a batch and then a MSH segment.
       // That would violate HL7 specification.
       if (this._batchCount >= 1) {
@@ -65,10 +72,10 @@ export class FileBatch extends RootBase {
         const seg = batch.getFirstSegment('BTS')
         seg.set(1, batch._messagesCount + 1)
         // add the message to the batch
-        batch.add(item, batch._messagesCount + 1)
+        batch.add(message, batch._messagesCount + 1)
       } else {
         this._messagesCount = this._messagesCount + 1
-        this.children.push(item)
+        this.children.push(message)
       }
     } else {
       // if there are already messages added before a batch
@@ -76,13 +83,14 @@ export class FileBatch extends RootBase {
         throw new HL7ParserError(500, 'Unable to add a batch segment, since there is already messages added individually.')
       }
       this._batchCount = this._batchCount + 1
-      this.children.push(item)
+      this.children.push(message)
     }
   }
 
   /**
    * Create a file to be stored.
    * @since 1.0.0
+   * @param name Name of the file.
    */
   createFile (name: string): void {
     const getFSHDate = this.get('FHS.7').toString()
@@ -110,6 +118,11 @@ export class FileBatch extends RootBase {
 
   /**
    * End Batch
+   * @description At the conclusion of building the file batch,
+   * (Usually {@link add} method will be before this) will add the File Batch Trailing Segment (FTS) to the end.
+   * If a message (MSH) is added after this,
+   * that message (MSH) will get added to the first BHS found if there is one, otherwise it will just be added.
+   * This might be typical inside a file output process.
    * @since 1.0.0
    */
   end (): void {
@@ -118,28 +131,44 @@ export class FileBatch extends RootBase {
   }
 
   /**
-   * Get HL7 Segment at Path
+   * Get FHS Segment at Path
    * @since 1.0.0
-   * @param path
+   * @param path Could be 'FHS.7' or 7, and it shall get the same result.
+   * @example
+   * ```ts
+   * const fileBatch = file.get('FHS.7')
+   * ```
+   * or
+   * ```ts
+   * const fileBatch = file.get(7)
+   * ```
    */
   get (path: string | number): Node {
-    let ret: any
-
-    if (typeof path === 'number') {
-      if (path >= 0 && path < this.children.length) {
-        ret = this.children[path]
-      }
-    } else if (path !== '') {
-      const _path = this.preparePath(path)
-      ret = this.read(_path)
-    }
-
-    return typeof ret !== 'undefined' ? ret as Node : NodeBase.empty as Node
+    return super.get(path)
   }
 
   /**
-   * Get Messages
+   * Get Messages within a submitted File Batch
+   * @description This will parse the passed on "text"
+   * in the contractor options and get all the messages (MSH) segments within it and return an array of them.
+   * This will happen regardless of the depth of the segments.
    * @since 1.0.0
+   * @example
+   * ```ts
+   * try {
+   *  // parser the batch
+   *  const parser = new FileBatch({ text: loadedMessage })
+   *  // load the messages
+   *  const allMessage = parser.messages()
+   *  // loop messages
+   *  allMessage.forEach((message: Message) => {
+   *    const messageParsed = new Message({ text: message.toString() })
+   *  })
+   * } catch (e) {
+   *   // error here
+   * }
+   * ```
+   * @returns Returns an array of messages or a HL7ParserError will throw.
    */
   messages (): Message[] {
     if (typeof this._lines !== 'undefined' && typeof this._opt.newLine !== 'undefined') {
@@ -151,6 +180,41 @@ export class FileBatch extends RootBase {
       return message
     }
     throw new HL7ParserError(500, 'No messages inside file segment.')
+  }
+
+  /**
+   * Set Batch Segment at Path with a Value
+   * @since 1.0.0
+   * @example
+   * ```ts
+   * const batch = new Batch()
+   * batch.set('BHS.7', '20231231')
+   * ```
+   * @param path Where you want to set in the segment
+   * @param value The value.
+   * It Can be an Array, String, or Boolean.
+   * If the value is not set, you can chain this to expand the paths
+   * @example
+   * If the value is not used this can be employed:
+   * ```ts
+   * batch.set('BHS.3').set(0).set('BHS.3.1', 'abc');
+   * ```
+   */
+  set (path: string | number, value?: any): Node {
+    return super.set(path, value)
+  }
+
+  /**
+   * Start Batch
+   * @since 1.0.0
+   */
+  start (): void {
+    this.set('FHS.7', createHL7Date(new Date()))
+  }
+
+  /** @internal */
+  protected createChild (text: string, _index: number): Node {
+    return new Segment(this, text.trim())
   }
 
   /** @internal */
@@ -173,53 +237,6 @@ export class FileBatch extends RootBase {
     throw new HL7FatalError(500, 'Unable to process the read function correctly.')
   }
 
-  /**
-   * Set HL7 Segment at Path with a Value
-   * @since 1.0.0
-   * @param path
-   * @param value
-   */
-  set (path: string | number, value?: any): Node {
-    if (arguments.length === 1) {
-      return this.ensure(path)
-    }
-
-    if (typeof path === 'string') {
-      if (Array.isArray(value)) {
-        for (let i = 0; i < value.length; i++) {
-          this.set(`${path}.${i + 1}`, value[i])
-        }
-      } else {
-        const _path = this.preparePath(path)
-        this.write(_path, this.prepareValue(value))
-      }
-
-      return this
-    } else if (isHL7Number(path)) {
-      if (Array.isArray(value)) {
-        const child = this.ensure(path)
-        for (let i = 0, l = value.length; i < l; i++) {
-          child.set(i, value[i])
-        }
-        return this
-      } else {
-        this.setChild(this.createChild(this.prepareValue(value), path), path)
-      }
-
-      return this
-    }
-
-    throw new HL7FatalError(500, 'Path must be a string or number.')
-  }
-
-  /**
-   * Start Batch
-   * @since 1.0.0
-   */
-  start (): void {
-    this.set('FHS.7', createHL7Date(new Date()))
-  }
-
   /** @internal */
   protected writeCore (path: string[], value: string): Node {
     const segmentName = path.shift() as string
@@ -227,11 +244,6 @@ export class FileBatch extends RootBase {
       throw new HL7FatalError(500, 'segment name is not defined.')
     }
     return this.writeAtIndex(path, value, 0, segmentName)
-  }
-
-  /** @internal */
-  protected createChild (text: string, _index: number): Node {
-    return new Segment(this, text.trim())
   }
 
   /** @internal **/
