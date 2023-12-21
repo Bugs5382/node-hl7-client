@@ -1021,6 +1021,7 @@ describe('node hl7 client - builder tests', () => {
       expect(message.get('MSH.9.2').toString()).toBe("A01")
       expect(message.get('MSH.9.3').toString()).toBe("ADT_A01")
       expect(message.get('MSH.10').toString()).toBe("12345")
+      expect(message.get('MSH.11.1').toString()).toBe("")
       expect(message.get('MSH.12').toString()).toBe("2.7")
       expect(message.get('EVN.2').toString()).toBe("20081231")
 

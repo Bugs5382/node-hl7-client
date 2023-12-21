@@ -1,4 +1,3 @@
-import { HL7FatalError } from '../../utils/exception.js'
 import { Delimiters } from '../../utils/enum.js'
 import { Node } from '../interface/node.js'
 import { FieldRepetition } from './fieldRepetition.js'
@@ -17,7 +16,7 @@ export class Field extends ValueNode {
     if (this.children.length > 0) {
       return this.children[0].read(path)
     }
-    throw new HL7FatalError(500, 'We have a problem.')
+    return this
   }
 
   /** @internal */
