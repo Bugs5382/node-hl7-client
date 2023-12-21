@@ -337,7 +337,7 @@ describe('node hl7 end to end', () => {
 
     let LISTEN_PORT: number
 
-    const hl7_string: string = "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231"
+    const hl7_string: string = "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7\rEVN||20081231"
 
     beforeAll(async () => {
 
@@ -355,7 +355,7 @@ describe('node hl7 end to end', () => {
       const message = new Message({text: hl7_string, date: "8"})
       message.toFile('readFileTestMSH', true, 'temp/')
 
-      await sleep(2)
+      await sleep(15)
 
     })
 
@@ -383,7 +383,7 @@ describe('node hl7 end to end', () => {
         expect(messageRes.get('MSA.1').toString()).toBe('AA')
       })
 
-      await sleep(5)
+      await sleep(15)
 
       const fileBatch = await OB_ADT.readFile(`temp/hl7.readFileTestMSH.20081231.hl7`)
 
@@ -422,7 +422,7 @@ describe('node hl7 end to end', () => {
         expect(messageRes.get('MSA.1').toString()).toBe('AA')
       })
 
-      await sleep(5)
+      await sleep(15)
 
       const fileBatch = await OB_ADT.readFile(`temp/hl7.readFileTestMSH.20081231.hl7`)
 
