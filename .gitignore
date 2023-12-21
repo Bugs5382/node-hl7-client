@@ -135,8 +135,8 @@ docs
 lib
 .npmrc
 package-lock.json
-.npmrc
 
 # Webstorm
 .idea
+.run
 temp
