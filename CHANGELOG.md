@@ -1,3 +1,11 @@
+# [1.0.0-beta.17](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.16...v1.0.0-beta.17) (2023-12-21)
+
+
+### Bug Fixes
+
+* end 2 end test fix ([59cd787](https://github.com/Bugs5382/node-hl7-client/commit/59cd7872a92eeda0b7905f73e4922c787eafb4c3)), closes [#44](https://github.com/Bugs5382/node-hl7-client/issues/44)
+* field.ts fix ([6097a4c](https://github.com/Bugs5382/node-hl7-client/commit/6097a4cbde9f67e36af72773f39a0fb3bd56b3da)), closes [#44](https://github.com/Bugs5382/node-hl7-client/issues/44) [#44](https://github.com/Bugs5382/node-hl7-client/issues/44)
+
 # [1.0.0-beta.16](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.15...v1.0.0-beta.16) (2023-12-20)
 
 
