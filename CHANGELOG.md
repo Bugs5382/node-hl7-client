@@ -1,3 +1,10 @@
+# [1.0.0-beta.18](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.17...v1.0.0-beta.18) (2023-12-22)
+
+
+### Bug Fixes
+
+* many MSH sends ([76410fd](https://github.com/Bugs5382/node-hl7-client/commit/76410fd0ebef35bd914042ceade29df4db8635e1))
+
 # [1.0.0-beta.17](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0-beta.16...v1.0.0-beta.17) (2023-12-21)
 
 
