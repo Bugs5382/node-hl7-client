@@ -5,7 +5,7 @@ import path from "node:path";
 import portfinder from "portfinder";
 import {createDeferred, Deferred, expectEvent, sleep} from "./__utils__";
 
-describe('node hl7 end to end', () => {
+describe('node hl7 end to end - client', () => {
 
   let dfd: Deferred<void>
 
@@ -270,7 +270,7 @@ describe('node hl7 end to end', () => {
         await res.sendResponse("AA")
       })
 
-       //await expectEvent(IB_ADT, 'listen')
+      //await expectEvent(IB_ADT, 'listen')
 
       const client = new Client({host: '0.0.0.0'})
       const OB_ADT = client.createOutbound({ port: LISTEN_PORT }, async (res) => {
@@ -351,6 +351,138 @@ describe('node hl7 end to end', () => {
         }
       })
 
+      batch.add(message)
+
+      batch.end()
+
+      await OB_ADT.sendMessage(batch)
+
+      await sleep(10)
+
+      dfd.promise
+
+      await OB_ADT.close()
+      await IB_ADT.close()
+
+    })
+
+  })
+
+  describe('...send batch with two message, get proper ACK', () => {
+
+    let LISTEN_PORT: number
+    beforeEach(async () => {
+      LISTEN_PORT = await portfinder.getPortPromise({
+        port: 3000,
+        stopPort: 65353
+      })
+
+      dfd = createDeferred<void>()
+
+    })
+
+    test('...no tls', async () => {
+
+      const server = new Server({bindAddress: '0.0.0.0'})
+      const IB_ADT = server.createInbound({ port: LISTEN_PORT }, async (req, res) => {
+        const messageReq = req.getMessage()
+        const messageType = req.getType()
+        expect(messageType).toBe('batch')
+        expect(messageReq.get('MSH.12').toString()).toBe('2.7')
+        await res.sendResponse("AA")
+      })
+
+      // await expectEvent(IB_ADT, 'listen')
+
+      let count: number = 0
+      const client = new Client({host: '0.0.0.0'})
+      const OB_ADT = client.createOutbound({ port: LISTEN_PORT }, async (res) => {
+        const messageRes = res.getMessage()
+        expect(messageRes.get('MSA.1').toString()).toBe('AA')
+        count = count + 1
+        if (count == 2) {
+          dfd.resolve()
+        }
+      })
+
+      await expectEvent(OB_ADT, 'connect')
+
+      let batch = new Batch()
+      batch.start()
+
+      let message = new Message({
+        messageHeader: {
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: 'CONTROL_ID1',
+          msh_11_1: "D"
+        }
+      })
+
+      batch.add(message)
+      batch.add(message)
+
+      batch.end()
+
+      await OB_ADT.sendMessage(batch)
+
+      await sleep(10)
+
+      dfd.promise
+
+      await OB_ADT.close()
+      await IB_ADT.close()
+
+    })
+
+    test('...tls', async () => {
+
+      const server = new Server(
+        {
+          bindAddress: '0.0.0.0',
+          tls:
+            {
+              key: fs.readFileSync(path.join('certs/', 'server-key.pem')),
+              cert: fs.readFileSync(path.join('certs/', 'server-crt.pem')),
+              rejectUnauthorized: false
+            }
+        })
+      const IB_ADT = server.createInbound({port: LISTEN_PORT}, async (req, res) => {
+        const messageReq = req.getMessage()
+        const messageType = req.getType()
+        expect(messageType).toBe('batch')
+        expect(messageReq.get('MSH.12').toString()).toBe('2.7')
+        await res.sendResponse("AA")
+      })
+
+      // await expectEvent(IB_ADT, 'listen')
+
+      let count: number = 0
+      const client = new Client({host: '0.0.0.0', tls: { rejectUnauthorized: false }})
+      const OB_ADT = client.createOutbound({ port: LISTEN_PORT }, async (res) => {
+        const messageRes = res.getMessage()
+        expect(messageRes.get('MSA.1').toString()).toBe('AA')
+        count = count + 1
+        if (count == 2) {
+          dfd.resolve()
+        }
+      })
+
+      await expectEvent(OB_ADT, 'connect')
+
+      let batch = new Batch()
+      batch.start()
+
+      let message = new Message({
+        messageHeader: {
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: 'CONTROL_ID',
+          msh_11_1: "D"
+        }
+      })
+
+      batch.add(message)
       batch.add(message)
 
       batch.end()
