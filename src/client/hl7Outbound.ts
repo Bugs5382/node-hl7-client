@@ -41,6 +41,8 @@ export class HL7Outbound extends EventEmitter {
   protected _readyState: ReadyState
   /** @internal */
   _pendingSetup: Promise<boolean> | boolean
+  /** @internal */
+  private _responseBuffer: string
 
   /**
    * @since 1.0.0
@@ -66,6 +68,7 @@ export class HL7Outbound extends EventEmitter {
     this._retryCount = 1
     this._retryTimer = undefined
     this._readyState = ReadyState.CONNECTING
+    this._responseBuffer = ''
 
     this._connect = this._connect.bind(this)
     this._socket = this._connect()
@@ -260,13 +263,23 @@ export class HL7Outbound extends EventEmitter {
 
     socket.on('data', (buffer: Buffer) => {
       this._awaitingResponse = false
-      let loadedMessage = buffer.toString().replace(VT, '')
-      // is there is F5 and CR in this message?
-      if (loadedMessage.includes(FS + CR)) {
-        // strip them out
-        loadedMessage = loadedMessage.replace(FS + CR, '')
-        const response = new InboundResponse(loadedMessage)
-        this._handler(response)
+      this._responseBuffer += buffer.toString()
+
+      while (this._responseBuffer !== '') {
+        const indexOfVT = this._responseBuffer.indexOf(VT)
+        const indexOfFSCR = this._responseBuffer.indexOf(FS + CR)
+
+        let loadedMessage = this._responseBuffer.substring(indexOfVT, indexOfFSCR + 2)
+        this._responseBuffer = this._responseBuffer.slice(indexOfFSCR + 2, this._responseBuffer.length)
+
+        loadedMessage = loadedMessage.replace(VT, '')
+        // is there is F5 and CR in this message?
+        if (loadedMessage.includes(FS + CR)) {
+          // strip them out
+          loadedMessage = loadedMessage.replace(FS + CR, '')
+          const response = new InboundResponse(loadedMessage)
+          this._handler(response)
+        }
       }
     })
 
