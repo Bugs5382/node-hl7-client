@@ -4,7 +4,6 @@
     "./src/**/*.ts"
   ],
   "exclude": [
-    "./bin/typedoc-plugin-*.ts",
     "./jest.config.ts",
     "./release.config.{cjs|js}"
   ]

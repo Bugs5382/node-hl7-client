@@ -34,11 +34,6 @@
     "semantic-release": "semantic-release",
     "semantic-release:dry-run": "semantic-release --dry-run",
     "update": "npx npm-check-updates -u && npm run update:post-update",
-    "update:greatest": "npx npm-check-updates --target greatest",
-    "update:minor": "npx npm-check-updates --target minor -u && npm run update:post-update",
-    "update:newest": "npx npm-check-updates --target newest",
-    "update:patch": "npx npm-check-updates --target patch",
-    "update:semver": "npx npm-check-updates --target semver",
     "update:post-update": "npm install && npm run test:ci"
   },
   "repository": {
@@ -60,6 +55,7 @@
   },
   "homepage": "https://github.com/Bugs5382/node-hl7-client#readme",
   "devDependencies": {
+    "typedoc-plugin-default-pages": "file:../typedoc-plugin-default-pages/",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^11.1.0",
     "@semantic-release/git": "^10.0.1",
