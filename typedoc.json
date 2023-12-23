@@ -5,6 +5,7 @@
   "includeVersion": false,
   "githubPages": false,
   "out": "./docs",
+  "plugin": ["./bin/typedoc-plugin-versions.ts"],
   "name": "Node HL7 Client",
   "navigationLinks": {
     "GitHub": "https://github.com/Bugs5382/node-hl7-client"

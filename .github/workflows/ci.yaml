@@ -8,6 +8,11 @@ on:
 jobs:
   Test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
     strategy:
       matrix:
         node-version: [ 18.x, 20.x, 'lts/*' ]
