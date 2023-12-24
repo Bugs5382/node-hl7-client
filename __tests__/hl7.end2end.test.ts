@@ -430,7 +430,7 @@ describe('node hl7 end to end - client', () => {
         const messageRes = res.getMessage()
         expect(messageRes.get('MSA.1').toString()).toBe('AA')
         count = count + 1
-        if (count == 2) {
+        if (count === 2) {
           dfd.resolve()
         }
       })

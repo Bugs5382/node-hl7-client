@@ -11,6 +11,8 @@ import { HL7_2_7_1, HL7_2_7_1_MSH } from './specification/2.7.1.js'
 import { HL7_2_8, HL7_2_8_MSH } from './specification/2.8.js'
 import { HL7_SPEC, HL7_SPEC_BASE } from './specification/specification.js'
 
+export { randomString } from './utils/utils.js'
+
 /** HL7 Class **/
 export {
   HL7_2_1, HL7_2_1_MSH,
