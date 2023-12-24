@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "./jest.config.ts",
+    "./release.config.{cjs|js}"
+  ]
+}

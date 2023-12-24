@@ -1,5 +1,6 @@
 ## Node HL7 Client
-A pure Node.js HL7 Client
+
+> A pure Node.js HL7 Client
 that allows for communication to a HL7 Broker/Server that can send properly formatted HL7 messages with ease.
 Separately it can also parse and extract out any segment within an HL7 message.
 Messages could come as one after the other (MSH), as a Batch (BHS), or in a batch file (FHS).
@@ -11,18 +12,22 @@ Included in this package:
 
 Benefits:
 
-- No external dependencies, making this ultra-fast.
-- Automatically re-connect or retry sending
-- Written in typescript and published with heavily commented type definitions
-- Peer `node-hl7-server' npm package that in conjunction with this one could create a powerful HL7 system.
-- Works in Windows or Linux-based systems
-- With typed settings of key segments of the HL7 message (MSH, BHS, and FHS) it ensures that you are building your message in compliance with the HL7 standards defined at [https://www.hl7.org](https://www.hl7.org/implement/standards/index.cfm?ref=nav)
+- :fast_forward: No external dependencies, making this ultra-fast.
+- :electric_plug: Automatically re-connect or retry sending
+- :memo: Written in typescript and published with heavily commented type definitions
+- :bust_in_silhouette: Peer `node-hl7-server' npm package that in conjunction with this one could create a powerful HL7 system.
+- :computer: Works in Windows or Linux-based systems
+- :guide_dog: With typed settings of key segments, of the HL7 message (MSH, BHS, and FHS) it ensures that you are building your message in compliance with the HL7 standards defined at [https://www.hl7.org](https://www.hl7.org/implement/standards/index.cfm?ref=nav)
+
+If you are using this NPM package, please consider give it a :star: star.
+This will increase its visibility and solicit more contribution from the outside.
 
 ## Table of Contents
 
 1. [Keyword Definitions](#Keyword-Definitions)
-2. [Acknowledgements](#acknowledgements)
-3. [License](#license)
+2. [Documentation](#documentation)
+3. [Acknowledgements](#acknowledgements)
+4. [License](#license)
 
 ## Keyword Definitions
 
@@ -37,8 +42,12 @@ They might be sans uppercase throughout the documentation, but they would have t
 * **MUST** - This word, or the terms "**REQUIRED**" or "**SHALL**", mean that the definition is an absolute requirement of the specification.
 * **MUST NOT** - This phrase, or the phrase "**SHALL NOT**", mean that the definition is an absolute prohibition of the specification.
 * **SHOULD** - This word, or the adjective "**RECOMMENDED**", mean that there may exist valid reasons in particular circumstances to ignore a particular item, but the full implications must be understood and carefully weighed before choosing a different course.
-* **SHOULD NOT** - This phrase, or the phrase "**NOT RECOMMENDED**", mean that there may exist valid reasons in particular circumstances when the particular behavior is acceptable or even useful. The full implications should be understood and the case carefully weighed before implementing any behavior described with this label.
+* **SHOULD NOT** - This phrase, or the phrase "**NOT RECOMMENDED**", mean that there may exist valid reasons in particular circumstances when the particular behavior is acceptable or even useful. The full implications should be understood, and the case carefully weighed before implementing any behavior described with this label.
 * **MAY** - This word, or the adjective "**OPTIONAL**",  mean that an item is truly optional.  Any implementation which does not include a particular option MUST be prepared to interoperate with another implementation which does include the option, though perhaps with reduced functionality. In the same vein, an implementation which does include a particular option MUST be prepared to interoperate with another implementation, which does not include the option (except, of course, for the feature the option provides.)
+
+## Documentation
+
+It's way too extensive to include on this README alone. Please [read this](pages/index.md) to gain more information.
 
 ## Acknowledgements
 

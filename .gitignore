@@ -131,12 +131,10 @@ docs
 .yarn/install-state.gz
 .pnp.*
 
-# NPM
-lib
-.npmrc
-package-lock.json
-
-# Webstorm
+# Custom
 .idea
 .run
+lib
 temp
+.npmrc
+package-lock.json

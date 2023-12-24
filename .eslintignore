@@ -1,3 +1,1 @@
-jest.config.ts
-release.config.js
-/__tests__/**/*
+/bin/**/*

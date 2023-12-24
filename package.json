@@ -13,10 +13,13 @@
       "default": "./lib/cjs/index.js"
     }
   },
+  "files": [
+    "lib/"
+  ],
   "scripts": {
     "clean": "rm -rf coverage docs lib temp",
-    "build": "tsc && tsc -p tsconfig.cjs.json && tsc -p tsconfig.types.json && ./bin/build-types.sh",
-    "build:watch": "tsc -w",
+    "build": "tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json && tsc -p tsconfig.types.json && ./bin/build-types.sh",
+    "build:watch": "tsc -p tsconfig.esm.json -w",
     "lint": "ts-standard | snazzy",
     "lint:fix": "ts-standard --fix | snazzy",
     "pack": "npm pack",
@@ -31,11 +34,6 @@
     "semantic-release": "semantic-release",
     "semantic-release:dry-run": "semantic-release --dry-run",
     "update": "npx npm-check-updates -u && npm run update:post-update",
-    "update:greatest": "npx npm-check-updates --target greatest",
-    "update:minor": "npx npm-check-updates --target minor -u && npm run update:post-update",
-    "update:newest": "npx npm-check-updates --target newest",
-    "update:patch": "npx npm-check-updates --target patch",
-    "update:semver": "npx npm-check-updates --target semver",
     "update:post-update": "npm install && npm run test:ci"
   },
   "repository": {
