@@ -21,6 +21,10 @@ This NPM package assumes that you understand HL7 requirements and understand whe
 ## Table of Contents
 
 1. [Introduction](#introduction)
+2. [Main Contents of HL7](#main-contents-of-hl7)
+   1. [Build of Sample HL7 MSH Segment](#build-a-sample-hl7-msh-segment)
+   2. [Using Non-Standard Encoding](#using-non-standard-encoding)
+   3. [Chain Method Building](#chain-method-building)
 
 ## Main Contents of HL7
 
@@ -43,7 +47,6 @@ Now this is just the start of a HL7 message. Normally, after this, there are ple
 The way this would be built using this library:
 
 ```ts
-
 const message = new Message({
   specification: new HL7_2_3(), // we are doing spec 2.3
   messageHeader: {
@@ -75,11 +78,11 @@ While a single MSH segment/header is all that is needed for the remote side, it 
 In this next example, we are going to add a [PID](https://hl7-definition.caristix.com/v2/HL7v2.3/Segments/PID) segment that contains it. All fields in this case _are_ optional. Two fields are required, PID.3 and PID.5, but this page does guide us on how to build the PID segment for the other fields
 
 ```ts
-const PID = message.addSegment('PID') // adds the PD1 to to the PD1.1 field
-PID.set('3', 'UniqueIDForPatent')    // ususally the MRN or Billing Order Number
-PID.set('5.1', 'Bunny')   // last name
-PID.set('5.2', 'Bugs')    // first name
-PID.set('5.7', 'L')       // indicating what type of name it is. Example here is "Legal"
+const PID = message.addSegment('PID') // Adds the PD1 as a segment for this MSH.
+PID.set('3', '123456789')   // Ususally the MRN or Billing Order Number
+PID.set('5.1', 'Bunny')     // Last name
+PID.set('5.2', 'Bugs')      // First name
+PID.set('5.7', 'L')         // Indicating what type of name it is. Example here is "Legal"
 ```
 
 Sp with this built, the result will be if outputed from 
@@ -92,6 +95,99 @@ Comes out to be:
 
 ```
 MSH|^~\\&|HNAM_PM|HNA500|AIG||20131017140041||ADT^A01|Q150084616T145947960|P|2.3
-PID|||UniqueIDForPatent||Bunny^Bugs^^^^^L|||||
+PID|||123456789||Bunny^Bugs^^^^^L|||||
 ```
- 
+
+While this is a simple HL7 message, it's still valid. 
+
+### Using Non-Standard Encoding
+
+By default, HL7 standard community has come up with these characters used to encode the HL7 string:
+
+| Encoding Character |      Designates     |
+|:------------------:|:-------------------:|
+|         \|         |   Field Separator   |
+|         ^          | Component Separator |
+|         &          |    Sub-Component    |
+|         ~          |      Repeating      |
+|         \          |  Escape Character   |
+
+These are set by default within this library.
+Naturally, the community assumes that these characters shall not be included in normal documentation purposes.
+However, on the flip side, this libary can provide changing any of the encoding characters as needed to be sent.
+The other side just needs to know how to interpret it,
+which may or may not need to be sent to a different interface port for parsing.
+
+You can change any of these by setting these options when contracting the Message, Batch, or File Batch classes.
+
+From _normalizedBuilder.ts_:
+```ts
+  /** The character used to separate different components.
+   * @since 1.0.0
+   * @default ^ */
+  separatorComponent: string
+  /** The character used to escape characters that need it in order for the computer to interpret the string correctly.
+   * @since 1.0.0
+   * @default \\ */
+  separatorEscape: string
+  /** The character used for separating fields.
+   * @since 1.0.0
+   * @default | */
+  separatorField: string
+  /** The character used for repetition field/values pairs.
+   * @since 1.0.0
+   * @default ~ */
+  separatorRepetition: string
+  /** The character used to have subcomponents seperated.
+   * @since 1.0.0
+   * @default & */
+  separatorSubComponent: string
+```
+
+These can not be set using segment command.
+
+```ts
+const message = new Message({
+   specification: new HL7_2_3(), // we are doing spec 2.3
+   messageHeader: {
+      msh_9_1: 'ADT', // required, there is "set" table of data this can be
+      msh_9_2: 'A01', // required, there is "set" table of data this can be
+      msh_10: 'Q150084616T145947960', // randomized by the class or set by you.
+      msh_11_1: 'P'   // required
+   }
+})
+message.set('MSH.2', '*+-02')   //  this will throw an ecepetio error
+```
+
+Valid Example:
+
+```ts
+const message = new Message({
+   separatorComponent: "+",
+   separatorEscape:  "#",
+   separatorField:  "!",
+   separatorRepetition: "?",
+   separatorSubComponent: "]",
+   specification: new HL7_2_3(), // we are doing spec 2.3
+   messageHeader: {
+      msh_9_1: 'ADT', // required, there is "set" table of data this can be
+      msh_9_2: 'A01', // required, there is "set" table of data this can be
+      msh_10: 'Q150084616T145947960', // randomized by the class or set by you.
+      msh_11_1: 'P'   // required
+   }
+})
+```
+
+### Chain Method Building
+
+This library allows you to chain methods to build segments in a single line for sub-componet and repeating fields. 
+
+```ts
+message.set('PV1.7').set(0).set(1, 'Jones').set(2, 'John')
+message.set('PV1.7').set(1).set(1, 'Smith').set(2, 'Bob')
+```
+
+Sets:
+```
+PV1|||||||^Jones^John~^Smith^Bob
+```
