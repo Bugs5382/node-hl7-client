@@ -30,8 +30,8 @@ Thus, let's show you would start using this library Client.
 ## Table of Contents
 
 1. [Introduction](#introduction)
-   1. [Basic Usage](#basic-usage)
-   2. [Running in Kubernetes](#running-in-kubernetes)
+2. [Basic Usage](#basic-usage)
+3. [Running in Kubernetes](#running-in-kubernetes)
 
 ## Basic Usage
 
@@ -82,7 +82,7 @@ await OB_ADT.close()
 
 Will close the connection permanently.
 
-### Running in Kubernetes
+## Running in Kubernetes
 
 In theory (to be tested in the near future)
 this library will work on a instance running in Kubernetes including more than one instance of the pod.
