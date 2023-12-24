@@ -28,22 +28,9 @@ jobs:
         run: npm install --ignore-scripts
       - name: Run Unit Tests
         run: npm run test:ci
-  Release-Drafter:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      issues: write
-      pull-requests: write
-      id-token: write
-    steps:
-      - name: Release Drafter
-        uses: release-drafter/release-drafter@v5.25.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        continue-on-error: true
   Release:
     runs-on: ubuntu-latest
-    needs: [ 'Test','Release-Drafter' ]
+    needs: [ 'Test' ]
     permissions:
       contents: write
       issues: write

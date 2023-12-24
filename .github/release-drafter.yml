@@ -38,8 +38,10 @@ exclude-labels:
   - skip-changelog
   - invalid
 template: |
-  <!-- Optional: add a release summary here -->
+  # What's Changed
   $CHANGES
+  
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
 
 
 autolabeler:
