@@ -8,6 +8,10 @@ For example, different companies make a GE Healthcare and a Philips Healthcare d
 
 So HL7 was born. HL7 allows GE, Philips, or the EMR to generate "results" and/or "communicate" using a common framework. You need something in the middle to do so. While there are plenty of paid interface HL7 engines out there, they are expensive, and not to say they don't work, they do work. But nothing is more needed than an HL7 Parser/Builder/Client (Send) ("HL7 Client") message that be important to do.
 
+This is not the world's authority on HL7.
+If you need a more compressive on how to read and understand HL7 structure,
+please visit [https://www.hl7.org](https://www.hl7.org/implement/standards/index.cfm?ref=nav) for more information.
+
 ## Table of Contents
 
 1. [Introduction](#introduction)
