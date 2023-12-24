@@ -31,6 +31,7 @@ Thus, let's show you would start using this library Client.
 
 1. [Introduction](#introduction)
    1. [Basic Usage](#basic-usage)
+   2. [Running in Kubernetes](#running-in-kubernetes)
 
 ## Basic Usage
 
@@ -72,4 +73,21 @@ so this way messages can be sent at any time without having to re-establish the 
 If it does disconnect, the library will attempt to reconnect for up to 10 times,
 or user configured, to re-established before closing the connection.
 Your app would have to restart the connection process if it completely died.
+
+To close your connection without it trying to reconnect:
+
+```ts
+await OB_ADT.close()
+```
+
+Will close the connection permanently.
+
+### Running in Kubernetes
+
+In theory (to be tested in the near future)
+this library will work on a instance running in Kubernetes including more than one instance of the pod.
+Since this is an outbound connection,
+the server/broker should be able to return to the instance that sent the message in the first place.
+If that instance dies after sending the message and not getting a response,
+the response from the server might be lost forever.
 

@@ -47,9 +47,7 @@ They might be sans uppercase throughout the documentation, but they would have t
 
 ## Documentation
 
-Documentation can found here:
-
-It's way too extensive to include on this README alone.
+It's way too extensive to include on this README alone. Please [read this](pages/index.md) to gain more information.
 
 ## Acknowledgements
 
