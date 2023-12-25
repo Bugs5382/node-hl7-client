@@ -1,3 +1,10 @@
+# [1.1.0-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0...v1.1.0-beta.1) (2023-12-25)
+
+
+### Features
+
+* merge in ([#53](https://github.com/Bugs5382/node-hl7-client/issues/53)) ([031ebfe](https://github.com/Bugs5382/node-hl7-client/commit/031ebfe4b5c315d7c6344a7eef2b06cf2626fc03))
+
 # 1.0.0 (2023-12-24)
 
 
