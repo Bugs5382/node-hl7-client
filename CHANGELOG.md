@@ -1,3 +1,11 @@
+# [1.1.0-beta.2](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.0-beta.1...v1.1.0-beta.2) (2023-12-27)
+
+
+### Bug Fixes
+
+* hostname -> host ([033ff25](https://github.com/Bugs5382/node-hl7-client/commit/033ff259a2f068837ab0693a8e05129607021cba))
+* hostname -> host ([#55](https://github.com/Bugs5382/node-hl7-client/issues/55)) ([5b1fa32](https://github.com/Bugs5382/node-hl7-client/commit/5b1fa32172111b2a05bd79f073b26df4c33ebd78)), closes [#54](https://github.com/Bugs5382/node-hl7-client/issues/54)
+
 # [1.1.0-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0...v1.1.0-beta.1) (2023-12-25)
 
 
