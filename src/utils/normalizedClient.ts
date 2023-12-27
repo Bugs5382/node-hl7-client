@@ -120,7 +120,7 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
   const props: any = { ...DEFAULT_CLIENT_OPTS, ...raw }
 
   if (typeof props.host === 'undefined' || props.host.length <= 0) {
-    throw new Error('hostname is not defined or the length is less than 0.')
+    throw new Error('host is not defined or the length is less than 0.')
   }
 
   if (props.ipv4 === true && props.ipv6 === true) {
@@ -128,14 +128,14 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
   }
 
   if (typeof props.host !== 'string' && props.ipv4 === false && props.ipv6 === false) {
-    throw new Error('hostname is not valid string.')
+    throw new Error('host is not valid string.')
   } else if (typeof props.host === 'string' && props.ipv4 === true && props.ipv6 === false) {
     if (!validIPv4(props.host)) {
-      throw new Error('hostname is not a valid IPv4 address.')
+      throw new Error('host is not a valid IPv4 address.')
     }
   } else if (typeof props.host === 'string' && props.ipv4 === false && props.ipv6 === true) {
     if (!validIPv6(props.host)) {
-      throw new Error('hostname is not a valid IPv6 address.')
+      throw new Error('host is not a valid IPv6 address.')
     }
   }
 
