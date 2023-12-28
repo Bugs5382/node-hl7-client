@@ -1,3 +1,11 @@
+# [1.1.0-beta.3](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.0-beta.2...v1.1.0-beta.3) (2023-12-28)
+
+
+### Bug Fixes
+
+* fix error emit error ([3daa8e8](https://github.com/Bugs5382/node-hl7-client/commit/3daa8e872c51492cbed8842f5301605da9bceaff)), closes [#56](https://github.com/Bugs5382/node-hl7-client/issues/56)
+* fix error emit error ([#57](https://github.com/Bugs5382/node-hl7-client/issues/57)) ([8aaf14a](https://github.com/Bugs5382/node-hl7-client/commit/8aaf14af973c9f4b06456a44dd3e816f3c7159c1))
+
 # [1.1.0-beta.2](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.0-beta.1...v1.1.0-beta.2) (2023-12-27)
 
 
