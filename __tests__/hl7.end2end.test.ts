@@ -123,6 +123,45 @@ describe('node hl7 end to end - client', () => {
     })
   })
 
+  describe('server/client failure checks', () => {
+    test('...host does not exist, timeout', async () => {
+
+      const client = new Client({ host: '192.0.2.1' })
+
+      // forced to lower connection timeout so unit testing is not slow
+      const ob = client.createOutbound({ port: 1234, connectionTimeout: 100 }, async () => {})
+
+      await expectEvent(ob, 'timeout')
+
+    })
+
+    test('...host exist, but not listening on the port, timeout', async () => {
+
+      const server = new Server({ bindAddress: '0.0.0.0' })
+      const listener = server.createInbound({ port: 3000 }, async () => {})
+
+      await expectEvent(listener, 'listen')
+
+      const client = new Client({ host: '0.0.0.0' })
+
+      // forced to lower connection timeout so unit testing is not slow
+      const ob = client.createOutbound({ port: 1234, connectionTimeout: 10 }, async () => {})
+
+      // we couldn't connect
+      await expectEvent(ob, 'error')
+
+      // we are attempting to reconnect
+      await expectEvent(ob, 'connecting')
+
+      // close ob now. were done
+      await ob.close()
+
+      // close the server connection
+      await listener.close()
+
+    })
+  })
+
   describe('...send message, get proper ACK', () => {
     let LISTEN_PORT: number
 

@@ -23,6 +23,7 @@ const DEFAULT_LISTEN_CLIENT_OPTS = {
   connectionTimeout: 10000,
   encoding: 'utf-8',
   maxAttempts: 10,
+  maxConnectionAttempts: 30,
   maxConnections: 10,
   retryHigh: 30000,
   retryLow: 1000,
@@ -44,10 +45,18 @@ export interface ClientOptions {
   /** Keep the connection alive after sending data and getting a response.
    * @default true */
   keepAlive?: boolean
-  /** Max Connections this connection makes.
+  /** Max attempts
+   * to send the message before an error is thrown if we are in the process of re-attempting to connect to the server.
    * Has to be greater than 1. You cannot exceed 50.
    * @default 10 */
   maxAttempts?: number
+  /** If we are trying to establish an initial connection to the server, let's end it after this many attempts.
+   * The time between re-connects is determined by {@see connectionTimeout}.
+   * You cannot exceed 50.
+   * @since 1.1.0
+   * @default 30
+   */
+  maxConnectionAttempts?: number
   /** Max delay, in milliseconds, for exponential-backoff when reconnecting
    * @default 30_000 */
   retryHigh?: number
@@ -61,25 +70,15 @@ export interface ClientOptions {
   tls?: boolean | TLSOptions
 }
 
-export interface ClientListenerOptions {
+export interface ClientListenerOptions extends ClientOptions {
   /** Encoding of the messages we expect from the HL7 message.
    * @default "utf-8"
    */
   encoding?: BufferEncoding
   /** Max Connections this connection makes.
-   * Has to be greater than 1. You cannot exceed 50.
-   * @default 10 */
-  maxAttempts?: number
-  /** Max Connections this connection makes.
    * Has to be greater than 1.
    * @default 10 */
   maxConnections?: number
-  /** Max delay, in milliseconds, for exponential-backoff when reconnecting
-   * @default 30_000 */
-  retryHigh?: number
-  /** Step size, in milliseconds, for exponential-backoff when reconnecting
-   * @default 1000 */
-  retryLow?: number
   /** The port we should connect on the server. */
   port: number
   /** Wait for ACK **/
@@ -92,11 +91,14 @@ type ValidatedClientKeys =
   | 'maxAttempts'
 
 type ValidatedClientListenerKeys =
+  | 'connectionTimeout'
   | 'port'
   | 'maxAttempts'
+  | 'maxConnectionAttempts'
   | 'maxConnections'
 
 interface ValidatedClientOptions extends Pick<Required<ClientOptions>, ValidatedClientKeys> {
+  connectionTimeout: number
   host: string
   maxAttempts: number
   retryHigh: number
@@ -106,9 +108,11 @@ interface ValidatedClientOptions extends Pick<Required<ClientOptions>, Validated
 }
 
 interface ValidatedClientListenerOptions extends Pick<Required<ClientListenerOptions>, ValidatedClientListenerKeys> {
+  connectionTimeout: number
   encoding: BufferEncoding
   port: number
   maxAttempts: number
+  maxConnectionAttempts: number
   maxConnections: number
   retryHigh: number
   retryLow: number
@@ -163,6 +167,7 @@ export function normalizeClientListenerOptions (raw?: ClientListenerOptions): Va
 
   assertNumber(props, 'connectionTimeout', 0)
   assertNumber(props, 'maxAttempts', 1, 50)
+  assertNumber(props, 'maxConnectionAttempts', 1, 50)
   assertNumber(props, 'maxConnections', 1, 50)
   assertNumber(props, 'port', 0, 65353)
 
