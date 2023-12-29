@@ -1,6 +1,6 @@
 import { Component } from './component.js'
 import { Delimiters } from '../../utils/enum.js'
-import { Node } from '../interface/node.js'
+import { HL7Node } from '../interface/hL7Node.js'
 import { HL7FatalError } from '../../utils/exception.js'
 import { NodeBase } from './nodeBase.js'
 import { ValueNode } from './valueNode.js'
@@ -13,13 +13,13 @@ export class FieldRepetition extends ValueNode {
   }
 
   /** @internal */
-  read (path: string[]): Node {
+  read (path: string[]): HL7Node {
     const component = this.children[parseInt(path.shift() as string) - 1]
     return path.length > 0 ? component.read(path) : component
   }
 
   /** @internal */
-  protected writeCore (path: string[], value: string): Node {
+  protected writeCore (path: string[], value: string): HL7Node {
     return this.writeAtIndex(path, value, parseInt(path.shift() as string) - 1)
   }
 
@@ -32,7 +32,7 @@ export class FieldRepetition extends ValueNode {
   }
 
   /** @internal */
-  protected createChild (text: string, index: number): Node {
+  protected createChild (text: string, index: number): HL7Node {
     return new Component(this, (index + 1).toString(), text)
   }
 }

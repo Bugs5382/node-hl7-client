@@ -1,11 +1,11 @@
-import { Node } from '../interface/node.js'
+import { HL7Node } from '../interface/hL7Node.js'
 
 /**
  * Empty Node
  * @since 1.0.0
- * @extends Node
+ * @extends HL7Node
  */
-export class EmptyNode implements Node {
+export class EmptyNode implements HL7Node {
   get name (): string {
     throw new Error('Method not implemented')
   }
@@ -14,11 +14,11 @@ export class EmptyNode implements Node {
     return 0
   }
 
-  get (_path: string | number): Node {
+  get (_path: string | number): HL7Node {
     return this
   }
 
-  set (_path: string | number, _value?: any): Node {
+  set (_path: string | number, _value?: any): HL7Node {
     return this
   }
 
@@ -26,7 +26,7 @@ export class EmptyNode implements Node {
     return false
   }
 
-  forEach (_callback: (value: Node, index: number) => void): void {
+  forEach (_callback: (value: HL7Node, index: number) => void): void {
     throw new Error('Method not implemented')
   }
 
@@ -42,7 +42,7 @@ export class EmptyNode implements Node {
     throw new Error('Method not implemented')
   }
 
-  toArray (): Node[] {
+  toArray (): HL7Node[] {
     return []
   }
 
@@ -66,11 +66,11 @@ export class EmptyNode implements Node {
     throw new Error('Method not implemented')
   }
 
-  read (_path: string[]): Node {
+  read (_path: string[]): HL7Node {
     throw new Error('Method not implemented')
   }
 
-  write (_path: string[], _value: string): Node {
+  write (_path: string[], _value: string): HL7Node {
     return this
   }
 

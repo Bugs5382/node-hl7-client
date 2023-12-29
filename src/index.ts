@@ -7,7 +7,7 @@ import { Delimiters, ReadyState } from './utils/enum.js'
 import { OutboundHandler } from './utils/normalizedClient.js'
 import { InboundResponse } from './client/module/inboundResponse.js'
 import { NodeBase } from './builder/modules/nodeBase.js'
-import { Node } from './builder/interface/node.js'
+import { HL7Node } from './builder/interface/hL7Node.js'
 import { EmptyNode } from './builder/modules/emptyNode.js'
 import { Segment } from './builder/modules/segment.js'
 export { MSH } from './specification/specification.js'
@@ -19,4 +19,4 @@ export type { ClientBuilderFileOptions, ClientBuilderMessageOptions, ClientBuild
 export type { HL7Error, HL7FatalError, HL7ParserError } from './utils/exception.js'
 
 export default Client
-export { Client, HL7Outbound, OutboundHandler, InboundResponse, FileBatch, Batch, Message, ReadyState, NodeBase, EmptyNode, Segment, Delimiters, Node }
+export { Client, HL7Outbound, OutboundHandler, InboundResponse, FileBatch, Batch, Message, ReadyState, NodeBase, EmptyNode, Segment, Delimiters, HL7Node }

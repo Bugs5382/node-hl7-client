@@ -3,7 +3,7 @@ import { HL7FatalError } from '../../utils/exception.js'
 import { isHL7Number, isHL7String } from '../../utils/utils.js'
 import { Field } from './field.js'
 import { NodeBase } from './nodeBase.js'
-import { Node } from '../interface/node.js'
+import { HL7Node } from '../interface/hL7Node.js'
 import { SubComponent } from './subComponent.js'
 
 /**
@@ -26,7 +26,7 @@ export class Segment extends NodeBase {
   }
 
   /** @internal */
-  read (path: string[]): Node {
+  read (path: string[]): HL7Node {
     let index = parseInt(path.shift() as string)
     if (index < 1) {
       throw new HL7FatalError(500, 'index must be 1 or greater.')
@@ -44,7 +44,7 @@ export class Segment extends NodeBase {
   }
 
   /** @internal */
-  set (path: string | number, value?: any): Node {
+  set (path: string | number, value?: any): HL7Node {
     if (arguments.length === 1) {
       return this.ensure(path)
     }
@@ -78,7 +78,7 @@ export class Segment extends NodeBase {
   }
 
   /** @internal */
-  protected writeCore (path: string[], value: string): Node {
+  protected writeCore (path: string[], value: string): HL7Node {
     let index = parseInt(path.shift() as string)
     if (index < 1 || isNaN(index)) {
       throw new HL7FatalError(500, "Can't have an index < 1 or not be a valid number.")
@@ -100,7 +100,7 @@ export class Segment extends NodeBase {
   }
 
   /** @internal */
-  protected createChild (text: string, index: number): Node {
+  protected createChild (text: string, index: number): HL7Node {
     return new Field(this, index.toString(), text)
   }
 }
