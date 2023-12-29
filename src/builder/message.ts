@@ -6,7 +6,7 @@ import { NodeBase } from './modules/nodeBase.js'
 import { RootBase } from './modules/rootBase.js'
 import { Segment } from './modules/segment.js'
 import { SegmentList } from './modules/segmentList.js'
-import { Node } from './interface/node.js'
+import { HL7Node } from './interface/hL7Node.js'
 
 /**
  * Message Class
@@ -85,7 +85,7 @@ export class Message extends RootBase {
    * @since 1.0.0
    * @param path
    */
-  get (path: string | number): Node {
+  get (path: string | number): HL7Node {
     let ret: any
 
     if (typeof path === 'number') {
@@ -97,7 +97,7 @@ export class Message extends RootBase {
       ret = this.read(_path)
     }
 
-    return typeof ret !== 'undefined' ? ret as Node : NodeBase.empty as Node
+    return typeof ret !== 'undefined' ? ret as HL7Node : NodeBase.empty as HL7Node
   }
 
   /**
@@ -106,12 +106,12 @@ export class Message extends RootBase {
    * @since 1.0.0
    * @param path
    */
-  read (path: string[]): Node {
+  read (path: string[]): HL7Node {
     const segmentName = path.shift() as string
     if (path.length === 0) {
       const segments = this.children.filter(x => (x as Segment).name === segmentName) as Segment[]
       if (segments.length > 0) {
-        return new SegmentList(this, segments) as Node
+        return new SegmentList(this, segments) as HL7Node
       }
     } else {
       if (typeof segmentName === 'undefined') {
@@ -131,7 +131,7 @@ export class Message extends RootBase {
    * @param path
    * @param value
    */
-  set (path: string | number, value?: any): Node {
+  set (path: string | number, value?: any): HL7Node {
     if (arguments.length === 1) {
       return this.ensure(path)
     }
@@ -190,7 +190,7 @@ export class Message extends RootBase {
    * @param value
    * @protected
    */
-  protected writeCore (path: string[], value: string): Node {
+  protected writeCore (path: string[], value: string): HL7Node {
     const segmentName = path.shift() as string
     if (typeof segmentName === 'undefined') {
       throw new HL7FatalError(500, 'segment name is not defined.')
@@ -210,7 +210,7 @@ export class Message extends RootBase {
    * @param _index Not used to create a segment.
    * @protected
    */
-  protected createChild (text: string, _index: number): Node {
+  protected createChild (text: string, _index: number): HL7Node {
     return new Segment(this, text.trim())
   }
 

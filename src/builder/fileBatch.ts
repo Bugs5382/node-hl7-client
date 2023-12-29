@@ -4,7 +4,7 @@ import { HL7FatalError, HL7ParserError } from '../utils/exception.js'
 import { ClientBuilderFileOptions, normalizedClientFileBuilderOptions } from '../utils/normalizedBuilder.js'
 import { createHL7Date } from '../utils/utils.js'
 import { Batch } from './batch.js'
-import { Node } from './interface/node.js'
+import { HL7Node } from './interface/hL7Node.js'
 import { Message } from './message.js'
 import { RootBase } from './modules/rootBase.js'
 import { Segment } from './modules/segment.js'
@@ -143,7 +143,7 @@ export class FileBatch extends RootBase {
    * const fileBatch = file.get(7)
    * ```
    */
-  get (path: string | number): Node {
+  get (path: string | number): HL7Node {
     return super.get(path)
   }
 
@@ -200,7 +200,7 @@ export class FileBatch extends RootBase {
    * batch.set('BHS.3').set(0).set('BHS.3.1', 'abc');
    * ```
    */
-  set (path: string | number, value?: any): Node {
+  set (path: string | number, value?: any): HL7Node {
     return super.set(path, value)
   }
 
@@ -213,17 +213,17 @@ export class FileBatch extends RootBase {
   }
 
   /** @internal */
-  protected createChild (text: string, _index: number): Node {
+  protected createChild (text: string, _index: number): HL7Node {
     return new Segment(this, text.trim())
   }
 
   /** @internal */
-  read (path: string[]): Node {
+  read (path: string[]): HL7Node {
     const segmentName = path.shift() as string
     if (path.length === 0) {
       const segments = this.children.filter(x => (x as Segment).name === segmentName) as Segment[]
       if (segments.length > 0) {
-        return new SegmentList(this, segments) as Node
+        return new SegmentList(this, segments) as HL7Node
       }
     } else {
       if (typeof segmentName === 'undefined') {
@@ -238,7 +238,7 @@ export class FileBatch extends RootBase {
   }
 
   /** @internal */
-  protected writeCore (path: string[], value: string): Node {
+  protected writeCore (path: string[], value: string): HL7Node {
     const segmentName = path.shift() as string
     if (typeof segmentName === 'undefined') {
       throw new HL7FatalError(500, 'segment name is not defined.')

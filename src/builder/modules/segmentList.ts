@@ -1,4 +1,4 @@
-import { Node } from '../interface/node.js'
+import { HL7Node } from '../interface/hL7Node.js'
 import { NodeBase } from './nodeBase.js'
 import { Segment } from './segment.js'
 
@@ -24,12 +24,12 @@ export class SegmentList extends NodeBase {
   }
 
   /** @internal */
-  read (path: string[]): Node {
+  read (path: string[]): HL7Node {
     return this._segments[0].read(path)
   }
 
   /** @internal */
-  protected writeCore (path: string[], value: string): Node {
+  protected writeCore (path: string[], value: string): HL7Node {
     return this._segments[0].write(path, value)
   }
 
@@ -39,7 +39,7 @@ export class SegmentList extends NodeBase {
   }
 
   /** @internal */
-  protected get children (): Node[] {
+  protected get children (): HL7Node[] {
     return this._segments
   }
 }
