@@ -1,8 +1,5 @@
 /** @internal */
-export const VT = String.fromCharCode(0x0b)
+export const PROTOCOL_MLLP_HEADER = String.fromCharCode(0x0b)
 
 /** @internal */
-export const FS = String.fromCharCode(0x1c)
-
-/** @internal */
-export const CR = String.fromCharCode(0x0d)
+export const PROTOCOL_MLLP_FOOTER = `${String.fromCharCode(0x1c)}${String.fromCharCode(0x0d)}`

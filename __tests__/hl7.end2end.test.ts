@@ -1,5 +1,5 @@
 import fs from 'fs'
-import { Hl7Inbound, Server } from 'node-hl7-server'
+import { HL7Inbound, Server } from 'node-hl7-server'
 import { Batch, Client, HL7Outbound, Message } from '../src'
 import path from 'node:path'
 import portfinder from 'portfinder'
@@ -14,7 +14,7 @@ describe('node hl7 end to end - client', () => {
     let waitAck: number = 0
 
     let server: Server
-    let listener: Hl7Inbound
+    let listener: HL7Inbound
 
     let client: Client
     let outGoing: HL7Outbound
@@ -62,7 +62,6 @@ describe('node hl7 end to end - client', () => {
 
     test('...send simple message, just to make sure it sends, no data checks', async () => {
       // please run these tests using the described block. otherwise tests will fail
-
       const message = new Message({
         messageHeader: {
           msh_9_1: 'ADT',

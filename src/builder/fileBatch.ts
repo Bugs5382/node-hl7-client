@@ -283,3 +283,5 @@ export class FileBatch extends RootBase {
     throw new HL7FatalError(500, 'Unable to process _getFirstSegment.')
   }
 }
+
+export default FileBatch

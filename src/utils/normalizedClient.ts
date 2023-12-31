@@ -51,7 +51,7 @@ export interface ClientOptions {
    * @default 10 */
   maxAttempts?: number
   /** If we are trying to establish an initial connection to the server, let's end it after this many attempts.
-   * The time between re-connects is determined by {@see connectionTimeout}.
+   * The time between re-connects is determined by {@link connectionTimeout}.
    * You cannot exceed 50.
    * @since 1.1.0
    * @default 30
