@@ -1,3 +1,22 @@
+# [1.1.0](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0...v1.1.0) (2023-12-31)
+
+
+### Bug Fixes
+
+* fix error emit error ([3daa8e8](https://github.com/Bugs5382/node-hl7-client/commit/3daa8e872c51492cbed8842f5301605da9bceaff)), closes [#56](https://github.com/Bugs5382/node-hl7-client/issues/56)
+* fix error emit error ([#57](https://github.com/Bugs5382/node-hl7-client/issues/57)) ([8aaf14a](https://github.com/Bugs5382/node-hl7-client/commit/8aaf14af973c9f4b06456a44dd3e816f3c7159c1))
+* hostname -> host ([033ff25](https://github.com/Bugs5382/node-hl7-client/commit/033ff259a2f068837ab0693a8e05129607021cba))
+* hostname -> host ([#55](https://github.com/Bugs5382/node-hl7-client/issues/55)) ([5b1fa32](https://github.com/Bugs5382/node-hl7-client/commit/5b1fa32172111b2a05bd79f073b26df4c33ebd78)), closes [#54](https://github.com/Bugs5382/node-hl7-client/issues/54)
+
+
+### Features
+
+* add stats to outbound connection ([#63](https://github.com/Bugs5382/node-hl7-client/issues/63)) ([29f6a00](https://github.com/Bugs5382/node-hl7-client/commit/29f6a00143d3e6f996e76f1b2d255790e6a927f9))
+* client stats and properties ([069f201](https://github.com/Bugs5382/node-hl7-client/commit/069f201daa0f8c994d918eb6a3d5d2d43a01e0fc)), closes [#47](https://github.com/Bugs5382/node-hl7-client/issues/47)
+* client stats and properties ([3d6bb3c](https://github.com/Bugs5382/node-hl7-client/commit/3d6bb3c9dc103cfa6e08dd385101b01a5549be46))
+* merge in ([#53](https://github.com/Bugs5382/node-hl7-client/issues/53)) ([031ebfe](https://github.com/Bugs5382/node-hl7-client/commit/031ebfe4b5c315d7c6344a7eef2b06cf2626fc03))
+* v1.1.0 ([#61](https://github.com/Bugs5382/node-hl7-client/issues/61)) ([9adb0ab](https://github.com/Bugs5382/node-hl7-client/commit/9adb0abdfa9cc30ede354e71ab244b13bb245763))
+
 # [1.1.0-beta.4](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.0-beta.3...v1.1.0-beta.4) (2023-12-31)
 
 
