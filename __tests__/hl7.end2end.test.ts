@@ -54,9 +54,16 @@ describe('node hl7 end to end - client', () => {
       const outGoing = client.createOutbound({ port: LISTEN_PORT }, async () => {})
 
       await expectEvent(listener, 'client.connect')
-      await expectEvent(outGoing, 'connect')
+      await expectEvent(outGoing, 'client.connect')
+
+      // this test is only done once
+      expect(client.totalConnections()).toBe(1)
 
       await outGoing.close()
+
+      // this test is only done once
+      expect(client.totalConnections()).toBe(0)
+
       await listener.close()
     })
 
@@ -188,7 +195,7 @@ describe('node hl7 end to end - client', () => {
         dfd.resolve()
       })
 
-      await expectEvent(OB_ADT, 'connect')
+      await expectEvent(OB_ADT, 'client.connect')
 
       const message = new Message({
         messageHeader: {
@@ -237,7 +244,7 @@ describe('node hl7 end to end - client', () => {
         dfd.resolve()
       })
 
-      await expectEvent(OB_ADT, 'connect')
+      await expectEvent(OB_ADT, 'client.connect')
 
       const message = new Message({
         messageHeader: {
@@ -289,7 +296,7 @@ describe('node hl7 end to end - client', () => {
         dfd.resolve()
       })
 
-      await expectEvent(OB_ADT, 'connect')
+      await expectEvent(OB_ADT, 'client.connect')
 
       const batch = new Batch()
       batch.start()
@@ -345,7 +352,7 @@ describe('node hl7 end to end - client', () => {
         dfd.resolve()
       })
 
-      await expectEvent(OB_ADT, 'connect')
+      await expectEvent(OB_ADT, 'client.connect')
 
       const batch = new Batch()
       batch.start()
@@ -408,7 +415,7 @@ describe('node hl7 end to end - client', () => {
         }
       })
 
-      await expectEvent(OB_ADT, 'connect')
+      await expectEvent(OB_ADT, 'client.connect')
 
       const batch = new Batch()
       batch.start()
@@ -469,7 +476,7 @@ describe('node hl7 end to end - client', () => {
         }
       })
 
-      await expectEvent(OB_ADT, 'connect')
+      await expectEvent(OB_ADT, 'client.connect')
 
       const batch = new Batch()
       batch.start()
@@ -561,7 +568,7 @@ describe('node hl7 end to end - client', () => {
         dfd.resolve()
       })
 
-      await expectEvent(OB_ADT, 'connect')
+      await expectEvent(OB_ADT, 'client.connect')
 
       const fileBatch = await OB_ADT.readFile('temp/hl7.readFileTestMSH.20081231.hl7')
 
@@ -599,7 +606,7 @@ describe('node hl7 end to end - client', () => {
         dfd.resolve()
       })
 
-      await expectEvent(OB_ADT, 'connect')
+      await expectEvent(OB_ADT, 'client.connect')
 
       const fileBatch = await OB_ADT.readFile('temp/hl7.readFileTestMSH.20081231.hl7')
 
@@ -678,7 +685,7 @@ describe('node hl7 end to end - client', () => {
         }
       })
 
-      await expectEvent(OB_ADT, 'connect')
+      await expectEvent(OB_ADT, 'client.connect')
 
       const fileBatch = await OB_ADT.readFile('temp/hl7.readFileTestMSH.20081231.hl7')
 

@@ -298,7 +298,7 @@ export class HL7Outbound extends EventEmitter {
       // we have connected. we should now follow trying to reconnect until total failure
       this._initialConnection = true
       this._readyState = ReadyState.CONNECTED
-      this.emit('connect', true, this._socket)
+      this.emit('client.connect', true, this._socket)
     })
 
     socket.on('data', (buffer: Buffer) => {

@@ -52,9 +52,15 @@ describe('node hl7 client', () => {
     })
 
     test('properties exist', async () => {
-      const client = new Client({ host: 'hl7.server.com' })
+      const client = new Client({ host: 'hl7.server.local' })
       expect(client).toHaveProperty('createOutbound')
     })
+    
+    test('ensure getHost() is what we set in the host', async () => {
+      const client = new Client({ host: 'hl7.server.local' })
+      expect(client.getHost()).toEqual('hl7.server.local')
+    })
+    
   })
 
   describe('sanity tests - listener class', () => {
