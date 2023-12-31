@@ -29,7 +29,7 @@ export class RootBase extends NodeBase {
   constructor (opt: ClientBuilderOptions) {
     super(null, opt.text, Delimiters.Segment)
 
-    this._delimiters = `${opt.newLine}${opt.separatorField}${opt.separatorComponent}${opt.separatorRepetition}${opt.separatorEscape}${opt.separatorSubComponent}`
+    this._delimiters = `${opt.newLine as string}${opt.separatorField as string}${opt.separatorComponent as string}${opt.separatorRepetition as string}${opt.separatorEscape as string}${opt.separatorSubComponent as string}`
 
     if (this._delimiters === RootBase._defaultDelimiters) {
       this._matchUnescape = RootBase._defaultMatchUnescape

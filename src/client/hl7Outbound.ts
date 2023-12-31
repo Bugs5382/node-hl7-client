@@ -44,7 +44,7 @@ export class HL7Outbound extends EventEmitter {
   /** @internal */
   private _responseBuffer: string
   /** @internal */
-  private _initialConnection: boolean;
+  private _initialConnection: boolean
 
   /**
    * @since 1.0.0
@@ -256,7 +256,7 @@ export class HL7Outbound extends EventEmitter {
       }, this._opt.connectionTimeout)
     }
 
-    socket.on('timeout', async () => {
+    socket.on('timeout', () => {
       this._readyState = ReadyState.CLOSING
       this._removeSocket(this._nodeId)
       this.emit('timeout')
@@ -269,7 +269,7 @@ export class HL7Outbound extends EventEmitter {
     })
 
     socket.on('error', err => {
-      connectionError = connectionError || err
+      connectionError = typeof connectionError !== 'undefined' ? err : undefined
     })
 
     socket.on('close', () => {
@@ -277,7 +277,7 @@ export class HL7Outbound extends EventEmitter {
         this._readyState = ReadyState.CLOSED
         this._reset()
       } else {
-        connectionError = connectionError || new HL7FatalError(500, 'Socket closed unexpectedly by server.')
+        connectionError = typeof connectionError !== 'undefined' ? new HL7FatalError(500, 'Socket closed unexpectedly by server.') : undefined
         const retryHigh = typeof this._opt.retryHigh === 'undefined' ? this._main._opt.retryHigh : this._opt.retryLow
         const retryLow = typeof this._opt.retryLow === 'undefined' ? this._main._opt.retryLow : this._opt.retryLow
         const retryCount = this._retryCount++
@@ -378,7 +378,7 @@ export class HL7Outbound extends EventEmitter {
   }
 
   /** @internal */
-  private _reset() {
+  private _reset (): void {
     if (typeof this._connectionTimer !== 'undefined') {
       clearTimeout(this._connectionTimer)
     }

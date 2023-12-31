@@ -203,7 +203,7 @@ export class Batch extends RootBase {
     fileBatch.set('FHS.5', this.get('BHS.5').toString())
     fileBatch.set('FHS.6', this.get('BHS.6').toString())
     fileBatch.set('FHS.7', this.get('BHS.7').toString())
-    fileBatch.set('FHS.9', `hl7.${name}.${this.get('BHS.7').toString()}.${fileBatch._opt.extension}`)
+    fileBatch.set('FHS.9', `hl7.${name}.${this.get('BHS.7').toString()}.${fileBatch._opt.extension as string}`)
 
     fileBatch.add(this)
 

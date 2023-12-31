@@ -3,9 +3,9 @@ import fs from 'fs'
 import path from 'path'
 import {
   FileBatch, Batch, Message, createHL7Date, isBatch, isFile
+  , HL7Node, EmptyNode
 } from '../src'
 import { HL7_2_7_MSH, HL7_2_1, HL7_2_7, HL7_2_2, HL7_2_3, HL7_2_3_1, HL7_2_4, HL7_2_5, HL7_2_5_1, HL7_2_6, HL7_2_7_1, HL7_2_8 } from '../src/hl7'
-import { HL7Node, EmptyNode } from '../src'
 import { sleep } from './__utils__'
 
 const MSH_HEADER: HL7_2_7_MSH = {
