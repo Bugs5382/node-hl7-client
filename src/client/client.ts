@@ -15,7 +15,7 @@ export class Client extends EventEmitter {
   /** @internal */
   _opt: ReturnType<typeof normalizeClientOptions>
   /** @internal */
-  private _totalConnections: number;
+  private _totalConnections: number
 
   /**
    * @since 1.0.0
@@ -58,7 +58,7 @@ export class Client extends EventEmitter {
    * Get the host that we are currently connecting to.
    * @since 1.1.0
    */
-  getHost(): string {
+  getHost (): string {
     return this._opt.host
   }
 
@@ -66,7 +66,7 @@ export class Client extends EventEmitter {
    * Total connections ready to accept messages.
    * @since 1.1.0
    */
-  totalConnections(): number {
+  totalConnections (): number {
     return this._totalConnections
   }
 }

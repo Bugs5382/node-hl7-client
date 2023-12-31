@@ -212,6 +212,8 @@ describe('node hl7 end to end - client', () => {
 
       dfd.promise
 
+      expect(OB_ADT.stats.sent).toEqual(1)
+
       await OB_ADT.close()
       await IB_ADT.close()
     })
@@ -260,6 +262,8 @@ describe('node hl7 end to end - client', () => {
       await sleep(10)
 
       dfd.promise
+
+      expect(OB_ADT.stats.sent).toEqual(1)
 
       await OB_ADT.close()
       await IB_ADT.close()
@@ -319,6 +323,8 @@ describe('node hl7 end to end - client', () => {
       await sleep(10)
 
       dfd.promise
+
+      expect(OB_ADT.stats.sent).toEqual(1)
 
       await OB_ADT.close()
       await IB_ADT.close()

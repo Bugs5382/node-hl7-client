@@ -45,6 +45,15 @@ export class HL7Outbound extends EventEmitter {
   private _responseBuffer: string
   /** @internal */
   private _initialConnection: boolean
+  /** @internal */
+  readonly stats = {
+    /** Total acknowledged messages back from server.
+     * @since 1.1.0 */
+    acknowledged: 0,
+    /** Total message sent to server.
+     * @since 1.1.0 */
+    sent: 0
+  }
 
   /**
    * @since 1.0.0
@@ -215,7 +224,8 @@ export class HL7Outbound extends EventEmitter {
     const messageToSend = Buffer.from(`${PROTOCOL_MLLP_HEADER}${theMessage}${PROTOCOL_MLLP_FOOTER}`)
 
     return this._socket.write(messageToSend, this._opt.encoding, () => {
-      // FOR DEBUGGING ONLY: console.log(toSendData)
+      // we sent a message
+      ++this.stats.sent
     })
   }
 
@@ -317,7 +327,14 @@ export class HL7Outbound extends EventEmitter {
         if (loadedMessage.includes(PROTOCOL_MLLP_FOOTER)) {
           // strip them out
           loadedMessage = loadedMessage.replace(PROTOCOL_MLLP_FOOTER, '')
+
+          // response
           const response = new InboundResponse(loadedMessage)
+
+          // got an ACK, failure or not
+          ++this.stats.acknowledged
+
+          // send it back
           this._handler(response)
         }
       }
