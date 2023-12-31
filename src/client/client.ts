@@ -14,6 +14,8 @@ import { HL7Outbound } from './hl7Outbound.js'
 export class Client extends EventEmitter {
   /** @internal */
   _opt: ReturnType<typeof normalizeClientOptions>
+  /** @internal */
+  private _totalConnections: number
 
   /**
    * @since 1.0.0
@@ -26,6 +28,7 @@ export class Client extends EventEmitter {
   constructor (props?: ClientOptions) {
     super()
     this._opt = normalizeClientOptions(props)
+    this._totalConnections = 0
   }
 
   /** Connect to a listener to a specified port.
@@ -41,6 +44,29 @@ export class Client extends EventEmitter {
    * Review the {@link InboundResponse} on the properties returned.
    */
   createOutbound (props: ClientListenerOptions, cb: OutboundHandler): HL7Outbound {
-    return new HL7Outbound(this, props, cb)
+    const outbound = new HL7Outbound(this, props, cb)
+    outbound.on('client.connect', () => {
+      this._totalConnections++
+    })
+    outbound.on('client.close', () => {
+      this._totalConnections--
+    })
+    return outbound
+  }
+
+  /**
+   * Get the host that we are currently connecting to.
+   * @since 1.1.0
+   */
+  getHost (): string {
+    return this._opt.host
+  }
+
+  /**
+   * Total connections ready to accept messages.
+   * @since 1.1.0
+   */
+  totalConnections (): number {
+    return this._totalConnections
   }
 }
