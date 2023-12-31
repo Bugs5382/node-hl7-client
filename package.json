@@ -27,7 +27,7 @@
     "lint": "npm run npm:lint && ts-standard | snazzy",
     "lint:fix": "npm run npm:lint . && ts-standard --fix | snazzy",
     "pack": "npm pack",
-    "prepublishOnly": "npm run clean && npm run build && npm run test:ci && npm run pack",
+    "prepublishOnly": "npm run clean && npm run build && npm run pack",
     "test": "jest",
     "test:open": "jest --detectOpenHandles",
     "test:watch": "jest --watch",
