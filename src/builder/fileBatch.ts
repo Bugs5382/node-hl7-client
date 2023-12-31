@@ -110,7 +110,7 @@ export class FileBatch extends RootBase {
         fs.mkdir(this._opt.location, { recursive: true }, () => {})
       }
 
-      this._fileName = `hl7.${name}.${getFSHDate}.${this._opt.extension}`
+      this._fileName = `hl7.${name}.${getFSHDate}.${this._opt.extension as string}`
 
       fs.appendFile(path.join(this._opt.location, this._fileName), this.toString(), () => {})
     }
@@ -283,3 +283,5 @@ export class FileBatch extends RootBase {
     throw new HL7FatalError(500, 'Unable to process _getFirstSegment.')
   }
 }
+
+export default FileBatch

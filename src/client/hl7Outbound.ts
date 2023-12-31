@@ -5,7 +5,7 @@ import tls from 'node:tls'
 import { Batch } from '../builder/batch.js'
 import { FileBatch } from '../builder/fileBatch.js'
 import { Message } from '../builder/message.js'
-import { CR, FS, VT } from '../utils/constants.js'
+import { PROTOCOL_MLLP_FOOTER, PROTOCOL_MLLP_HEADER } from '../utils/constants.js'
 import { ReadyState } from '../utils/enum.js'
 import { HL7FatalError } from '../utils/exception.js'
 import { ClientListenerOptions, normalizeClientListenerOptions, OutboundHandler } from '../utils/normalizedClient.js'
@@ -44,7 +44,7 @@ export class HL7Outbound extends EventEmitter {
   /** @internal */
   private _responseBuffer: string
   /** @internal */
-  private _initialConnection: boolean;
+  private _initialConnection: boolean
 
   /**
    * @since 1.0.0
@@ -212,7 +212,7 @@ export class HL7Outbound extends EventEmitter {
     }
 
     // add MLLP settings to the message
-    const messageToSend = Buffer.from(`${VT}${theMessage}${FS}${CR}`)
+    const messageToSend = Buffer.from(`${PROTOCOL_MLLP_HEADER}${theMessage}${PROTOCOL_MLLP_FOOTER}`)
 
     return this._socket.write(messageToSend, this._opt.encoding, () => {
       // FOR DEBUGGING ONLY: console.log(toSendData)
@@ -256,7 +256,7 @@ export class HL7Outbound extends EventEmitter {
       }, this._opt.connectionTimeout)
     }
 
-    socket.on('timeout', async () => {
+    socket.on('timeout', () => {
       this._readyState = ReadyState.CLOSING
       this._removeSocket(this._nodeId)
       this.emit('timeout')
@@ -269,7 +269,7 @@ export class HL7Outbound extends EventEmitter {
     })
 
     socket.on('error', err => {
-      connectionError = connectionError || err
+      connectionError = typeof connectionError !== 'undefined' ? err : undefined
     })
 
     socket.on('close', () => {
@@ -277,7 +277,7 @@ export class HL7Outbound extends EventEmitter {
         this._readyState = ReadyState.CLOSED
         this._reset()
       } else {
-        connectionError = connectionError || new HL7FatalError(500, 'Socket closed unexpectedly by server.')
+        connectionError = typeof connectionError !== 'undefined' ? new HL7FatalError(500, 'Socket closed unexpectedly by server.') : undefined
         const retryHigh = typeof this._opt.retryHigh === 'undefined' ? this._main._opt.retryHigh : this._opt.retryLow
         const retryLow = typeof this._opt.retryLow === 'undefined' ? this._main._opt.retryLow : this._opt.retryLow
         const retryCount = this._retryCount++
@@ -306,17 +306,17 @@ export class HL7Outbound extends EventEmitter {
       this._responseBuffer += buffer.toString()
 
       while (this._responseBuffer !== '') {
-        const indexOfVT = this._responseBuffer.indexOf(VT)
-        const indexOfFSCR = this._responseBuffer.indexOf(FS + CR)
+        const indexOfVT = this._responseBuffer.indexOf(PROTOCOL_MLLP_HEADER)
+        const indexOfFSCR = this._responseBuffer.indexOf(PROTOCOL_MLLP_FOOTER)
 
         let loadedMessage = this._responseBuffer.substring(indexOfVT, indexOfFSCR + 2)
         this._responseBuffer = this._responseBuffer.slice(indexOfFSCR + 2, this._responseBuffer.length)
 
-        loadedMessage = loadedMessage.replace(VT, '')
+        loadedMessage = loadedMessage.replace(PROTOCOL_MLLP_HEADER, '')
         // is there is F5 and CR in this message?
-        if (loadedMessage.includes(FS + CR)) {
+        if (loadedMessage.includes(PROTOCOL_MLLP_FOOTER)) {
           // strip them out
-          loadedMessage = loadedMessage.replace(FS + CR, '')
+          loadedMessage = loadedMessage.replace(PROTOCOL_MLLP_FOOTER, '')
           const response = new InboundResponse(loadedMessage)
           this._handler(response)
         }
@@ -378,10 +378,12 @@ export class HL7Outbound extends EventEmitter {
   }
 
   /** @internal */
-  private _reset() {
+  private _reset (): void {
     if (typeof this._connectionTimer !== 'undefined') {
       clearTimeout(this._connectionTimer)
     }
     this._connectionTimer = undefined
   }
 }
+
+export default HL7Outbound

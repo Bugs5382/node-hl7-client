@@ -125,7 +125,7 @@ export function normalizedClientMessageBuilderOptions (raw?: ClientBuilderMessag
   }
 
   if (props.text === '') {
-    props.text = `MSH${props.separatorField}${props.separatorComponent}${props.separatorRepetition}${props.separatorEscape}${props.separatorSubComponent}`
+    props.text = `MSH${props.separatorField as string}${props.separatorComponent as string}${props.separatorRepetition as string}${props.separatorEscape as string}${props.separatorSubComponent as string}`
   } else if (typeof props.text !== 'undefined') {
     const plan: ParserPlan = new ParserPlan(props.text.slice(3, 8))
     props.parsing = true
@@ -159,7 +159,7 @@ export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderOptions)
   }
 
   if (props.text === '') {
-    props.text = `BHS${props.separatorField}${props.separatorComponent}${props.separatorRepetition}${props.separatorEscape}${props.separatorSubComponent}`
+    props.text = `BHS${props.separatorField as string}${props.separatorComponent as string}${props.separatorRepetition as string}${props.separatorEscape as string}${props.separatorSubComponent as string}`
   } else if (typeof props.text !== 'undefined') {
     const plan: ParserPlan = new ParserPlan(props.text.slice(3, 8))
     props.parsing = true
@@ -208,7 +208,7 @@ export function normalizedClientFileBuilderOptions (raw?: ClientBuilderFileOptio
   }
 
   if (props.text === '') {
-    props.text = `FHS${props.separatorField}${props.separatorComponent}${props.separatorRepetition}${props.separatorEscape}${props.separatorSubComponent}`
+    props.text = `FHS${props.separatorField as string}${props.separatorComponent as string}${props.separatorRepetition as string}${props.separatorEscape as string}${props.separatorSubComponent as string}`
   } else if (typeof props.text !== 'undefined') {
     const plan: ParserPlan = new ParserPlan(props.text.slice(3, 8))
     props.parsing = true

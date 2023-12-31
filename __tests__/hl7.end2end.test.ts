@@ -1,5 +1,5 @@
 import fs from 'fs'
-import { Hl7Inbound, Server } from 'node-hl7-server'
+import { HL7Inbound, Server } from 'node-hl7-server'
 import { Batch, Client, HL7Outbound, Message } from '../src'
 import path from 'node:path'
 import portfinder from 'portfinder'
@@ -14,7 +14,7 @@ describe('node hl7 end to end - client', () => {
     let waitAck: number = 0
 
     let server: Server
-    let listener: Hl7Inbound
+    let listener: HL7Inbound
 
     let client: Client
     let outGoing: HL7Outbound
@@ -62,7 +62,6 @@ describe('node hl7 end to end - client', () => {
 
     test('...send simple message, just to make sure it sends, no data checks', async () => {
       // please run these tests using the described block. otherwise tests will fail
-
       const message = new Message({
         messageHeader: {
           msh_9_1: 'ADT',
@@ -125,18 +124,15 @@ describe('node hl7 end to end - client', () => {
 
   describe('server/client failure checks', () => {
     test('...host does not exist, timeout', async () => {
-
       const client = new Client({ host: '192.0.2.1' })
 
       // forced to lower connection timeout so unit testing is not slow
       const ob = client.createOutbound({ port: 1234, connectionTimeout: 100 }, async () => {})
 
       await expectEvent(ob, 'timeout')
-
     })
 
     test('...host exist, but not listening on the port, timeout', async () => {
-
       const server = new Server({ bindAddress: '0.0.0.0' })
       const listener = server.createInbound({ port: 3000 }, async () => {})
 
@@ -158,7 +154,6 @@ describe('node hl7 end to end - client', () => {
 
       // close the server connection
       await listener.close()
-
     })
   })
 

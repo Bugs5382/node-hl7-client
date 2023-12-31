@@ -173,7 +173,7 @@ export class Message extends RootBase {
     fileBatch.set('FHS.5', this.get('MSH.5').toString())
     fileBatch.set('FHS.6', this.get('MSH.6').toString())
     fileBatch.set('FHS.7', this.get('MSH.7').toString())
-    fileBatch.set('FHS.9', `hl7.${name}.${this.get('MSH.7').toString()}.${fileBatch._opt.extension}`)
+    fileBatch.set('FHS.9', `hl7.${name}.${this.get('MSH.7').toString()}.${fileBatch._opt.extension as string}`)
     fileBatch.set('FHS.11', this.get('MSH.10').toString())
 
     fileBatch.add(this)
@@ -247,3 +247,5 @@ export class Message extends RootBase {
     return undefined
   }
 }
+
+export default Message
