@@ -1,3 +1,12 @@
+# [1.1.0-beta.4](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.0-beta.3...v1.1.0-beta.4) (2023-12-31)
+
+
+### Features
+
+* add stats to outbound connection ([#63](https://github.com/Bugs5382/node-hl7-client/issues/63)) ([29f6a00](https://github.com/Bugs5382/node-hl7-client/commit/29f6a00143d3e6f996e76f1b2d255790e6a927f9))
+* client stats and properties ([069f201](https://github.com/Bugs5382/node-hl7-client/commit/069f201daa0f8c994d918eb6a3d5d2d43a01e0fc)), closes [#47](https://github.com/Bugs5382/node-hl7-client/issues/47)
+* client stats and properties ([3d6bb3c](https://github.com/Bugs5382/node-hl7-client/commit/3d6bb3c9dc103cfa6e08dd385101b01a5549be46))
+
 # [1.1.0-beta.3](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.0-beta.2...v1.1.0-beta.3) (2023-12-28)
 
 
