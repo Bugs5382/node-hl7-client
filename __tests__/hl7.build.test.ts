@@ -3,11 +3,10 @@ import fs from 'fs'
 import path from 'path'
 import {
   FileBatch, Batch, Message, createHL7Date, isBatch, isFile
+  , HL7Node, EmptyNode
 } from '../src'
 import { HL7_2_7_MSH, HL7_2_1, HL7_2_7, HL7_2_2, HL7_2_3, HL7_2_3_1, HL7_2_4, HL7_2_5, HL7_2_5_1, HL7_2_6, HL7_2_7_1, HL7_2_8 } from '../src/hl7'
-import { EmptyNode } from '../src/builder/modules/emptyNode'
 import { sleep } from './__utils__'
-import { Node } from '../src/builder/interface/node'
 
 const MSH_HEADER: HL7_2_7_MSH = {
   msh_9_1: 'ADT',
@@ -897,7 +896,7 @@ describe('node hl7 client - builder tests', () => {
       segment.set(2, '20081231')
 
       let count: number = 0
-      message.get('EVN').forEach((segment: Node): void => {
+      message.get('EVN').forEach((segment: HL7Node): void => {
         expect(segment.name).toBe('EVN')
         count++
       })
@@ -967,7 +966,7 @@ describe('node hl7 client - builder tests', () => {
       expect(message.get('EVN.2').toString()).toBe('20081231')
 
       let count: number = 0
-      message.get('EVN').forEach((segment: Node): void => {
+      message.get('EVN').forEach((segment: HL7Node): void => {
         expect(segment.name).toBe('EVN')
         count++
       })
@@ -1006,7 +1005,7 @@ describe('node hl7 client - builder tests', () => {
 
       messages.forEach((message: Message): void => {
         let count: number = 0
-        message.get('EVN').forEach((segment: Node): void => {
+        message.get('EVN').forEach((segment: HL7Node): void => {
           expect(segment.name).toBe('EVN')
           count++
         })
@@ -1069,7 +1068,7 @@ describe('node hl7 client - builder tests', () => {
 
       messages.forEach((message: Message): void => {
         let count: number = 0
-        message.get('EVN').forEach((segment: Node): void => {
+        message.get('EVN').forEach((segment: HL7Node): void => {
           expect(segment.name).toBe('EVN')
           count++
         })
@@ -1086,7 +1085,7 @@ describe('node hl7 client - builder tests', () => {
 
       messages.forEach((message: Message): void => {
         let count: number = 0
-        message.get('EVN').forEach((segment: Node): void => {
+        message.get('EVN').forEach((segment: HL7Node): void => {
           expect(segment.name).toBe('EVN')
           count++
         })

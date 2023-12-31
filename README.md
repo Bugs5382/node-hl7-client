@@ -22,6 +22,13 @@ Benefits:
 If you are using this NPM package, please consider giving it a :star: star.
 This will increase its visibility and solicit more contribution from the outside.
 
+## Install
+
+Install using NPM into your package:
+```
+npm install node-hl7-client
+```
+
 ## Table of Contents
 
 1. [Keyword Definitions](#Keyword-Definitions)

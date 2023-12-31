@@ -3,22 +3,22 @@ import { Batch } from '../batch.js'
 import { EmptyNode } from './emptyNode.js'
 import { HL7FatalError } from '../../utils/exception.js'
 import { Delimiters } from '../../utils/enum.js'
-import { Node } from '../interface/node.js'
+import { HL7Node } from '../interface/hL7Node.js'
 import { Message } from '../message.js'
 
 /**
  * Node Base
  * @since 1.0.0
- * @extends Node
+ * @extends HL7Node
  */
-export class NodeBase implements Node {
+export class NodeBase implements HL7Node {
   protected parent: NodeBase | null
 
   _name: string
   private _text: string
   private readonly _delimiter: Delimiters | undefined
   private _delimiterText: string
-  private _children: Node[]
+  private _children: HL7Node[]
   private _message: Message | Batch | undefined
   private _path: string[]
   private _dirty: boolean
@@ -37,7 +37,7 @@ export class NodeBase implements Node {
 
   static empty = new EmptyNode()
 
-  get (path: string | number): Node {
+  get (path: string | number): HL7Node {
     let ret: any
 
     if (typeof path === 'number') {
@@ -49,10 +49,10 @@ export class NodeBase implements Node {
       ret = this.read(_path)
     }
 
-    return typeof ret !== 'undefined' ? ret as Node : NodeBase.empty as Node
+    return typeof ret !== 'undefined' ? ret as HL7Node : NodeBase.empty as HL7Node
   }
 
-  set (path: string | number, value?: any): Node {
+  set (path: string | number, value?: any): HL7Node {
     if (arguments.length === 1) {
       return this.ensure(path)
     }
@@ -130,11 +130,11 @@ export class NodeBase implements Node {
     return this._text
   }
 
-  toArray (): Node[] {
+  toArray (): HL7Node[] {
     return this.children
   }
 
-  forEach (callback: (value: Node, index: number) => void): void {
+  forEach (callback: (value: HL7Node, index: number) => void): void {
     const children = this.children
     for (let i = 0, l = children.length; i < l; i++) {
       callback(children[i], i)
@@ -154,7 +154,7 @@ export class NodeBase implements Node {
   }
 
   /** @internal */
-  protected ensure (path: string | number): Node {
+  protected ensure (path: string | number): HL7Node {
     const ret = this.get(path)
     if (ret !== NodeBase.empty) {
       return ret
@@ -216,23 +216,23 @@ export class NodeBase implements Node {
     return this._message
   }
 
-  read (_path: string[]): Node {
+  read (_path: string[]): HL7Node {
     throw new Error('Method not implemented.')
   }
 
-  write (path: string[], value: string): Node {
+  write (path: string[], value: string): HL7Node {
     this.setDirty()
     return this.writeCore(path, value == null ? '' : value)
   }
 
   /** @internal */
-  protected writeCore (_path: string[], _value: string): Node {
+  protected writeCore (_path: string[], _value: string): HL7Node {
     throw new Error('Method not implemented.')
   }
 
   /** @internal */
-  protected writeAtIndex (path: string[], value: string, index: number, emptyValue = ''): Node {
-    let child: Node
+  protected writeAtIndex (path: string[], value: string, index: number, emptyValue = ''): HL7Node {
+    let child: HL7Node
 
     if (path.length === 0) {
       child = this.createChild(typeof value !== 'undefined' ? value : emptyValue, index)
@@ -281,7 +281,7 @@ export class NodeBase implements Node {
   }
 
   /** @internal */
-  protected get children (): Node[] {
+  protected get children (): HL7Node[] {
     if (this._text !== '' && this._children.length === 0) {
       const parts = this._text.split(this.delimiter)
       const children = new Array(parts.length)
@@ -294,7 +294,7 @@ export class NodeBase implements Node {
   }
 
   /** @internal */
-  protected addChild (text: string): Node {
+  protected addChild (text: string): HL7Node {
     this.setDirty()
     const child = this.createChild(text, this.children.length)
     this.children.push(child)
@@ -302,12 +302,12 @@ export class NodeBase implements Node {
   }
 
   /** @internal */
-  protected createChild (_text: string, _index: number): Node {
+  protected createChild (_text: string, _index: number): HL7Node {
     throw new Error('Method not implemented.')
   }
 
   /** @internal */
-  protected setChild (child: Node, index: number): Node {
+  protected setChild (child: HL7Node, index: number): HL7Node {
     this.setDirty()
     const children = this.children
     if (index < children.length) {

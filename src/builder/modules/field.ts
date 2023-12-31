@@ -1,5 +1,5 @@
 import { Delimiters } from '../../utils/enum.js'
-import { Node } from '../interface/node.js'
+import { HL7Node } from '../interface/hL7Node.js'
 import { FieldRepetition } from './fieldRepetition.js'
 import { NodeBase } from './nodeBase.js'
 import { ValueNode } from './valueNode.js'
@@ -12,7 +12,7 @@ export class Field extends ValueNode {
   }
 
   /** @internal */
-  read (path: string[]): Node {
+  read (path: string[]): HL7Node {
     if (this.children.length > 0) {
       return this.children[0].read(path)
     }
@@ -20,7 +20,7 @@ export class Field extends ValueNode {
   }
 
   /** @internal */
-  protected writeCore (path: string[], value: string): Node {
+  protected writeCore (path: string[], value: string): HL7Node {
     return this._ensureChild().write(path, value)
   }
 
@@ -32,13 +32,13 @@ export class Field extends ValueNode {
      * @param _index
      * @protected
      */
-  protected createChild (text: string, _index: number): Node {
+  protected createChild (text: string, _index: number): HL7Node {
     return new FieldRepetition(this, this.key, text)
   }
 
   /** @internal */
-  private _ensureChild (): Node {
-    let child: Node
+  private _ensureChild (): HL7Node {
+    let child: HL7Node
     if (this.children.length === 0) {
       child = this.createChild('', 0)
       this.setChild(child, 0)

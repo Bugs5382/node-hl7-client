@@ -1,5 +1,5 @@
 import { Delimiters } from '../../utils/enum.js'
-import { Node } from '../interface/node.js'
+import { HL7Node } from '../interface/hL7Node.js'
 import { NodeBase } from './nodeBase.js'
 import { SubComponent } from './subComponent.js'
 import { ValueNode } from './valueNode.js'
@@ -12,17 +12,17 @@ export class Component extends ValueNode {
   }
 
   /** @internal */
-  read (path: string[]): Node {
+  read (path: string[]): HL7Node {
     return this.children[parseInt(path.shift() as string) - 1]
   }
 
   /** @internal */
-  protected writeCore (path: string[], value: string): Node {
+  protected writeCore (path: string[], value: string): HL7Node {
     return this.writeAtIndex(path, value, parseInt(path.shift() as string) - 1)
   }
 
   /** @internal */
-  protected createChild (text: string, index: number): Node {
+  protected createChild (text: string, index: number): HL7Node {
     return new SubComponent(this, (index + 1).toString(), text)
   }
 }

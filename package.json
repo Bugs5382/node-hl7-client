@@ -1,6 +1,6 @@
 {
   "name": "node-hl7-client",
-  "version": "1.0.0",
+  "version": "1.1.0-beta.4",
   "description": "A pure Node.js HL7 Client that allows for communication to a HL7 Broker/Server that can send properly formatted HL7 messages with ease.It can also parse and then you can extract message segments out.",
   "module": "./lib/esm/index.js",
   "main": "./lib/cjs/index.js",
@@ -16,12 +16,16 @@
   "files": [
     "lib/"
   ],
+  "engines": {
+    "node": "^18 || ^20"
+  },
   "scripts": {
     "clean": "rm -rf coverage docs lib temp",
     "build": "tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json && tsc -p tsconfig.types.json && ./bin/build-types.sh",
     "build:watch": "tsc -p tsconfig.esm.json -w",
-    "lint": "ts-standard | snazzy",
-    "lint:fix": "ts-standard --fix | snazzy",
+    "npm:lint": "npmPkgJsonLint .",
+    "lint": "npm run npm:lint && ts-standard | snazzy",
+    "lint:fix": "npm run npm:lint . && ts-standard --fix | snazzy",
     "pack": "npm pack",
     "prepublishOnly": "npm run clean && npm run build && npm run test:ci && npm run pack",
     "test": "jest",
@@ -66,8 +70,9 @@
     "@typescript-eslint/parser": "^6.15.0",
     "jest": "^29.7.0",
     "jest-ts-webcompat-resolver": "^1.0.0",
-    "node-hl7-server": "^1.0.0",
+    "node-hl7-server": "^1.0.1-beta.3",
     "npm-check-updates": "^16.14.12",
+    "npm-package-json-lint": "^7.1.0",
     "portfinder": "^1.0.32",
     "pre-commit": "^1.2.2",
     "semantic-release": "^22.0.12",

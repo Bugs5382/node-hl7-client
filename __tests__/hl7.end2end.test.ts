@@ -1,5 +1,5 @@
 import fs from 'fs'
-import { Hl7Inbound, Server } from 'node-hl7-server'
+import { HL7Inbound, Server } from 'node-hl7-server'
 import { Batch, Client, HL7Outbound, Message } from '../src'
 import path from 'node:path'
 import portfinder from 'portfinder'
@@ -14,7 +14,7 @@ describe('node hl7 end to end - client', () => {
     let waitAck: number = 0
 
     let server: Server
-    let listener: Hl7Inbound
+    let listener: HL7Inbound
 
     let client: Client
     let outGoing: HL7Outbound
@@ -54,15 +54,21 @@ describe('node hl7 end to end - client', () => {
       const outGoing = client.createOutbound({ port: LISTEN_PORT }, async () => {})
 
       await expectEvent(listener, 'client.connect')
-      await expectEvent(outGoing, 'connect')
+      await expectEvent(outGoing, 'client.connect')
+
+      // this test is only done once
+      expect(client.totalConnections()).toBe(1)
 
       await outGoing.close()
+
+      // this test is only done once
+      expect(client.totalConnections()).toBe(0)
+
       await listener.close()
     })
 
     test('...send simple message, just to make sure it sends, no data checks', async () => {
       // please run these tests using the described block. otherwise tests will fail
-
       const message = new Message({
         messageHeader: {
           msh_9_1: 'ADT',
@@ -123,6 +129,41 @@ describe('node hl7 end to end - client', () => {
     })
   })
 
+  describe('server/client failure checks', () => {
+    test('...host does not exist, timeout', async () => {
+      const client = new Client({ host: '192.0.2.1' })
+
+      // forced to lower connection timeout so unit testing is not slow
+      const ob = client.createOutbound({ port: 1234, connectionTimeout: 100 }, async () => {})
+
+      await expectEvent(ob, 'timeout')
+    })
+
+    test('...host exist, but not listening on the port, timeout', async () => {
+      const server = new Server({ bindAddress: '0.0.0.0' })
+      const listener = server.createInbound({ port: 3000 }, async () => {})
+
+      await expectEvent(listener, 'listen')
+
+      const client = new Client({ host: '0.0.0.0' })
+
+      // forced to lower connection timeout so unit testing is not slow
+      const ob = client.createOutbound({ port: 1234, connectionTimeout: 10 }, async () => {})
+
+      // we couldn't connect
+      await expectEvent(ob, 'error')
+
+      // we are attempting to reconnect
+      await expectEvent(ob, 'connecting')
+
+      // close ob now. were done
+      await ob.close()
+
+      // close the server connection
+      await listener.close()
+    })
+  })
+
   describe('...send message, get proper ACK', () => {
     let LISTEN_PORT: number
 
@@ -154,7 +195,7 @@ describe('node hl7 end to end - client', () => {
         dfd.resolve()
       })
 
-      await expectEvent(OB_ADT, 'connect')
+      await expectEvent(OB_ADT, 'client.connect')
 
       const message = new Message({
         messageHeader: {
@@ -170,6 +211,8 @@ describe('node hl7 end to end - client', () => {
       await sleep(10)
 
       dfd.promise
+
+      expect(OB_ADT.stats.sent).toEqual(1)
 
       await OB_ADT.close()
       await IB_ADT.close()
@@ -203,7 +246,7 @@ describe('node hl7 end to end - client', () => {
         dfd.resolve()
       })
 
-      await expectEvent(OB_ADT, 'connect')
+      await expectEvent(OB_ADT, 'client.connect')
 
       const message = new Message({
         messageHeader: {
@@ -219,6 +262,8 @@ describe('node hl7 end to end - client', () => {
       await sleep(10)
 
       dfd.promise
+
+      expect(OB_ADT.stats.sent).toEqual(1)
 
       await OB_ADT.close()
       await IB_ADT.close()
@@ -255,7 +300,7 @@ describe('node hl7 end to end - client', () => {
         dfd.resolve()
       })
 
-      await expectEvent(OB_ADT, 'connect')
+      await expectEvent(OB_ADT, 'client.connect')
 
       const batch = new Batch()
       batch.start()
@@ -278,6 +323,8 @@ describe('node hl7 end to end - client', () => {
       await sleep(10)
 
       dfd.promise
+
+      expect(OB_ADT.stats.sent).toEqual(1)
 
       await OB_ADT.close()
       await IB_ADT.close()
@@ -311,7 +358,7 @@ describe('node hl7 end to end - client', () => {
         dfd.resolve()
       })
 
-      await expectEvent(OB_ADT, 'connect')
+      await expectEvent(OB_ADT, 'client.connect')
 
       const batch = new Batch()
       batch.start()
@@ -374,7 +421,7 @@ describe('node hl7 end to end - client', () => {
         }
       })
 
-      await expectEvent(OB_ADT, 'connect')
+      await expectEvent(OB_ADT, 'client.connect')
 
       const batch = new Batch()
       batch.start()
@@ -435,7 +482,7 @@ describe('node hl7 end to end - client', () => {
         }
       })
 
-      await expectEvent(OB_ADT, 'connect')
+      await expectEvent(OB_ADT, 'client.connect')
 
       const batch = new Batch()
       batch.start()
@@ -527,7 +574,7 @@ describe('node hl7 end to end - client', () => {
         dfd.resolve()
       })
 
-      await expectEvent(OB_ADT, 'connect')
+      await expectEvent(OB_ADT, 'client.connect')
 
       const fileBatch = await OB_ADT.readFile('temp/hl7.readFileTestMSH.20081231.hl7')
 
@@ -565,7 +612,7 @@ describe('node hl7 end to end - client', () => {
         dfd.resolve()
       })
 
-      await expectEvent(OB_ADT, 'connect')
+      await expectEvent(OB_ADT, 'client.connect')
 
       const fileBatch = await OB_ADT.readFile('temp/hl7.readFileTestMSH.20081231.hl7')
 
@@ -644,7 +691,7 @@ describe('node hl7 end to end - client', () => {
         }
       })
 
-      await expectEvent(OB_ADT, 'connect')
+      await expectEvent(OB_ADT, 'client.connect')
 
       const fileBatch = await OB_ADT.readFile('temp/hl7.readFileTestMSH.20081231.hl7')
 
