@@ -20,7 +20,7 @@ you should know what your receiving on what port so getting the proper string ei
 ## Table of Contents
 
 1. [Introduction](#introduction)
-2. [basic Usage](#basic-usage)
+2. [Basic Usage](#basic-usage)
 
 ## Basic Usage
 
