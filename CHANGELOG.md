@@ -1,7 +1,15 @@
+
+# [1.1.0-beta.5](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.0-beta.4...v1.1.0-beta.5) (2024-01-08)
+
 # [1.1.0](https://github.com/Bugs5382/node-hl7-client/compare/v1.0.0...v1.1.0) (2023-12-31)
 
 
+
 ### Bug Fixes
+
+
+* BHS or MSH ([4e42fa1](https://github.com/Bugs5382/node-hl7-client/commit/4e42fa1c37adf8b5b5d8c4988e3ddb050c997335))
+* BHS or MSH ([#65](https://github.com/Bugs5382/node-hl7-client/issues/65)) ([5b10dda](https://github.com/Bugs5382/node-hl7-client/commit/5b10dda091c31fc51858af0701581fcc04f55b32))
 
 * fix error emit error ([3daa8e8](https://github.com/Bugs5382/node-hl7-client/commit/3daa8e872c51492cbed8842f5301605da9bceaff)), closes [#56](https://github.com/Bugs5382/node-hl7-client/issues/56)
 * fix error emit error ([#57](https://github.com/Bugs5382/node-hl7-client/issues/57)) ([8aaf14a](https://github.com/Bugs5382/node-hl7-client/commit/8aaf14af973c9f4b06456a44dd3e816f3c7159c1))
@@ -16,6 +24,7 @@
 * client stats and properties ([3d6bb3c](https://github.com/Bugs5382/node-hl7-client/commit/3d6bb3c9dc103cfa6e08dd385101b01a5549be46))
 * merge in ([#53](https://github.com/Bugs5382/node-hl7-client/issues/53)) ([031ebfe](https://github.com/Bugs5382/node-hl7-client/commit/031ebfe4b5c315d7c6344a7eef2b06cf2626fc03))
 * v1.1.0 ([#61](https://github.com/Bugs5382/node-hl7-client/issues/61)) ([9adb0ab](https://github.com/Bugs5382/node-hl7-client/commit/9adb0abdfa9cc30ede354e71ab244b13bb245763))
+
 
 # [1.1.0-beta.4](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.0-beta.3...v1.1.0-beta.4) (2023-12-31)
 
