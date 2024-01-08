@@ -1,3 +1,10 @@
+## [1.1.1-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.0...v1.1.1-beta.1) (2024-01-08)
+
+
+### Bug Fixes
+
+* BHS or MSH ([4e42fa1](https://github.com/Bugs5382/node-hl7-client/commit/4e42fa1c37adf8b5b5d8c4988e3ddb050c997335))
+* BHS or MSH ([#65](https://github.com/Bugs5382/node-hl7-client/issues/65)) ([5b10dda](https://github.com/Bugs5382/node-hl7-client/commit/5b10dda091c31fc51858af0701581fcc04f55b32))
 
 # [1.1.0-beta.5](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.0-beta.4...v1.1.0-beta.5) (2024-01-08)
 
