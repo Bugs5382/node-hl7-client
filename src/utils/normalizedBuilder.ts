@@ -146,8 +146,8 @@ export function normalizedClientMessageBuilderOptions (raw?: ClientBuilderMessag
 export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderOptions): ClientBuilderOptions {
   const props: ClientBuilderOptions = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
-  if (typeof props.text !== 'undefined' && props.text !== '' && props.text.slice(0, 3) !== 'BHS') {
-    throw new Error('text must begin with the BHS segment.')
+  if (typeof props.text !== 'undefined' && props.text !== '' && props.text.slice(0, 3) !== 'BHS' && props.text.slice(0, 3) !== 'MSH') {
+    throw new Error('text must begin with the BHS or MSH segment.')
   }
 
   if ((typeof props.newLine !== 'undefined' && props.newLine === '\\r') || props.newLine === '\\n') {
