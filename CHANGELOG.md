@@ -1,3 +1,10 @@
+## [1.1.2-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.1...v1.1.2-beta.1) (2024-01-10)
+
+
+### Bug Fixes
+
+* major error in batch processing ([b303d01](https://github.com/Bugs5382/node-hl7-client/commit/b303d01b15525289b0219b4f17641683381cb5ab))
+
 ## [1.1.1-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.0...v1.1.1-beta.1) (2024-01-08)
 
 ### Bug Fixes
