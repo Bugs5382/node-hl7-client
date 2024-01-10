@@ -89,7 +89,7 @@ export const expBackoff = (step: number, high: number, attempts: number, exp = 2
  */
 export const isBatch = (message: string): boolean => {
   const lines = split(message).filter(line => line.startsWith('MSH')).length > 1 || false
-  return message.startsWith('BHS') || lines
+  return message.startsWith('BHS') || (lines && message.startsWith('BHS'))
 }
 
 /**
