@@ -1,3 +1,10 @@
+## [1.1.2-beta.2](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.2-beta.1...v1.1.2-beta.2) (2024-01-10)
+
+
+### Bug Fixes
+
+* batch is BHS or two more MSH ([574f83c](https://github.com/Bugs5382/node-hl7-client/commit/574f83cf61de6c2642d854783e04fe7a78f6eba0))
+
 ## [1.1.2-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.1...v1.1.2-beta.1) (2024-01-10)
 
 
