@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { HL7FatalError, HL7ParserError } from '../utils/exception.js'
 import { ClientBuilderFileOptions, normalizedClientFileBuilderOptions } from '../utils/normalizedBuilder.js'
-import { createHL7Date } from '../utils/utils.js'
+import { createHL7Date, split } from '../utils/utils.js'
 import { Batch } from './batch.js'
 import { HL7Node } from './interface/hL7Node.js'
 import { Message } from './message.js'
@@ -44,9 +44,10 @@ export class FileBatch extends RootBase {
     this._opt = opt
     this._batchCount = 0
     this._messagesCount = 0
+    this._fileName = ''
 
     if (typeof opt.text !== 'undefined' && opt.parsing === true && opt.text !== '') {
-      this._lines = this.split(opt.text).filter(line => line.startsWith('MSH'))
+      this._lines = split(opt.text).filter(line => line.startsWith('MSH'))
     } else {
       this.set('FHS.7', createHL7Date(new Date(), this._opt.date))
     }
@@ -128,6 +129,15 @@ export class FileBatch extends RootBase {
   end (): void {
     const segment = this._addSegment('FTS')
     segment.set('1', this._batchCount + this._messagesCount)
+  }
+
+  /**
+   * Get File name
+   * @description Get File name going to be created.
+   * @since 1.2.0
+   */
+  fileName (): string {
+    return this._fileName
   }
 
   /**

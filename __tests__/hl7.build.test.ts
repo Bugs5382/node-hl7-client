@@ -948,9 +948,11 @@ describe('node hl7 client - builder tests', () => {
 
   describe('parse message, batch, and file', () => {
     const hl7_string: string = 'MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231'
+    const hl7_batch_msh_string: string = 'MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231\rMSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231'
     const hl7_non_standard: string = 'MSH:-+?*:field2:field3component1-field3component2:field4repeat1+field4repeat2:field5subcomponent1*field5subcomponent2:field6?R?'
     const hl7_batch: string = 'BHS|^~\\&|||||20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1'
     const hl7_batch_non_standard: string = 'BHS:-+?*:::::20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1'
+
 
     test('...verify MSH input', async () => {
       const message = new Message({ text: hl7_string })
@@ -1012,6 +1014,16 @@ describe('node hl7 client - builder tests', () => {
         expect(count).toBe(2)
       })
     })
+
+    test('...should be used as a batch', async () => {
+      try {
+        // @ts-expect-error
+        const message = new Message({ text: hl7_batch_msh_string })
+      }catch (err) {
+        expect(err).toEqual(new Error('Multiple MSH segments found. Use Batch.'))
+      }
+    })
+
   })
 
   describe('file tests', () => {

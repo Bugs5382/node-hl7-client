@@ -1,6 +1,6 @@
-import { HL7FatalError } from '../utils/exception.js'
+import { HL7FatalError, HL7ParserError } from '../utils/exception.js'
 import { ClientBuilderMessageOptions, normalizedClientMessageBuilderOptions } from '../utils/normalizedBuilder.js'
-import { isHL7Number } from '../utils/utils.js'
+import { isHL7Number, split } from '../utils/utils.js'
 import { FileBatch } from './fileBatch.js'
 import { NodeBase } from './modules/nodeBase.js'
 import { RootBase } from './modules/rootBase.js'
@@ -40,6 +40,13 @@ export class Message extends RootBase {
     super(opt)
 
     this._opt = opt
+
+    if (typeof opt.text !== 'undefined' && opt.parsing === true && opt.text !== '') {
+      const totalMsh = split(opt.text).filter(line => line.startsWith('MSH'))
+      if (totalMsh.length !== 0 && totalMsh.length !== 1) {
+        throw new HL7ParserError(500, 'Multiple MSH segments found. Use Batch.')
+      }
+    }
 
     if (typeof this._opt.messageHeader !== 'undefined') {
       if (this._opt.specification.checkMSH(this._opt.messageHeader) === true) {

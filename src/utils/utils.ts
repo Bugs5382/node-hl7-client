@@ -83,16 +83,17 @@ export const expBackoff = (step: number, high: number, attempts: number, exp = 2
 }
 
 /**
- * Check to see if the message is a Batch (BHS)
+ * Check to see if the message starts with Batch (BHS) header segment.
  * @since 1.0.0
  * @param message
  */
 export const isBatch = (message: string): boolean => {
-  return message.startsWith('BHS')
+  const lines = split(message).filter(line => line.startsWith('MSH')).length > 1 || false
+  return message.startsWith('BHS') || (lines && message.startsWith('BHS'))
 }
 
 /**
- * Check to see if the message is a File Batch (FHS)
+ * Check to see if the message starts with a a File Batch (FHS) header segment.
  * @param message
  */
 export const isFile = (message: string): boolean => {
@@ -171,4 +172,54 @@ export const randomString = (length = 20): string => {
     counter += 1
   }
   return result
+}
+
+/**
+ * Split the message.
+ * @description Split the message into its parts.
+ * @since 1.0.0
+ * @param data
+ * @param segments
+ */
+export const split = (data: string, segments: string[] = []): string[] => {
+  const getSegIndex = [...getSegIndexes(['FHS', 'BHS', 'MSH', 'BTS', 'FTS'], data)]
+  getSegIndex.sort((a, b) => parseInt(a) - parseInt(b))
+  for (let i = 0; i < getSegIndex.length; i++) {
+    const start = parseInt(getSegIndex[i])
+    let end = parseInt(getSegIndex[i + 1])
+    if (i + 1 === getSegIndex.length) {
+      end = data.length
+    }
+    segments.push(data.slice(start, end))
+  }
+  return segments
+}
+
+/**
+ * Get Segment Indexes
+ * @description Helper for {@link split}
+ * @since 1.0.0
+ * @param names
+ * @param data
+ * @param list
+ */
+const getSegIndexes = (names: string[], data: string, list: string[] = []): string[] => {
+  for (let i = 0; i < names.length; i++) {
+    const regex = new RegExp(`(\\n|\\r|)(${names[i]})\\|`, 'g')
+    let m
+    while ((m = regex.exec(data)) != null) {
+      const s = m[0]
+      if (s.includes('\r\n')) {
+        m.index = m.index + 2
+      } else if (s.includes('\n')) {
+        m.index++
+      } else if (s.includes('\r')) {
+        m.index++
+      }
+      if (m.index !== null) {
+        list.push(m.index.toString())
+      }
+    }
+  }
+  return list
 }

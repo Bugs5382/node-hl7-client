@@ -1,9 +1,28 @@
-## [1.1.1](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.0...v1.1.1) (2024-01-08)
+## [1.1.2-beta.3](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.2-beta.2...v1.1.2-beta.3) (2024-01-10)
 
 
 ### Bug Fixes
 
-* BHS or MSH ([4e42fa1](https://github.com/Bugs5382/node-hl7-client/commit/4e42fa1c37adf8b5b5d8c4988e3ddb050c997335))
+* another fix ([ecaa46a](https://github.com/Bugs5382/node-hl7-client/commit/ecaa46a25581d799e6e20eaa90c40b46139a4b91))
+
+## [1.1.2-beta.2](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.2-beta.1...v1.1.2-beta.2) (2024-01-10)
+
+
+### Bug Fixes
+
+* batch is BHS or two more MSH ([574f83c](https://github.com/Bugs5382/node-hl7-client/commit/574f83cf61de6c2642d854783e04fe7a78f6eba0))
+
+## [1.1.2-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.1...v1.1.2-beta.1) (2024-01-10)
+
+
+### Bug Fixes
+
+* major error in batch processing ([b303d01](https://github.com/Bugs5382/node-hl7-client/commit/b303d01b15525289b0219b4f17641683381cb5ab))
+
+## [1.1.1-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.0...v1.1.1-beta.1) (2024-01-08)
+
+### Bug Fixes
+
 * BHS or MSH ([#65](https://github.com/Bugs5382/node-hl7-client/issues/65)) ([5b10dda](https://github.com/Bugs5382/node-hl7-client/commit/5b10dda091c31fc51858af0701581fcc04f55b32))
 * update to batch processing ([#66](https://github.com/Bugs5382/node-hl7-client/issues/66)) ([cf06493](https://github.com/Bugs5382/node-hl7-client/commit/cf064933a1fa227654931be9cf0f07c35660396a))
 
