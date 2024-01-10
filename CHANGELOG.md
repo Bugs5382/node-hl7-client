@@ -1,3 +1,10 @@
+## [1.1.2-beta.3](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.2-beta.2...v1.1.2-beta.3) (2024-01-10)
+
+
+### Bug Fixes
+
+* another fix ([ecaa46a](https://github.com/Bugs5382/node-hl7-client/commit/ecaa46a25581d799e6e20eaa90c40b46139a4b91))
+
 ## [1.1.2-beta.2](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.2-beta.1...v1.1.2-beta.2) (2024-01-10)
 
 
