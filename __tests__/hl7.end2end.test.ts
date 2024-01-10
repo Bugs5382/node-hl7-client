@@ -627,8 +627,12 @@ describe('node hl7 end to end - client', () => {
 
   describe('...send file with two message, get proper ACK', () => {
     let LISTEN_PORT: number
+    let fileName: string
 
-    const hl7_string: string = 'MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7\rEVN||20081231\rMSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7\rEVN||20081231'
+    const hl7_string: string[] = [
+      "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7\rEVN||20081231",
+      "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7\rEVN||20081231"
+    ]
 
     beforeAll(async () => {
       fs.readdir('temp/', (err, files) => {
@@ -642,10 +646,20 @@ describe('node hl7 end to end - client', () => {
 
       await sleep(2)
 
-      const message = new Message({ text: hl7_string, date: '8' })
-      message.toFile('readFileTestMSH', true, 'temp/')
+      const batch = new Batch()
 
-      fs.access('temp/hl7.readFileTestMSH.20081231.hl7', fs.constants.F_OK, (err) => {
+      batch.start()
+
+      for (let i = 0; i < hl7_string.length; i++) {
+        const message = new Message({text: hl7_string[i] })
+        batch.add(message)
+      }
+
+      batch.end()
+
+      fileName = batch.toFile('readFileTestMSH', true, 'temp/')
+
+      fs.access(`temp/${fileName as string}`, fs.constants.F_OK, (err) => {
         if (err == null) {
           // Do something
         }
@@ -653,7 +667,7 @@ describe('node hl7 end to end - client', () => {
 
       await (async () => {
         try {
-          await fs.promises.access('temp/hl7.readFileTestMSH.20081231.hl7', fs.constants.F_OK)
+          await fs.promises.access(`temp/${fileName as string}`, fs.constants.F_OK)
           // Do something
         } catch (err) {
           // Handle error
@@ -693,7 +707,7 @@ describe('node hl7 end to end - client', () => {
 
       await expectEvent(OB_ADT, 'client.connect')
 
-      const fileBatch = await OB_ADT.readFile('temp/hl7.readFileTestMSH.20081231.hl7')
+      const fileBatch = await OB_ADT.readFile(`temp/${fileName as string}`)
 
       await OB_ADT.sendMessage(fileBatch)
 

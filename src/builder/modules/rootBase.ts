@@ -101,21 +101,6 @@ export class RootBase extends NodeBase {
   }
 
   /** @internal */
-  split (data: string, segments: string[] = []): string[] {
-    const getSegIndex = [...this._getSegIndexes(['FHS', 'BHS', 'MSH', 'BTS', 'FTS'], data)]
-    getSegIndex.sort((a, b) => parseInt(a) - parseInt(b))
-    for (let i = 0; i < getSegIndex.length; i++) {
-      const start = parseInt(getSegIndex[i])
-      let end = parseInt(getSegIndex[i + 1])
-      if (i + 1 === getSegIndex.length) {
-        end = data.length
-      }
-      segments.push(data.slice(start, end))
-    }
-    return segments
-  }
-
-  /** @internal */
   unescape (text: string): string {
     if (text === null) {
       throw new HL7FatalError(500, 'text must be passed in unescape function.')
@@ -152,27 +137,5 @@ export class RootBase extends NodeBase {
 
       return ''
     })
-  }
-
-  /** @internal */
-  private _getSegIndexes (names: string[], data: string, list: string[] = []): string[] {
-    for (let i = 0; i < names.length; i++) {
-      const regex = new RegExp(`(\\n|\\r|)(${names[i]})\\|`, 'g')
-      let m
-      while ((m = regex.exec(data)) != null) {
-        const s = m[0]
-        if (s.includes('\r\n')) {
-          m.index = m.index + 2
-        } else if (s.includes('\n')) {
-          m.index++
-        } else if (s.includes('\r')) {
-          m.index++
-        }
-        if (m.index !== null) {
-          list.push(m.index.toString())
-        }
-      }
-    }
-    return list
   }
 }

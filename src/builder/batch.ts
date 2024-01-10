@@ -1,6 +1,6 @@
 import { HL7FatalError, HL7ParserError } from '../utils/exception.js'
 import { ClientBuilderOptions, normalizedClientBatchBuilderOptions } from '../utils/normalizedBuilder.js'
-import { createHL7Date } from '../utils/utils.js'
+import { createHL7Date, split } from '../utils/utils.js'
 import { FileBatch } from './fileBatch.js'
 import { HL7Node } from './interface/hL7Node.js'
 import { Message } from './message.js'
@@ -36,7 +36,7 @@ export class Batch extends RootBase {
     this._messagesCount = 0
 
     if (typeof opt.text !== 'undefined' && opt.parsing === true && opt.text !== '') {
-      this._lines = this.split(opt.text).filter(line => line.startsWith('MSH'))
+      this._lines = split(opt.text).filter(line => line.startsWith('MSH'))
     } else {
       this.set('BHS.7', createHL7Date(new Date(), this._opt.date))
     }
@@ -194,7 +194,7 @@ export class Batch extends RootBase {
    * ```
    * You can set an `extension` parameter on Batch to set a custom extension if you don't want to be HL7.
    */
-  toFile (name: string, newLine?: boolean, location?: string, extension: string = 'hl7'): void {
+  toFile (name: string, newLine?: boolean, location?: string, extension: string = 'hl7'): string {
     const fileBatch = new FileBatch({ location, newLine: newLine === true ? '\n' : '', extension })
     fileBatch.start()
 
@@ -210,6 +210,8 @@ export class Batch extends RootBase {
     fileBatch.end()
 
     fileBatch.createFile(name)
+
+    return fileBatch.fileName()
   }
 
   /** @internal */
