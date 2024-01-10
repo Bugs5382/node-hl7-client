@@ -921,7 +921,7 @@ describe('node hl7 client - builder tests', () => {
           msh_10: 'CONTROL_ID'
         }
       })
-      expect(isBatch(message.toString())).toBe(true)
+      expect(isBatch(message.toString())).toBe(false)
     })
 
     test('...isBatch -should be false', async () => {
