@@ -1,3 +1,10 @@
+## [1.1.3-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.2...v1.1.3-beta.1) (2024-01-11)
+
+
+### Bug Fixes
+
+* another fix is parsing batch ([2037298](https://github.com/Bugs5382/node-hl7-client/commit/20372983804f81a12aa1c11ec70856272b598b79))
+
 ## [1.1.2-beta.4](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.2-beta.3...v1.1.2-beta.4) (2024-01-11)
 ## [1.1.2](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.1...v1.1.2) (2024-01-10)
 
