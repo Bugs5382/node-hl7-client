@@ -29,6 +29,7 @@
     "pack": "npm pack",
     "prepublishOnly": "npm run clean && npm run build && npm run pack",
     "test": "jest",
+    "test:verbose": "jest --verbose",
     "test:open": "jest --detectOpenHandles",
     "test:watch": "jest --watch",
     "test:ci": "jest --ci",
