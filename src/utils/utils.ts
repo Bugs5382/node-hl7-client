@@ -89,11 +89,16 @@ export const expBackoff = (step: number, high: number, attempts: number, exp = 2
  */
 export const isBatch = (message: string): boolean => {
   const lines = split(message).filter(line => line.startsWith('MSH')).length > 1 || false
-  return message.startsWith('BHS') || (lines && message.startsWith('BHS'))
+  if (lines) {
+    return true
+  } else if (message.startsWith('MSH') && !lines) {
+    return false
+  }
+  return message.startsWith('BHS')
 }
 
 /**
- * Check to see if the message starts with a a File Batch (FHS) header segment.
+ * Check to see if the message starts with a File Batch (FHS) header segment.
  * @param message
  */
 export const isFile = (message: string): boolean => {
