@@ -71,7 +71,7 @@ export class HL7Outbound extends EventEmitter {
     this._awaitingResponse = false
     this._initialConnection = false
     this._connectionTimer = undefined
-    this._handler = handler
+    this._handler = handler // eslint-disable-line @typescript-eslint/no-misused-promises
     this._main = client
     this._nodeId = randomString(5)
 

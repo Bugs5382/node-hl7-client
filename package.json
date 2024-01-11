@@ -86,7 +86,8 @@
     "typedoc": "^0.25.7",
     "typescript": "5.3.3"
   },
-  "pre-commit": [
+  "precommit": [
+    "lint:fix",
     "build"
   ]
 }

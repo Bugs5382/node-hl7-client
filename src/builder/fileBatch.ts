@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import {NAME_FORMAT} from "../utils/constants.js";
+import { NAME_FORMAT } from '../utils/constants.js'
 import { HL7FatalError, HL7ParserError } from '../utils/exception.js'
 import { ClientBuilderFileOptions, normalizedClientFileBuilderOptions } from '../utils/normalizedBuilder.js'
 import { createHL7Date, split } from '../utils/utils.js'
