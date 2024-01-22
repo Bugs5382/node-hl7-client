@@ -1,3 +1,11 @@
+# [1.2.0-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.3...v1.2.0-beta.1) (2024-01-22)
+
+
+### Features
+
+* better error reporting ([#73](https://github.com/Bugs5382/node-hl7-client/issues/73)) ([f5707ae](https://github.com/Bugs5382/node-hl7-client/commit/f5707aed9c2bed71dd783f6a632f791ce4203127))
+* fix error reporting issue ([414276a](https://github.com/Bugs5382/node-hl7-client/commit/414276af1a207b4d781d0a0b277d0808251fc83d))
+
 ## [1.1.3](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.2...v1.1.3) (2024-01-11)
 
 
