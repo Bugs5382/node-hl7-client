@@ -279,7 +279,7 @@ export class HL7Outbound extends EventEmitter {
     })
 
     socket.on('error', err => {
-      connectionError = typeof connectionError !== 'undefined' ? err : undefined
+      connectionError = typeof connectionError === 'undefined' ? err : undefined
     })
 
     socket.on('close', () => {

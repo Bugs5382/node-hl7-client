@@ -1,3 +1,4 @@
+import EventEmitter from 'events'
 import { isHL7Number, isHL7String, padHL7Date } from '../../utils/utils.js'
 import { Batch } from '../batch.js'
 import { EmptyNode } from './emptyNode.js'
@@ -11,7 +12,7 @@ import { Message } from '../message.js'
  * @since 1.0.0
  * @extends HL7Node
  */
-export class NodeBase implements HL7Node {
+export class NodeBase extends EventEmitter implements HL7Node {
   protected parent: NodeBase | null
 
   _name: string
@@ -24,6 +25,7 @@ export class NodeBase implements HL7Node {
   private _dirty: boolean
 
   constructor (parent: NodeBase | null, text: string = '', delimiter: Delimiters | undefined = undefined) {
+    super()
     this.parent = parent
 
     this._children = []
