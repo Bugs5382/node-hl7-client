@@ -15,7 +15,7 @@ export class InboundResponse {
    * @param data
    */
   constructor (data: string) {
-    this._message = new Message({ text: data.toString() })
+    this._message = new Message({ text: data.toString().trimEnd() })
   }
 
   /** '
