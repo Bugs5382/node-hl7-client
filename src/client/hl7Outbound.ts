@@ -22,7 +22,7 @@ export class HL7Outbound extends EventEmitter {
   /** @internal */
   _connectionTimer: NodeJS.Timeout | undefined
   /** @internal */
-  private readonly _handler: (res: InboundResponse) => void
+  _handler: ((res: InboundResponse) => Promise<void>) | undefined
   /** @internal */
   private readonly _main: Client
   /** @internal */
@@ -34,7 +34,7 @@ export class HL7Outbound extends EventEmitter {
   /** @internal */
   _retryTimer: NodeJS.Timeout | undefined
   /** @internal */
-  private readonly _socket: Socket
+  private _socket: Socket | undefined
   /** @internal */
   private readonly _sockets: Map<any, any>
   /** @internal */
@@ -44,7 +44,7 @@ export class HL7Outbound extends EventEmitter {
   /** @internal */
   private _responseBuffer: string
   /** @internal */
-  private _initialConnection: boolean
+  private readonly _initialConnection: boolean
   /** @internal */
   readonly stats = {
     /** Total acknowledged messages back from server.
@@ -66,7 +66,7 @@ export class HL7Outbound extends EventEmitter {
    * const OB = client.createOutbound({ port: 3000 }, async (res) => {})
    * ```
    */
-  constructor (client: Client, props: ClientListenerOptions, handler: OutboundHandler) {
+  constructor (client: Client, props: ClientListenerOptions, handler?: OutboundHandler) {
     super()
     this._awaitingResponse = false
     this._initialConnection = false
@@ -79,13 +79,13 @@ export class HL7Outbound extends EventEmitter {
 
     this._pendingSetup = true
     this._sockets = new Map()
-    this._retryCount = 1
+    this._retryCount = 0
     this._retryTimer = undefined
     this._readyState = ReadyState.CONNECTING
     this._responseBuffer = ''
+    this._socket = undefined
 
     this._connect = this._connect.bind(this)
-    this._socket = this._connect()
   }
 
   /** Close Client Listener Instance.
@@ -98,7 +98,7 @@ export class HL7Outbound extends EventEmitter {
    * OB.close()
    * ```
    */
-  async close (): Promise<boolean> {
+  async _close (): Promise<boolean> {
     // mark that we set our internal that we are closing, so we do not try to re-connect
     this._readyState = ReadyState.CLOSING
     this._sockets.forEach((socket) => {
@@ -156,76 +156,179 @@ export class HL7Outbound extends EventEmitter {
    *
    * ```
    */
-  async sendMessage (message: Message | Batch | FileBatch): Promise<boolean> {
-    let attempts = 0
-    const maxAttempts = typeof this._opt.maxAttempts === 'undefined' ? this._main._opt.maxAttempts : this._opt.maxAttempts
+  async sendMessage (message: Message | Batch | FileBatch): Promise<void> {
+    this._socket = this._connect(async (): Promise<void> => {
+      this._readyState = ReadyState.CONNECTED
 
-    const checkConnection = async (): Promise<boolean> => {
-      return this._readyState === ReadyState.CONNECTED
-    }
+      let attempts = 0
+      const maxAttempts = typeof this._opt.maxAttempts === 'undefined' ? this._main._opt.maxAttempts : this._opt.maxAttempts
 
-    const checkAck = async (): Promise<boolean> => {
-      return this._awaitingResponse
-    }
+      const checkConnection = async (): Promise<boolean> => {
+        return this._readyState === ReadyState.CONNECTED
+      }
 
-    const checkSend = async (_message: string): Promise<boolean> => {
-      // noinspection InfiniteLoopJS
-      while (true) {
-        try {
-        // first, if we are closed, sorry, no more sending messages
-          if ((this._readyState === ReadyState.CLOSED) || (this._readyState === ReadyState.CLOSING)) {
-            // noinspection ExceptionCaughtLocallyJS
-            throw new HL7FatalError(500, 'In an invalid state to be able to send message.')
-          }
-          if (this._readyState !== ReadyState.CONNECTED) {
-          // if we are not connected,
-          // check to see if we are now connected.
-            if (this._pendingSetup === false) {
-              this._pendingSetup = checkConnection().finally(() => { this._pendingSetup = false })
+      const checkAck = async (): Promise<boolean> => {
+        return this._awaitingResponse
+      }
+
+      const checkSend = async (_message: string): Promise<boolean> => {
+        while (true) { // noinspection InfiniteLoopJS
+          try {
+            if ((this._readyState === ReadyState.CLOSED) || (this._readyState === ReadyState.CLOSING)) {
+              // noinspection ExceptionCaughtLocallyJS
+              throw new HL7FatalError(500, 'In an invalid state to be able to send message.')
             }
-          } else if (this._readyState === ReadyState.CONNECTED && this._opt.waitAck && this._awaitingResponse) {
-          // Ok, we ar now confirmed connected.
-          // However, since we are checking
-          // to make sure we wait for an ACKNOWLEDGEMENT from the server,
-          // that the message was gotten correctly from the last one we sent.
-          // We are still waiting, we need to recheck again
-          // if we are not connected,
-          // check to see if we are now connected.
-            if (this._pendingSetup === false) {
-              this._pendingSetup = checkAck().finally(() => { this._pendingSetup = false })
+            if (this._readyState !== ReadyState.CONNECTED) {
+              // if we are not connected,
+              // check to see if we are now connected.
+              if (this._pendingSetup === false) {
+                this._pendingSetup = checkConnection().finally(() => {
+                  this._pendingSetup = false
+                })
+              }
+            } else if (this._readyState === ReadyState.CONNECTED && this._opt.waitAck && this._awaitingResponse) {
+              // Ok, we ar now confirmed connected.
+              // However, since we are checking
+              // to make sure we wait for an ACKNOWLEDGEMENT from the server,
+              // that the message was gotten correctly from the last one we sent.
+              // We are still waiting, we need to recheck again
+              // if we are not connected,
+              // check to see if we are now connected.
+              if (this._pendingSetup === false) {
+                this._pendingSetup = checkAck().finally(() => {
+                  this._pendingSetup = false
+                })
+              }
             }
-          }
-          return await this._pendingSetup
-        } catch (err: any) {
-          Error.captureStackTrace(err)
-          if (++attempts >= maxAttempts) {
-            throw err
-          } else {
-            emitter.emit('retry', err)
+            return await this._pendingSetup
+          } catch (err: any) {
+            Error.captureStackTrace(err)
+            if (++attempts >= maxAttempts) {
+              throw err
+            } else {
+              emitter.emit('retry', err)
+            }
           }
         }
       }
+
+      const emitter = new EventEmitter()
+
+      // get the message
+      const theMessage = message.toString()
+
+      // check to see if we should be sending
+      await checkSend(theMessage)
+
+      // ok, if our options are to wait for an acknowledgement, set the var to "true"
+      if (this._opt.waitAck) {
+        this._awaitingResponse = true
+      }
+
+      // add MLLP settings to the message
+      const messageToSend = Buffer.from(`${PROTOCOL_MLLP_HEADER}${theMessage}${PROTOCOL_MLLP_FOOTER}`)
+
+      this._socket?.write(messageToSend, this._opt.encoding, () => {
+        // we sent a message
+        ++this.stats.sent
+        // emit
+        this.emit('client.sent', this.stats.sent)
+      })
+    })
+
+    if (this._opt.connectionTimeout > 0) {
+      this._connectionTimer = setTimeout(() => {
+        // end this socket
+        this._socket?.end()
+        // kill
+        this._socket?.destroy(new HL7FatalError(500, 'Connection timed out.'))
+        // reset
+        this._removeSocket(this._nodeId)
+      }, this._opt.connectionTimeout)
     }
 
-    const emitter = new EventEmitter()
+    this._addSocket(this._nodeId, this._socket, true)
 
-    // get the message
-    const theMessage = message.toString()
+    this._socket.setNoDelay(true)
 
-    // check to see if we should be sending
-    await checkSend(theMessage)
+    this._socket.on('ready', () => {
+      // reset, kill any re-connection timer
+      this._reset()
+      // emit
+      this.emit('ready')
+    })
 
-    // ok, if our options are to wait for an acknowledgement, set the var to "true"
-    if (this._opt.waitAck) {
-      this._awaitingResponse = true
-    }
+    this._socket.on('data', async (buffer) => {
+      this._awaitingResponse = false
+      this._responseBuffer += buffer.toString()
 
-    // add MLLP settings to the message
-    const messageToSend = Buffer.from(`${PROTOCOL_MLLP_HEADER}${theMessage}${PROTOCOL_MLLP_FOOTER}`)
+      while (this._responseBuffer !== '') {
+        const indexOfVT = this._responseBuffer.indexOf(PROTOCOL_MLLP_HEADER)
+        const indexOfFSCR = this._responseBuffer.indexOf(PROTOCOL_MLLP_FOOTER)
 
-    return this._socket.write(messageToSend, this._opt.encoding, () => {
-      // we sent a message
-      ++this.stats.sent
+        let loadedMessage = this._responseBuffer.substring(indexOfVT, indexOfFSCR + 2)
+        this._responseBuffer = this._responseBuffer.slice(indexOfFSCR + 2, this._responseBuffer.length)
+
+        loadedMessage = loadedMessage.replace(PROTOCOL_MLLP_HEADER, '')
+
+        // is there is F5 and CR in this message?
+        if (loadedMessage.includes(PROTOCOL_MLLP_FOOTER)) {
+          // strip them out
+          loadedMessage = loadedMessage.replace(PROTOCOL_MLLP_FOOTER, '')
+          if (typeof this._handler !== 'undefined') {
+            // response
+            const response = new InboundResponse(loadedMessage)
+            // got an ACK, failure or not
+            ++this.stats.acknowledged
+            // update ack total
+            this.emit('client.acknowledged', this.stats.acknowledged)
+            // send it back
+            await this._handler(response)
+          }
+        }
+      }
+
+      // let's close the connection
+      await this._close()
+    })
+
+    this._socket.on('error', async () => {
+      // error, we are going to force close
+      this._readyState = ReadyState.CLOSING
+      // send error event
+      this.emit('error')
+      // let's force close the connection
+      await this._close()
+    })
+
+    this._socket.on('timeout', async (): Promise<void> => {
+      const maxConnectionAttempts = typeof this._opt.maxAttempts === 'undefined' ? this._main._opt.maxAttempts : this._opt.maxAttempts
+      const retryCount = this._retryCount
+      if (retryCount < maxConnectionAttempts && (this._readyState === ReadyState.CONNECTING || this._readyState === ReadyState.OPEN) && this._initialConnection) {
+        // retry high
+        const retryHigh = typeof this._opt.retryHigh === 'undefined' ? this._main._opt.retryHigh : this._opt.retryLow
+        // retry low
+        const retryLow = typeof this._opt.retryLow === 'undefined' ? this._main._opt.retryLow : this._opt.retryLow
+        // increase retry count
+        ++this._retryCount
+        // reset, kill any re-connection timer
+        this._reset()
+        // calculate delay
+        const delay = expBackoff(retryLow, retryHigh, this._retryCount)
+        // tell this system we are now open, but not yet trying to connect to the server again
+        this._readyState = ReadyState.OPEN
+        // emit that we are in the timeout phase
+        this.emit('timeout')
+        // build the retry timer
+        this._retryTimer = setTimeout(async (): Promise<void> => await this.sendMessage(message), delay)
+      } else if (retryCount >= maxConnectionAttempts || (this._readyState === ReadyState.CONNECTING && !this._initialConnection) || !this._initialConnection) {
+        // mark this now as a closing
+        this._readyState = ReadyState.CLOSING
+        // close the socket for good
+        await this._close()
+        // send error event
+        this.emit('error')
+      }
     })
   }
 
@@ -239,115 +342,33 @@ export class HL7Outbound extends EventEmitter {
   }
 
   /** @internal */
-  private _connect (): Socket {
-    this._retryTimer = undefined
-
+  private _connect (handler: () => void): Socket {
     let socket: Socket
     const host = this._main._opt.host
     const port = this._opt.port
 
     if (typeof this._main._opt.tls !== 'undefined') {
-      socket = tls.connect({ host, port, timeout: this._opt.connectionTimeout, ...this._main._opt.socket, ...this._main._opt.tls }, () => this._listener(socket))
+      socket = tls.connect({
+        host,
+        port,
+        timeout: this._opt.connectionTimeout,
+        ...this._main._opt.socket,
+        ...this._main._opt.tls
+      }, () => {
+        this._listener(socket)
+        handler()
+      })
     } else {
-      socket = net.connect({ host, port, timeout: this._opt.connectionTimeout }, () => this._listener(socket))
+      socket = net.connect({
+        host,
+        port,
+        timeout:
+        this._opt.connectionTimeout
+      }, () => {
+        this._listener(socket)
+        handler()
+      })
     }
-
-    socket.setNoDelay(true)
-
-    // send this to tell we are pending connecting to the host/port
-    this.emit('connecting')
-
-    let connectionError: Error | undefined
-
-    if (this._opt.connectionTimeout > 0) {
-      this._connectionTimer = setTimeout(() => {
-        socket.destroy(new HL7FatalError(500, 'Connection timed out.'))
-        this._removeSocket(this._nodeId)
-      }, this._opt.connectionTimeout)
-    }
-
-    socket.on('timeout', () => {
-      this._readyState = ReadyState.CLOSING
-      this._removeSocket(this._nodeId)
-      this.emit('timeout')
-    })
-
-    socket.on('ready', () => {
-      this.emit('ready')
-      // fired right after successful connection,
-      // tell the user ready to be able to send messages to server/broker
-    })
-
-    socket.on('error', err => {
-      connectionError = typeof connectionError === 'undefined' ? err : undefined
-    })
-
-    socket.on('close', () => {
-      if (this._readyState === ReadyState.CLOSING) {
-        this._readyState = ReadyState.CLOSED
-        this._reset()
-      } else {
-        connectionError = typeof connectionError !== 'undefined' ? new HL7FatalError(500, 'Socket closed unexpectedly by server.') : undefined
-        const retryHigh = typeof this._opt.retryHigh === 'undefined' ? this._main._opt.retryHigh : this._opt.retryLow
-        const retryLow = typeof this._opt.retryLow === 'undefined' ? this._main._opt.retryLow : this._opt.retryLow
-        const retryCount = this._retryCount++
-        const delay = expBackoff(retryLow, retryHigh, retryCount)
-        this._readyState = ReadyState.OPEN
-        this._reset()
-        this._retryTimer = setTimeout(this._connect, delay)
-        if ((retryCount <= 1) && (retryCount < this._opt.maxConnectionAttempts)) {
-          this.emit('error', connectionError)
-        } else if ((retryCount > this._opt.maxConnectionAttempts) && !this._initialConnection) {
-          // this._removeSocket(this._nodeId)
-          this.emit('timeout')
-        }
-      }
-    })
-
-    socket.on('connect', () => {
-      // we have connected. we should now follow trying to reconnect until total failure
-      this._initialConnection = true
-      this._readyState = ReadyState.CONNECTED
-      this.emit('client.connect', true, this._socket)
-    })
-
-    socket.on('data', (buffer: Buffer) => {
-      this._awaitingResponse = false
-      this._responseBuffer += buffer.toString()
-
-      while (this._responseBuffer !== '') {
-        const indexOfVT = this._responseBuffer.indexOf(PROTOCOL_MLLP_HEADER)
-        const indexOfFSCR = this._responseBuffer.indexOf(PROTOCOL_MLLP_FOOTER)
-
-        let loadedMessage = this._responseBuffer.substring(indexOfVT, indexOfFSCR + 2)
-        this._responseBuffer = this._responseBuffer.slice(indexOfFSCR + 2, this._responseBuffer.length)
-
-        loadedMessage = loadedMessage.replace(PROTOCOL_MLLP_HEADER, '')
-        // is there is F5 and CR in this message?
-        if (loadedMessage.includes(PROTOCOL_MLLP_FOOTER)) {
-          // strip them out
-          loadedMessage = loadedMessage.replace(PROTOCOL_MLLP_FOOTER, '')
-
-          // response
-          const response = new InboundResponse(loadedMessage)
-
-          // got an ACK, failure or not
-          ++this.stats.acknowledged
-
-          // send it back
-          this._handler(response)
-        }
-      }
-    })
-
-    socket.on('end', () => {
-      this._removeSocket(this._nodeId)
-      this.emit('end')
-    })
-
-    socket.unref()
-
-    this._addSocket(this._nodeId, socket, true)
 
     return socket
   }

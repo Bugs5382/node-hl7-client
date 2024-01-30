@@ -15,7 +15,17 @@ export class Client extends EventEmitter {
   /** @internal */
   _opt: ReturnType<typeof normalizeClientOptions>
   /** @internal */
-  private _totalConnections: number
+  readonly stats = {
+    /** Total outbound connections able to connect to at this moment.
+     * @since 1.1.0 */
+    _totalConnections: 0,
+    /** Overall total sent messages
+     * @since 2.0.0 */
+    _totalSent: 0,
+    /** Overall Ack *
+     * @since 2.0.0 */
+    _totalAck: 0
+  }
 
   /**
    * @since 1.0.0
@@ -28,7 +38,6 @@ export class Client extends EventEmitter {
   constructor (props?: ClientOptions) {
     super()
     this._opt = normalizeClientOptions(props)
-    this._totalConnections = 0
   }
 
   /** Connect to a listener to a specified port.
@@ -43,14 +52,18 @@ export class Client extends EventEmitter {
    * ```
    * Review the {@link InboundResponse} on the properties returned.
    */
-  createOutbound (props: ClientListenerOptions, cb: OutboundHandler): HL7Outbound {
+  createOutbound (props: ClientListenerOptions, cb?: OutboundHandler): HL7Outbound {
     const outbound = new HL7Outbound(this, props, cb)
-    outbound.on('client.connect', () => {
-      this._totalConnections++
+
+    outbound.on('client.acknowledged', (total) => {
+      this.stats._totalAck = total
     })
-    outbound.on('client.close', () => {
-      this._totalConnections--
+
+    outbound.on('client.sent', (total) => {
+      this.stats._totalSent = total
     })
+
+    // send back current outbound
     return outbound
   }
 
@@ -63,10 +76,18 @@ export class Client extends EventEmitter {
   }
 
   /**
-   * Total connections ready to accept messages.
-   * @since 1.1.0
+   * Total ack in lifetime.
+   * @since 2.0.0
    */
-  totalConnections (): number {
-    return this._totalConnections
+  totalAck (): number {
+    return this.stats._totalAck
+  }
+
+  /**
+   * Total sent messages in a lifetime.
+   * @since 2.0.0
+   */
+  totalSent (): number {
+    return this.stats._totalSent
   }
 }

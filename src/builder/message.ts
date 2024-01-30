@@ -171,8 +171,25 @@ export class Message extends RootBase {
     throw new HL7FatalError(500, 'Path must be a string or number.')
   }
 
-  toFile (name: string, newLine?: boolean, location?: string): void {
-    const fileBatch = new FileBatch({ location, newLine: newLine === true ? '\n' : '' })
+  /**
+   * Create File from a Message
+   * @description Will procure a file of the saved MSH in the proper format
+   * that includes a FHS and FTS segments.
+   * @since 1.0.0
+   * @param name File Name
+   * @param newLine Provide a New Line
+   * @param location Where to save the exported file
+   * @param extension Custom extension of the file.
+   * Default: hl7
+   * @example
+   * ```ts
+   * const message = new Message({text: hl7_batch_string})
+   * message.toFile('readTestMSH', true, 'temp/')
+   * ```
+   * You can set an `extension` parameter on Batch to set a custom extension if you don't want to be HL7.
+   */
+  toFile (name: string, newLine?: boolean, location?: string, extension: string = 'hl7'): string {
+    const fileBatch = new FileBatch({ location, newLine: newLine === true ? '\n' : '', extension })
     fileBatch.start()
 
     fileBatch.set('FHS.3', this.get('MSH.3').toString())
@@ -188,6 +205,8 @@ export class Message extends RootBase {
     fileBatch.end()
 
     fileBatch.createFile(name)
+
+    return fileBatch.fileName()
   }
 
   /**

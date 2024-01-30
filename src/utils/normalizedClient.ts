@@ -24,7 +24,7 @@ const DEFAULT_LISTEN_CLIENT_OPTS = {
   connectionTimeout: 10000,
   encoding: 'utf-8',
   maxAttempts: 10,
-  maxConnectionAttempts: 30,
+  maxConnectionAttempts: 10,
   maxConnections: 10,
   retryHigh: 30000,
   retryLow: 1000,
@@ -43,9 +43,6 @@ export interface ClientOptions {
   /** IPv6 - If this is set to true, only IPv6 address will be used and also validated upon installation from the hostname property.
    * @default false */
   ipv6?: boolean
-  /** Keep the connection alive after sending data and getting a response.
-   * @default true */
-  keepAlive?: boolean
   /** Max attempts
    * to send the message before an error is thrown if we are in the process of re-attempting to connect to the server.
    * Has to be greater than 1. You cannot exceed 50.
@@ -170,7 +167,7 @@ export function normalizeClientListenerOptions (raw?: ClientListenerOptions): Va
   assertNumber(props, 'maxAttempts', 1, 50)
   assertNumber(props, 'maxConnectionAttempts', 1, 50)
   assertNumber(props, 'maxConnections', 1, 50)
-  assertNumber(props, 'port', 0, 65353)
+  assertNumber(props, 'port', 1, 65353)
 
   return props
 }
