@@ -124,28 +124,33 @@ export class Connection extends EventEmitter implements Connection {
     }
 
     if (this._readyState === ReadyState.CONNECTING) {
-      // mark that we set our internal that we are closing, so we do not try to re-connect
-      this._readyState = ReadyState.CLOSING
       // clear retry timer
       if (typeof this._retryTimer !== 'undefined') {
         clearTimeout(this._retryTimer)
       }
       // let's clear out the try timer forcefully
       this._retryTimer = undefined
-      // remove socket
-      this._socket?.destroy()
-      // return
-      return
     }
 
     // normal closing
     this._readyState = ReadyState.CLOSING
 
+    // remove socket
+    this._socket?.destroy()
     this._socket?.end()
 
     this.emit('close')
 
     this._readyState = ReadyState.CLOSED
+  }
+
+  /**
+   * Get Port
+   * @description Get the port that this connection will connect to.
+   * @since 2.0.0
+   */
+  getPort (): number {
+    return this._opt.port
   }
 
   /**

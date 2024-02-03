@@ -90,13 +90,13 @@ describe('node hl7 end to end - client', () => {
 
       const client = new Client({ host: '0.0.0.0' })
 
-      const outbound_port_3000 = client.createConnection({ port: 3000 }, async (res) => {
+      const outbound = client.createConnection({ port: 3000 }, async (res) => {
         const messageRes = res.getMessage()
         expect(messageRes.get('MSA.1').toString()).toBe('AA')
         dfd.resolve()
       })
 
-      await expectEvent(outbound_port_3000, 'connect')
+      await expectEvent(outbound, 'connect')
 
       let message = new Message({
         messageHeader: {
@@ -107,23 +107,25 @@ describe('node hl7 end to end - client', () => {
         }
       })
 
-      await outbound_port_3000.sendMessage(message)
+      await outbound.sendMessage(message)
 
       await dfd.promise
 
       expect(client.totalSent()).toEqual(1)
       expect(client.totalAck()).toEqual(1)
 
-      await outbound_port_3000.close()
+      await outbound.close()
+
+      client.closeAll()
 
     })
 
-    /*test.skip('...send simple message twice, no ACK needed', async () => {
+    test.skip('...send simple message twice, no ACK needed', async () => {
 
       let dfd = createDeferred<void>()
 
       const server = new Server({bindAddress: '0.0.0.0'})
-      const listener = server.createInbound({port: LISTEN_PORT}, async (req, _res) => {
+      const listener = server.createInbound({port: 3000}, async (req, _res) => {
         const messageReq = req.getMessage()
         expect(messageReq.get('MSH.12').toString()).toBe('2.7')
         dfd.resolve()
@@ -132,7 +134,9 @@ describe('node hl7 end to end - client', () => {
       await expectEvent(listener, 'listen')
 
       const client = new Client({ host: '0.0.0.0' })
-      const outbound = client.createOutbound({ port: LISTEN_PORT, waitAck: false })
+      const outbound = client.createConnection({ port: 3000, waitAck: false }, async () => {})
+
+      await expectEvent(outbound, 'connect')
 
       let message = new Message({
         messageHeader: {
@@ -152,7 +156,9 @@ describe('node hl7 end to end - client', () => {
 
       await listener.close()
 
-    })*/
+      client.closeAll()
+
+    })
   })
 
   /*describe('server/client failure checks', () => {

@@ -15,6 +15,8 @@ export class Client extends EventEmitter {
   /** @internal */
   _opt: ReturnType<typeof normalizeClientOptions>
   /** @internal */
+  _connections: Connection[]
+  /** @internal */
   readonly stats = {
     /** Total outbound connections able to connect to at this moment.
      * @since 1.1.0 */
@@ -38,6 +40,20 @@ export class Client extends EventEmitter {
   constructor (props?: ClientOptions) {
     super()
     this._opt = normalizeClientOptions(props)
+    this._connections = []
+  }
+
+  /**
+   * Close all connections
+   * @since 2.0.0
+   */
+  closeAll (): void {
+    // loop through!
+    this._connections.map(async (connection) => {
+      void connection.close()
+    })
+    // reset!
+    this._connections = []
   }
 
   /** Connect to a listener to a specified port.
@@ -62,6 +78,9 @@ export class Client extends EventEmitter {
     outbound.on('client.sent', (total) => {
       this.stats._totalSent = this.stats._totalSent + total
     })
+
+    // add this connection
+    this._connections.push(outbound)
 
     // send back current outbound
     return outbound
