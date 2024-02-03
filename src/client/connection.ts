@@ -1,20 +1,20 @@
 import EventEmitter from 'node:events'
-import net, {Socket} from 'node:net'
-import {clearTimeout} from "node:timers";
+import net, { Socket } from 'node:net'
+import { clearTimeout } from 'node:timers'
 import tls from 'node:tls'
-import Batch from "../builder/batch.js";
-import FileBatch from "../builder/fileBatch.js";
-import Message from "../builder/message.js";
-import {PROTOCOL_MLLP_FOOTER, PROTOCOL_MLLP_HEADER} from "../utils/constants.js";
-import {ReadyState} from '../utils/enum.js'
-import {HL7Error, HL7FatalError} from '../utils/exception.js'
-import {ClientListenerOptions, normalizeClientListenerOptions, OutboundHandler} from '../utils/normalizedClient.js'
-import {createDeferred, Deferred, expBackoff} from '../utils/utils.js'
-import {Client} from './client.js'
-import {InboundResponse} from "./module/inboundResponse.js";
+import Batch from '../builder/batch.js'
+import FileBatch from '../builder/fileBatch.js'
+import Message from '../builder/message.js'
+import { PROTOCOL_MLLP_FOOTER, PROTOCOL_MLLP_HEADER } from '../utils/constants.js'
+import { ReadyState } from '../utils/enum.js'
+import { HL7Error, HL7FatalError } from '../utils/exception.js'
+import { ClientListenerOptions, normalizeClientListenerOptions, OutboundHandler } from '../utils/normalizedClient.js'
+import { createDeferred, Deferred, expBackoff } from '../utils/utils.js'
+import { Client } from './client.js'
+import { InboundResponse } from './module/inboundResponse.js'
 
-export declare interface Connection {
-
+/* eslint-disable */
+export interface Connection extends EventEmitter {
   /** The connection has been closed manually. You have to start the connection again. */
   on(name: 'close', cb: () => void): this;
   /** The connection is successfully (re)established or attempting to re-connect. */
@@ -23,18 +23,17 @@ export declare interface Connection {
   on(name: 'error', cb: (err: any) => void): this;
   /** The handle is open to do a manual start to connect. */
   on(name: 'open', cb: (err: any) => void): this;
-
-
   /** The total acknowledged for this connection. */
   on(name: 'client.acknowledged', cb: (number: number) => void): this;
   /** The total sent for this connection. */
   on(name: 'client.sent', cb: (number: number) => void): this;
 }
+/* eslint-enable */
 
 /** Connection Class
  * @description Create a connection customer that will listen to result send to the particular port.
  * @since 1.0.0 */
-export class Connection extends EventEmitter {
+export class Connection extends EventEmitter implements Connection {
   /** @internal */
   _connectionTimer: NodeJS.Timeout | undefined
   /** @internal */
@@ -53,8 +52,6 @@ export class Connection extends EventEmitter {
   protected _readyState: ReadyState
   /** @internal */
   _pendingSetup: Promise<boolean> | boolean
-/*  /!** @internal *!/
-  private _responseBuffer: string */
   /** @internal */
   _onConnect: Deferred<void>
   /** @internal */
@@ -87,7 +84,7 @@ export class Connection extends EventEmitter {
     this._handler = handler
     this._main = client
     this._awaitingResponse = false
-    /*this._nodeId = randomString(5)*/
+    /* this._nodeId = randomString(5) */
 
     this._opt = normalizeClientListenerOptions(props)
 
@@ -98,7 +95,6 @@ export class Connection extends EventEmitter {
     this._retryTimer = undefined
     this._onConnect = createDeferred(true)
 
-
     if (this._opt.autoConnect) {
       this._readyState = ReadyState.CONNECTING
       this.emit('connecting')
@@ -108,8 +104,6 @@ export class Connection extends EventEmitter {
       this.emit('open')
       this._socket = undefined
     }
-
-
   }
 
   /** Close Client Listener Instance.
@@ -123,13 +117,12 @@ export class Connection extends EventEmitter {
    * ```
    */
   async close (): Promise<void> {
-
     if (this._readyState === ReadyState.CLOSED) {
       return // We are already closed. Nothing to do.
     }
 
     if (this._readyState === ReadyState.CLOSING) {
-      return new Promise(resolve => this._socket?.once('close', resolve))
+      return await new Promise(resolve => this._socket?.once('close', resolve))
     }
 
     if (this._readyState === ReadyState.CONNECTING) {
@@ -155,15 +148,13 @@ export class Connection extends EventEmitter {
     this.emit('close')
 
     this._readyState = ReadyState.CLOSED
-
   }
 
   /**
    * Start the connection if not auto started.
    * @since 2.0.0
    */
-  async start(): Promise<void> {
-
+  async start (): Promise<void> {
     if (this._readyState === ReadyState.CONNECTING) {
       return
     }
@@ -177,13 +168,12 @@ export class Connection extends EventEmitter {
     }
 
     if (this._readyState === ReadyState.CLOSING) {
-      return new Promise(resolve => this._socket?.once('close', resolve))
+      return await new Promise(resolve => this._socket?.once('close', resolve))
     }
 
     this.emit('connecting')
 
     this._socket = this._connect()
-
   }
 
   /** Send a HL7 Message to the Listener
@@ -209,7 +199,6 @@ export class Connection extends EventEmitter {
    * ```
    */
   async sendMessage (message: Message | Batch | FileBatch): Promise<void> {
-
     let attempts = 0
     const maxAttempts = typeof this._opt.maxAttempts === 'undefined' ? this._main._opt.maxAttempts : this._opt.maxAttempts
     const emitter = new EventEmitter()
@@ -286,31 +275,10 @@ export class Connection extends EventEmitter {
       // emit
       this.emit('client.sent', this.stats.sent)
     })
-
   }
 
-  /**
-   * Read a file.
-   * @description We need to read a file.
-   * We are not doing anything else other than getting the {@link Buffer} of the file,
-   * so we can pass it onto the File Batch class to send it to the {@link sendMessage} method as a separate step
-   * @since 1.0.0
-   * @param fullFilePath The full file path of the file we need to read.
-   */
-/*  async readFile (fullFilePath: string): Promise<FileBatch> {
-    try {
-      const regex = /\n/mg
-      const subst = '\\r'
-      const fileBuffer = fs.readFileSync(fullFilePath)
-      const text = fileBuffer.toString().replace(regex, subst)
-      return new FileBatch({ text })
-    } catch (e: any) {
-      throw new HL7FatalError('', `Unable to read file: ${fullFilePath}`)
-    }
-  }*/
-
   /** @internal */
-  private _connect  (): Socket {
+  private _connect (): Socket {
     let socket: Socket
     const host = this._main._opt.host
     const port = this._opt.port
@@ -336,7 +304,7 @@ export class Connection extends EventEmitter {
     // set no delay
     socket.setNoDelay(true)
 
-    let connectionError: Error | undefined
+    let connectionError: Error | boolean | undefined
 
     if (this._opt.connectionTimeout > 0) {
       this._connectionTimer = setTimeout(() => {
@@ -345,7 +313,7 @@ export class Connection extends EventEmitter {
     }
 
     socket.on('error', err => {
-      connectionError = connectionError || err
+      connectionError = (connectionError != null) || err
     })
 
     socket.on('close', () => {
@@ -353,7 +321,7 @@ export class Connection extends EventEmitter {
         this._readyState = ReadyState.CLOSED
         this._reset()
       } else {
-        connectionError = connectionError || new HL7Error('CONNECTION_CLOSE', 'Socket closed unexpectedly by server.')
+        connectionError = (connectionError != null) || new HL7Error('CONNECTION_CLOSE', 'Socket closed unexpectedly by server.')
         if (this._readyState === ReadyState.OPEN) {
           this._onConnect = createDeferred(true)
         }
@@ -368,7 +336,7 @@ export class Connection extends EventEmitter {
       }
     })
 
-    socket.on('data', async (buffer) => {
+    socket.on('data', (buffer) => {
       // we got some sort of response, bad, good, or error,
       // so lets tell the system we got "something"
       this._awaitingResponse = false
@@ -392,15 +360,14 @@ export class Connection extends EventEmitter {
           // update ack total
           this.emit('client.acknowledged', this.stats.acknowledged)
           // send it back
-          await this._handler(response)
+          void this._handler(response)
         }
       }
 
       socket.uncork()
-
     })
 
-    const readerLoop = async () => {
+    const readerLoop = async (): Promise<void> => {
       try {
         await this._negotiate()
       } catch (err: any) {
@@ -410,14 +377,14 @@ export class Connection extends EventEmitter {
       }
     }
 
-    readerLoop().then(_r => { /* noop */ })
+    void readerLoop().then(_r => { /* noop */ })
 
     return socket
   }
 
   /** @internal */
   private async _negotiate (): Promise<void> {
-    if (this._socket?.writable) {
+    if (this._socket?.writable === true) {
       if (typeof this._connectionTimer !== 'undefined') {
         clearTimeout(this._connectionTimer)
       }

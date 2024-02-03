@@ -52,7 +52,7 @@ export class Client extends EventEmitter {
    * ```
    * Review the {@link InboundResponse} on the properties returned.
    */
-  createOutbound (props: ClientListenerOptions, cb: OutboundHandler): Connection {
+  createConnection (props: ClientListenerOptions, cb: OutboundHandler): Connection {
     const outbound = new Connection(this, props, cb)
 
     outbound.on('client.acknowledged', (total) => {
