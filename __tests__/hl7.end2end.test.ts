@@ -96,7 +96,7 @@ describe('node hl7 end to end - client', () => {
         dfd.resolve()
       })
 
-      await expectEvent(outbound_port_3000, 'connection')
+      await expectEvent(outbound_port_3000, 'connect')
 
       let message = new Message({
         messageHeader: {

@@ -319,9 +319,6 @@ export class Connection extends EventEmitter implements Connection {
         this._readyState = ReadyState.CONNECTING
         const retryCount = this._retryCount++
         const delay = expBackoff(this._opt.retryLow, this._opt.retryHigh, retryCount)
-
-        console.log(delay, 'delay connect')
-
         if (retryCount <= this._opt.maxConnectionAttempts) {
           this._retryTimer = setTimeout(this._connect, delay)
           this.emit('error', connectionError)
