@@ -13,29 +13,19 @@ import { assertNumber, validIPv4, validIPv6 } from './utils.js'
 export type OutboundHandler = (res: InboundResponse) => Promise<void> | void
 
 const DEFAULT_CLIENT_OPTS = {
-  connectionTimeout: 10000,
   encoding: 'utf-8',
-  maxConnections: 10,
   retryHigh: 30000,
   retryLow: 1000
 }
 
 const DEFAULT_LISTEN_CLIENT_OPTS = {
   autoConnect: true,
-  connectionTimeout: 10000,
-  encoding: 'utf-8',
   maxAttempts: 10,
   maxConnectionAttempts: 10,
-  maxConnections: 10,
-  retryHigh: 30000,
-  retryLow: 1000,
   waitAck: true
 }
 
 export interface ClientOptions {
-  /** Max wait time, in milliseconds, for a connection attempt
-   * @default 10_000 */
-  connectionTimeout?: number
   /** Host - You can do a FQDN or the IPv(4|6) address. */
   host?: string
   /** IPv4 - If this is set to true, only IPv4 address will be used and also validated upon installation from the hostname property.
@@ -90,22 +80,16 @@ export interface ClientListenerOptions extends ClientOptions {
 }
 
 type ValidatedClientKeys =
-  | 'connectionTimeout'
   | 'host'
-  | 'maxAttempts'
 
 type ValidatedClientListenerKeys =
   | 'autoConnect'
-  | 'connectionTimeout'
   | 'port'
   | 'maxAttempts'
   | 'maxConnectionAttempts'
-  | 'maxConnections'
 
 interface ValidatedClientOptions extends Pick<Required<ClientOptions>, ValidatedClientKeys> {
-  connectionTimeout: number
   host: string
-  maxAttempts: number
   retryHigh: number
   retryLow: number
   socket?: TcpSocketConnectOpts
@@ -114,12 +98,10 @@ interface ValidatedClientOptions extends Pick<Required<ClientOptions>, Validated
 
 interface ValidatedClientListenerOptions extends Pick<Required<ClientListenerOptions>, ValidatedClientListenerKeys> {
   autoConnect: boolean
-  connectionTimeout: number
   encoding: BufferEncoding
   port: number
   maxAttempts: number
   maxConnectionAttempts: number
-  maxConnections: number
   retryHigh: number
   retryLow: number
   waitAck: boolean
@@ -149,9 +131,6 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
     }
   }
 
-  assertNumber(props, 'connectionTimeout', 0)
-  assertNumber(props, 'maxConnections', 1, 50)
-
   if (props.tls === true) {
     props.tls = {}
   }
@@ -160,7 +139,7 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
 }
 
 /** @internal */
-export function normalizeClientListenerOptions (raw?: ClientListenerOptions): ValidatedClientListenerOptions {
+export function normalizeClientListenerOptions (client: ClientOptions, raw?: ClientListenerOptions): ValidatedClientListenerOptions {
   const props: any = { ...DEFAULT_LISTEN_CLIENT_OPTS, ...raw }
 
   if (typeof props.port === 'undefined') {
@@ -171,10 +150,16 @@ export function normalizeClientListenerOptions (raw?: ClientListenerOptions): Va
     throw new HL7FatalError('port is not valid number.')
   }
 
-  assertNumber(props, 'connectionTimeout', 0)
+  if (typeof props.retryHigh === 'undefined') {
+    props.retryHigh = client.retryHigh
+  }
+
+  if (typeof props.retryLow === 'undefined') {
+    props.retryLow = client.retryLow
+  }
+
   assertNumber(props, 'maxAttempts', 1, 50)
   assertNumber(props, 'maxConnectionAttempts', 1, 50)
-  assertNumber(props, 'maxConnections', 1, 50)
   assertNumber(props, 'port', 1, 65353)
 
   return props

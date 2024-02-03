@@ -17,12 +17,14 @@ import { InboundResponse } from './module/inboundResponse.js'
 export interface Connection extends EventEmitter {
   /** The connection has been closed manually. You have to start the connection again. */
   on(name: 'close', cb: () => void): this;
-  /** The connection is successfully (re)established or attempting to re-connect. */
+  /** The connection is made. */
+  on(name: 'connect', cb: () => void): this;
+  /** The connection is being (re)established or attempting to re-connect. */
   on(name: 'connection', cb: () => void): this;
   /** The connection has an error. */
   on(name: 'error', cb: (err: any) => void): this;
   /** The handle is open to do a manual start to connect. */
-  on(name: 'open', cb: (err: any) => void): this;
+  on(name: 'open', cb: () => void): this;
   /** The total acknowledged for this connection. */
   on(name: 'client.acknowledged', cb: (number: number) => void): this;
   /** The total sent for this connection. */
@@ -34,8 +36,6 @@ export interface Connection extends EventEmitter {
  * @description Create a connection customer that will listen to result send to the particular port.
  * @since 1.0.0 */
 export class Connection extends EventEmitter implements Connection {
-  /** @internal */
-  _connectionTimer: NodeJS.Timeout | undefined
   /** @internal */
   _handler: OutboundHandler
   /** @internal */
@@ -80,13 +80,11 @@ export class Connection extends EventEmitter implements Connection {
   constructor (client: Client, props: ClientListenerOptions, handler: OutboundHandler) {
     super()
 
-    this._connectionTimer = undefined
     this._handler = handler
     this._main = client
     this._awaitingResponse = false
-    /* this._nodeId = randomString(5) */
 
-    this._opt = normalizeClientListenerOptions(props)
+    this._opt = normalizeClientListenerOptions(client._opt, props)
 
     this._connect = this._connect.bind(this)
 
@@ -200,7 +198,7 @@ export class Connection extends EventEmitter implements Connection {
    */
   async sendMessage (message: Message | Batch | FileBatch): Promise<void> {
     let attempts = 0
-    const maxAttempts = typeof this._opt.maxAttempts === 'undefined' ? this._main._opt.maxAttempts : this._opt.maxAttempts
+    const maxAttempts = this._opt.maxAttempts
     const emitter = new EventEmitter()
 
     const checkConnection = async (): Promise<boolean> => {
@@ -299,28 +297,48 @@ export class Connection extends EventEmitter implements Connection {
       })
     }
 
+    this._socket = socket
+
+    // set no delay
+    socket.setNoDelay(true)
+
+    let connectionError: Error | boolean | undefined
+
     socket.on('error', err => {
-      connectionError = (connectionError != null) || err
+      connectionError = (connectionError != null) ? connectionError : err
     })
 
     socket.on('close', () => {
       if (this._readyState === ReadyState.CLOSING) {
         this._readyState = ReadyState.CLOSED
-        this._reset()
       } else {
-        connectionError = (connectionError != null) || new HL7FatalError('Socket closed unexpectedly by server.')
+        connectionError = (connectionError != null) ? connectionError : new HL7FatalError('Socket closed unexpectedly by server.')
         if (this._readyState === ReadyState.OPEN) {
           this._onConnect = createDeferred(true)
         }
         this._readyState = ReadyState.CONNECTING
-        this._reset()
         const retryCount = this._retryCount++
         const delay = expBackoff(this._opt.retryLow, this._opt.retryHigh, retryCount)
-        this._retryTimer = setTimeout(this._connect, delay)
-        if (retryCount <= 1) {
+
+        console.log(delay, 'delay connect')
+
+        if (retryCount <= this._opt.maxConnectionAttempts) {
+          this._retryTimer = setTimeout(this._connect, delay)
           this.emit('error', connectionError)
+        } else if (retryCount > this._opt.maxConnectionAttempts) {
+          // stop this from going again
+          void this.close()
         }
       }
+    })
+
+    socket.on('connect', () => {
+      // accepting connections
+      this._readyState = ReadyState.CONNECTED
+      // reset retryCount count
+      this._retryCount = 1
+      // emit
+      this.emit('connect')
     })
 
     socket.on('data', (buffer) => {
@@ -354,19 +372,6 @@ export class Connection extends EventEmitter implements Connection {
       socket.uncork()
     })
 
-    this._socket = socket
-
-    // set no delay
-    socket.setNoDelay(true)
-
-    let connectionError: Error | boolean | undefined
-
-    if (this._opt.connectionTimeout > 0) {
-      this._connectionTimer = setTimeout(() => {
-        socket.destroy(new HL7FatalError('Connection timed out'))
-      }, this._opt.connectionTimeout)
-    }
-
     const readerLoop = async (): Promise<void> => {
       try {
         await this._negotiate()
@@ -385,24 +390,13 @@ export class Connection extends EventEmitter implements Connection {
   /** @internal */
   private async _negotiate (): Promise<void> {
     if (this._socket?.writable === true) {
-      if (typeof this._connectionTimer !== 'undefined') {
-        clearTimeout(this._connectionTimer)
-      }
       // we are open, not yet ready, but we can
       this._readyState = ReadyState.OPEN
-      // let's go ahead and kill the connection timer
-      this._connectionTimer = undefined
-      // we are connected
+      // on connect resolve
+      this._onConnect.resolve()
+      // emit
       this.emit('connection')
     }
-  }
-
-  /** @internal */
-  private _reset (): void {
-    if (typeof this._connectionTimer !== 'undefined') {
-      clearTimeout(this._connectionTimer)
-    }
-    this._connectionTimer = undefined
   }
 }
 
