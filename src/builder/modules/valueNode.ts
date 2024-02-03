@@ -32,7 +32,7 @@ export class ValueNode extends NodeBase {
       /** YYYYMMDDHHMMSS **/
       return new Date(parseInt(text.slice(0, 4)), parseInt(text.slice(4, 6)) - 1, parseInt(text.slice(6, 8)), parseInt(text.slice(8, 10)), parseInt(text.slice(10, 12)), parseInt(text.slice(12, 14)))
     }
-    throw new HL7FatalError(500, 'Invalid Date Format')
+    throw new HL7FatalError('Invalid Date Format')
   }
 
   /** @internal */
@@ -53,13 +53,13 @@ export class ValueNode extends NodeBase {
       case 'N':
         return false
     }
-    throw new HL7FatalError(500, 'Not a valid value for boolean value.')
+    throw new HL7FatalError('Not a valid value for boolean value.')
   }
 
   /** @internal */
   protected pathCore (): string[] {
     if (this.parent === null) {
-      throw new HL7FatalError(404, 'Somehow, this.parent is null.')
+      throw new HL7FatalError('Somehow, this.parent is null.')
     }
     return this.parent.path.concat([this.key])
   }

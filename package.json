@@ -87,6 +87,7 @@
     "typescript": "5.3.3"
   },
   "precommit": [
+    "lint:fix",
     "build"
   ]
 }

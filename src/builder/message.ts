@@ -44,7 +44,7 @@ export class Message extends RootBase {
     if (typeof opt.text !== 'undefined' && opt.parsing === true && opt.text !== '') {
       const totalMsh = split(opt.text).filter(line => line.startsWith('MSH'))
       if (totalMsh.length !== 0 && totalMsh.length !== 1) {
-        throw new HL7ParserError(500, 'Multiple MSH segments found. Use Batch.')
+        throw new HL7FatalError('Multiple MSH segments found. Use Batch.')
       }
     }
 
@@ -76,12 +76,12 @@ export class Message extends RootBase {
    */
   addSegment (path: string): Segment {
     if (typeof path === 'undefined') {
-      throw new HL7FatalError(404, 'Missing segment path.')
+      throw new HL7ParserError('Missing segment path.')
     }
 
     const preparedPath = this.preparePath(path)
     if (preparedPath.length !== 1) {
-      throw new HL7FatalError(500, `"Invalid segment ${path}."`)
+      throw new HL7ParserError(`Invalid segment ${path}.`)
     }
 
     return this.addChild(preparedPath[0]) as Segment
@@ -122,7 +122,7 @@ export class Message extends RootBase {
       }
     } else {
       if (typeof segmentName === 'undefined') {
-        throw new HL7FatalError(500, 'segment name is not defined.')
+        throw new HL7ParserError('Segment name is not defined.')
       }
       const segment = this._getFirstSegment(segmentName)
       if (typeof segment !== 'undefined') {
@@ -168,7 +168,7 @@ export class Message extends RootBase {
       return this
     }
 
-    throw new HL7FatalError(500, 'Path must be a string or number.')
+    throw new HL7ParserError('Path must be a string or number.')
   }
 
   /**
@@ -219,7 +219,7 @@ export class Message extends RootBase {
   protected writeCore (path: string[], value: string): HL7Node {
     const segmentName = path.shift() as string
     if (typeof segmentName === 'undefined') {
-      throw new HL7FatalError(500, 'segment name is not defined.')
+      throw new HL7ParserError('Segment name is not defined.')
     }
     let index = this._getFirstSegmentIndex(segmentName)
     if (index === undefined) {

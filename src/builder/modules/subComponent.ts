@@ -9,7 +9,7 @@ export class SubComponent extends ValueNode {
     if (typeof this.message !== 'undefined') {
       return this.message.unescape(this.toRaw())
     }
-    throw new HL7FatalError(500, 'this.message is undefined. Unable to continue.')
+    throw new HL7FatalError('this.message is undefined. Unable to continue.')
   }
 
   /** @internal */

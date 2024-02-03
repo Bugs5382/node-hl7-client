@@ -7,7 +7,7 @@ import FileBatch from '../builder/fileBatch.js'
 import Message from '../builder/message.js'
 import { PROTOCOL_MLLP_FOOTER, PROTOCOL_MLLP_HEADER } from '../utils/constants.js'
 import { ReadyState } from '../utils/enum.js'
-import { HL7Error, HL7FatalError } from '../utils/exception.js'
+import { HL7FatalError } from '../utils/exception.js'
 import { ClientListenerOptions, normalizeClientListenerOptions, OutboundHandler } from '../utils/normalizedClient.js'
 import { createDeferred, Deferred, expBackoff } from '../utils/utils.js'
 import { Client } from './client.js'
@@ -216,7 +216,7 @@ export class Connection extends EventEmitter implements Connection {
         try {
           if ((this._readyState === ReadyState.CLOSED) || (this._readyState === ReadyState.CLOSING)) {
             // noinspection ExceptionCaughtLocallyJS
-            throw new HL7FatalError('CONNECTION_INVALID_STATE', 'In an invalid state to be able to send message.')
+            throw new HL7FatalError('In an invalid state to be able to send message.')
           }
           if (this._readyState !== ReadyState.CONNECTED) {
             // if we are not connected,
@@ -299,19 +299,6 @@ export class Connection extends EventEmitter implements Connection {
       })
     }
 
-    this._socket = socket
-
-    // set no delay
-    socket.setNoDelay(true)
-
-    let connectionError: Error | boolean | undefined
-
-    if (this._opt.connectionTimeout > 0) {
-      this._connectionTimer = setTimeout(() => {
-        socket.destroy(new HL7FatalError('CONNECTION_TIMEOUT', 'Connection timed out'))
-      }, this._opt.connectionTimeout)
-    }
-
     socket.on('error', err => {
       connectionError = (connectionError != null) || err
     })
@@ -321,7 +308,7 @@ export class Connection extends EventEmitter implements Connection {
         this._readyState = ReadyState.CLOSED
         this._reset()
       } else {
-        connectionError = (connectionError != null) || new HL7Error('CONNECTION_CLOSE', 'Socket closed unexpectedly by server.')
+        connectionError = (connectionError != null) || new HL7FatalError('Socket closed unexpectedly by server.')
         if (this._readyState === ReadyState.OPEN) {
           this._onConnect = createDeferred(true)
         }
@@ -366,6 +353,19 @@ export class Connection extends EventEmitter implements Connection {
 
       socket.uncork()
     })
+
+    this._socket = socket
+
+    // set no delay
+    socket.setNoDelay(true)
+
+    let connectionError: Error | boolean | undefined
+
+    if (this._opt.connectionTimeout > 0) {
+      this._connectionTimer = setTimeout(() => {
+        socket.destroy(new HL7FatalError('Connection timed out'))
+      }, this._opt.connectionTimeout)
+    }
 
     const readerLoop = async (): Promise<void> => {
       try {
