@@ -15,11 +15,14 @@ class HL7Error extends Error {
 class HL7FatalError extends HL7Error {
   /** @internal */
   name = 'HL7FatalError'
+  constructor (message: string) {
+    super(500, message)
+  }
 }
 
 /** Used to indicate a fatal failure of a connection.
  * @since 1.0.0 */
-class HL7ParserError extends HL7Error {
+class HL7ParserError extends Error {
   /** @internal */
   name = 'HL7ParserError'
 }

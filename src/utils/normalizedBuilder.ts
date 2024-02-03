@@ -113,13 +113,13 @@ export function normalizedClientMessageBuilderOptions (raw?: ClientBuilderMessag
   const props: ClientBuilderMessageOptions = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
   if (typeof props.messageHeader === 'undefined' && props.text === '') {
-    throw new HL7FatalError(500, 'mshHeader must be set if no HL7 message is being passed.')
+    throw new HL7FatalError('mshHeader must be set if no HL7 message is being passed.')
   } else if (typeof props.messageHeader === 'undefined' && typeof props.text !== 'undefined' && props.text.slice(0, 3) !== 'MSH') {
     throw new Error('text must begin with the MSH segment.')
   }
 
   if ((typeof props.newLine !== 'undefined' && props.newLine === '\\r') || props.newLine === '\\n') {
-    throw new HL7FatalError(500, ('newLine must be \r or \n'))
+    throw new HL7FatalError('newLine must be \r or \n')
   }
 
   if (props.date !== '8' && props.date !== '12' && props.date !== '14') {
@@ -149,15 +149,15 @@ export function normalizedClientBatchBuilderOptions (raw?: ClientBuilderOptions)
   const props: ClientBuilderOptions = { ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
   if (typeof props.text !== 'undefined' && props.text !== '' && props.text.slice(0, 3) !== 'BHS' && props.text.slice(0, 3) !== 'MSH') {
-    throw new HL7FatalError(500, ('text must begin with the BHS or MSH segment.'))
+    throw new HL7FatalError('text must begin with the BHS or MSH segment.')
   }
 
   if (typeof props.text !== 'undefined' && props.text !== '' && props.text.slice(0, 3) === 'MSH' && !isBatch(props.text)) {
-    throw new HL7FatalError(500, ('Unable to process a single MSH as a batch. Use Message.'))
+    throw new HL7FatalError('Unable to process a single MSH as a batch. Use Message.')
   }
 
   if ((typeof props.newLine !== 'undefined' && props.newLine === '\\r') || props.newLine === '\\n') {
-    throw new HL7FatalError(500, ('newLine must be \r or \n'))
+    throw new HL7FatalError('newLine must be \r or \n')
   }
 
   if (props.date !== '8' && props.date !== '12' && props.date !== '14') {
@@ -185,19 +185,19 @@ export function normalizedClientFileBuilderOptions (raw?: ClientBuilderFileOptio
   const props: ClientBuilderFileOptions = { ...DEFAULT_CLIENT_FILE_OPTS, ...DEFAULT_CLIENT_BUILDER_OPTS, ...raw }
 
   if (typeof props.text !== 'undefined' && props.text !== '' && props.text.slice(0, 3) !== 'FHS') {
-    throw new HL7FatalError(500, ('text must begin with the FHS segment.'))
+    throw new HL7FatalError('text must begin with the FHS segment.')
   }
 
   if ((typeof props.newLine !== 'undefined' && props.newLine === '\\r') || props.newLine === '\\n') {
-    throw new HL7FatalError(500, ('newLine must be \r or \n'))
+    throw new HL7FatalError('newLine must be \r or \n')
   }
 
   if (typeof props.extension !== 'undefined' && props.extension.length !== 3) {
-    throw new HL7FatalError(500, ('The extension for file save must be 3 characters long.'))
+    throw new HL7FatalError('The extension for file save must be 3 characters long.')
   }
 
   if (typeof props.fullFilePath !== 'undefined' && typeof props.fileBuffer !== 'undefined') {
-    throw new HL7FatalError(500, ('You can not have specified a file path and a buffer. Please choose one or the other.'))
+    throw new HL7FatalError('You can not have specified a file path and a buffer. Please choose one or the other.')
   }
 
   if (props.date !== '8' && props.date !== '12' && props.date !== '14') {

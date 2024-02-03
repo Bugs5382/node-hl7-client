@@ -1,11 +1,11 @@
 import EventEmitter from 'events'
 import {
-  normalizeClientOptions,
   ClientListenerOptions,
   ClientOptions,
+  normalizeClientOptions,
   OutboundHandler
 } from '../utils/normalizedClient.js'
-import { HL7Outbound } from './hl7Outbound.js'
+import { Connection } from './connection.js'
 
 /**
  * Client Class
@@ -15,7 +15,19 @@ export class Client extends EventEmitter {
   /** @internal */
   _opt: ReturnType<typeof normalizeClientOptions>
   /** @internal */
-  private _totalConnections: number
+  _connections: Connection[]
+  /** @internal */
+  readonly stats = {
+    /** Total outbound connections able to connect to at this moment.
+     * @since 1.1.0 */
+    _totalConnections: 0,
+    /** Overall total sent messages
+     * @since 2.0.0 */
+    _totalSent: 0,
+    /** Overall Ack *
+     * @since 2.0.0 */
+    _totalAck: 0
+  }
 
   /**
    * @since 1.0.0
@@ -28,7 +40,20 @@ export class Client extends EventEmitter {
   constructor (props?: ClientOptions) {
     super()
     this._opt = normalizeClientOptions(props)
-    this._totalConnections = 0
+    this._connections = []
+  }
+
+  /**
+   * Close all connections
+   * @since 2.0.0
+   */
+  closeAll (): void {
+    // loop through!
+    this._connections.map(async (connection) => {
+      void connection.close()
+    })
+    // reset!
+    this._connections = []
   }
 
   /** Connect to a listener to a specified port.
@@ -43,19 +68,27 @@ export class Client extends EventEmitter {
    * ```
    * Review the {@link InboundResponse} on the properties returned.
    */
-  createOutbound (props: ClientListenerOptions, cb: OutboundHandler): HL7Outbound {
-    const outbound = new HL7Outbound(this, props, cb)
-    outbound.on('client.connect', () => {
-      this._totalConnections++
+  createConnection (props: ClientListenerOptions, cb: OutboundHandler): Connection {
+    const outbound = new Connection(this, props, cb)
+
+    outbound.on('client.acknowledged', (total) => {
+      this.stats._totalAck = this.stats._totalAck + total
     })
-    outbound.on('client.close', () => {
-      this._totalConnections--
+
+    outbound.on('client.sent', (total) => {
+      this.stats._totalSent = this.stats._totalSent + total
     })
+
+    // add this connection
+    this._connections.push(outbound)
+
+    // send back current outbound
     return outbound
   }
 
   /**
-   * Get the host that we are currently connecting to.
+   * Get the host that we will  connect to.
+   * The port might be different from each different "connection"
    * @since 1.1.0
    */
   getHost (): string {
@@ -63,10 +96,18 @@ export class Client extends EventEmitter {
   }
 
   /**
-   * Total connections ready to accept messages.
-   * @since 1.1.0
+   * Total ack in this object lifetime.
+   * @since 2.0.0
    */
-  totalConnections (): number {
-    return this._totalConnections
+  totalAck (): number {
+    return this.stats._totalAck
+  }
+
+  /**
+   * Total sent messages in this object lifetime.
+   * @since 2.0.0
+   */
+  totalSent (): number {
+    return this.stats._totalSent
   }
 }

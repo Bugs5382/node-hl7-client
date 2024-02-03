@@ -10,31 +10,22 @@ import { assertNumber, validIPv4, validIPv6 } from './utils.js'
  * @since 1.0.0
  * @param res
  */
-export type OutboundHandler = (res: InboundResponse) => Promise<void>
+export type OutboundHandler = (res: InboundResponse) => Promise<void> | void
 
 const DEFAULT_CLIENT_OPTS = {
-  connectionTimeout: 10000,
   encoding: 'utf-8',
-  maxConnections: 10,
   retryHigh: 30000,
   retryLow: 1000
 }
 
 const DEFAULT_LISTEN_CLIENT_OPTS = {
-  connectionTimeout: 10000,
-  encoding: 'utf-8',
+  autoConnect: true,
   maxAttempts: 10,
-  maxConnectionAttempts: 30,
-  maxConnections: 10,
-  retryHigh: 30000,
-  retryLow: 1000,
+  maxConnectionAttempts: 10,
   waitAck: true
 }
 
 export interface ClientOptions {
-  /** Max wait time, in milliseconds, for a connection attempt
-   * @default 10_000 */
-  connectionTimeout?: number
   /** Host - You can do a FQDN or the IPv(4|6) address. */
   host?: string
   /** IPv4 - If this is set to true, only IPv4 address will be used and also validated upon installation from the hostname property.
@@ -43,9 +34,6 @@ export interface ClientOptions {
   /** IPv6 - If this is set to true, only IPv6 address will be used and also validated upon installation from the hostname property.
    * @default false */
   ipv6?: boolean
-  /** Keep the connection alive after sending data and getting a response.
-   * @default true */
-  keepAlive?: boolean
   /** Max attempts
    * to send the message before an error is thrown if we are in the process of re-attempting to connect to the server.
    * Has to be greater than 1. You cannot exceed 50.
@@ -72,6 +60,11 @@ export interface ClientOptions {
 }
 
 export interface ClientListenerOptions extends ClientOptions {
+  /** If set to false, you have to tell the system to start trying to connect
+   * by sending 'start' method.
+   * @default true
+   */
+  autoConnect?: boolean
   /** Encoding of the messages we expect from the HL7 message.
    * @default "utf-8"
    */
@@ -87,21 +80,16 @@ export interface ClientListenerOptions extends ClientOptions {
 }
 
 type ValidatedClientKeys =
-  | 'connectionTimeout'
   | 'host'
-  | 'maxAttempts'
 
 type ValidatedClientListenerKeys =
-  | 'connectionTimeout'
+  | 'autoConnect'
   | 'port'
   | 'maxAttempts'
   | 'maxConnectionAttempts'
-  | 'maxConnections'
 
 interface ValidatedClientOptions extends Pick<Required<ClientOptions>, ValidatedClientKeys> {
-  connectionTimeout: number
   host: string
-  maxAttempts: number
   retryHigh: number
   retryLow: number
   socket?: TcpSocketConnectOpts
@@ -109,12 +97,11 @@ interface ValidatedClientOptions extends Pick<Required<ClientOptions>, Validated
 }
 
 interface ValidatedClientListenerOptions extends Pick<Required<ClientListenerOptions>, ValidatedClientListenerKeys> {
-  connectionTimeout: number
+  autoConnect: boolean
   encoding: BufferEncoding
   port: number
   maxAttempts: number
   maxConnectionAttempts: number
-  maxConnections: number
   retryHigh: number
   retryLow: number
   waitAck: boolean
@@ -125,27 +112,24 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
   const props: any = { ...DEFAULT_CLIENT_OPTS, ...raw }
 
   if (typeof props.host === 'undefined' || props.host.length <= 0) {
-    throw new HL7FatalError(500, 'host is not defined or the length is less than 0.')
+    throw new HL7FatalError('host is not defined or the length is less than 0.')
   }
 
   if (props.ipv4 === true && props.ipv6 === true) {
-    throw new HL7FatalError(500, 'ipv4 and ipv6 both can\'t be set to be both used exclusively.')
+    throw new HL7FatalError('ipv4 and ipv6 both can\'t be set to be both used exclusively.')
   }
 
   if (typeof props.host !== 'string' && props.ipv4 === false && props.ipv6 === false) {
-    throw new HL7FatalError(500, 'host is not valid string.')
+    throw new HL7FatalError('host is not valid string.')
   } else if (typeof props.host === 'string' && props.ipv4 === true && props.ipv6 === false) {
     if (!validIPv4(props.host)) {
-      throw new HL7FatalError(500, 'host is not a valid IPv4 address.')
+      throw new HL7FatalError('host is not a valid IPv4 address.')
     }
   } else if (typeof props.host === 'string' && props.ipv4 === false && props.ipv6 === true) {
     if (!validIPv6(props.host)) {
-      throw new HL7FatalError(500, 'host is not a valid IPv6 address.')
+      throw new HL7FatalError('host is not a valid IPv6 address.')
     }
   }
-
-  assertNumber(props, 'connectionTimeout', 0)
-  assertNumber(props, 'maxConnections', 1, 50)
 
   if (props.tls === true) {
     props.tls = {}
@@ -155,22 +139,28 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
 }
 
 /** @internal */
-export function normalizeClientListenerOptions (raw?: ClientListenerOptions): ValidatedClientListenerOptions {
+export function normalizeClientListenerOptions (client: ClientOptions, raw?: ClientListenerOptions): ValidatedClientListenerOptions {
   const props: any = { ...DEFAULT_LISTEN_CLIENT_OPTS, ...raw }
 
   if (typeof props.port === 'undefined') {
-    throw new HL7FatalError(500, 'port is not defined.')
+    throw new HL7FatalError('port is not defined.')
   }
 
   if (typeof props.port !== 'number') {
-    throw new HL7FatalError(500, 'port is not valid number.')
+    throw new HL7FatalError('port is not valid number.')
   }
 
-  assertNumber(props, 'connectionTimeout', 0)
+  if (typeof props.retryHigh === 'undefined') {
+    props.retryHigh = client.retryHigh
+  }
+
+  if (typeof props.retryLow === 'undefined') {
+    props.retryLow = client.retryLow
+  }
+
   assertNumber(props, 'maxAttempts', 1, 50)
   assertNumber(props, 'maxConnectionAttempts', 1, 50)
-  assertNumber(props, 'maxConnections', 1, 50)
-  assertNumber(props, 'port', 0, 65353)
+  assertNumber(props, 'port', 1, 65353)
 
   return props
 }
