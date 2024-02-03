@@ -1,9 +1,9 @@
 /** Parent Cass of HL7 Error
  * @since 1.0.0 */
 class HL7Error extends Error {
-  code: number
+  code: string
   /** @internal */
-  constructor (code: number, message: string) {
+  constructor (code: string, message: string) {
     super(message)
     this.name = 'HL7ClientError'
     this.code = code

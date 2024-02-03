@@ -1,11 +1,11 @@
 import EventEmitter from 'events'
 import {
-  normalizeClientOptions,
   ClientListenerOptions,
   ClientOptions,
+  normalizeClientOptions,
   OutboundHandler
 } from '../utils/normalizedClient.js'
-import { HL7Outbound } from './hl7Outbound.js'
+import { Connection } from './connection.js'
 
 /**
  * Client Class
@@ -52,15 +52,15 @@ export class Client extends EventEmitter {
    * ```
    * Review the {@link InboundResponse} on the properties returned.
    */
-  createOutbound (props: ClientListenerOptions, cb?: OutboundHandler): HL7Outbound {
-    const outbound = new HL7Outbound(this, props, cb)
+  createOutbound (props: ClientListenerOptions, cb: OutboundHandler): Connection {
+    const outbound = new Connection(this, props, cb)
 
     outbound.on('client.acknowledged', (total) => {
-      this.stats._totalAck = total
+      this.stats._totalAck = this.stats._totalAck + total
     })
 
     outbound.on('client.sent', (total) => {
-      this.stats._totalSent = total
+      this.stats._totalSent = this.stats._totalSent + total
     })
 
     // send back current outbound
@@ -68,7 +68,8 @@ export class Client extends EventEmitter {
   }
 
   /**
-   * Get the host that we are currently connecting to.
+   * Get the host that we will  connect to.
+   * The port might be different from each different "connection"
    * @since 1.1.0
    */
   getHost (): string {
@@ -76,7 +77,7 @@ export class Client extends EventEmitter {
   }
 
   /**
-   * Total ack in lifetime.
+   * Total ack in this object lifetime.
    * @since 2.0.0
    */
   totalAck (): number {
@@ -84,7 +85,7 @@ export class Client extends EventEmitter {
   }
 
   /**
-   * Total sent messages in a lifetime.
+   * Total sent messages in this object lifetime.
    * @since 2.0.0
    */
   totalSent (): number {

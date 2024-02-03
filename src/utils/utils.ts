@@ -228,3 +228,22 @@ const getSegIndexes = (names: string[], data: string, list: string[] = []): stri
   }
   return list
 }
+
+export interface Deferred<T=any> {
+  resolve: (value: T | PromiseLike<T>) => void
+  reject: (reason?: any) => void
+  promise: Promise<T>
+}
+
+export const createDeferred = <T=any>(noUncaught?: boolean): Deferred<T> => {
+  const dfd: any = {}
+  dfd.promise = new Promise((resolve, reject) => {
+    dfd.resolve = resolve
+    dfd.reject = reject
+  })
+  /* istanbul ignore next */
+  if (noUncaught === false) {
+    dfd.promise.catch(() => {})
+  }
+  return dfd
+}

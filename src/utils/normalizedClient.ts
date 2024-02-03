@@ -10,7 +10,7 @@ import { assertNumber, validIPv4, validIPv6 } from './utils.js'
  * @since 1.0.0
  * @param res
  */
-export type OutboundHandler = (res: InboundResponse) => Promise<void>
+export type OutboundHandler = (res: InboundResponse) => Promise<void> | void
 
 const DEFAULT_CLIENT_OPTS = {
   connectionTimeout: 10000,
@@ -21,6 +21,7 @@ const DEFAULT_CLIENT_OPTS = {
 }
 
 const DEFAULT_LISTEN_CLIENT_OPTS = {
+  autoConnect: true,
   connectionTimeout: 10000,
   encoding: 'utf-8',
   maxAttempts: 10,
@@ -69,6 +70,11 @@ export interface ClientOptions {
 }
 
 export interface ClientListenerOptions extends ClientOptions {
+  /** If set to false, you have to tell the system to start trying to connect
+   * by sending 'start' method.
+   * @default true
+   */
+  autoConnect?: boolean
   /** Encoding of the messages we expect from the HL7 message.
    * @default "utf-8"
    */
@@ -89,6 +95,7 @@ type ValidatedClientKeys =
   | 'maxAttempts'
 
 type ValidatedClientListenerKeys =
+  | 'autoConnect'
   | 'connectionTimeout'
   | 'port'
   | 'maxAttempts'
@@ -106,6 +113,7 @@ interface ValidatedClientOptions extends Pick<Required<ClientOptions>, Validated
 }
 
 interface ValidatedClientListenerOptions extends Pick<Required<ClientListenerOptions>, ValidatedClientListenerKeys> {
+  autoConnect: boolean
   connectionTimeout: number
   encoding: BufferEncoding
   port: number
@@ -122,22 +130,22 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
   const props: any = { ...DEFAULT_CLIENT_OPTS, ...raw }
 
   if (typeof props.host === 'undefined' || props.host.length <= 0) {
-    throw new HL7FatalError(500, 'host is not defined or the length is less than 0.')
+    throw new HL7FatalError('OPT_HOST_INVALID', 'host is not defined or the length is less than 0.')
   }
 
   if (props.ipv4 === true && props.ipv6 === true) {
-    throw new HL7FatalError(500, 'ipv4 and ipv6 both can\'t be set to be both used exclusively.')
+    throw new HL7FatalError('OPT_HOST_INVALID', 'ipv4 and ipv6 both can\'t be set to be both used exclusively.')
   }
 
   if (typeof props.host !== 'string' && props.ipv4 === false && props.ipv6 === false) {
-    throw new HL7FatalError(500, 'host is not valid string.')
+    throw new HL7FatalError('OPT_HOST_INVALID', 'host is not valid string.')
   } else if (typeof props.host === 'string' && props.ipv4 === true && props.ipv6 === false) {
     if (!validIPv4(props.host)) {
-      throw new HL7FatalError(500, 'host is not a valid IPv4 address.')
+      throw new HL7FatalError('OPT_HOST_INVALID', 'host is not a valid IPv4 address.')
     }
   } else if (typeof props.host === 'string' && props.ipv4 === false && props.ipv6 === true) {
     if (!validIPv6(props.host)) {
-      throw new HL7FatalError(500, 'host is not a valid IPv6 address.')
+      throw new HL7FatalError('OPT_HOST_INVALID', 'host is not a valid IPv6 address.')
     }
   }
 
@@ -156,11 +164,11 @@ export function normalizeClientListenerOptions (raw?: ClientListenerOptions): Va
   const props: any = { ...DEFAULT_LISTEN_CLIENT_OPTS, ...raw }
 
   if (typeof props.port === 'undefined') {
-    throw new HL7FatalError(500, 'port is not defined.')
+    throw new HL7FatalError('OPT_PORT_INVALID', 'port is not defined.')
   }
 
   if (typeof props.port !== 'number') {
-    throw new HL7FatalError(500, 'port is not valid number.')
+    throw new HL7FatalError('OPT_PORT_INVALID', 'port is not valid number.')
   }
 
   assertNumber(props, 'connectionTimeout', 0)
