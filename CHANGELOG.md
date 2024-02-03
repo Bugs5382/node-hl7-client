@@ -1,3 +1,21 @@
+# [2.0.0-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v1.2.0-beta.1...v2.0.0-beta.1) (2024-02-03)
+
+
+### Features
+
+* closeAll ([9921ad1](https://github.com/Bugs5382/node-hl7-client/commit/9921ad187e2a18a5a0d98b3cb9a04c18d4fe5a01))
+* fix connection issues ([e5a9ae6](https://github.com/Bugs5382/node-hl7-client/commit/e5a9ae68d9988e3ea3bc6a8965e2d02786141bf6))
+* fix send message connection issue ([#74](https://github.com/Bugs5382/node-hl7-client/issues/74)) ([502dedc](https://github.com/Bugs5382/node-hl7-client/commit/502dedc4015dec69a4e0e216f17fb7820052cfd8))
+* fixing exceptions ([ceb001d](https://github.com/Bugs5382/node-hl7-client/commit/ceb001d41c8e657b3e7868a1392dc546772ace99))
+* fixing timeouts, etc. ([b4a7921](https://github.com/Bugs5382/node-hl7-client/commit/b4a79213174a7889fb9e7ef2ad86b9a04ebb1afa))
+* HL7Outbound is now Connection ([23dbbf5](https://github.com/Bugs5382/node-hl7-client/commit/23dbbf5bf66bc2fbdd898abc7978c019fa316338))
+
+
+### BREAKING CHANGES
+
+* - HL7Outbound renamed Connection
+* - sendMessage now handles the connection to the server
+
 # [1.2.0-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.3...v1.2.0-beta.1) (2024-01-22)
 
 
