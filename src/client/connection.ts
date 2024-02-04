@@ -238,11 +238,9 @@ export class Connection extends EventEmitter implements Connection {
             // if we are not connected,
             // check to see if we are now connected.
             if (this._pendingSetup === false) {
-              if (this._opt.waitAck) {
-                this._pendingSetup = checkAcknowledgement().finally(() => {
-                  this._pendingSetup = false
-                })
-              }
+              this._pendingSetup = checkAcknowledgement().finally(() => {
+                this._pendingSetup = false
+              })
             }
           }
           return await this._pendingSetup
@@ -324,7 +322,7 @@ export class Connection extends EventEmitter implements Connection {
         this._readyState = ReadyState.CONNECTING
         const retryCount = this._retryCount++
         const delay = expBackoff(this._opt.retryLow, this._opt.retryHigh, retryCount)
-        if (retryCount <= this._opt.maxConnectionAttempts) {
+        if (retryCount < this._opt.maxConnectionAttempts) {
           this._retryTimer = setTimeout(this._connect, delay)
           this.emit('client.error', connectionError)
         } else if (retryCount > this._opt.maxConnectionAttempts) {
@@ -350,8 +348,8 @@ export class Connection extends EventEmitter implements Connection {
 
       socket.cork()
 
-      const indexOfVT = buffer.indexOf(PROTOCOL_MLLP_HEADER)
-      const indexOfFSCR = buffer.indexOf(PROTOCOL_MLLP_FOOTER)
+      const indexOfVT = buffer.toString().indexOf(PROTOCOL_MLLP_HEADER)
+      const indexOfFSCR = buffer.toString().indexOf(PROTOCOL_MLLP_FOOTER)
 
       let loadedMessage = buffer.toString().substring(indexOfVT, indexOfFSCR + 2)
       loadedMessage = loadedMessage.replace(PROTOCOL_MLLP_HEADER, '')
