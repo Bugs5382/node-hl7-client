@@ -67,7 +67,7 @@ export class RootBase extends NodeBase {
   /** @internal */
   escape (text: string): string {
     if (text === null) {
-      throw new HL7FatalError(500, 'text must be passed in escape function.')
+      throw new HL7FatalError('Text must be passed in escape function.')
     }
 
     return text.replace(this._matchEscape, (match: string) => {
@@ -96,14 +96,14 @@ export class RootBase extends NodeBase {
         return `${escape}${ch}${escape}`
       }
 
-      throw new HL7FatalError(500, `Escape sequence for ${match} is not known.`)
+      throw new HL7FatalError(`Escape sequence for ${match} is not known.`)
     })
   }
 
   /** @internal */
   unescape (text: string): string {
     if (text === null) {
-      throw new HL7FatalError(500, 'text must be passed in unescape function.')
+      throw new HL7FatalError('Text must be passed in unescape function.')
     }
 
     // Slightly faster for a normal case of no escape sequences in text

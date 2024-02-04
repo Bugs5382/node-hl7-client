@@ -26,7 +26,7 @@ export class FieldRepetition extends ValueNode {
   /** @internal */
   protected pathCore (): string[] {
     if (this.parent == null) {
-      throw new HL7FatalError(500, 'this.parent must not be null.')
+      throw new HL7FatalError('this.parent must not be null.')
     }
     return this.parent.path
   }

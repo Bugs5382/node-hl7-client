@@ -1,3 +1,4 @@
+import { describe, expect, test, beforeEach } from 'vitest';
 import { Client } from '../src'
 
 describe('node hl7 client', () => {
@@ -53,7 +54,7 @@ describe('node hl7 client', () => {
 
     test('properties exist', async () => {
       const client = new Client({ host: 'hl7.server.local' })
-      expect(client).toHaveProperty('createOutbound')
+      expect(client).toHaveProperty('createConnection')
     })
     
     test('ensure getHost() is what we set in the host', async () => {
@@ -73,7 +74,7 @@ describe('node hl7 client', () => {
     test('error - no port specified', async () => {
       try {
         // @ts-expect-error port is not specified
-        client.createOutbound()
+        client.createConnection()
       } catch (err: any) {
         expect(err.message).toBe('port is not defined.')
       }
@@ -82,7 +83,7 @@ describe('node hl7 client', () => {
     test('error - port not a number', async () => {
       try {
         // @ts-expect-error port is not specified as a number
-        client.createOutbound({ port: '12345' }, async () => {})
+        client.createConnection({ port: '12345' }, async () => {})
       } catch (err: any) {
         expect(err.message).toBe('port is not valid number.')
       }
@@ -90,18 +91,19 @@ describe('node hl7 client', () => {
 
     test('error - port less than 0', async () => {
       try {
-        client.createOutbound({ port: -1 }, async () => {})
+        client.createConnection({ port: -1 }, async () => {})
       } catch (err: any) {
-        expect(err.message).toBe('port must be a number (0, 65353).')
+        expect(err.message).toBe('port must be a number (1, 65353).')
       }
     })
 
     test('error - port greater than 65353', async () => {
       try {
-        client.createOutbound({ port: 65354 }, async () => {})
+        client.createConnection({ port: 65354 }, async () => {})
       } catch (err: any) {
-        expect(err.message).toBe('port must be a number (0, 65353).')
+        expect(err.message).toBe('port must be a number (1, 65353).')
       }
     })
+
   })
 })

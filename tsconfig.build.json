@@ -4,7 +4,7 @@
     "./src/**/*.ts"
   ],
   "exclude": [
-    "./jest.config.ts",
+    "./vitest.config.ts",
     "./release.config.{cjs|js}"
   ]
 }

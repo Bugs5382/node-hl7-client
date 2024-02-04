@@ -19,7 +19,7 @@ export class Segment extends NodeBase {
   constructor (parent: NodeBase, text: string) {
     super(parent, text, Delimiters.Field)
     if (!isHL7String(text) || text.length === 0) {
-      throw new HL7FatalError(500, 'Segment must have a name.')
+      throw new HL7FatalError('Segment must have a name.')
     }
     this._segmentName = text.slice(0, 3)
     this._name = this._segmentName
@@ -29,7 +29,7 @@ export class Segment extends NodeBase {
   read (path: string[]): HL7Node {
     let index = parseInt(path.shift() as string)
     if (index < 1) {
-      throw new HL7FatalError(500, 'index must be 1 or greater.')
+      throw new HL7FatalError('Index must be 1 or greater.')
     }
     if ((this._name === 'MSH') || (this._name === 'BHS') || (this._name === 'FHS')) {
       if (typeof this.message !== 'undefined' && index === 1) {
@@ -40,7 +40,7 @@ export class Segment extends NodeBase {
     }
 
     const field = this.children[index]
-    return path.length > 0 ? field.read(path) : field
+    return typeof field !== 'undefined' && path.length > 0 ? field.read(path) : field
   }
 
   /** @internal */
@@ -74,18 +74,18 @@ export class Segment extends NodeBase {
       return this
     }
 
-    throw new HL7FatalError(500, 'Path must be a string or number.')
+    throw new HL7FatalError('Path must be a string or number.')
   }
 
   /** @internal */
   protected writeCore (path: string[], value: string): HL7Node {
     let index = parseInt(path.shift() as string)
     if (index < 1 || isNaN(index)) {
-      throw new HL7FatalError(500, "Can't have an index < 1 or not be a valid number.")
+      throw new HL7FatalError("Can't have an index < 1 or not be a valid number.")
     }
     if ((this._name === 'MSH') || (this._name === 'BHS') || (this._name === 'FHS')) {
       if (index === 1 || index === 2) {
-        throw new HL7FatalError(500, 'You cannot assign the field separator or encoding characters')
+        throw new HL7FatalError('You cannot assign the field separator or encoding characters')
       } else {
         index = index - 1
       }

@@ -1,3 +1,4 @@
+import EventEmitter from 'events'
 import { isHL7Number, isHL7String, padHL7Date } from '../../utils/utils.js'
 import { Batch } from '../batch.js'
 import { EmptyNode } from './emptyNode.js'
@@ -11,7 +12,7 @@ import { Message } from '../message.js'
  * @since 1.0.0
  * @extends HL7Node
  */
-export class NodeBase implements HL7Node {
+export class NodeBase extends EventEmitter implements HL7Node {
   protected parent: NodeBase | null
 
   _name: string
@@ -24,6 +25,7 @@ export class NodeBase implements HL7Node {
   private _dirty: boolean
 
   constructor (parent: NodeBase | null, text: string = '', delimiter: Delimiters | undefined = undefined) {
+    super()
     this.parent = parent
 
     this._children = []
@@ -82,7 +84,7 @@ export class NodeBase implements HL7Node {
       return this
     }
 
-    throw new HL7FatalError(500, 'Path must be a string or number.')
+    throw new HL7FatalError('Path must be a string or number.')
   }
 
   get name (): string {
@@ -164,7 +166,7 @@ export class NodeBase implements HL7Node {
     } else if (isHL7String(path)) {
       return this.write(this.preparePath(path), '')
     }
-    throw new HL7FatalError(500, 'There seems to be a problem.')
+    throw new HL7FatalError('There seems to be a problem.')
   }
 
   /** @internal */
@@ -176,7 +178,7 @@ export class NodeBase implements HL7Node {
     }
 
     if (!this._isSubPath(parts)) {
-      throw new HL7FatalError(500, "'" + parts.toString() + "' is not a sub-path of '" + this.path.toString() + "'")
+      throw new HL7FatalError("'" + parts.toString() + "' is not a sub-path of '" + this.path.toString() + "'")
     }
 
     return this._remainderOf(parts)
@@ -269,11 +271,11 @@ export class NodeBase implements HL7Node {
   /** @internal */
   protected get delimiter (): string {
     if (typeof this.message === 'undefined') {
-      throw new HL7FatalError(500, 'this.message is not defined.')
+      throw new HL7FatalError('this.message is not defined.')
     }
 
     if (typeof this._delimiter === 'undefined') {
-      throw new HL7FatalError(500, 'this.message is not defined.')
+      throw new HL7FatalError('this.message is not defined.')
     }
 
     this._delimiterText = this.message.delimiters[this._delimiter]
