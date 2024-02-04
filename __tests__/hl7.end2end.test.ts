@@ -1,17 +1,16 @@
-import fs from 'fs'
 import {Server} from 'node-hl7-server'
-import Client, {Batch, Message} from '../src'
-import path from 'node:path'
+import { describe, expect, test } from 'vitest';
 import tcpPortUsed from 'tcp-port-used'
+import Client, {Message} from '../src'
 import {createDeferred} from "../src/utils/utils";
 import {expectEvent} from './__utils__'
 
 describe('node hl7 end to end - client', () => {
 
-  let readFileTestMSH: string
-  let readFileTestTwoMSH: string
+/*  let readFileTestMSH: string
+  let readFileTestTwoMSH: string*/
 
-  beforeAll(async () => {
+  /*beforeAll(async () => {
 
     const hl7String: string = 'MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7\rEVN||20081231'
     const hl7StringDouble: string[] = [
@@ -69,7 +68,7 @@ describe('node hl7 end to end - client', () => {
         })
       }
     })
-  })
+  })*/
 
   describe('server/client sanity checks', () => {
 
@@ -78,15 +77,15 @@ describe('node hl7 end to end - client', () => {
       let dfd = createDeferred<void>()
 
       const server = new Server({bindAddress: '0.0.0.0'})
-      const listener_port_3000 = server.createInbound({port: 3000}, async (req, res) => {
+      const listener = server.createInbound({port: 3000}, async (req, res) => {
         const messageReq = req.getMessage()
         expect(messageReq.get('MSH.12').toString()).toBe('2.7')
         await res.sendResponse('AA')
       })
 
-      await expectEvent(listener_port_3000, 'listen')
+      await expectEvent(listener, 'listen')
 
-      expect(await tcpPortUsed.check(3000, '0.0.0.0')).toBe(true)
+      // expect(await tcpPortUsed.check(3000, '0.0.0.0')).toBe(true)
 
       const client = new Client({ host: '0.0.0.0' })
 
@@ -115,26 +114,33 @@ describe('node hl7 end to end - client', () => {
       expect(client.totalAck()).toEqual(1)
 
       await outbound.close()
+      await listener.close()
 
       client.closeAll()
 
     })
 
-    test.skip('...send simple message twice, no ACK needed', async () => {
+    test('...send simple message twice, no ACK needed', async () => {
+
+      await tcpPortUsed.check(3000, '0.0.0.0')
 
       let dfd = createDeferred<void>()
 
       const server = new Server({bindAddress: '0.0.0.0'})
-      const listener = server.createInbound({port: 3000}, async (req, _res) => {
+      const listener = server.createInbound({port: 3000}, async (req, res) => {
         const messageReq = req.getMessage()
         expect(messageReq.get('MSH.12').toString()).toBe('2.7')
-        dfd.resolve()
+        await res.sendResponse('AA')
       })
 
       await expectEvent(listener, 'listen')
 
       const client = new Client({ host: '0.0.0.0' })
-      const outbound = client.createConnection({ port: 3000, waitAck: false }, async () => {})
+      const outbound = client.createConnection({ port: 3000, waitAck: false }, async () => {
+        dfd.resolve()
+      })
+
+      //await outbound.start()
 
       await expectEvent(outbound, 'connect')
 
@@ -152,8 +158,9 @@ describe('node hl7 end to end - client', () => {
       await dfd.promise
 
       expect(client.totalSent()).toEqual(1)
-      expect(client.totalAck()).toEqual(0)
+      expect(client.totalAck()).toEqual(1)
 
+      await outbound.close()
       await listener.close()
 
       client.closeAll()

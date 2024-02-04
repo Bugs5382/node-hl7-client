@@ -21,12 +21,12 @@ export interface Connection extends EventEmitter {
   on(name: 'connect', cb: () => void): this;
   /** The connection is being (re)established or attempting to re-connect. */
   on(name: 'connection', cb: () => void): this;
-  /** The connection has an error. */
-  on(name: 'error', cb: (err: any) => void): this;
   /** The handle is open to do a manual start to connect. */
   on(name: 'open', cb: () => void): this;
   /** The total acknowledged for this connection. */
   on(name: 'client.acknowledged', cb: (number: number) => void): this;
+  /** The connection has an error. */
+  on(name: 'client.error', cb: (err: any) => void): this;
   /** The total sent for this connection. */
   on(name: 'client.sent', cb: (number: number) => void): this;
 }
@@ -74,7 +74,7 @@ export class Connection extends EventEmitter implements Connection {
    * @param handler The function that will send the returned information back to the client after we got a response from the server.
    * @example
    * ```ts
-   * const OB = client.createOutbound({ port: 3000 }, async (res) => {})
+   * const OB = client.createConnection({ port: 3000 }, async (res) => {})
    * ```
    */
   constructor (client: Client, props: ClientListenerOptions, handler: OutboundHandler) {
@@ -326,7 +326,7 @@ export class Connection extends EventEmitter implements Connection {
         const delay = expBackoff(this._opt.retryLow, this._opt.retryHigh, retryCount)
         if (retryCount <= this._opt.maxConnectionAttempts) {
           this._retryTimer = setTimeout(this._connect, delay)
-          this.emit('error', connectionError)
+          this.emit('client.error', connectionError)
         } else if (retryCount > this._opt.maxConnectionAttempts) {
           // stop this from going again
           void this.close()

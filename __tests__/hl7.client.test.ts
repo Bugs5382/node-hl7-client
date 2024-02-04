@@ -1,3 +1,4 @@
+import { describe, expect, test, beforeEach } from 'vitest';
 import { Client } from '../src'
 
 describe('node hl7 client', () => {
