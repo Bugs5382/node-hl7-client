@@ -6,7 +6,10 @@ export default defineConfig({
       exclude: [
         '__tests__/__utils__/**',
         '__tests__/__data__/**',
+        'bin',
+        'certs',
         'docs',
+        'lib',
         'src/api.ts',
         'release.config.cjs'
       ]
