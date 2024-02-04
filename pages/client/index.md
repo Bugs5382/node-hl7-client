@@ -50,7 +50,7 @@ Since HL7 message are sent to ports,
 and to establish a connection you have to start an outbound connection ("OB") and for this example, port `5678`
 
 ```ts
-const OB_ADT = client.createOutbound({ port: 5678 }, async (res) => {
+const OB_ADT = client.createConnection({ port: 5678 }, async (res) => {
   const messageRes = res.getMessage()
   const check = messageRes.get('MSA.1').toString() // MSA is a Message Acknoedlgement Segment
   if (check === "AA") {

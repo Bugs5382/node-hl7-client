@@ -73,9 +73,14 @@ export interface ClientListenerOptions extends ClientOptions {
    * Has to be greater than 1.
    * @default 10 */
   maxConnections?: number
-  /** The port we should connect on the server. */
+  /** The port we should connect to on the server. */
   port: number
-  /** Wait for ACK **/
+  /** Wait for ACK before sending a new message.
+   * If this is set to false, you can send as many messages as you want but since you are not expecting any ACK from a
+   * previous message sent before sending another one.
+   * This does not stop the "total acknowledgement" counter on the
+   * client object to stop increasing.
+   * @default true **/
   waitAck?: boolean
 }
 

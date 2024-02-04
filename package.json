@@ -1,6 +1,6 @@
 {
   "name": "node-hl7-client",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0",
   "description": "A pure Node.js HL7 Client that allows for communication to a HL7 Broker/Server that can send properly formatted HL7 messages with ease.It can also parse and then you can extract message segments out.",
   "module": "./lib/esm/index.js",
   "main": "./lib/cjs/index.js",
@@ -17,7 +17,7 @@
     "lib/"
   ],
   "engines": {
-    "node": "^18 || ^20"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "clean": "rm -rf coverage docs lib temp",
@@ -29,18 +29,16 @@
     "lint:fix": "npm run npm:lint . && ts-standard --fix | snazzy",
     "pack": "npm pack",
     "prepublishOnly": "npm run clean && npm run build && npm run pack",
-    "test": "jest",
-    "test:verbose": "jest --verbose",
-    "test:open": "jest --detectOpenHandles",
-    "test:watch": "jest --watch",
-    "test:ci": "jest --ci",
-    "test:coverage": "jest --coverage",
+    "test": "vitest run",
+    "test:verbose": "vitest run --reporter verbose",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest --coverage",
     "typedoc": "typedoc",
     "typedoc:watch": "typedoc -watch",
     "semantic-release": "semantic-release",
     "semantic-release:dry-run": "semantic-release --dry-run",
-    "update": "npx npm-check-updates -u && npm run update:post-update",
-    "update:post-update": "npm install && npm run test:ci"
+    "update": "npx npm-check-updates -u --enginesNode && npm run update:post-update",
+    "update:post-update": "npm install && npm run test"
   },
   "repository": {
     "type": "git",
@@ -66,13 +64,12 @@
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/release-notes-generator": "^12.1.0",
     "@the-rabbit-hole/semantic-release-config": "^1.5.0",
-    "@types/jest": "^29.5.11",
-    "@types/node": "^20.11.10",
+    "@types/node": "^20.11.16",
     "@types/tcp-port-used": "^1.0.4",
     "@typescript-eslint/parser": "^6.20.0",
-    "jest": "^29.7.0",
-    "jest-ts-webcompat-resolver": "^1.0.0",
-    "node-hl7-server": "^1.2.1",
+    "@vitest/coverage-v8": "^1.2.2",
+    "@vitest/ui": "^1.2.2",
+    "node-hl7-server": "^1.2.3",
     "npm-check-updates": "^16.14.14",
     "npm-package-json-lint": "^7.1.0",
     "portfinder": "^1.0.32",
@@ -80,12 +77,12 @@
     "semantic-release": "^23.0.0",
     "snazzy": "^9.0.0",
     "tcp-port-used": "^1.0.2",
-    "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "ts-standard": "^12.0.2",
     "tsd": "^0.30.4",
     "typedoc": "^0.25.7",
-    "typescript": "5.3.3"
+    "typescript": "5.3.3",
+    "vitest": "^1.2.2"
   },
   "precommit": [
     "lint:fix",

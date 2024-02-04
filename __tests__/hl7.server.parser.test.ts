@@ -1,8 +1,7 @@
+// These are functions that exist within the node-hl7-server NPM package
+// that are tested here for diag purposes.
 
-
-// These are functions that exist within the node-hl7-server NPm package
-// that are tested here for diag purposes The functions above are not found
-
+import { describe, expect, test } from 'vitest';
 import {Message} from "../src";
 import {_createAckMessage} from "./__utils__/server";
 
