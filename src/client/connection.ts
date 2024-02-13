@@ -1,17 +1,17 @@
 import EventEmitter from 'node:events'
-import net, { Socket } from 'node:net'
-import { clearTimeout } from 'node:timers'
+import net, {Socket} from 'node:net'
+import {clearTimeout} from 'node:timers'
 import tls from 'node:tls'
 import Batch from '../builder/batch.js'
 import FileBatch from '../builder/fileBatch.js'
 import Message from '../builder/message.js'
-import { PROTOCOL_MLLP_FOOTER, PROTOCOL_MLLP_HEADER } from '../utils/constants.js'
-import { ReadyState } from '../utils/enum.js'
-import { HL7FatalError } from '../utils/exception.js'
-import { ClientListenerOptions, normalizeClientListenerOptions, OutboundHandler } from '../utils/normalizedClient.js'
-import { createDeferred, Deferred, expBackoff } from '../utils/utils.js'
-import { Client } from './client.js'
-import { InboundResponse } from './module/inboundResponse.js'
+import {PROTOCOL_MLLP_FOOTER, PROTOCOL_MLLP_HEADER} from '../utils/constants.js'
+import {ReadyState} from '../utils/enum.js'
+import {HL7FatalError} from '../utils/exception.js'
+import {ClientListenerOptions, normalizeClientListenerOptions, OutboundHandler} from '../utils/normalizedClient.js'
+import {createDeferred, Deferred, expBackoff} from '../utils/utils.js'
+import {Client} from './client.js'
+import {InboundResponse} from './module/inboundResponse.js'
 
 /* eslint-disable */
 export interface Connection extends EventEmitter {
@@ -29,6 +29,8 @@ export interface Connection extends EventEmitter {
   on(name: 'client.error', cb: (err: any) => void): this;
   /** The total sent for this connection. */
   on(name: 'client.sent', cb: (number: number) => void): this;
+  /** The connection has timeout. Review "client.error" event for the reason. */
+  on(name: 'client.timeout', cb: () => void): this;
 }
 /* eslint-enable */
 
@@ -45,7 +47,11 @@ export class Connection extends EventEmitter implements Connection {
   /** @internal */
   private _retryCount: number
   /** @internal */
+  private _retryTimeoutCount: number
+  /** @internal */
   _retryTimer: NodeJS.Timeout | undefined
+  /** @internal */
+  _connectionTimer?: NodeJS.Timeout | undefined
   /** @internal */
   private _socket: Socket | undefined
   /** @internal */
@@ -90,7 +96,9 @@ export class Connection extends EventEmitter implements Connection {
 
     this._pendingSetup = true
     this._retryCount = 0
+    this._retryTimeoutCount = 0
     this._retryTimer = undefined
+    this._connectionTimer = undefined
     this._onConnect = createDeferred(true)
 
     if (this._opt.autoConnect) {
@@ -306,6 +314,18 @@ export class Connection extends EventEmitter implements Connection {
     socket.setNoDelay(true)
 
     let connectionError: Error | boolean | undefined
+
+    if (this._main._opt.connectionTimeout > 0 && (this._readyState === ReadyState.CONNECTED || this._readyState === ReadyState.CONNECTING)) {
+      if (this._retryTimeoutCount < this._main._opt.maxTimeout) {
+        this._connectionTimer = setTimeout(() => {
+          ++this._retryTimeoutCount
+          this.emit('client.timeout')
+          socket.destroy()
+        }, this._main._opt.connectionTimeout)
+      } else if (this._retryTimeoutCount >= this._main._opt.maxTimeout) {
+        void this.close()
+      }
+    }
 
     socket.on('error', err => {
       connectionError = (connectionError != null) ? connectionError : err
