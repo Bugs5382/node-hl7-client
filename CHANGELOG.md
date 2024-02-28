@@ -1,3 +1,11 @@
+# [2.1.0-beta.2](https://github.com/Bugs5382/node-hl7-client/compare/v2.1.0-beta.1...v2.1.0-beta.2) (2024-02-28)
+
+
+### Features
+
+* fix exports for hl7 ([440e885](https://github.com/Bugs5382/node-hl7-client/commit/440e8855bd3a12cd3f3e2f8c8a04e5395448ee0a))
+* fix exports for hl7 ([#84](https://github.com/Bugs5382/node-hl7-client/issues/84)) ([bb94faf](https://github.com/Bugs5382/node-hl7-client/commit/bb94faf8589c8caf89a43bc4e65e8406dfcccbcc))
+
 # [2.1.0-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v2.0.0...v2.1.0-beta.1) (2024-02-28)
 
 
