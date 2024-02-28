@@ -11,6 +11,12 @@
       "import": "./lib/esm/index.js",
       "require": "./lib/cjs/index.js",
       "default": "./lib/cjs/index.js"
+    },
+    "./hl7": {
+      "types": "./lib/types/hl7.d.ts",
+      "import": "./lib/esm/hl7.js",
+      "require": "./lib/cjs/hl7.js",
+      "default": "./lib/cjs/hl7.js"
     }
   },
   "files": [
