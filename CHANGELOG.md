@@ -1,3 +1,12 @@
+# [2.1.0-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v2.0.0...v2.1.0-beta.1) (2024-02-28)
+
+
+### Features
+
+* additional checks in timeout ([#83](https://github.com/Bugs5382/node-hl7-client/issues/83)) ([21d8e64](https://github.com/Bugs5382/node-hl7-client/commit/21d8e64c4cdf426b0103d0a517a162952fdf7818))
+* possible correction in 'timeout' ([9d96944](https://github.com/Bugs5382/node-hl7-client/commit/9d96944428038946321543851725cb93dfe8c7f0))
+* updated packages [ci skip] ([abae69e](https://github.com/Bugs5382/node-hl7-client/commit/abae69e0c14ab34f4c4ee1cfc386f10c5f1f5795))
+
 # [2.0.0-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v1.2.0-beta.1...v2.0.0-beta.1) (2024-02-03)
 
 
