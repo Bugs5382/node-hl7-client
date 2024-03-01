@@ -40,7 +40,7 @@ npm install node-hl7-client
 
 This NPM is designed to support medical applications with potential impact on patient care and diagnoses,
 this package documentation,
-and its peer package [node-hl7-server]() follow these definitions when it comes to the documentation.
+and its peer package [node-hl7-server](https://www.npmjs.com/package/node-hl7-server) follow these definitions when it comes to the documentation.
 
 Keywords such as "MUST", "MUST NOT", "REQUIRED",
 "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL".

@@ -19,6 +19,11 @@
       "default": "./lib/cjs/hl7.js"
     }
   },
+  "typesVersions": {
+    "*": {
+      "hl7": ["lib/types/hl7"]
+    }
+  },
   "files": [
     "lib/"
   ],
