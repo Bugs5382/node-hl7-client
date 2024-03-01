@@ -47,6 +47,7 @@ Now this is just the start of a HL7 message. Normally, after this, there are ple
 The way this would be built using this library:
 
 ```ts
+import {HL7_2_3} from "node-hl7-client/hl7" // note this the spefications are a submobule
 const message = new Message({
   specification: new HL7_2_3(), // we are doing spec 2.3
   messageHeader: {
@@ -147,6 +148,7 @@ From _normalizedBuilder.ts_:
 These can not be set using segment command.
 
 ```ts
+import {HL7_2_3} from "node-hl7-client/hl7";
 const message = new Message({
    specification: new HL7_2_3(), // we are doing spec 2.3
    messageHeader: {
@@ -162,6 +164,7 @@ message.set('MSH.2', '*+-02')   //  this will throw an ecepetio error
 Valid Example:
 
 ```ts
+import {HL7_2_3} from "node-hl7-client/hl7";
 const message = new Message({
    separatorComponent: "+",
    separatorEscape:  "#",

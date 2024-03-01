@@ -10,7 +10,6 @@ import { NodeBase } from './builder/modules/nodeBase.js'
 import { HL7Node } from './builder/interface/hL7Node.js'
 import { EmptyNode } from './builder/modules/emptyNode.js'
 import { Segment } from './builder/modules/segment.js'
-export { MSH } from './specification/specification.js'
 
 export { expBackoff, assertNumber, isHL7Number, isHL7String, validIPv4, validIPv6, createHL7Date, isBatch, isFile, padHL7Date, escapeForRegExp, decodeHexString, randomString } from './utils/utils.js'
 
