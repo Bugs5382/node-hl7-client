@@ -1,24 +1,43 @@
-# [2.0.0](https://github.com/Bugs5382/node-hl7-client/compare/v1.1.3...v2.0.0) (2024-02-04)
+# [2.1.0-beta.3](https://github.com/Bugs5382/node-hl7-client/compare/v2.1.0-beta.2...v2.1.0-beta.3) (2024-03-01)
 
 
 ### Features
 
-* better error reporting ([#73](https://github.com/Bugs5382/node-hl7-client/issues/73)) ([f5707ae](https://github.com/Bugs5382/node-hl7-client/commit/f5707aed9c2bed71dd783f6a632f791ce4203127))
+* fix exports for hl7 x2 ([52aa9b9](https://github.com/Bugs5382/node-hl7-client/commit/52aa9b9380c7c9ae2096a202f61d8a7e56305303))
+* fix exports for hl7 x2 ([#85](https://github.com/Bugs5382/node-hl7-client/issues/85)) ([b7c2688](https://github.com/Bugs5382/node-hl7-client/commit/b7c2688feb7473c99f9ae1c15adceb770e2e4381))
+
+# [2.1.0-beta.2](https://github.com/Bugs5382/node-hl7-client/compare/v2.1.0-beta.1...v2.1.0-beta.2) (2024-02-28)
+
+
+### Features
+
+* fix exports for hl7 ([440e885](https://github.com/Bugs5382/node-hl7-client/commit/440e8855bd3a12cd3f3e2f8c8a04e5395448ee0a))
+* fix exports for hl7 ([#84](https://github.com/Bugs5382/node-hl7-client/issues/84)) ([bb94faf](https://github.com/Bugs5382/node-hl7-client/commit/bb94faf8589c8caf89a43bc4e65e8406dfcccbcc))
+
+# [2.1.0-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v2.0.0...v2.1.0-beta.1) (2024-02-28)
+
+
+### Features
+
+* additional checks in timeout ([#83](https://github.com/Bugs5382/node-hl7-client/issues/83)) ([21d8e64](https://github.com/Bugs5382/node-hl7-client/commit/21d8e64c4cdf426b0103d0a517a162952fdf7818))
+* possible correction in 'timeout' ([9d96944](https://github.com/Bugs5382/node-hl7-client/commit/9d96944428038946321543851725cb93dfe8c7f0))
+* updated packages [ci skip] ([abae69e](https://github.com/Bugs5382/node-hl7-client/commit/abae69e0c14ab34f4c4ee1cfc386f10c5f1f5795))
+
+# [2.0.0-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v1.2.0-beta.1...v2.0.0-beta.1) (2024-02-03)
+
+
+### Features
+
 * closeAll ([9921ad1](https://github.com/Bugs5382/node-hl7-client/commit/9921ad187e2a18a5a0d98b3cb9a04c18d4fe5a01))
 * fix connection issues ([e5a9ae6](https://github.com/Bugs5382/node-hl7-client/commit/e5a9ae68d9988e3ea3bc6a8965e2d02786141bf6))
-* fix error reporting issue ([414276a](https://github.com/Bugs5382/node-hl7-client/commit/414276af1a207b4d781d0a0b277d0808251fc83d))
 * fix send message connection issue ([#74](https://github.com/Bugs5382/node-hl7-client/issues/74)) ([502dedc](https://github.com/Bugs5382/node-hl7-client/commit/502dedc4015dec69a4e0e216f17fb7820052cfd8))
 * fixing exceptions ([ceb001d](https://github.com/Bugs5382/node-hl7-client/commit/ceb001d41c8e657b3e7868a1392dc546772ace99))
 * fixing timeouts, etc. ([b4a7921](https://github.com/Bugs5382/node-hl7-client/commit/b4a79213174a7889fb9e7ef2ad86b9a04ebb1afa))
 * HL7Outbound is now Connection ([23dbbf5](https://github.com/Bugs5382/node-hl7-client/commit/23dbbf5bf66bc2fbdd898abc7978c019fa316338))
-* node 20 ([f9345c0](https://github.com/Bugs5382/node-hl7-client/commit/f9345c059a4d9283bbed8a5597398d328f8d664a))
-* remove jest in favor or vitest ([e6bf557](https://github.com/Bugs5382/node-hl7-client/commit/e6bf557ab075d5cfe9416c1784a64e8ead2f7650))
-* remove jest in favor or vitest x2 ([78ccccb](https://github.com/Bugs5382/node-hl7-client/commit/78ccccb551821395dc4e55269b41019c1f7a52eb))
 
 
 ### BREAKING CHANGES
 
-* Node 20 Only
 * - HL7Outbound renamed Connection
 * - sendMessage now handles the connection to the server
 

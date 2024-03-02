@@ -14,6 +14,10 @@ export type OutboundHandler = (res: InboundResponse) => Promise<void> | void
 
 const DEFAULT_CLIENT_OPTS = {
   encoding: 'utf-8',
+  connectionTimeout: 10000,
+  maxAttempts: 10,
+  maxConnectionAttempts: 10,
+  maxTimeout: 10,
   retryHigh: 30000,
   retryLow: 1000
 }
@@ -26,6 +30,14 @@ const DEFAULT_LISTEN_CLIENT_OPTS = {
 }
 
 export interface ClientOptions {
+  /**
+   * How long a connection attempt checked before ending the socket and attempting again.
+   * Min. is 1000 (1 second) and Max. is 60000 (60 seconds.)
+   * Note: Less than 10 seconds could cause some serious issues.
+   * Use with caution.
+   * @default 10000
+   */
+  connectionTimeout?: number
   /** Host - You can do a FQDN or the IPv(4|6) address. */
   host?: string
   /** IPv4 - If this is set to true, only IPv4 address will be used and also validated upon installation from the hostname property.
@@ -46,6 +58,11 @@ export interface ClientOptions {
    * @default 30
    */
   maxConnectionAttempts?: number
+  /** The number of times a connection timeout occurs until it stops attempting and just stops.
+   * @since 2.1.0
+   * @default 10
+   */
+  maxTimeout?: number
   /** Max delay, in milliseconds, for exponential-backoff when reconnecting
    * @default 30_000 */
   retryHigh?: number
@@ -86,6 +103,7 @@ export interface ClientListenerOptions extends ClientOptions {
 
 type ValidatedClientKeys =
   | 'host'
+  | 'connectionTimeout'
 
 type ValidatedClientListenerKeys =
   | 'autoConnect'
@@ -94,7 +112,9 @@ type ValidatedClientListenerKeys =
   | 'maxConnectionAttempts'
 
 interface ValidatedClientOptions extends Pick<Required<ClientOptions>, ValidatedClientKeys> {
+  connectionTimeout: number
   host: string
+  maxTimeout: number
   retryHigh: number
   retryLow: number
   socket?: TcpSocketConnectOpts
@@ -139,6 +159,9 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
   if (props.tls === true) {
     props.tls = {}
   }
+
+  assertNumber(props, 'connectionTimeout', 1000, 60000)
+  assertNumber(props, 'maxTimeout', 1, 50)
 
   return props
 }

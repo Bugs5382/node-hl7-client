@@ -1,6 +1,6 @@
 {
   "name": "node-hl7-client",
-  "version": "2.0.0",
+  "version": "2.1.0-beta.3",
   "description": "A pure Node.js HL7 Client that allows for communication to a HL7 Broker/Server that can send properly formatted HL7 messages with ease.It can also parse and then you can extract message segments out.",
   "module": "./lib/esm/index.js",
   "main": "./lib/cjs/index.js",
@@ -11,6 +11,19 @@
       "import": "./lib/esm/index.js",
       "require": "./lib/cjs/index.js",
       "default": "./lib/cjs/index.js"
+    },
+    "./hl7": {
+      "types": "./lib/types/hl7.d.ts",
+      "import": "./lib/esm/hl7.js",
+      "require": "./lib/cjs/hl7.js",
+      "default": "./lib/cjs/hl7.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "hl7": [
+        "lib/types/hl7"
+      ]
     }
   },
   "files": [
@@ -60,17 +73,15 @@
   "homepage": "https://github.com/Bugs5382/node-hl7-client#readme",
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/commit-analyzer": "^11.1.0",
     "@semantic-release/git": "^10.0.1",
-    "@semantic-release/release-notes-generator": "^12.1.0",
     "@the-rabbit-hole/semantic-release-config": "^1.5.0",
-    "@types/node": "^20.11.16",
+    "@types/node": "^20.11.21",
     "@types/tcp-port-used": "^1.0.4",
-    "@typescript-eslint/parser": "^6.20.0",
-    "@vitest/coverage-v8": "^1.2.2",
-    "@vitest/ui": "^1.2.2",
-    "node-hl7-server": "^1.2.3",
-    "npm-check-updates": "^16.14.14",
+    "@typescript-eslint/parser": "^7.1.0",
+    "@vitest/coverage-v8": "^1.3.1",
+    "@vitest/ui": "^1.3.1",
+    "node-hl7-server": "^2.0.0",
+    "npm-check-updates": "^16.14.15",
     "npm-package-json-lint": "^7.1.0",
     "portfinder": "^1.0.32",
     "pre-commit": "^1.2.2",
@@ -79,10 +90,10 @@
     "tcp-port-used": "^1.0.2",
     "ts-node": "^10.9.2",
     "ts-standard": "^12.0.2",
-    "tsd": "^0.30.4",
-    "typedoc": "^0.25.7",
+    "tsd": "^0.30.7",
+    "typedoc": "^0.25.9",
     "typescript": "5.3.3",
-    "vitest": "^1.2.2"
+    "vitest": "^1.3.1"
   },
   "precommit": [
     "lint:fix",

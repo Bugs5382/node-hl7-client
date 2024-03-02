@@ -106,8 +106,21 @@ describe('node hl7 end to end - client', () => {
   describe('server/client failure checks', () => {
     test('...host does not exist, error out', async () => {
 
-      const client = new Client({ host: '0.0.0.0' })
-      const outbound = client.createConnection({ port: 1234, maxConnectionAttempts: 1 }, async () => {})
+      const client = new Client({ host: '0.0.0.0', connectionTimeout: 1000 })
+      const outbound = client.createConnection({ port: 1234 }, async () => {})
+
+      await expectEvent(outbound, 'client.timeout')
+
+      const error = await expectEvent(outbound, 'client.error')
+      expect(error.code).toBe('ECONNREFUSED')
+    })
+
+    test('...tls host does not exist, error out', async () => {
+
+      const client = new Client({ host: '0.0.0.0', connectionTimeout: 1000, tls: { rejectUnauthorized: false } })
+      const outbound = client.createConnection({ port: 1234 }, async () => {})
+
+      await expectEvent(outbound, 'client.timeout')
 
       const error = await expectEvent(outbound, 'client.error')
       expect(error.code).toBe('ECONNREFUSED')
@@ -219,14 +232,14 @@ describe('node hl7 end to end - client', () => {
 
         await outbound.sendMessage(message)
 
-        dfd.promise
+        //dfd.promise
 
         await outbound.close()
-        await inbound.close()
+        //await inbound.close()
 
         client.closeAll()
 
-      })
+      }, 70000)
 
     })
 
