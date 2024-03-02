@@ -1,3 +1,17 @@
+# [2.1.0](https://github.com/Bugs5382/node-hl7-client/compare/v2.0.0...v2.1.0) (2024-03-02)
+
+
+### Features
+
+* add hl7 exports as a sub module ([#86](https://github.com/Bugs5382/node-hl7-client/issues/86)) ([b25e00c](https://github.com/Bugs5382/node-hl7-client/commit/b25e00c2e95fcd99e0280bd1dbfb35cd0c6fe964))
+* additional checks in timeout ([#83](https://github.com/Bugs5382/node-hl7-client/issues/83)) ([21d8e64](https://github.com/Bugs5382/node-hl7-client/commit/21d8e64c4cdf426b0103d0a517a162952fdf7818))
+* fix exports for hl7 ([440e885](https://github.com/Bugs5382/node-hl7-client/commit/440e8855bd3a12cd3f3e2f8c8a04e5395448ee0a))
+* fix exports for hl7 ([#84](https://github.com/Bugs5382/node-hl7-client/issues/84)) ([bb94faf](https://github.com/Bugs5382/node-hl7-client/commit/bb94faf8589c8caf89a43bc4e65e8406dfcccbcc))
+* fix exports for hl7 x2 ([52aa9b9](https://github.com/Bugs5382/node-hl7-client/commit/52aa9b9380c7c9ae2096a202f61d8a7e56305303))
+* fix exports for hl7 x2 ([#85](https://github.com/Bugs5382/node-hl7-client/issues/85)) ([b7c2688](https://github.com/Bugs5382/node-hl7-client/commit/b7c2688feb7473c99f9ae1c15adceb770e2e4381))
+* possible correction in 'timeout' ([9d96944](https://github.com/Bugs5382/node-hl7-client/commit/9d96944428038946321543851725cb93dfe8c7f0))
+* updated packages [ci skip] ([abae69e](https://github.com/Bugs5382/node-hl7-client/commit/abae69e0c14ab34f4c4ee1cfc386f10c5f1f5795))
+
 # [2.1.0-beta.3](https://github.com/Bugs5382/node-hl7-client/compare/v2.1.0-beta.2...v2.1.0-beta.3) (2024-03-01)
 
 
