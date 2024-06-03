@@ -85,7 +85,7 @@
     "npm-package-json-lint": "^7.1.0",
     "portfinder": "^1.0.32",
     "pre-commit": "^1.2.2",
-    "semantic-release": "^23.0.0",
+    "semantic-release": "^24.0.0",
     "snazzy": "^9.0.0",
     "tcp-port-used": "^1.0.2",
     "ts-node": "^10.9.2",
