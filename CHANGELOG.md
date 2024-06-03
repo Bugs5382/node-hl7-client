@@ -1,3 +1,11 @@
+## [2.1.1-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v2.1.0...v2.1.1-beta.1) (2024-06-03)
+
+
+### Bug Fixes
+
+* 2.4 spec MSH9.3 ([7af0970](https://github.com/Bugs5382/node-hl7-client/commit/7af097037e201b7fb63394ea757c2edf688a965c))
+* updated MSH 9.3 builder for Specs 2.4+ ([#95](https://github.com/Bugs5382/node-hl7-client/issues/95)) ([434dc0e](https://github.com/Bugs5382/node-hl7-client/commit/434dc0e413b44b5b6bc73f3e7f639ec0db8e5415))
+
 # [2.1.0](https://github.com/Bugs5382/node-hl7-client/compare/v2.0.0...v2.1.0) (2024-03-02)
 
 
