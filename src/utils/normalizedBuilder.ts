@@ -140,6 +140,8 @@ export function normalizedClientMessageBuilderOptions (raw?: ClientBuilderMessag
     props.separatorSubComponent = plan.separatorSubComponent
     // remove default specs
     props.specification = undefined
+    // cleanup
+    props.text = props.text.trim()
   }
 
   return props
