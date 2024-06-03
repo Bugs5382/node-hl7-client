@@ -30,6 +30,10 @@ export interface HL7_2_8_MSH {
   /** Trigger Event
    * @since 1.0.0 */
   msh_9_2: string
+  /** Message Structure
+   * @since 2.2.0
+   * @default If not specified, it will be the combo of 9.1 and 9.2 with an underscore. */
+  msh_9_3?: string
   /** Message Control ID
    * @description This ID is unique to the message being sent
    * so the client can track
@@ -68,6 +72,7 @@ export class HL7_2_8 extends HL7_2_7_1 {
 
   /**
    * Build HL7 MSH Segment
+   * @since 1.0.0
    * @param mshHeader
    * @param message
    */

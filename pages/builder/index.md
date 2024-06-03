@@ -28,6 +28,44 @@ This NPM package assumes that you understand HL7 requirements and understand whe
 
 ## Main Contents of HL7
 
+### HL7 Specifications
+
+HL7 is set to a set of specification.
+They range from 2.1 to 2.8.
+While it would take hundreds of pages here to describe the difference between the different specification,
+[this site](https://hl7-definition.caristix.com/v2/) can review what the different segments do.
+
+The major difference for the MSH header segment for the versions is from 2.1 to 2.3.1,
+where the field MSH 9.3 is a combined string of MSH 9.1 and MSH 9.2.
+From HL7 version 2.4 and onward, MSH 9.3 can either be ACK or a combined string of MSH 9.1 and MSH 9.2.
+To override MSH 9.3 in 2.4 and higher follow this example:
+
+```ts
+const message = new Message({
+   specification: new HL7_2_4(),
+   messageHeader: {
+      msh_9_1: 'ADT',
+      msh_9_2: 'A01',
+      msh_9_3: 'ACK',
+      msh_10: '12345',
+      msh_11_1: 'D',
+      msh_11_2: 'A'
+   }
+})
+```
+
+This will results in this:
+
+```ts
+MSH|^~\&|||||20081231||ADT^A01^ACK|12345|D^A|2.4
+```
+
+As the MSH header segment. Otherwise not including the msh_9_3 above will make it:
+
+```ts
+MSH|^~\&|||||20081231||ADT^A01^ADT_A02|12345|D^A|2.4
+```
+
 ### Build a Sample HL7 MSH Segment
 
 All HL7 messages (not the Batch or File Batch which could contain Messages) start with MSH segments, and they are build quite easily. Right not the deface standard has been version 2.7 of its most common use. There isn't much different between v2.7, v2.7.1 and v2.8, and this is to the fact that v2.5 really expanded the segment types that exist was we moved to more modern Electronic Medical Record systems.

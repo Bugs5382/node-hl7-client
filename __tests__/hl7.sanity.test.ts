@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import {Batch, FileBatch, isBatch, isFile, Message} from "../src";
+import {HL7_2_4} from "../src/specification/2.4";
 import {MSH_HEADER} from "./__data__/constants";
 
 describe('node hl7 client - sanity tests', () => {
@@ -85,6 +86,42 @@ describe('node hl7 client - sanity tests', () => {
         })
       } catch (err) {
         expect(err).toEqual(new Error('MSH.9.2 must be 3 characters in length.'))
+      }
+    })
+
+    test('error - Message Object - msh 9.3 less than 3.', async () => {
+      try {
+        new Message({
+          specification: new HL7_2_4(),
+          messageHeader: {
+            msh_9_1: 'ADT',
+            msh_9_2: 'A01',
+            msh_9_3: 'AC',
+            msh_10: '12345',
+            msh_11_1: 'D',
+            msh_11_2: 'A'
+          }
+        })
+      } catch (err) {
+        expect(err).toEqual(new Error('MSH.9.3 must be 3 to 10 characters in length if specified.'))
+      }
+    })
+
+    test('error - Message Object - msh 9.3 more than 10.', async () => {
+      try {
+        new Message({
+          specification: new HL7_2_4(),
+          messageHeader: {
+            msh_9_1: 'ADT',
+            msh_9_2: 'A01',
+            msh_9_3: 'ADT_A01Y',
+            msh_10: '12345',
+            msh_11_1: 'D',
+            msh_11_2: 'A'
+          }
+        })
+      } catch (err) {
+        expect(err).toEqual(new Error('MSH.9.3 must be 3 to 10 characters in length if specified.'))
       }
     })
 
