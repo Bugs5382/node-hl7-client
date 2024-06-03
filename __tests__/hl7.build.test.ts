@@ -120,6 +120,22 @@ describe('node hl7 client - builder tests', () => {
       expect(message.toString()).toBe('MSH|^~\\&|||||20081231||ADT^A01|12345|D^A|2.3.1')
     })
 
+    test('2.3.1 - build - MSH9.3 has no bearing', async () => {
+      const message = new Message({
+        specification: new HL7_2_3_1(),
+        messageHeader: {
+          msh_9_1: 'ADT',
+          msh_9_2: 'A01',
+          msh_9_3: 'ACK',
+          msh_10: '12345',
+          msh_11_1: 'D',
+          msh_11_2: 'A'
+        }
+      })
+      message.set('MSH.7', '20081231')
+      expect(message.toString()).toBe('MSH|^~\\&|||||20081231||ADT^A01|12345|D^A|2.3.1')
+    })
+
     test('2.4 - build', async () => {
       const message = new Message({
         specification: new HL7_2_4(),
@@ -133,6 +149,22 @@ describe('node hl7 client - builder tests', () => {
       })
       message.set('MSH.7', '20081231')
       expect(message.toString()).toBe('MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D^A|2.4')
+    })
+
+    test('2.4 - build - MSH9.3 override', async () => {
+      const message = new Message({
+        specification: new HL7_2_4(),
+        messageHeader: {
+          msh_9_1: 'ACK',
+          msh_9_2: 'A01',
+          msh_9_3: 'ACK',
+          msh_10: '12345',
+          msh_11_1: 'D',
+          msh_11_2: 'A'
+        }
+      })
+      message.set('MSH.7', '20081231')
+      expect(message.toString()).toBe('MSH|^~\\&|||||20081231||ACK^A01^ACK|12345|D^A|2.4')
     })
 
     test('2.5 - build', async () => {
