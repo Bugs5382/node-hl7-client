@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import {Batch, FileBatch, isBatch, isFile, Message} from "../src";
+import {HL7_2_4} from "../src/specification/2.4";
 import {MSH_HEADER} from "./__data__/constants";
 
 describe('node hl7 client - sanity tests', () => {
@@ -85,6 +86,42 @@ describe('node hl7 client - sanity tests', () => {
         })
       } catch (err) {
         expect(err).toEqual(new Error('MSH.9.2 must be 3 characters in length.'))
+      }
+    })
+
+    test('error - Message Object - msh 9.3 less than 3.', async () => {
+      try {
+        new Message({
+          specification: new HL7_2_4(),
+          messageHeader: {
+            msh_9_1: 'ADT',
+            msh_9_2: 'A01',
+            msh_9_3: 'AC',
+            msh_10: '12345',
+            msh_11_1: 'D',
+            msh_11_2: 'A'
+          }
+        })
+      } catch (err) {
+        expect(err).toEqual(new Error('MSH.9.3 must be 3 to 10 characters in length if specified.'))
+      }
+    })
+
+    test('error - Message Object - msh 9.3 more than 10.', async () => {
+      try {
+        new Message({
+          specification: new HL7_2_4(),
+          messageHeader: {
+            msh_9_1: 'ADT',
+            msh_9_2: 'A01',
+            msh_9_3: 'ADT_A01Y',
+            msh_10: '12345',
+            msh_11_1: 'D',
+            msh_11_2: 'A'
+          }
+        })
+      } catch (err) {
+        expect(err).toEqual(new Error('MSH.9.3 must be 3 to 10 characters in length if specified.'))
       }
     })
 
@@ -184,7 +221,14 @@ describe('node hl7 client - sanity tests', () => {
     const hl7_non_standard: string = 'MSH:-+?*:field2:field3component1-field3component2:field4repeat1+field4repeat2:field5subcomponent1*field5subcomponent2:field6?R?'
     const hl7_batch: string = 'BHS|^~\\&|||||20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1'
     const hl7_batch_non_standard: string = 'BHS:-+?*:::::20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1'
+    const hl7_line_breaks: string = 'MSH|^~\\&|device||Host||20240101000000+0000||OUL^R22^OUL_R22|2|P|2.5.1|||NE|AL||UNICODE UTF-8|||LAB-01^IHE\r'
 
+    test('...clean up line breaks', async () => {
+
+      const message = new Message({ text: hl7_line_breaks });
+      expect(message.get('MSH.12').toString()).toBe('2.5.1')
+
+    })
 
     test('...verify MSH input', async () => {
       const message = new Message({ text: hl7_string })

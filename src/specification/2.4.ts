@@ -31,6 +31,10 @@ export interface HL7_2_4_MSH {
   /** Trigger Event
    * @since 1.0.0 */
   msh_9_2: string
+  /** Message Structure
+   * @since 2.2.0
+   * @default If not specified, it will be the combo of 9.1 and 9.2 with an underscore. */
+  msh_9_3?: string
   /** Message Control ID
    * @description This ID is unique to the message being sent
    * so the client can track
@@ -66,6 +70,9 @@ export class HL7_2_4 extends HL7_2_3_1 {
    */
   checkMSH (msh: HL7_2_4_MSH): boolean {
     super.checkMSH(msh)
+    if (typeof msh.msh_9_3 !== 'undefined' && (msh.msh_9_3.length < 3 || msh.msh_9_3.length > 10)) {
+      throw new Error('MSH.9.3 must be 3 to 10 characters in length if specified.')
+    }
     return true
   }
 
@@ -77,6 +84,6 @@ export class HL7_2_4 extends HL7_2_3_1 {
    */
   buildMSH (mshHeader: HL7_2_4_MSH, message: Message): void {
     super.buildMSH(mshHeader, message)
-    message.set('MSH.9.3', `${mshHeader.msh_9_1.toString()}_${mshHeader.msh_9_2.toString()}`)
+    message.set('MSH.9.3', typeof mshHeader.msh_9_3 !== 'undefined' ? mshHeader.msh_9_3.toString() : `${mshHeader.msh_9_1.toString()}_${mshHeader.msh_9_2.toString()}`)
   }
 }
