@@ -149,7 +149,7 @@ export class Connection extends EventEmitter implements Connection {
 
     this.emit('close')
 
-    clearTimeout(this._connectionTimer);
+    clearTimeout(this._connectionTimer)
 
     this._readyState = ReadyState.CLOSED
   }
