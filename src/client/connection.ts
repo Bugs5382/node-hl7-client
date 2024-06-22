@@ -114,7 +114,7 @@ export class Connection extends EventEmitter implements Connection {
 
   /** Close Client Listener Instance.
    * @description Force close a connection.
-   * It Will stop any re-connection timers.
+   * It will stop any re-connection timers.
    * If you want to restart, your app has to restart the connection.
    * @since 1.0.0
    * @example
@@ -148,6 +148,8 @@ export class Connection extends EventEmitter implements Connection {
     this._socket?.end()
 
     this.emit('close')
+
+    clearTimeout(this._connectionTimer);
 
     this._readyState = ReadyState.CLOSED
   }
