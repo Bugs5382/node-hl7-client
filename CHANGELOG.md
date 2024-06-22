@@ -1,3 +1,11 @@
+## [2.1.1-beta.3](https://github.com/Bugs5382/node-hl7-client/compare/v2.1.1-beta.2...v2.1.1-beta.3) (2024-06-22)
+
+
+### Bug Fixes
+
+* clear connection timer ([9d9f296](https://github.com/Bugs5382/node-hl7-client/commit/9d9f2965906417b4027640950e63d8d9ca7f5314)), closes [#100](https://github.com/Bugs5382/node-hl7-client/issues/100)
+* connections and threads failing to close ([#102](https://github.com/Bugs5382/node-hl7-client/issues/102)) ([013d95e](https://github.com/Bugs5382/node-hl7-client/commit/013d95ec0a57f7150d48e17e0248b793380219e0))
+
 ## [2.1.1-beta.2](https://github.com/Bugs5382/node-hl7-client/compare/v2.1.1-beta.1...v2.1.1-beta.2) (2024-06-04)
 
 
