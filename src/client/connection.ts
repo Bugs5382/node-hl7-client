@@ -14,7 +14,7 @@ import { Client } from './client.js'
 import { InboundResponse } from './module/inboundResponse.js'
 
 /* eslint-disable */
-export interface Connection extends EventEmitter {
+export interface IConnection extends EventEmitter {
   /** The connection has been closed manually. You have to start the connection again. */
   on(name: 'close', cb: () => void): this;
   /** The connection is made. */
@@ -37,7 +37,7 @@ export interface Connection extends EventEmitter {
 /** Connection Class
  * @description Create a connection customer that will listen to result send to the particular port.
  * @since 1.0.0 */
-export class Connection extends EventEmitter implements Connection {
+export class Connection extends EventEmitter implements IConnection {
   /** @internal */
   _handler: OutboundHandler
   /** @internal */
