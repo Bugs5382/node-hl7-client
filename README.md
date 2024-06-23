@@ -56,7 +56,9 @@ They might be sans uppercase throughout the documentation, but they would have t
 
 ## Documentation
 
-It's way too extensive to include on this README alone. Please [read this](pages/index.md) to gain more information.
+It's way too extensive to include on this README alone.
+Please [read this](pages/index.md) to gain more information.
+GitHub pages now has mostly full listing of all methods, classes, etc., but only for the most recent release.
 
 ## Acknowledgements
 

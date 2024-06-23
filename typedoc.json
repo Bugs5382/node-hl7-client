@@ -2,7 +2,7 @@
   "entryPoints": ["src/api.ts"],
   "excludeExternals": true,
   "excludeInternal": true,
-  "includeVersion": false,
+  "includeVersion": true,
   "githubPages": false,
   "out": "./docs",
   "name": "Node HL7 Client",

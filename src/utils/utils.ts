@@ -163,7 +163,7 @@ export const validIPv6 = (ip: string): boolean => {
 }
 
 /**
- * Generate a random String
+ * Generate a random string
  * @since 1.0.0
  * @param length
  */

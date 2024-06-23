@@ -32,7 +32,7 @@ export class Client extends EventEmitter {
   /**
    * This creates a new client to a new server connection.
    * This is the remote side in which we will connect.
-   * Then using the createConnection {@link createConnection} method establish a connection to the port.
+   * Then using the {@link createConnection} method, you establish a connection to the port.
    * @since 1.0.0
    * @param props
    * @example
