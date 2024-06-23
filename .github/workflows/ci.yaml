@@ -56,3 +56,24 @@ jobs:
         env:
           GITHUB_TOKEN:  ${{ secrets.GH_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  Merge:
+    runs-on: ubuntu-latest
+    needs: [ 'Release' ]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: develop
+      - name: Configure Git
+        run: |
+          git config --global user.email "bugs5382@users.noreply.github.com"
+          git config --global user.name "Bugs5382"
+      - name: Merge main into develop
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}
+          git fetch origin
+          git checkout develop
+          git merge origin/main -m "chore: merge main into develop [skip ci]"
+          git push origin develop
