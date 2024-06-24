@@ -1,3 +1,20 @@
+# [2.2.0-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v2.1.1-beta.3...v2.2.0-beta.1) (2024-06-24)
+
+
+### Bug Fixes
+
+* lint issue ([2a35e19](https://github.com/Bugs5382/node-hl7-client/commit/2a35e1935ab3071bfa487478f2ae5184add1f200))
+* lint issue ([80d7667](https://github.com/Bugs5382/node-hl7-client/commit/80d7667ba32a706783b44ee8644cf23d7eecf0ec))
+* race condition ([4b9e6cf](https://github.com/Bugs5382/node-hl7-client/commit/4b9e6cf880973c3e8921f696c6f467f1cc595c63)), closes [#100](https://github.com/Bugs5382/node-hl7-client/issues/100)
+* race condition ([84f0a89](https://github.com/Bugs5382/node-hl7-client/commit/84f0a898670315fec4d7660d89efcdcfab180d7d)), closes [#100](https://github.com/Bugs5382/node-hl7-client/issues/100)
+* race condition ([#106](https://github.com/Bugs5382/node-hl7-client/issues/106)) ([1a8bf3e](https://github.com/Bugs5382/node-hl7-client/commit/1a8bf3e267bfcff2be1b11ab98a255fc7480ba8a))
+
+
+### Features
+
+* minor code cleanups ([#105](https://github.com/Bugs5382/node-hl7-client/issues/105)) ([da37ee1](https://github.com/Bugs5382/node-hl7-client/commit/da37ee101b959ff7a131775aa7b2c2a1b971ae1c))
+* typedoc working! ([6b884ff](https://github.com/Bugs5382/node-hl7-client/commit/6b884ff6c5a6e43bbb52c4de37a8afec229c599e)), closes [#37](https://github.com/Bugs5382/node-hl7-client/issues/37)
+
 ## [2.1.1-beta.3](https://github.com/Bugs5382/node-hl7-client/compare/v2.1.1-beta.2...v2.1.1-beta.3) (2024-06-22)
 
 
