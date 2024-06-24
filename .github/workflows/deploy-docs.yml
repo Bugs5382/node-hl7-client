@@ -1,4 +1,4 @@
-name: Deploy Typedoc to GitHub Pages
+name: "Deploy: Typedoc to GitHub Pages"
 
 on:
   push:
