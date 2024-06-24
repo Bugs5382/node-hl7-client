@@ -1,6 +1,6 @@
 import fs from 'fs'
 import { HL7_2_7 } from '../specification/2.7.js'
-import { MSH } from '../specification/specification'
+import { MSH } from '../specification/specification.js'
 import { HL7FatalError } from './exception.js'
 import { ParserPlan } from './parserPlan.js'
 import { isBatch } from './utils.js'

@@ -14,7 +14,7 @@ import { Client } from './client.js'
 import { InboundResponse } from './module/inboundResponse.js'
 
 /* eslint-disable */
-export interface Connection extends EventEmitter {
+export interface IConnection extends EventEmitter {
   /** The connection has been closed manually. You have to start the connection again. */
   on(name: 'close', cb: () => void): this;
   /** The connection is made. */
@@ -37,7 +37,7 @@ export interface Connection extends EventEmitter {
 /** Connection Class
  * @description Create a connection customer that will listen to result send to the particular port.
  * @since 1.0.0 */
-export class Connection extends EventEmitter implements Connection {
+export class Connection extends EventEmitter implements IConnection {
   /** @internal */
   _handler: OutboundHandler
   /** @internal */
@@ -114,7 +114,7 @@ export class Connection extends EventEmitter implements Connection {
 
   /** Close Client Listener Instance.
    * @description Force close a connection.
-   * It Will stop any re-connection timers.
+   * It will stop any re-connection timers.
    * If you want to restart, your app has to restart the connection.
    * @since 1.0.0
    * @example
@@ -148,6 +148,8 @@ export class Connection extends EventEmitter implements Connection {
     this._socket?.end()
 
     this.emit('close')
+
+    clearTimeout(this._connectionTimer)
 
     this._readyState = ReadyState.CLOSED
   }
@@ -332,7 +334,7 @@ export class Connection extends EventEmitter implements Connection {
     })
 
     socket.on('close', () => {
-      if (this._readyState === ReadyState.CLOSING) {
+      if (this._readyState === ReadyState.CLOSING || (this._connectionTimer == null)) {
         this._readyState = ReadyState.CLOSED
       } else {
         connectionError = (connectionError != null) ? connectionError : new HL7FatalError('Socket closed unexpectedly by server.')

@@ -30,6 +30,9 @@ export class Client extends EventEmitter {
   }
 
   /**
+   * This creates a new client to a new server connection.
+   * This is the remote side in which we will connect.
+   * Then using the {@link createConnection} method, you establish a connection to the port.
    * @since 1.0.0
    * @param props
    * @example
@@ -71,11 +74,11 @@ export class Client extends EventEmitter {
   createConnection (props: ClientListenerOptions, cb: OutboundHandler): Connection {
     const outbound = new Connection(this, props, cb)
 
-    outbound.on('client.acknowledged', (total) => {
+    outbound.on('client.acknowledged', (total: number) => {
       this.stats._totalAck = this.stats._totalAck + total
     })
 
-    outbound.on('client.sent', (total) => {
+    outbound.on('client.sent', (total: number) => {
       this.stats._totalSent = this.stats._totalSent + total
     })
 
@@ -87,7 +90,7 @@ export class Client extends EventEmitter {
   }
 
   /**
-   * Get the host that we will  connect to.
+   * Get the host that we will connect to.
    * The port might be different from each different "connection"
    * @since 1.1.0
    */

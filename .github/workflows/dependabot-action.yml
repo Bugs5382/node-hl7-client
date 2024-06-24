@@ -1,0 +1,52 @@
+name: Dependabot Auto-Merge
+
+on:
+  pull_request_target:
+    types: [review_requested]
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: read
+
+jobs:
+  Dependabot:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v1.3.4
+        with:
+          github-token: "${{ secrets.GH_TOKEN }}"
+          skip-commit-verification: true
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Approve PR, if not already approved
+        run: |
+          gh pr checkout "$PR_URL"
+          if [ "$(gh pr status --json reviewDecision -q .currentBranch.reviewDecision)" != "APPROVED" ]; then
+            gh pr review --approve "$PR_URL"
+          else
+            echo "PR Already Approved.";
+          fi
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: Run unit tests
+        run: |
+          npm test
+      - name: Aggregate Dependabot PRs
+        id: aggregate_prs
+        run: |
+          PR_URL=$(gh pr list --json state:open author:dependabot[bot] base:$PR_BASE_BRANCH -q '.[].url' | jq -r 'join(" ")')
+          echo "::set-output name=pr_url::$PR_URL"
+        env:
+          PR_BASE_BRANCH: develop
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: Merge aggregated PRs
+        if: steps.aggregate_prs.outputs.pr_url != ''
+        run: |
+          gh pr merge --auto --merge ${{ steps.aggregate_prs.outputs.pr_url }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
