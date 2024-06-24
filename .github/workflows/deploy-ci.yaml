@@ -70,5 +70,5 @@ jobs:
           git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}
           git fetch origin
           git checkout develop
-          git merge origin/main -m "chore: merge main into develop [skip ci]"
+          git merge origin/main -m "chore: merge main into develop [ci skip]"
           git push origin develop
