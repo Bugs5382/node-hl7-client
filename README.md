@@ -59,6 +59,7 @@ They might be sans uppercase throughout the documentation, but they would have t
 It's way too extensive to include on this README alone.
 Please [read this](pages/index.md) to gain more information.
 GitHub pages now has mostly full listing of all methods, classes, etc., but only for the most recent release.
+You can view it [here](https://bugs5382.github.io/node-hl7-client/).
 
 ## Acknowledgements
 

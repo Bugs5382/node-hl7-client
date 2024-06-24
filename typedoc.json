@@ -1,4 +1,5 @@
 {
+  "tsconfig": "src/tsconfig.esm.json",
   "entryPoints": ["src/api.ts"],
   "excludeExternals": true,
   "excludeInternal": true,
