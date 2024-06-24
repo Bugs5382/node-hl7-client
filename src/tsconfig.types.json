@@ -3,7 +3,7 @@
   "compilerOptions": {
     "declaration": true,
     "emitDeclarationOnly": true,
-    "outDir": "./lib/types",
+    "outDir": "../lib/types",
     "sourceMap": false
   }
 }
