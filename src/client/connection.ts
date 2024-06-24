@@ -334,7 +334,7 @@ export class Connection extends EventEmitter implements IConnection {
     })
 
     socket.on('close', () => {
-      if (this._readyState === ReadyState.CLOSING) {
+      if (this._readyState === ReadyState.CLOSING || (this._connectionTimer == null)) {
         this._readyState = ReadyState.CLOSED
       } else {
         connectionError = (connectionError != null) ? connectionError : new HL7FatalError('Socket closed unexpectedly by server.')
