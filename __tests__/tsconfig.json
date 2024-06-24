@@ -1,5 +1,5 @@
 {
-    "extends": "../tsconfig.esm.json",
+    "extends": "../tsconfig.json",
     "compilerOptions": {
         "noEmit": true,
         "typeRoots": ["../node_modules/@types", "../@types"]
