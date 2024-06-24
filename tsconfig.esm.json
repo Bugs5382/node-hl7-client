@@ -4,6 +4,6 @@
     "module": "ESNext",
     "outDir": "./lib/esm",
     "declaration": true,
-    "sourceMap": true
+    "sourceMap": false
   }
 }
