@@ -3,7 +3,7 @@ import {Server} from 'node-hl7-server'
 import path from "node:path";
 import { describe, expect, test } from 'vitest';
 import tcpPortUsed from 'tcp-port-used'
-import Client, {Batch, Message} from '../src'
+import Client, {Batch, Message, ReadyState} from '../src'
 import {createDeferred} from "../src/utils/utils";
 import {expectEvent} from './__utils__'
 
@@ -14,6 +14,7 @@ describe('node hl7 end to end - client', () => {
     test('...simple connect', async () => {
 
       let dfd = createDeferred<void>()
+      let dfdConnectionChecks = createDeferred<void>()
 
       const server = new Server({bindAddress: '0.0.0.0'})
       const listener = server.createInbound({port: 3000}, async (req, res) => {
@@ -30,6 +31,22 @@ describe('node hl7 end to end - client', () => {
         const messageRes = res.getMessage()
         expect(messageRes.get('MSA.1').toString()).toBe('AA')
         dfd.resolve()
+      })
+
+      // Ensure no errors on the connection
+      outbound.on("client.error", (err) => {
+        if(err.message === "Socket closed unexpectedly by server.") dfdConnectionChecks.reject('Connection terminated incorrectly');
+      })
+
+      // Ensure connection closes successfully
+      outbound.on("close", () => {
+        
+        outbound.on('connection', () => {
+           dfdConnectionChecks.reject('Unexpected follow on connection attempted.');
+        });
+
+        // Give the connection time to report any errors.
+        setTimeout(dfdConnectionChecks.resolve,500)
       })
 
       await expectEvent(outbound, 'connect')
@@ -54,6 +71,12 @@ describe('node hl7 end to end - client', () => {
       await listener.close()
 
       client.closeAll()
+
+      await dfdConnectionChecks.promise;
+      expect(outbound._connectionTimer).toBeDefined();
+      expect((outbound._connectionTimer as any)._destroyed).toBeTruthy();
+      expect((outbound as any)._readyState).toEqual(ReadyState.CLOSED);
+      expect(client._connections.length).toEqual(0);
 
     })
 
