@@ -1,3 +1,11 @@
+## [2.3.1-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v2.3.0...v2.3.1-beta.1) (2024-06-25)
+
+
+### Bug Fixes
+
+* **#100:** Ensure correct connection closure ([#112](https://github.com/Bugs5382/node-hl7-client/issues/112)) ([7be02c3](https://github.com/Bugs5382/node-hl7-client/commit/7be02c32e06ec4aad737050208488dc877ea8e62)), closes [#100](https://github.com/Bugs5382/node-hl7-client/issues/100)
+* **#100:** update closure check logic to avoid error when closed correctly ([8409326](https://github.com/Bugs5382/node-hl7-client/commit/84093261b8cbe64c58ff5b7f1740a4faab27a300))
+
 # [2.3.0](https://github.com/Bugs5382/node-hl7-client/compare/v2.2.0...v2.3.0) (2024-06-24)
 
 
