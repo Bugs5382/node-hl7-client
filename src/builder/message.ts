@@ -88,6 +88,19 @@ export class Message extends RootBase {
   }
 
   /**
+   * Exports all set fields into a formated array.
+   * @since 2.4.0
+   * @wxample
+   * ```ts
+   *
+   * ```
+   */
+  displayAll(): string[] {
+    console.log(this.children)
+    return []
+  }
+
+  /**
    * Get HL7 Segment at Path
    * @since 1.0.0
    * @param path

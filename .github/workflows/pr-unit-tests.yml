@@ -32,15 +32,15 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install Dependencies
-        if: steps.filter.outputs.src == 'true' && steps.filter.outputs.test == 'true'
+        if: steps.filter.outputs.src == 'true' || steps.filter.outputs.test == 'true'
         run: npm install --ignore-scripts
       - name: Run Lint
-        if: steps.filter.outputs.src == 'true' && steps.filter.outputs.test == 'true'
+        if: steps.filter.outputs.src == 'true'
         run: npm run lint
       - name: Run Unit Tests
-        if: steps.filter.outputs.src == 'true' && steps.filter.outputs.test == 'true'
+        if: steps.filter.outputs.src == 'true' || steps.filter.outputs.test == 'true'
         run: npm run test
       - name: Check test results
-        if: steps.filter.outputs.src == 'true' && steps.filter.outputs.test == 'true'
+        if: steps.filter.outputs.src == 'true' || steps.filter.outputs.test == 'true'
         run: exit ${{ steps.Test.outputs.test_result }}
         id: check_test_result

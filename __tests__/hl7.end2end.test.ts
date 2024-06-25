@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import {Server} from 'node-hl7-server'
 import path from "node:path";
 import { describe, expect, test } from 'vitest';

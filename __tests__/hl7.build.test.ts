@@ -1,6 +1,6 @@
-import { randomUUID } from 'crypto'
-import fs from 'fs'
-import path from 'path'
+import { randomUUID } from 'node:crypto'
+import fs from 'node:fs'
+import path from 'node:path'
 import { describe, expect, test, beforeEach, beforeAll } from 'vitest';
 import { FileBatch, Batch, Message, createHL7Date, HL7Node, EmptyNode } from '../src'
 import { HL7_2_1, HL7_2_7, HL7_2_2, HL7_2_3, HL7_2_3_1, HL7_2_4, HL7_2_5, HL7_2_5_1, HL7_2_6, HL7_2_7_1, HL7_2_8 } from '../src/hl7'
@@ -272,6 +272,10 @@ describe('node hl7 client - builder tests', () => {
 
     test('...real basic', async () => {
       expect(message.toString()).toBe('MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7')
+    })
+
+    test('...display all fields', async () => {
+      message.displayAll()
     })
 
     test('...should accept a number as a value', async () => {
