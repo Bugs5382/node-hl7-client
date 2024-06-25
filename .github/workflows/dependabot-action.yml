@@ -12,6 +12,9 @@ permissions:
 jobs:
   Dependabot:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 20.x, 'lts/*' ]
     if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
       - name: Dependabot metadata
@@ -22,6 +25,12 @@ jobs:
           skip-commit-verification: true
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install Dependencies
+        run: npm install --ignore-scripts
       - name: Approve PR, if not already approved
         run: |
           gh pr checkout "$PR_URL"
@@ -35,7 +44,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: Run unit tests
         run: |
-          npm test
+          npm run test
       - name: Aggregate Dependabot PRs
         id: aggregate_prs
         run: |
