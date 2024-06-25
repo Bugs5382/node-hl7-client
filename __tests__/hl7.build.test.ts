@@ -323,8 +323,7 @@ describe('node hl7 client - builder tests', () => {
       expect(message.toString()).toContain('PV1|||||||^Jones^John')
     })
 
-    // not working...
-    test.skip('...should be able to set repeating fields', async () => {
+    test('...should be able to set repeating fields', async () => {
       message.set('PID.3').set(0).set('PID.3.1', 'abc')
       message.set('PID.3').set(0).set('PID.3.5', 'MRN')
       message.set('PID.3').set(1).set('PID.3.1', 123)
@@ -332,8 +331,7 @@ describe('node hl7 client - builder tests', () => {
       expect(message.toString()).toContain('PID|||abc^^^^MRN~123^^^^ID')
     })
 
-    // not working...
-    test.skip('...can chain component setters', async () => {
+    test('...can chain component setters', async () => {
       message.set('PV1.7').set(0).set('PV1.7.2', 'Jones').set('PV1.7.3', 'John')
       message.set('PV1.7').set(1).set('PV1.7.2', 'Smith').set('PV1.7.3', 'Bob')
       expect(message.toString()).toContain('PV1|||||||^Jones^John~^Smith^Bob')
@@ -355,8 +353,7 @@ describe('node hl7 client - builder tests', () => {
       expect(message.toString()).toContain('PV1|||||||^Jones^John~^Smith^Bob')
     })
 
-    // This is currently failing, why... I have no idea. Help!
-    test.skip('... add segment EVN field - using full path', async () => {
+    test('... add segment EVN field - using full path', async () => {
       const segment = message.addSegment('EVN')
       segment.set('EVN.2.1', '20081231')
       expect(message.toString()).toBe('MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231')

@@ -1,6 +1,6 @@
 import { Delimiters } from '../../utils/enum.js'
 import { HL7FatalError } from '../../utils/exception.js'
-import { isHL7Number, isHL7String } from '../../utils/utils.js'
+import { isHL7String } from '../../utils/utils.js'
 import { Field } from './field.js'
 import { NodeBase } from './nodeBase.js'
 import { HL7Node } from '../interface/hL7Node.js'
@@ -41,40 +41,6 @@ export class Segment extends NodeBase {
 
     const field = this.children[index]
     return typeof field !== 'undefined' && path.length > 0 ? field.read(path) : field
-  }
-
-  /** @internal */
-  set (path: string | number, value?: any): HL7Node {
-    if (arguments.length === 1) {
-      return this.ensure(path)
-    }
-
-    if (typeof path === 'string') {
-      if (Array.isArray(value)) {
-        for (let i = 0; i < value.length; i++) {
-          this.set(`${path}.${i + 1}`, value[i])
-        }
-      } else {
-        const _path = this.preparePath(path)
-        this.write(_path, this.prepareValue(value))
-      }
-
-      return this
-    } else if (isHL7Number(path)) {
-      if (Array.isArray(value)) {
-        const child = this.ensure(path)
-        for (let i = 0, l = value.length; i < l; i++) {
-          child.set(i, value[i])
-        }
-        return this
-      } else {
-        this.setChild(this.createChild(this.prepareValue(value), path), path)
-      }
-
-      return this
-    }
-
-    throw new HL7FatalError('Path must be a string or number.')
   }
 
   /** @internal */
