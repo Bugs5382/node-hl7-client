@@ -147,10 +147,13 @@ export class Connection extends EventEmitter implements IConnection {
     this._socket?.destroy()
     this._socket?.end()
 
-    this.emit('close')
-
+    // Ensure no further reconnections are attempted
     clearTimeout(this._connectionTimer)
 
+    // Emit close event on the socket
+    this.emit('close')
+
+    // Set closure state
     this._readyState = ReadyState.CLOSED
   }
 
@@ -334,9 +337,9 @@ export class Connection extends EventEmitter implements IConnection {
     })
 
     socket.on('close', () => {
-      if (this._readyState === ReadyState.CLOSING || (this._connectionTimer == null)) {
+      if (this._readyState === ReadyState.CLOSING) {
         this._readyState = ReadyState.CLOSED
-      } else {
+      } else if (!(this._readyState === ReadyState.CLOSED && this._connectionTimer != null && (this._connectionTimer as unknown as { _destroyed: boolean })._destroyed)) {
         connectionError = (connectionError != null) ? connectionError : new HL7FatalError('Socket closed unexpectedly by server.')
         if (this._readyState === ReadyState.OPEN) {
           this._onConnect = createDeferred(true)
