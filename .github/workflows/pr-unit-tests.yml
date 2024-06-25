@@ -28,7 +28,6 @@ jobs:
             test:
               - '__tests__/**'
       - name: Use Node.js ${{ matrix.node-version }}
-        if: steps.filter.outputs.src == 'true' && steps.filter.outputs.test == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
