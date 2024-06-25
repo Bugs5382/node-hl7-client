@@ -1,6 +1,7 @@
 ---
 name: Question
 about: Ask a question
+title: "chore: "
 labels: question
 ---
 
