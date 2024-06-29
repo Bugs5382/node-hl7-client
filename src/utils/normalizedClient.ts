@@ -1,6 +1,6 @@
 import { TcpSocketConnectOpts } from 'node:net'
 import type { ConnectionOptions as TLSOptions } from 'node:tls'
-import { InboundResponse } from '../client/module/inboundResponse.js'
+import { InboundResponse } from '../client/module'
 import { HL7FatalError } from './exception.js'
 import { assertNumber, validIPv4, validIPv6 } from './utils.js'
 
@@ -11,6 +11,26 @@ import { assertNumber, validIPv4, validIPv6 } from './utils.js'
  * @param res
  */
 export type OutboundHandler = (res: InboundResponse) => Promise<void> | void
+
+/**
+ * Saved Message Handler
+ * @remarks Used
+ * to send back to the application, the Hl7 message that need to be saved.
+ * Currently, the message is not able to send normally,
+ * or we are awaiting a previous acknowledgement that has yet to come.
+ *
+ * Errors that the client could experience are its own networking issues, or the remote side is having an issue,
+ * but regardless, this handler will be hit if specified for each connection.
+ *
+ * Instead of the messages being stored in Node.js memory, the object is returned
+ *
+ * @since 2.4.0
+ * @param message
+ * @return Return true if we successfully saved the message locally.
+ * If false (default) is returned, the system will keep looping until it knows the message has been successfully saved
+ * per the application specifications.
+ */
+export type SavedMessageHandler = (message: string) => Promise<boolean> | boolean
 
 const DEFAULT_CLIENT_OPTS = {
   encoding: 'utf-8',
