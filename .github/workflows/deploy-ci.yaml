@@ -41,7 +41,7 @@ jobs:
         if: steps.filter.outputs.src == 'true'
         run: npm run lint
       - name: Run Unit Tests
-        if: steps.filter.outputs.test == 'true'
+        if: steps.filter.outputs.src == 'true' || steps.filter.outputs.test == 'true'
         run: npm run test
   Release:
     runs-on: ubuntu-latest
