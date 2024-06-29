@@ -38,7 +38,7 @@ jobs:
         if: steps.filter.outputs.src == 'true' || steps.filter.outputs.test == 'true'
         run: npm install --ignore-scripts
       - name: Run Lint
-        if: steps.filter.outputs.src == 'true
+        if: steps.filter.outputs.src == 'true'
         run: npm run lint
       - name: Run Unit Tests
         if: steps.filter.outputs.test == 'true'
