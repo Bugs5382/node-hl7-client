@@ -3,7 +3,6 @@ import { HL7Node } from '../interface/hL7Node.js'
 /**
  * Empty Node
  * @since 1.0.0
- * @extends HL7Node
  */
 export class EmptyNode implements HL7Node {
   get name (): string {

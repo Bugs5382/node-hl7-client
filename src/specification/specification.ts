@@ -51,7 +51,7 @@ export class HL7_SPEC_BASE implements HL7_SPEC {
 
   /**
    * Build MSH Header
-   * @description Add the required fields based on the spec chosen.
+   * @remarks Add the required fields based on the spec chosen.
    * @since 1.0.0
    * @param _mshHeader
    * @param _massage

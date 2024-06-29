@@ -13,13 +13,12 @@ import { SegmentList } from './modules/segmentList.js'
 
 /**
  * File Batch Class
- * @description Create a File Batch (FHS) which will could include many BHS/BTS segments,
+ * @remarks Create a File Batch (FHS) which will could include many BHS/BTS segments,
  * which could include many Message (MSH) segments to output the contents into a file on the OS.
  * These files could then be used to send manually or read by another system to interpret the contents.
  * This class helps
  * in generating the particulars for that file generation to make sure that it follows the correct format.
  * @since 1.0.0
- * @extends RootBase
  */
 export class FileBatch extends RootBase {
   /** @internal */
@@ -56,7 +55,7 @@ export class FileBatch extends RootBase {
 
   /**
    * AAdd a Message or a Batch to the File
-   * @description This adds a Message (MSH) output into the file batch.
+   * @remarks This adds a Message (MSH) output into the file batch.
    * If there is a Batch ("BHS") already part of this file, any new Message type will be added to the first found BHS regardless if the second Batch is added last.
    * @since 1.0.0
    * @param message The {@link Message} or {@link Batch} to add into the batch.
@@ -118,7 +117,7 @@ export class FileBatch extends RootBase {
 
   /**
    * End Batch
-   * @description At the conclusion of building the file batch,
+   * @remarks At the conclusion of building the file batch,
    * (Usually {@link add} method will be before this) will add the File Batch Trailing Segment (FTS) to the end.
    * If a message (MSH) is added after this,
    * that message (MSH) will get added to the first BHS found if there is one, otherwise it will just be added.
@@ -132,7 +131,7 @@ export class FileBatch extends RootBase {
 
   /**
    * Get File name
-   * @description Get File name going to be created.
+   * @remarks Get File name going to be created.
    * @since 1.2.0
    */
   fileName (): string {
@@ -158,7 +157,7 @@ export class FileBatch extends RootBase {
 
   /**
    * Get Messages within a submitted File Batch
-   * @description This will parse the passed on "text"
+   * @remarks This will parse the passed on "text"
    * in the contractor options and get all the messages (MSH) segments within it and return an array of them.
    * This will happen regardless of the depth of the segments.
    * @since 1.0.0

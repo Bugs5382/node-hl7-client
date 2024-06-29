@@ -9,7 +9,6 @@ import { SubComponent } from './subComponent.js'
 /**
  * Segment
  * @since 1.0.0
- * @extends NodeBase
  */
 export class Segment extends NodeBase {
   /** @internal */

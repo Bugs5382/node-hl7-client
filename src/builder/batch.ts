@@ -10,11 +10,10 @@ import { SegmentList } from './modules/segmentList.js'
 
 /**
  * Batch Class
- * @description Creating a Batch (BHS) which could include hundreds of MSH segments for processing.
+ * @remarks Creating a Batch (BHS) which could include hundreds of MSH segments for processing.
  * Normally used in large data processing.
  * However, the server usually breaks down a batch MSH into single "elements" to process them and returns that the batch.
  * @since 1.0.0
- * @extends RootBase
  */
 export class Batch extends RootBase {
   /** @internal **/
@@ -44,7 +43,7 @@ export class Batch extends RootBase {
 
   /**
    * Add a Message to the Batch
-   * @description This adds a Message (MSH) output into the batch.
+   * @remarks This adds a Message (MSH) output into the batch.
    * It also increases the count of the BTS segment as the batch final result
    * when in end tells the receiving end how many message (MSH) segments are included.
    * @since 1.0.0
@@ -63,7 +62,7 @@ export class Batch extends RootBase {
 
   /**
    * End Batch
-   * @description At the conclusion of building the batch,
+   * @remarks At the conclusion of building the batch,
    * (Usually {@link add} method will be before this) will add the Batch Trailing Segment (BTS) to the end.
    * If a message (MSH) is added after this,
    * that message (MSH) will get added to the first BHS found if there is more than one.
@@ -95,7 +94,7 @@ export class Batch extends RootBase {
 
   /**
    * Get the First Segment
-   * @description Returns the first segment found in the Batch (BHS).
+   * @remarks Returns the first segment found in the Batch (BHS).
    * This is only used during the {@link add} method
    * in determining
    * if there is more than one Batch of MSH in a File Batch {@link FileBatch}
@@ -110,7 +109,7 @@ export class Batch extends RootBase {
 
   /**
    * Get Messages within a submitted Batch
-   * @description This will parse the passed on "text"
+   * @remarks This will parse the passed on "text"
    * in the contractor options and get all the messages (MSH) segments within it and return an array of them.
    * @since 1.0.0
    * @example
@@ -166,7 +165,7 @@ export class Batch extends RootBase {
 
   /**
    * Start Batch
-   * @description This allows you to override the orginial contractor BHS fields that are required.
+   * @remarks This allows you to override the orginial contractor BHS fields that are required.
    * In this case, 'BHS.7'
    * (Date Field) is filled out with a 14-character date field with YYYYMMDDHHMMSS entered in by default.
    * @since 1.0.0
@@ -179,7 +178,7 @@ export class Batch extends RootBase {
 
   /**
    * Create File from a Batch
-   * @description Will procure a file of the saved MSH in the proper format
+   * @remarks Will procure a file of the saved MSH in the proper format
    * that includes a FHS and FTS segments with the possibility of more than one BHS segments inside with one or more MSH inside each BHS groups.
    * @since 1.0.0
    * @param name File Name

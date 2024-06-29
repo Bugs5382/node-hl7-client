@@ -25,7 +25,7 @@ const DEFAULT_CLIENT_FILE_OPTS = {
 
 /**
  * Client Builder Options
- * @description Used to specific default paramaters around building an HL7 message if that is
+ * @remarks Used to specific default paramaters around building an HL7 message if that is
  * so desired.
  * It also sets up checking of input values to make sure they match up to the proper
  * HL7 specification.

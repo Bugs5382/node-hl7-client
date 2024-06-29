@@ -9,7 +9,7 @@ import { Connection } from './connection.js'
 
 /**
  * Client Class
- * @description The main class that starts a client connection to a valid HL7 TCP/MLLP specified server.
+ * @remarks The main class that starts a client connection to a valid HL7 TCP/MLLP specified server.
  * @since 1.0.0 */
 export class Client extends EventEmitter {
   /** @internal */
