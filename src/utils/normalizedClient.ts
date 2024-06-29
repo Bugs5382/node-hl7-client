@@ -6,7 +6,7 @@ import { assertNumber, validIPv4, validIPv6 } from './utils.js'
 
 /**
  * Outbound Handler
- * @description Used to receive a response from the server
+ * @remarks Used to receive a response from the server
  * @since 1.0.0
  * @param res
  */

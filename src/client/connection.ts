@@ -35,7 +35,7 @@ export interface IConnection extends EventEmitter {
 /* eslint-enable */
 
 /** Connection Class
- * @description Create a connection customer that will listen to result send to the particular port.
+ * @remarks Create a connection customer that will listen to result send to the particular port.
  * @since 1.0.0 */
 export class Connection extends EventEmitter implements IConnection {
   /** @internal */
@@ -113,7 +113,7 @@ export class Connection extends EventEmitter implements IConnection {
   }
 
   /** Close Client Listener Instance.
-   * @description Force close a connection.
+   * @remarks Force close a connection.
    * It will stop any re-connection timers.
    * If you want to restart, your app has to restart the connection.
    * @since 1.0.0
@@ -159,7 +159,7 @@ export class Connection extends EventEmitter implements IConnection {
 
   /**
    * Get Port
-   * @description Get the port that this connection will connect to.
+   * @remarks Get the port that this connection will connect to.
    * @since 2.0.0
    */
   getPort (): number {
@@ -193,7 +193,7 @@ export class Connection extends EventEmitter implements IConnection {
   }
 
   /** Send a HL7 Message to the Listener
-   * @description This function sends a message/batch/file batch to the remote side.
+   * @remarks This function sends a message/batch/file batch to the remote side.
    * It has the ability, if set to auto-retry (defaulted to 1 re-connect before connection closes)
    * @since 1.0.0
    * @param message The message we need to send to the port.

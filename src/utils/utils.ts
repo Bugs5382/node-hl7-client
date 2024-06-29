@@ -17,7 +17,7 @@ export const assertNumber = (props: Record<string, number>, name: string, min: n
 
 /**
  * Create a valid HL7 Date.
- * @description Custom for this package and based of HL7 specification.
+ * @remarks Custom for this package and based of HL7 specification.
  * @since 1.0.0
  * @param date
  * @param length
@@ -107,7 +107,7 @@ export const isFile = (message: string): boolean => {
 
 /**
  * Is Number
- * @description Custom for this package.
+ * @remarks Custom for this package.
  * @since 1.0.0
  * @param value
  */
@@ -118,7 +118,7 @@ export const isHL7Number = (value: string | number): boolean => {
 
 /**
  * Is String
- * @description Custom for this package.
+ * @remarks Custom for this package.
  * @since 1.0.0
  * @param value
  */
@@ -181,7 +181,7 @@ export const randomString = (length = 20): string => {
 
 /**
  * Split the message.
- * @description Split the message into its parts.
+ * @remarks Split the message into its parts.
  * @since 1.0.0
  * @param data
  * @param segments
@@ -202,7 +202,7 @@ export const split = (data: string, segments: string[] = []): string[] => {
 
 /**
  * Get Segment Indexes
- * @description Helper for {@link split}
+ * @remarks Helper for {@link split}
  * @since 1.0.0
  * @param names
  * @param data

@@ -3,7 +3,7 @@ import { HL7_2_5 } from './2.5.js'
 
 /**
  * HL7 2.5.1 MSH Specification
- * @description Only the required ones are listed below for typescript validation to pass.
+ * @remarks Only the required ones are listed below for typescript validation to pass.
  * @since 1.0.0
  * @example
  * To make it easier on having to fill this out each time, you may do this in your code:
@@ -36,12 +36,12 @@ export interface HL7_2_5_1_MSH {
    * @default If not specified, it will be the combo of 9.1 and 9.2 with an underscore. */
   msh_9_3?: string
   /** Message Control ID
-   * @description This ID is unique to the message being sent
+   * @remarks This ID is unique to the message being sent
    * so the client can track
    * to see if they get a response back from the server that this particular message was successful.
    * Max 20 characters.
    * @since 1.0.0
-   * @default Random 20 Character String @see {@link randomString} if this is set to nothing or not included. */
+   * @default Random 20 Character String {@link randomString} if this is set to nothing or not included. */
   msh_10?: string
   /** Processing ID
    * @since 1.0.0 */
@@ -53,7 +53,7 @@ export interface HL7_2_5_1_MSH {
 
 /**
  * Hl7 Specification Version 2.5.1
- * @description Used to indicate that the message should follow 2.7 specification for retrieval or building a message.
+ * @remarks Used to indicate that the message should follow 2.7 specification for retrieval or building a message.
  * @since 1.0.0
  */
 export class HL7_2_5_1 extends HL7_2_5 {
