@@ -10,7 +10,7 @@ export class InboundResponse {
 
   /**
    * Process the Inbound Response from the Server
-   * @description This takes the string of the response from the server and makes it a message.
+   * @remarks This takes the string of the response from the server and makes it a message.
    * A response from a broker SHOULD always be a properly formated Hl7 message, we hope.
    * @since 1.0.0
    * @param data

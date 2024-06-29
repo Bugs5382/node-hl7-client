@@ -10,7 +10,6 @@ import { Message } from '../message.js'
 /**
  * Node Base
  * @since 1.0.0
- * @extends HL7Node
  */
 export class NodeBase extends EventEmitter implements HL7Node {
   protected parent: NodeBase | null

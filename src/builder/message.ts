@@ -11,7 +11,6 @@ import { HL7Node } from './interface/hL7Node.js'
 /**
  * Message Class
  * @since 1.0.0
- * @extends RootBase
  */
 export class Message extends RootBase {
   /** @internal */
@@ -58,7 +57,7 @@ export class Message extends RootBase {
   /**
    * Add a new segment to a message.
    * @since 1.0.0
-   * @description Creating a new segment adds an empty segment to the message.
+   * @remarks Creating a new segment adds an empty segment to the message.
    * It could be blank, or it could have values added into it.
    * @param path
    * @example
@@ -109,7 +108,7 @@ export class Message extends RootBase {
 
   /**
    * Read a path of a message.
-   * @description Could return {@link SegmentList}
+   * @remarks Could return {@link SegmentList}
    * @since 1.0.0
    * @param path
    */
@@ -173,7 +172,7 @@ export class Message extends RootBase {
 
   /**
    * Create File from a Message
-   * @description Will procure a file of the saved MSH in the proper format
+   * @remarks Will procure a file of the saved MSH in the proper format
    * that includes a FHS and FTS segments.
    * @since 1.0.0
    * @param name File Name

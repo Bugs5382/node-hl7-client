@@ -1,6 +1,6 @@
 /**
  * Type of Segments Values
- * @description Used during the class creation to give each type its own index value.
+ * @remarks Used during the class creation to give each type its own index value.
  * This is done during the constructor phase of the classes.
  * @since 1.0.0
  */
@@ -21,7 +21,7 @@ export enum Delimiters {
 
 /**
  * State of the Connected to the Server
- * @description These are the states that are used to track the connecting to the server side and also during the auto-reconnect phase.
+ * @remarks These are the states that are used to track the connecting to the server side and also during the auto-reconnect phase.
  * @since 1.0.0
  */
 export enum ReadyState {
