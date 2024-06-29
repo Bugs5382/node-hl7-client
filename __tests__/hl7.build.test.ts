@@ -29,6 +29,34 @@ describe('node hl7 client - builder tests', () => {
       expect(message.toString()).toContain(`|ADT^A01^ADT_A01|${randomControlID}||2.7`)
     })
 
+    test('...extend Message build', async () => {
+
+      const newMessage = () => {
+        return new Message({
+          messageHeader: {
+            msh_9_1: 'ADT',
+            msh_9_2: 'A01',
+            msh_11: "P"
+          }
+        })
+      }
+
+      // this is the original message creation at line 17
+      expect(message.toString()).toContain('MSH|^~\\&')
+      expect(message.toString()).toContain(`|ADT^A01^ADT_A01|${randomControlID}||2.7`)
+
+      // this is creating a new message using a function that returns the message object
+      const newResult = newMessage()
+      expect(newResult.toString()).not.toContain(randomControlID)
+
+      const newRandomControlID = newResult.get('MSH.10').toString()
+
+      // again, this is creating a new message using a function that returns the message object
+      const newResultTwo = newMessage()
+      expect(newResultTwo.toString()).not.toContain(newRandomControlID)
+
+    })
+
     test('...verify MSH header is correct', async () => {
       expect(message.toString().substring(0, 8)).toBe('MSH|^~\\&')
       expect(message.get('MSH.3').exists('')).toBe(false)
