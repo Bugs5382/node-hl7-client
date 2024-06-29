@@ -85,6 +85,7 @@ jobs:
           git config --global user.email "bugs5382@users.noreply.github.com"
           git config --global user.name "Bugs5382"
       - name: Merge main into develop
+        continue-on-error: true
         run: |
           git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}
           git fetch origin
