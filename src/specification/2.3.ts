@@ -45,7 +45,7 @@ export interface HL7_2_3_MSH {
   msh_11_1: 'D' | 'P' | 'T'
   /** Processing Mode
    * @since 1.0.0 */
-  msh_11_2?: 'A' | 'I' | 'R' | 'T' | ''
+  msh_11_2?: 'A' | 'I' | 'R' | ''
 }
 
 /**
@@ -83,6 +83,14 @@ export class HL7_2_3 extends HL7_SPEC_BASE {
       throw new Error('MSH.10 must be greater than 0 and less than 20 characters.')
     }
 
+    if (msh.msh_11_1.length > 1) {
+      throw new Error('MSH.11.1 has to be 1 character long. Valid inputs are: D, P, or T')
+    }
+
+    if (typeof msh.msh_11_2 !== 'undefined' && (msh.msh_11_2.length > 1 || msh.msh_11_2 === '')) {
+      throw new Error('MSH.11.2 can either be undefined/blank and 1 character long.')
+    }
+
     return true
   }
 
@@ -104,7 +112,9 @@ export class HL7_2_3 extends HL7_SPEC_BASE {
         message.set('MSH.10', mshHeader.msh_10.toString())
       }
       message.set('MSH.11.1', mshHeader.msh_11_1)
-      message.set('MSH.11.2', mshHeader.msh_11_2)
+      if (typeof mshHeader.msh_11_2 !== 'undefined') {
+        message.set('MSH.11.2', mshHeader.msh_11_2)
+      }
       message.set('MSH.12', this.name)
     }
   }
