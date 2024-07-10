@@ -8,10 +8,15 @@ import Message from '../builder/message.js'
 import { PROTOCOL_MLLP_FOOTER, PROTOCOL_MLLP_HEADER } from '../utils/constants.js'
 import { ReadyState } from '../utils/enum.js'
 import { HL7FatalError } from '../utils/exception.js'
-import { ClientListenerOptions, normalizeClientListenerOptions, OutboundHandler } from '../utils/normalizedClient.js'
+import {
+  ClientListenerOptions,
+  normalizeClientListenerOptions,
+  OutboundHandler,
+  SavedMessageHandler
+} from '../utils/normalizedClient.js'
 import { createDeferred, Deferred, expBackoff } from '../utils/utils.js'
 import { Client } from './client.js'
-import { InboundResponse } from './module/inboundResponse.js'
+import { InboundResponse } from './module'
 
 /* eslint-disable */
 export interface IConnection extends EventEmitter {
@@ -40,6 +45,8 @@ export interface IConnection extends EventEmitter {
 export class Connection extends EventEmitter implements IConnection {
   /** @internal */
   _handler: OutboundHandler
+  /** @internal */
+  _savedMessageHandler: SavedMessageHandler | undefined
   /** @internal */
   private readonly _main: Client
   /** @internal */
@@ -78,15 +85,21 @@ export class Connection extends EventEmitter implements IConnection {
    * @param props The individual port connection options.
    * Some values will be defaulted by the parent server connection.
    * @param handler The function that will send the returned information back to the client after we got a response from the server.
+   * @param savedMessageHandler OPTIONAL - The function that will handle any messages to save if it has trouble sending it to a remote server.
+   * Having this here will prevent the message from being stored in memory,
+   * thus you have to listen for the `connection` emit to then check your code which stores the message,
+   * (i.e., in a flat file stored locally or RabbitMQ, etc.) and then retransmit the message.
+   * This should lesson the MEMORY usage your application might have to do if storing large messages, awaiting
    * @example
    * ```ts
    * const OB = client.createConnection({ port: 3000 }, async (res) => {})
    * ```
    */
-  constructor (client: Client, props: ClientListenerOptions, handler: OutboundHandler) {
+  constructor (client: Client, props: ClientListenerOptions, handler: OutboundHandler, savedMessageHandler?: SavedMessageHandler) {
     super()
 
     this._handler = handler
+    this._savedMessageHandler = savedMessageHandler
     this._main = client
     this._awaitingResponse = false
 
@@ -200,7 +213,7 @@ export class Connection extends EventEmitter implements IConnection {
    * @example
    * ```ts
    *
-   * // the OB was set from the orginial 'createConnection' method.
+   * // the OB was set from the original 'createConnection' method.
    *
    * let message = new Message({
    *  messageHeader: {
@@ -227,7 +240,7 @@ export class Connection extends EventEmitter implements IConnection {
       return this._awaitingResponse
     }
 
-    const checkSend = async (_message: string): Promise<boolean> => {
+    const checkSend = async (message: string): Promise<boolean> => {
       while (true) { // noinspection InfiniteLoopJS
         try {
           if ((this._readyState === ReadyState.CLOSED) || (this._readyState === ReadyState.CLOSING)) {
@@ -235,6 +248,11 @@ export class Connection extends EventEmitter implements IConnection {
             throw new HL7FatalError('In an invalid state to be able to send message.')
           }
           if (this._readyState !== ReadyState.CONNECTED) {
+            // if we are not connected, and we are going and the client wants to use their own method to save messages,
+            if (typeof this._savedMessageHandler !== 'undefined') {
+              return await this._savedMessageHandler(message)
+            }
+
             // if we are not connected,
             // check to see if we are now connected.
             if (this._pendingSetup === false) {
