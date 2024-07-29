@@ -75,7 +75,7 @@
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@the-rabbit-hole/semantic-release-config": "^1.5.0",
-    "@types/node": "^20.14.9",
+    "@types/node": "^22.0.0",
     "@types/tcp-port-used": "^1.0.4",
     "@typescript-eslint/parser": "^7.14.1",
     "@vitest/coverage-v8": "^1.6.0",
