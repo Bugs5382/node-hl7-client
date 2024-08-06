@@ -81,7 +81,7 @@
     "@vitest/coverage-v8": "^1.6.0",
     "@vitest/ui": "^1.6.0",
     "node-hl7-server": "^2.4.1",
-    "npm-check-updates": "^16.14.20",
+    "npm-check-updates": "^17.0.3",
     "npm-package-json-lint": "^8.0.0",
     "portfinder": "^1.0.32",
     "pre-commit": "^1.2.2",
