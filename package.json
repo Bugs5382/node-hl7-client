@@ -77,7 +77,7 @@
     "@the-rabbit-hole/semantic-release-config": "^1.5.0",
     "@types/node": "^20.14.9",
     "@types/tcp-port-used": "^1.0.4",
-    "@typescript-eslint/parser": "^7.14.1",
+    "@typescript-eslint/parser": "^8.2.0",
     "@vitest/coverage-v8": "^1.6.0",
     "@vitest/ui": "^1.6.0",
     "node-hl7-server": "^2.4.1",
