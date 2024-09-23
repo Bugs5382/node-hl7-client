@@ -80,7 +80,7 @@
     "@typescript-eslint/parser": "^7.14.1",
     "@vitest/coverage-v8": "^1.6.0",
     "@vitest/ui": "^1.6.0",
-    "node-hl7-server": "^2.4.1",
+    "node-hl7-server": "^3.0.0",
     "npm-check-updates": "^16.14.20",
     "npm-package-json-lint": "^8.0.0",
     "portfinder": "^1.0.32",
