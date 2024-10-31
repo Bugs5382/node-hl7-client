@@ -1,3 +1,16 @@
+# [3.0.0-beta.1](https://github.com/Bugs5382/node-hl7-client/compare/v2.3.1...v3.0.0-beta.1) (2024-10-31)
+
+
+### Features
+
+* client connection ([e6ee6a3](https://github.com/Bugs5382/node-hl7-client/commit/e6ee6a3a05a1eb216c919428a626cbf900a8b04a)), closes [#169](https://github.com/Bugs5382/node-hl7-client/issues/169)
+* client connection ([#175](https://github.com/Bugs5382/node-hl7-client/issues/175)) ([aeb4108](https://github.com/Bugs5382/node-hl7-client/commit/aeb4108afc62d2dec25de21b8787a3456ab970f6))
+
+
+### BREAKING CHANGES
+
+* Default now set to be always connected. Must set connectionTimeout, if you want your client to disconnect after a certain time. The max is still 60 seconds.
+
 ## [2.3.1](https://github.com/Bugs5382/node-hl7-client/compare/v2.3.0...v2.3.1) (2024-06-25)
 
 
