@@ -14,7 +14,7 @@ export type OutboundHandler = (res: InboundResponse) => Promise<void> | void
 
 const DEFAULT_CLIENT_OPTS = {
   encoding: 'utf-8',
-  connectionTimeout: 10000,
+  connectionTimeout: 0,
   maxAttempts: 10,
   maxConnectionAttempts: 10,
   maxTimeout: 10,
@@ -32,10 +32,10 @@ const DEFAULT_LISTEN_CLIENT_OPTS = {
 export interface ClientOptions {
   /**
    * How long a connection attempt checked before ending the socket and attempting again.
-   * Min. is 1000 (1 second) and Max. is 60000 (60 seconds.)
-   * Note: Less than 10 seconds could cause some serious issues.
+   * If this is set to zero, the client will stay connected.
+   * Min. is 0 (Stay Connected), and Max. is 60000 (60 seconds.)
    * Use with caution.
-   * @default 10000
+   * @default 0
    */
   connectionTimeout?: number
   /** Host - You can do a FQDN or the IPv(4|6) address. */
@@ -160,7 +160,7 @@ export function normalizeClientOptions (raw?: ClientOptions): ValidatedClientOpt
     props.tls = {}
   }
 
-  assertNumber(props, 'connectionTimeout', 1000, 60000)
+  assertNumber(props, 'connectionTimeout', 0, 60000)
   assertNumber(props, 'maxTimeout', 1, 50)
 
   return props

@@ -13,6 +13,8 @@ describe('node hl7 end to end - client', () => {
 
     test('...simple connect', async () => {
 
+      await tcpPortUsed.check(3000, '0.0.0.0')
+
       let dfd = createDeferred<void>()
       let dfdConnectionChecks = createDeferred<void>()
 
@@ -73,8 +75,7 @@ describe('node hl7 end to end - client', () => {
       client.closeAll()
 
       await dfdConnectionChecks.promise;
-      expect(outbound._connectionTimer).toBeDefined();
-      expect((outbound._connectionTimer as any)._destroyed).toBeTruthy();
+      expect(outbound._connectionTimer).toBeUndefined();
       expect((outbound as any)._readyState).toEqual(ReadyState.CLOSED);
       expect(client._connections.length).toEqual(0);
 
