@@ -5,13 +5,13 @@ import tls from 'node:tls'
 import Batch from '../builder/batch.js'
 import FileBatch from '../builder/fileBatch.js'
 import Message from '../builder/message.js'
-import { PROTOCOL_MLLP_FOOTER, PROTOCOL_MLLP_HEADER } from '../utils/constants.js'
 import { ReadyState } from '../utils/enum.js'
 import { HL7FatalError } from '../utils/exception.js'
 import { ClientListenerOptions, normalizeClientListenerOptions, OutboundHandler } from '../utils/normalizedClient.js'
-import { createDeferred, Deferred, expBackoff } from '../utils/utils.js'
+import {createDeferred, Deferred, expBackoff, isBatch} from '../utils/utils.js'
 import { Client } from './client.js'
 import { InboundResponse } from './module/inboundResponse.js'
+import { MLLPCodec } from '../utils/codec.js'
 
 /* eslint-disable */
 export interface IConnection extends EventEmitter {
@@ -71,6 +71,8 @@ export class Connection extends EventEmitter implements IConnection {
      * @since 1.1.0 */
     sent: 0
   }
+  private _dataResult: boolean | undefined
+  private _codec: MLLPCodec | null
 
   /**
    * @since 1.0.0
@@ -99,6 +101,8 @@ export class Connection extends EventEmitter implements IConnection {
     this._retryTimeoutCount = 0
     this._retryTimer = undefined
     this._connectionTimer = undefined
+    this._codec = null
+
     this._onConnect = createDeferred(true)
 
     if (this._opt.autoConnect) {
@@ -218,6 +222,7 @@ export class Connection extends EventEmitter implements IConnection {
     let attempts = 0
     const maxAttempts = this._opt.maxAttempts
     const emitter = new EventEmitter()
+    const codec = new MLLPCodec()
 
     const checkConnection = async (): Promise<boolean> => {
       return this._readyState === ReadyState.CONNECTED
@@ -279,16 +284,12 @@ export class Connection extends EventEmitter implements IConnection {
       this._awaitingResponse = true
     }
 
-    // add MLLP settings to the message
-    const messageToSend = Buffer.from(`${PROTOCOL_MLLP_HEADER}${theMessage}${PROTOCOL_MLLP_FOOTER}`)
-
     // send the message
-    this._socket?.write(messageToSend, this._opt.encoding, () => {
-      // we sent a message
-      ++this.stats.sent
-      // emit
-      this.emit('client.sent', this.stats.sent)
-    })
+    codec.sendMessage(this._socket, theMessage, this._opt.encoding)
+    // we sent a message
+    ++this.stats.sent
+    // emit
+    this.emit('client.sent', this.stats.sent)
   }
 
   /** @internal */
@@ -313,7 +314,9 @@ export class Connection extends EventEmitter implements IConnection {
       })
     }
 
+    this._codec = new MLLPCodec()
     this._socket = socket
+
 
     // set no delay
     socket.setNoDelay(true)
@@ -367,34 +370,71 @@ export class Connection extends EventEmitter implements IConnection {
     })
 
     socket.on('data', (buffer) => {
-      // we got some sort of response, bad, good, or error,
-      // so lets tell the system we got "something"
-      this._awaitingResponse = false
-
       socket.cork()
 
-      const indexOfVT = buffer.toString().indexOf(PROTOCOL_MLLP_HEADER)
-      const indexOfFSCR = buffer.toString().indexOf(PROTOCOL_MLLP_FOOTER)
-
-      let loadedMessage = buffer.toString().substring(indexOfVT, indexOfFSCR + 2)
-      loadedMessage = loadedMessage.replace(PROTOCOL_MLLP_HEADER, '')
-
-      if (loadedMessage.includes(PROTOCOL_MLLP_FOOTER)) {
-        // strip them out
-        loadedMessage = loadedMessage.replace(PROTOCOL_MLLP_FOOTER, '')
-        if (typeof this._handler !== 'undefined') {
-          // response
-          const response = new InboundResponse(loadedMessage)
-          // got an ACK, failure or not
-          ++this.stats.acknowledged
-          // update ack total
-          this.emit('client.acknowledged', this.stats.acknowledged)
-          // send it back
-          void this._handler(response)
-        }
+      try {
+        this._dataResult = this._codec?.receiveData(buffer)
+      } catch (err) {
+        this.emit('data.error', err)
       }
 
       socket.uncork()
+
+      if (this._dataResult === true) {
+        // we got some sort of response, bad, good, or error,
+        // so let's tell the system we got "something"
+        this._awaitingResponse = false
+
+        try {
+          const loadedMessage = this._codec?.getLastMessage()
+
+          // copy the completed message to continue processing and clear the buffer
+          const completedMessageCopy = JSON.parse(JSON.stringify(loadedMessage))
+
+          // parser either is batch or a message
+          let parser: FileBatch | Batch | Message
+
+          // send raw information to the emit
+          this.emit('data.raw', completedMessageCopy)
+
+          if (typeof this._handler !== 'undefined') {
+            if (isBatch(completedMessageCopy)) {
+              // parser the batch
+              parser = new Batch({ text: completedMessageCopy })
+              // load the messages
+              const allMessage = parser.messages()
+              // loop messages
+              allMessage.forEach((message: Message) => {
+                // parse this message
+                const messageParsed = new Message({ text: message.toString() })
+                // increase the total message
+                ++this.stats.acknowledged
+                // response
+                const response = new InboundResponse(messageParsed.toString())
+                // update ack total
+                this.emit('client.acknowledged', this.stats.acknowledged)
+                // send it back
+                void this._handler(response)
+              })
+            } else {
+              // parse this message
+              const messageParsed = new Message({ text: completedMessageCopy })
+              // increase the total message
+              ++this.stats.acknowledged
+              // response
+              const response = new InboundResponse(messageParsed.toString())
+              // update ack total
+              this.emit('client.acknowledged', this.stats.acknowledged)
+              // send it back
+              void this._handler(response)
+            }
+          }
+        } catch (err) {
+          this.emit('data.error', err)
+        }
+
+      }
+
     })
 
     const readerLoop = async (): Promise<void> => {
