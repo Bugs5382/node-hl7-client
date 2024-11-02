@@ -1,0 +1,18 @@
+name-template: |
+  ${{ if eq(github.ref_name, 'develop') }}v$NEXT_PATCH_VERSION-beta.${{ env.GITHUB_RUN_NUMBER }}${{ else }}v$NEXT_PATCH_VERSION${{ end }}
+tag-template: |
+  ${{ if eq(github.ref_name, 'develop') }}v$NEXT_PATCH_VERSION-beta.${{ env.GITHUB_RUN_NUMBER }}${{ else }}v$NEXT_PATCH_VERSION${{ end }}
+categories:
+  - title: '🚀 New Features'
+    labels:
+      - feature
+  - title: '🐛 Bug Fixes'
+    labels:
+      - bug
+  - title: '🧹 Chores'
+    labels:
+      - chore
+change-template: '- $TITLE (#$NUMBER)'
+template: |
+  ## Changes
+  $CHANGES

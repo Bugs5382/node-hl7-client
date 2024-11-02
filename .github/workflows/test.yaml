@@ -6,9 +6,9 @@ on:
     branches:
       - main
       - develop
-    types:
-      - opened
-      - synchronize
+    types: [opened, edited, closed]
+  release:
+    types: [published]
 
 jobs:
   Build:
@@ -41,3 +41,4 @@ jobs:
             package.json
             package-lock.json
             ./lib
+            
