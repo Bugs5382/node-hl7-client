@@ -3,86 +3,86 @@ on:
   workflow_dispatch:
   workflow_call:
 
-  jobs:
-    Next_Version:
-      runs-on: ubuntu-latest
-      outputs:
-        next_version: ${{ steps.get_version.outputs.next_version }}
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
+jobs:
+  Next_Version:
+    runs-on: ubuntu-latest
+    outputs:
+      next_version: ${{ steps.get_version.outputs.next_version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        - name: Set Up Git
-          run: |
-            git fetch --tags
+      - name: Set Up Git
+        run: |
+          git fetch --tags
 
-        - name: Get Current Version Tag
-          id: get_current_tag
-          run: |
-            # Find the latest tag in the current branch (main or develop)
-            latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1))
-            echo "latest_tag=${latest_tag}" >> $GITHUB_ENV
+      - name: Get Current Version Tag
+        id: get_current_tag
+        run: |
+          # Find the latest tag in the current branch (main or develop)
+          latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1))
+          echo "latest_tag=${latest_tag}" >> $GITHUB_ENV
 
-        - name: Determine Next Version
-          id: get_version
-          run: |
-            # Set initial version if no tag found
-            if [[ -z "$latest_tag" ]]; then
-              latest_tag="v0.0.0"
-            fi
+      - name: Determine Next Version
+        id: get_version
+        run: |
+          # Set initial version if no tag found
+          if [[ -z "$latest_tag" ]]; then
+            latest_tag="v0.0.0"
+          fi
 
-            # Extract the version parts
-            if [[ "$latest_tag" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)(-beta\.[0-9]+)?$ ]]; then
-              major="${BASH_REMATCH[1]}"
-              minor="${BASH_REMATCH[2]}"
-              patch="${BASH_REMATCH[3]}"
-              beta="${BASH_REMATCH[4]}"
+          # Extract the version parts
+          if [[ "$latest_tag" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)(-beta\.[0-9]+)?$ ]]; then
+            major="${BASH_REMATCH[1]}"
+            minor="${BASH_REMATCH[2]}"
+            patch="${BASH_REMATCH[3]}"
+            beta="${BASH_REMATCH[4]}"
+          else
+            echo "Invalid tag format: $latest_tag"
+            exit 1
+          fi
+
+          # Increment the version based on the branch
+          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+            next_version="v$major.$((minor + 1)).0"  # Full release, reset beta
+          else
+            if [[ -z "$beta" ]]; then
+              next_version="v$major.$minor.$patch-beta.1"  # Start beta versioning
             else
-              echo "Invalid tag format: $latest_tag"
-              exit 1
+              # Increment beta version
+              beta_number="${beta#*-beta.}"
+              next_version="v$major.$minor.$patch-beta.$((beta_number + 1))"
             fi
+          fi
 
-            # Increment the version based on the branch
-            if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
-              next_version="v$major.$((minor + 1)).0"  # Full release, reset beta
-            else
-              if [[ -z "$beta" ]]; then
-                next_version="v$major.$minor.$patch-beta.1"  # Start beta versioning
-              else
-                # Increment beta version
-                beta_number="${beta#*-beta.}"
-                next_version="v$major.$minor.$patch-beta.$((beta_number + 1))"
-              fi
-            fi
+          echo "next_version=${next_version}" >> $GITHUB_ENV
+          echo "::set-output name=next_version::${next_version}"
 
-            echo "next_version=${next_version}" >> $GITHUB_ENV
-            echo "::set-output name=next_version::${next_version}"
+  Create:
+    runs-on: ubuntu-latest
+    needs: Next_Version
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    Create:
-      runs-on: ubuntu-latest
-      needs: Next_Version
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
+      - name: Draft Release (Develop)
+        if: github.event.pull_request.base.ref == 'develop'
+        uses: release-drafter/release-drafter@v6
+        with:
+          name: "${{ needs.compute-version.outputs.next_version }}"
+          tag: "${{ needs.compute-version.outputs.next_version }}"
+          prerelease: true
+          commitish: develop
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-        - name: Draft Release (Develop)
-          if: github.event.pull_request.base.ref == 'develop'
-          uses: release-drafter/release-drafter@v6
-          with:
-            name: "${{ needs.compute-version.outputs.next_version }}"
-            tag: "${{ needs.compute-version.outputs.next_version }}"
-            prerelease: true
-            commitish: develop
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-        - name: Draft Release
-          if: github.event.pull_request.base.ref != 'develop'
-          uses: release-drafter/release-drafter@v6
-          with:
-            name: "${{ needs.compute-version.outputs.next_version }}"
-            tag: "${{ needs.compute-version.outputs.next_version }}"
-            prerelease: false
-            commitish: main
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Draft Release
+        if: github.event.pull_request.base.ref != 'develop'
+        uses: release-drafter/release-drafter@v6
+        with:
+          name: "${{ needs.compute-version.outputs.next_version }}"
+          tag: "${{ needs.compute-version.outputs.next_version }}"
+          prerelease: false
+          commitish: main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
