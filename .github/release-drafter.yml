@@ -1,7 +1,7 @@
 name-template: |
-  ${{ if eq(github.ref_name, 'develop') }}v$NEXT_PATCH_VERSION-beta.${{ env.GITHUB_RUN_NUMBER }}${{ else }}v$NEXT_PATCH_VERSION${{ end }}
+  ${{ if eq(github.ref, 'refs/heads/develop') }}v${{ steps.set_version.outputs.next_patch_version }}-beta.${{ github.run_number }}${{ else }}v${{ steps.set_version.outputs.next_patch_version }}${{ end }}
 tag-template: |
-  ${{ if eq(github.ref_name, 'develop') }}v$NEXT_PATCH_VERSION-beta.${{ env.GITHUB_RUN_NUMBER }}${{ else }}v$NEXT_PATCH_VERSION${{ end }}
+  ${{ if eq(github.ref, 'refs/heads/develop') }}v${{ steps.set_version.outputs.next_patch_version }}-beta.${{ github.run_number }}${{ else }}v${{ steps.set_version.outputs.next_patch_version }}${{ end }}
 categories:
   - title: '🚀 New Features'
     labels:
