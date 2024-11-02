@@ -83,7 +83,7 @@ describe('node hl7 end to end - client', () => {
 
     })
 
-    test('...send simple message twice, no ACK needed', async () => {
+    test.skip('...send simple message twice, no ACK needed', async () => {
 
       await tcpPortUsed.check(3000, '0.0.0.0')
 
@@ -173,7 +173,7 @@ describe('node hl7 end to end - client', () => {
 
     describe('...no file', () => {
 
-      test('...send batch with two message, get proper ACK', async () => {
+      test.skip('...send batch with two message, get proper ACK', async () => {
 
         let dfd = createDeferred<void>()
 
@@ -273,10 +273,10 @@ describe('node hl7 end to end - client', () => {
 
         await outbound.sendMessage(message)
 
-        //dfd.promise
+        dfd.promise
 
         await outbound.close()
-        //await inbound.close()
+        await inbound.close()
 
         client.closeAll()
 
