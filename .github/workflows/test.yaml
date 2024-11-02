@@ -47,7 +47,6 @@ jobs:
 
   Release_Drafter:
     runs-on: ubuntu-latest
-    needs: Build
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
