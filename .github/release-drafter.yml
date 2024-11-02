@@ -1,18 +1,31 @@
-name-template: |
-  ${{ if eq(github.ref, 'refs/heads/develop') }}v${{ steps.set_version.outputs.next_patch_version }}-beta.${{ github.run_number }}${{ else }}v${{ steps.set_version.outputs.next_patch_version }}${{ end }}
-tag-template: |
-  ${{ if eq(github.ref, 'refs/heads/develop') }}v${{ steps.set_version.outputs.next_patch_version }}-beta.${{ github.run_number }}${{ else }}v${{ steps.set_version.outputs.next_patch_version }}${{ end }}
+name-template: '$RESOLVED_VERSION 🌈'
+tag-template: '$RESOLVED_VERSION'
 categories:
-  - title: '🚀 New Features'
+  - title: '🚀 Features'
     labels:
-      - feature
+      - 'feature'
+      - 'enhancement'
   - title: '🐛 Bug Fixes'
     labels:
-      - bug
-  - title: '🧹 Chores'
+      - 'fix'
+      - 'bugfix'
+      - 'bug'
+  - title: '🧰 Maintenance'
+    label: 'chore'
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
+version-resolver:
+  major:
     labels:
-      - chore
-change-template: '- $TITLE (#$NUMBER)'
+      - 'major'
+  minor:
+    labels:
+      - 'minor'
+  patch:
+    labels:
+      - 'patch'
+  default: patch
 template: |
   ## Changes
+
   $CHANGES
