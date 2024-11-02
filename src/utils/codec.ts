@@ -9,18 +9,18 @@ export class MLLPCodec {
   /** @internal */
   private dataBuffer: Buffer = Buffer.alloc(0)
   /** @internal */
-  private _encoding: BufferEncoding;
+  private readonly _encoding: BufferEncoding
   /** @internal */
-  private _returnCharacter: string;
+  private readonly _returnCharacter: string
 
   /**
    * @since 3.1.0
    * @param encoding
-   * @param returnCharcter
+   * @param returnCharacter
    */
-  constructor(encoding: BufferEncoding = 'utf-8', returnCharcter: string = '\r') {
+  constructor (encoding: BufferEncoding = 'utf-8', returnCharacter: string = '\r') {
     this._encoding = encoding
-    this._returnCharacter = returnCharcter
+    this._returnCharacter = returnCharacter
   }
 
   /**
@@ -29,7 +29,6 @@ export class MLLPCodec {
    * @private
    */
   private processMessage (): void {
-
     const messages: string[] = []
     const dataString = this.dataBuffer.toString(this._encoding)
     const messageParts = dataString.split('\u001c\r')
