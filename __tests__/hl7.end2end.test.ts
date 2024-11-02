@@ -21,7 +21,7 @@ describe('node hl7 end to end - client', () => {
       let dfdConnectionChecks = createDeferred<void>()
 
       const server = new Server({bindAddress: '0.0.0.0'})
-      const listener = server.createInbound({port: 3000}, async (req, res) => {
+      const listener = server.createInbound({port}, async (req, res) => {
         const messageReq = req.getMessage()
         expect(messageReq.get('MSH.12').toString()).toBe('2.7')
         await res.sendResponse('AA')
@@ -31,7 +31,7 @@ describe('node hl7 end to end - client', () => {
 
       const client = new Client({ host: '0.0.0.0' })
 
-      const outbound = client.createConnection({port, }, async (res) => {
+      const outbound = client.createConnection({port}, async (res) => {
         const messageRes = res.getMessage()
         expect(messageRes.get('MSA.1').toString()).toBe('AA')
         dfd.resolve()

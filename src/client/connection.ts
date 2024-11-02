@@ -224,7 +224,7 @@ export class Connection extends EventEmitter implements IConnection {
     let attempts = 0
     const maxAttempts = this._opt.maxAttempts
     const emitter = new EventEmitter()
-    const codec = new MLLPCodec()
+    const codec = new MLLPCodec(this._opt.encoding)
 
     const checkConnection = async (): Promise<boolean> => {
       return this._readyState === ReadyState.CONNECTED
