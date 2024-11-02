@@ -41,4 +41,12 @@ jobs:
             package.json
             package-lock.json
             ./lib
-            
+
+  Release-Drafer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Draft Release
+        uses: release-drafter/release-drafter@v6
