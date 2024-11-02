@@ -8,7 +8,7 @@ import Message from '../builder/message.js'
 import { ReadyState } from '../utils/enum.js'
 import { HL7FatalError } from '../utils/exception.js'
 import { ClientListenerOptions, normalizeClientListenerOptions, OutboundHandler } from '../utils/normalizedClient.js'
-import {createDeferred, Deferred, expBackoff, isBatch} from '../utils/utils.js'
+import { createDeferred, Deferred, expBackoff, isBatch } from '../utils/utils.js'
 import { Client } from './client.js'
 import { InboundResponse } from './module/inboundResponse.js'
 import { MLLPCodec } from '../utils/codec.js'
@@ -63,6 +63,10 @@ export class Connection extends EventEmitter implements IConnection {
   /** @internal */
   private _awaitingResponse: boolean
   /** @internal */
+  private _dataResult: boolean | undefined
+  /** @internal */
+  private _codec: MLLPCodec | null
+  /** @internal */
   readonly stats = {
     /** Total acknowledged messages back from server.
      * @since 1.1.0 */
@@ -71,8 +75,6 @@ export class Connection extends EventEmitter implements IConnection {
      * @since 1.1.0 */
     sent: 0
   }
-  private _dataResult: boolean | undefined
-  private _codec: MLLPCodec | null
 
   /**
    * @since 1.0.0
@@ -317,7 +319,6 @@ export class Connection extends EventEmitter implements IConnection {
     this._codec = new MLLPCodec()
     this._socket = socket
 
-
     // set no delay
     socket.setNoDelay(true)
 
@@ -432,9 +433,7 @@ export class Connection extends EventEmitter implements IConnection {
         } catch (err) {
           this.emit('data.error', err)
         }
-
       }
-
     })
 
     const readerLoop = async (): Promise<void> => {
