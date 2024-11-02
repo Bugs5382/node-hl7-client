@@ -45,26 +45,6 @@ jobs:
             package-lock.json
             ./lib
 
-  Release_Drafter:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Draft Release (Develop)
-        if: github.event.pull_request.base.ref == 'develop'
-        uses: release-drafter/release-drafter@v6
-        with:
-          prerelease: true
-          commitish: develop
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Draft Release
-        if: github.event.pull_request.base.ref != 'develop'
-        uses: release-drafter/release-drafter@v6
-        with:
-          prerelease: false
-          commitish: main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  Release_Draft:
+    needs: Build
+    uses: ./.github/workflows/release-drafter.yaml

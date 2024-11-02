@@ -31,12 +31,7 @@ jobs:
       - name: Get Release Version
         id: get_version
         run: |
-          VERSION="${{ github.event.release.tag_name }}"
-          if [[ "${{ github.ref_name }}" == "develop" ]]; then
-            echo "release_version=${VERSION#v}-beta.${{ env.GITHUB_RUN_NUMBER }}" >> $GITHUB_ENV
-          else
-            echo "release_version=${VERSION#v}" >> $GITHUB_ENV
-          fi
+          echo "release_version=v${{ github.event.release.tag_name }}" >> $GITHUB_ENV
 
       - name: Update Version in Package.json
         run: |
