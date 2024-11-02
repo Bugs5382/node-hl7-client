@@ -1,0 +1,55 @@
+name: Release and Publish
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  Test:
+    uses: ./.github/workflows/test.yaml
+
+  Publish:
+    needs: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create Directory
+        run: mkdir -p ./lib ./node_modules
+
+      - name: Download the build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cache
+          path: ./
+
+      - name: Build
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Semantic Release (Dry Run)
+        run: npm run semantic-release:dry-run
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Semantic Release
+        run: npm run semantic-release
+        env:
+          GITHUB_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  Document:
+    needs: Publish
+    uses: ./.github/workflows/docs.yaml
+
