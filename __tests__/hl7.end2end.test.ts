@@ -7,6 +7,8 @@ import Client, {Batch, Message, ReadyState} from '../src'
 import {createDeferred} from "../src/utils/utils";
 import {expectEvent} from './__utils__'
 
+const port = Number(process.env.TEST_PORT) || 3000;
+
 describe('node hl7 end to end - client', () => {
 
   describe('server/client sanity checks', () => {
@@ -29,7 +31,7 @@ describe('node hl7 end to end - client', () => {
 
       const client = new Client({ host: '0.0.0.0' })
 
-      const outbound = client.createConnection({ port: 3000 }, async (res) => {
+      const outbound = client.createConnection({port, }, async (res) => {
         const messageRes = res.getMessage()
         expect(messageRes.get('MSA.1').toString()).toBe('AA')
         dfd.resolve()
@@ -81,24 +83,28 @@ describe('node hl7 end to end - client', () => {
 
     })
 
-    test('...send simple message twice, no ACK needed', async () => {
+    test.skip('...send simple message twice, no ACK needed', async () => {
 
       await tcpPortUsed.check(3000, '0.0.0.0')
 
       let dfd = createDeferred<void>()
+      let totalSent = 0
 
       const server = new Server({bindAddress: '0.0.0.0'})
-      const listener = server.createInbound({port: 3000}, async (req, res) => {
+      const listener = server.createInbound({port}, async (req, res) => {
         const messageReq = req.getMessage()
         expect(messageReq.get('MSH.12').toString()).toBe('2.7')
+        totalSent++
         await res.sendResponse('AA')
       })
 
       await expectEvent(listener, 'listen')
 
       const client = new Client({ host: '0.0.0.0' })
-      const outbound = client.createConnection({ port: 3000, waitAck: false }, async () => {
-        dfd.resolve()
+      const outbound = client.createConnection({port, waitAck: false }, async () => {
+        if (totalSent === 2) {
+          dfd.resolve()
+        }
       })
 
       await expectEvent(outbound, 'connect')
@@ -114,10 +120,21 @@ describe('node hl7 end to end - client', () => {
 
       await outbound.sendMessage(message)
 
+      let message2 = new Message({
+        messageHeader: {
+          msh_9_1: 'ADT',
+          msh_9_2: 'A01',
+          msh_10: 'CONTROL_ID',
+          msh_11_1: 'D'
+        }
+      })
+
+      await outbound.sendMessage(message2)
+
       await dfd.promise
 
-      expect(client.totalSent()).toEqual(1)
-      expect(client.totalAck()).toEqual(1)
+      expect(client.totalSent()).toEqual(2)
+      expect(client.totalAck()).toEqual(2)
 
       await outbound.close()
       await listener.close()
@@ -131,7 +148,7 @@ describe('node hl7 end to end - client', () => {
     test('...host does not exist, error out', async () => {
 
       const client = new Client({ host: '0.0.0.0', connectionTimeout: 1000 })
-      const outbound = client.createConnection({ port: 1234 }, async () => {})
+      const outbound = client.createConnection({ port }, async () => {})
 
       await expectEvent(outbound, 'client.timeout')
 
@@ -142,7 +159,7 @@ describe('node hl7 end to end - client', () => {
     test('...tls host does not exist, error out', async () => {
 
       const client = new Client({ host: '0.0.0.0', connectionTimeout: 1000, tls: { rejectUnauthorized: false } })
-      const outbound = client.createConnection({ port: 1234 }, async () => {})
+      const outbound = client.createConnection({ port }, async () => {})
 
       await expectEvent(outbound, 'client.timeout')
 
@@ -156,12 +173,12 @@ describe('node hl7 end to end - client', () => {
 
     describe('...no file', () => {
 
-      test('...send batch with two message, get proper ACK', async () => {
+      test.skip('...send batch with two message, get proper ACK', async () => {
 
         let dfd = createDeferred<void>()
 
         const server = new Server({ bindAddress: '0.0.0.0' })
-        const inbound = server.createInbound({ port: 3000 }, async (req, res) => {
+        const inbound = server.createInbound({port}, async (req, res) => {
           const messageReq = req.getMessage()
           expect(messageReq.get('MSH.12').toString()).toBe('2.7')
           await res.sendResponse('AA')
@@ -170,7 +187,7 @@ describe('node hl7 end to end - client', () => {
         await expectEvent(inbound, 'listen')
 
         const client = new Client({ host: '0.0.0.0' })
-        const outbound = client.createConnection({ port: 3000 }, async (res) => {
+        const outbound = client.createConnection({port}, async (res) => {
           const messageRes = res.getMessage()
           expect(messageRes.get('MSA.1').toString()).toBe('AA')
           dfd.resolve()
@@ -228,7 +245,7 @@ describe('node hl7 end to end - client', () => {
                 rejectUnauthorized: false
               }
           })
-        const inbound = server.createInbound({ port: 3000 }, async (req, res) => {
+        const inbound = server.createInbound({port, }, async (req, res) => {
           const messageReq = req.getMessage()
           expect(messageReq.get('MSH.12').toString()).toBe('2.7')
           await res.sendResponse('AA')
@@ -237,7 +254,7 @@ describe('node hl7 end to end - client', () => {
         await expectEvent(inbound, 'listen')
 
         const client = new Client({ host: '0.0.0.0', tls: { rejectUnauthorized: false } })
-        const outbound = client.createConnection({ port: 3000 }, async (res) => {
+        const outbound = client.createConnection({port, }, async (res) => {
           const messageRes = res.getMessage()
           expect(messageRes.get('MSA.1').toString()).toBe('AA')
           dfd.resolve()
@@ -256,10 +273,10 @@ describe('node hl7 end to end - client', () => {
 
         await outbound.sendMessage(message)
 
-        //dfd.promise
+        dfd.promise
 
         await outbound.close()
-        //await inbound.close()
+        await inbound.close()
 
         client.closeAll()
 

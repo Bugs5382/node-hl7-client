@@ -75,11 +75,11 @@ export class Client extends EventEmitter {
     const outbound = new Connection(this, props, cb)
 
     outbound.on('client.acknowledged', (total: number) => {
-      this.stats._totalAck = this.stats._totalAck + total
+      this.stats._totalAck = total
     })
 
     outbound.on('client.sent', (total: number) => {
-      this.stats._totalSent = this.stats._totalSent + total
+      this.stats._totalSent = total
     })
 
     // add this connection
