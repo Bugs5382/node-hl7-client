@@ -6,9 +6,9 @@ on:
     branches:
       - main
       - develop
-    types: [opened, edited, closed]
-  release:
-    types: [published]
+    types:
+      - opened
+      - synchronize
 
 jobs:
   Build:
