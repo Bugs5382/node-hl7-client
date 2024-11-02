@@ -3,12 +3,6 @@ on:
   release:
     types: [published]
 
-permissions:
-  contents: write
-  issues: write
-  pull-requests: write
-  id-token: write
-
 jobs:
   Test:
     uses: ./.github/workflows/test.yaml
@@ -34,7 +28,7 @@ jobs:
           node-version: lts/*
           registry-url: 'https://registry.npmjs.org/'
 
-      - name: Get release version
+      - name: Get Release Version
         id: get_version
         run: |
           VERSION="${{ github.event.release.tag_name }}"
@@ -44,7 +38,7 @@ jobs:
             echo "release_version=${VERSION#v}" >> $GITHUB_ENV
           fi
 
-      - name: Update version in Package.json
+      - name: Update Version in Package.json
         run: |
           npm version ${{ env.release_version }} --no-git-tag-version
           git config user.name "github-actions[bot]"
