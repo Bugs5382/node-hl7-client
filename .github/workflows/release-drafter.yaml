@@ -16,42 +16,38 @@ jobs:
         run: |
           git fetch --tags
 
-      - name: Get Current Version Tag
-        id: get_current_tag
-        run: |
-          # Find the latest tag in the current branch (main or develop)
-          latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1))
-          echo "latest_tag=${latest_tag}" >> $GITHUB_ENV
-
       - name: Determine Next Version
         id: get_version
         run: |
-          # Set initial version if no tag found
+          # Fetch the latest tag in the form of `vX.Y.Z` or `vX.Y.Z-beta.N`, sorted by version
+          latest_tag=$(git tag --list "v*" --sort=-v:refname | head -n 1)
+
+          # Default initial version if no tags are found
           if [[ -z "$latest_tag" ]]; then
-            latest_tag="v0.0.0"
-          fi
-
-          # Extract the version parts
-          if [[ "$latest_tag" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)(-beta\.[0-9]+)?$ ]]; then
-            major="${BASH_REMATCH[1]}"
-            minor="${BASH_REMATCH[2]}"
-            patch="${BASH_REMATCH[3]}"
-            beta="${BASH_REMATCH[4]}"
+            next_version="v0.1.0"
           else
-            echo "Invalid tag format: $latest_tag"
-            exit 1
-          fi
-
-          # Increment the version based on the branch
-          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
-            next_version="v$major.$((minor + 1)).0"  # Full release, reset beta
-          else
-            if [[ -z "$beta" ]]; then
-              next_version="v$major.$minor.$patch-beta.1"  # Start beta versioning
+            # Extract version parts (vX.Y.Z or vX.Y.Z-beta.N)
+            if [[ "$latest_tag" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)(-beta\.([0-9]+))?$ ]]; then
+              major="${BASH_REMATCH[1]}"
+              minor="${BASH_REMATCH[2]}"
+              patch="${BASH_REMATCH[3]}"
+              beta="${BASH_REMATCH[4]}"
+              beta_number="${BASH_REMATCH[5]}"
+          
+              if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+                # Full release: Increment minor version, reset patch and beta
+                next_version="v$major.$((minor + 1)).0"
+              else
+                # Pre-release: Increment beta version
+                if [[ -z "$beta" ]]; then
+                  next_version="v$major.$minor.$patch-beta.1"
+                else
+                  next_version="v$major.$minor.$patch-beta.$((beta_number + 1))"
+                fi
+              fi
             else
-              # Increment beta version
-              beta_number="${beta#*-beta.}"
-              next_version="v$major.$minor.$patch-beta.$((beta_number + 1))"
+              echo "Invalid tag format: $latest_tag"
+              exit 1
             fi
           fi
 
@@ -69,8 +65,8 @@ jobs:
         if: github.event.pull_request.base.ref == 'develop'
         uses: release-drafter/release-drafter@v6
         with:
-          name: "${{ needs.compute-version.outputs.next_version }}"
-          tag: "${{ needs.compute-version.outputs.next_version }}"
+          name: "${{ needs.Next_Version.outputs.next_version }}"
+          tag: "${{ needs.Next_Version.outputs.next_version }}"
           prerelease: true
           commitish: develop
         env:
@@ -80,8 +76,8 @@ jobs:
         if: github.event.pull_request.base.ref != 'develop'
         uses: release-drafter/release-drafter@v6
         with:
-          name: "${{ needs.compute-version.outputs.next_version }}"
-          tag: "${{ needs.compute-version.outputs.next_version }}"
+          name: "${{ needs.Next_Version.outputs.next_version }}"
+          tag: "${{ needs.Next_Version.outputs.next_version }}"
           prerelease: false
           commitish: main
         env:
