@@ -8,6 +8,8 @@ on:
       - develop
     types:
       - opened
+      - reopened
+      - ready_for_review
       - synchronize
 
 jobs:
