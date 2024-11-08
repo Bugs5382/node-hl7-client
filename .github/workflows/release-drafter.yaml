@@ -64,8 +64,8 @@ jobs:
         if: github.event.pull_request.base.ref == 'develop'
         uses: release-drafter/release-drafter@v6
         with:
-          name: "$next_version"
-          tag: "$next_version"
+          name: "${{ env.next_version }}"
+          tag: "${{ env.next_version }}"
           prerelease: true
           commitish: develop
         env:
@@ -75,8 +75,8 @@ jobs:
         if: github.event.pull_request.base.ref != 'develop'
         uses: release-drafter/release-drafter@v6
         with:
-          name: "$next_version"
-          tag: "$next_version"
+          name: "${{ env.next_version }}"
+          tag: "${{ env.next_version }}"
           prerelease: false
           commitish: main
         env:
