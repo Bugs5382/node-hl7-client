@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The builder is very easy to use. It's made so you can easily build an Hl7 message with ease. It has three main parts:
+The builder is very easy to use. It's made, so you can easily build a Hl7 message with ease. It has three main parts:
 
 * Message
 * Batch
@@ -25,6 +25,8 @@ This NPM package assumes that you understand HL7 requirements and understand whe
    1. [Build of Sample HL7 MSH Segment](#build-a-sample-hl7-msh-segment)
    2. [Using Non-Standard Encoding](#using-non-standard-encoding)
    3. [Chain Method Building](#chain-method-building)
+3. [Detailed Examples](#detailed-examples)
+   1. [Refactoring the Message Class](#refactoring-the-message-class)
 
 ## Main Contents of HL7
 
@@ -38,7 +40,7 @@ While it would take hundreds of pages here to describe the difference between th
 The major difference for the MSH header segment for the versions is from 2.1 to 2.3.1,
 where the field MSH 9.3 is a combined string of MSH 9.1 and MSH 9.2.
 From HL7 version 2.4 and onward, MSH 9.3 can either be ACK or a combined string of MSH 9.1 and MSH 9.2.
-To override MSH 9.3 in 2.4 and higher follow this example:
+To override MSH 9.3 in 2.4 and higher, follow this example:
 
 ```ts
 const message = new Message({
@@ -56,13 +58,13 @@ const message = new Message({
 
 This will results in this:
 
-```ts
+```
 MSH|^~\&|||||20081231||ADT^A01^ACK|12345|D^A|2.4
 ```
 
-As the MSH header segment. Otherwise not including the msh_9_3 above will make it:
+As the MSH header segment. Otherwise, not including the msh_9_3 above will make it:
 
-```ts
+```
 MSH|^~\&|||||20081231||ADT^A01^ADT_A02|12345|D^A|2.4
 ```
 
@@ -124,7 +126,7 @@ PID.set('5.2', 'Bugs')      // First name
 PID.set('5.7', 'L')         // Indicating what type of name it is. Example here is "Legal"
 ```
 
-Sp with this built, the result will be if outputed from 
+So with this built, the result will be if output from 
 
 ```ts
 const myMessage: string = message.toString()
@@ -153,7 +155,7 @@ By default, HL7 standard community has come up with these characters used to enc
 
 These are set by default within this library.
 Naturally, the community assumes that these characters shall not be included in normal documentation purposes.
-However, on the flip side, this libary can provide changing any of the encoding characters as needed to be sent.
+However, on the flip side, this library can provide changing any of the encoding characters as needed to be sent.
 The other side just needs to know how to interpret it,
 which may or may not need to be sent to a different interface port for parsing.
 
@@ -221,7 +223,7 @@ const message = new Message({
 
 ### Chain Method Building
 
-This library allows you to chain methods to build segments in a single line for sub-componet and repeating fields. 
+This library allows you to chain methods to build segments in a single line for sub-component and repeating fields. 
 
 ```ts
 message.set('PV1.7').set(0).set(1, 'Jones').set(2, 'John')
@@ -232,3 +234,63 @@ Sets:
 ```
 PV1|||||||^Jones^John~^Smith^Bob
 ```
+
+## Detailed Examples
+
+### Refactoring the Message Class
+
+When you are sending the same type of HL7 message over and over again,
+you can create a function in your code/framework that will generate a new "Message"
+object each and everytime the same way, format, etc. so that you have 100% consistency.
+
+For example, if you have this:
+
+```ts
+const message = new Message({
+   specification: new HL7_2_3(), // we are doing spec 2.3
+   messageHeader: {
+      msh_9_1: 'ADT', // required, there is "set" table of data this can be
+      msh_9_2: 'A01', // required, there is "set" table of data this can be
+      msh_11_1: 'P'   // required
+   }
+})
+```
+... you can do it again later in the code:
+
+```ts
+const newMessage = new Message({
+  specification: new HL7_2_3(), // we are doing spec 2.3
+  messageHeader: {
+    msh_9_1: 'ADT', // required, there is "set" table of data this can be
+    msh_9_2: 'A01', // required, there is "set" table of data this can be
+    msh_11_1: 'P'   // required
+  }
+})
+```
+
+The issue gets messy. So wrapping this in a function like ```createADT_A01```:
+
+```ts
+const createADT_A01 = () => {
+   return new Message({
+      messageHeader: {
+         msh_9_1: 'ADT',
+         msh_9_2: 'A01',
+         msh_11_1: 'P'
+      }
+   })
+}
+```
+
+will create a new object each time and your developers wouldn't have to use the entire Message specs.
+Your developers would just need to use:
+
+```ts
+const messageOne = createADT_A01()
+const messageTwo = createADT_A01()
+```
+
+You can
+if you want
+pass any parameter into your ```createADT_A01``` function as long in the end
+the Message class is being properly created.

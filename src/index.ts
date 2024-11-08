@@ -19,3 +19,4 @@ export type { HL7Error, HL7FatalError, HL7ParserError } from './utils/exception.
 
 export default Client
 export { Client, Connection, IConnection, OutboundHandler, InboundResponse, FileBatch, Batch, Message, ReadyState, NodeBase, EmptyNode, Segment, Delimiters, HL7Node }
+export { MLLPCodec } from './utils/codec.js'

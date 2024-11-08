@@ -10,8 +10,7 @@ export default defineConfig({
         'certs',
         'docs',
         'lib',
-        'src/api.ts',
-        'release.config.cjs'
+        'src/api.ts'
       ]
     }
   }
