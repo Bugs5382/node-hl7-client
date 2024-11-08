@@ -4,58 +4,58 @@ on:
   workflow_call:
 
 jobs:
-  Next_Version:
-    runs-on: ubuntu-latest
-    outputs:
-      next_version: ${{ steps.get_version.outputs.next_version }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set Up Git
-        run: |
-          git fetch --tags
-
-      - name: Determine Next Version
-        id: get_version
-        run: |
-          # Fetch the latest tag in the form of `vX.Y.Z` or `vX.Y.Z-beta.N`, sorted by version
-          latest_tag=$(git tag --list "v*" --sort=-v:refname | head -n 1)
-
-          # Default initial version if no tags are found
-          if [[ -z "$latest_tag" ]]; then
-            next_version="v0.1.0"
-          else
-            # Extract version parts (vX.Y.Z or vX.Y.Z-beta.N)
-            if [[ "$latest_tag" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)(-beta\.([0-9]+))?$ ]]; then
-              major="${BASH_REMATCH[1]}"
-              minor="${BASH_REMATCH[2]}"
-              patch="${BASH_REMATCH[3]}"
-              beta="${BASH_REMATCH[4]}"
-              beta_number="${BASH_REMATCH[5]}"
-          
-              if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
-                # Full release: Increment minor version, reset patch and beta
-                next_version="v$major.$((minor + 1)).0"
-              else
-                # Pre-release: Increment beta version
-                if [[ -z "$beta" ]]; then
-                  next_version="v$major.$minor.$patch-beta.1"
-                else
-                  next_version="v$major.$minor.$patch-beta.$((beta_number + 1))"
-                fi
-              fi
-            else
-              echo "Invalid tag format: $latest_tag"
-              exit 1
-            fi
-          fi
-
-          echo "next_version=${next_version}" >> $GITHUB_ENV
+#  Next_Version:
+#    runs-on: ubuntu-latest
+#    outputs:
+#      next_version: ${{ steps.get_version.outputs.next_version }}
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#
+#      - name: Set Up Git
+#        run: |
+#          git fetch --tags
+#
+#      - name: Determine Next Version
+#        id: get_version
+#        run: |
+#          # Fetch the latest tag in the form of `vX.Y.Z` or `vX.Y.Z-beta.N`, sorted by version
+#          latest_tag=$(git tag --list "v*" --sort=-v:refname | head -n 1)
+#
+#          # Default initial version if no tags are found
+#          if [[ -z "$latest_tag" ]]; then
+#            next_version="v0.1.0"
+#          else
+#            # Extract version parts (vX.Y.Z or vX.Y.Z-beta.N)
+#            if [[ "$latest_tag" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)(-beta\.([0-9]+))?$ ]]; then
+#              major="${BASH_REMATCH[1]}"
+#              minor="${BASH_REMATCH[2]}"
+#              patch="${BASH_REMATCH[3]}"
+#              beta="${BASH_REMATCH[4]}"
+#              beta_number="${BASH_REMATCH[5]}"
+#
+#              if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+#                # Full release: Increment minor version, reset patch and beta
+#                next_version="v$major.$((minor + 1)).0"
+#              else
+#                # Pre-release: Increment beta version
+#                if [[ -z "$beta" ]]; then
+#                  next_version="v$major.$minor.$patch-beta.1"
+#                else
+#                  next_version="v$major.$minor.$patch-beta.$((beta_number + 1))"
+#                fi
+#              fi
+#            else
+#              echo "Invalid tag format: $latest_tag"
+#              exit 1
+#            fi
+#          fi
+#
+#          echo "next_version=${next_version}" >> $GITHUB_ENV
 
   Create:
     runs-on: ubuntu-latest
-    needs: Next_Version
+#    needs: Next_Version
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -64,8 +64,8 @@ jobs:
         if: github.event.pull_request.base.ref == 'develop'
         uses: release-drafter/release-drafter@v6
         with:
-          name: "${{ env.next_version }}"
-          tag: "${{ env.next_version }}"
+#          name: "${{ env.next_version }}"
+#          tag: "${{ env.next_version }}"
           prerelease: true
           commitish: develop
         env:
@@ -75,8 +75,8 @@ jobs:
         if: github.event.pull_request.base.ref != 'develop'
         uses: release-drafter/release-drafter@v6
         with:
-          name: "${{ env.next_version }}"
-          tag: "${{ env.next_version }}"
+#          name: "${{ env.next_version }}"
+#          tag: "${{ env.next_version }}"
           prerelease: false
           commitish: main
         env:
