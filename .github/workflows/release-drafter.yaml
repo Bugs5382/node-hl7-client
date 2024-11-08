@@ -52,7 +52,6 @@ jobs:
           fi
 
           echo "next_version=${next_version}" >> $GITHUB_ENV
-          echo "::set-output name=next_version::${next_version}"
 
   Create:
     runs-on: ubuntu-latest
@@ -65,8 +64,8 @@ jobs:
         if: github.event.pull_request.base.ref == 'develop'
         uses: release-drafter/release-drafter@v6
         with:
-          name: "${{ needs.Next_Version.outputs.next_version }}"
-          tag: "${{ needs.Next_Version.outputs.next_version }}"
+          name: "$next_version"
+          tag: "$next_version"
           prerelease: true
           commitish: develop
         env:
@@ -76,8 +75,8 @@ jobs:
         if: github.event.pull_request.base.ref != 'develop'
         uses: release-drafter/release-drafter@v6
         with:
-          name: "${{ needs.Next_Version.outputs.next_version }}"
-          tag: "${{ needs.Next_Version.outputs.next_version }}"
+          name: "$next_version"
+          tag: "$next_version"
           prerelease: false
           commitish: main
         env:
