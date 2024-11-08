@@ -1,29 +1,25 @@
-name: "PR: Lint Title"
+name: "Lint PR"
 
 on:
   pull_request_target:
-    types: [opened, edited, reopened, synchronize]
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
 
-# IMPORTANT: No checkout actions, scripts, or builds should be added to this workflow. Permissions should always be used
-# with extreme caution. https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request_target
-permissions: {}
-
-# PR updates can happen in quick succession, leading to this
-# workflow being trigger a number of times. This limits it
-# to one run per PR.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
+permissions:
+  pull-requests: read
 
 jobs:
-  Validate:
-    permissions:
-      contents: read
-      pull-requests: read
-    name: Validate PR Title
+  main:
+    name: Validate PR title
     runs-on: ubuntu-latest
     steps:
-      - uses: thehanimo/pr-title-checker@v1.4.2
-        with:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          configuration_path: ".github/pr-title-checker-config.json"
