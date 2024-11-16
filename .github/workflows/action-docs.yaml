@@ -87,7 +87,7 @@ jobs:
       - name: Check if branch exists
         id: branch_check
         run: |
-          if git show-ref --verify --quiet refs/heads/gh-pages; then
+          if git rev-parse --verify gh-pages >/dev/null 2>&1; then
             echo "Branch exists"
             echo "exists=true" >> $GITHUB_ENV
           else
