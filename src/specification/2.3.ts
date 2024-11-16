@@ -1,6 +1,6 @@
-import { Message } from '../builder/message.js'
-import { createHL7Date, randomString } from '../utils/utils.js'
-import { HL7_SPEC_BASE } from './specification.js'
+import { Message } from "../builder/message.js";
+import { createHL7Date, randomString } from "../utils/utils.js";
+import { HL7_SPEC_BASE } from "./specification.js";
 
 /**
  * HL7 2.3 MSH Specification
@@ -28,10 +28,10 @@ import { HL7_SPEC_BASE } from './specification.js'
 export interface HL7_2_3_MSH {
   /** Message Code
    * @since 1.0.0 */
-  msh_9_1: string
+  msh_9_1: string;
   /** Trigger Event
    * @since 1.0.0 */
-  msh_9_2: string
+  msh_9_2: string;
   /** Message Control ID
    * @remarks This ID is unique to the message being sent
    * so the client can track
@@ -39,13 +39,13 @@ export interface HL7_2_3_MSH {
    * Max 20 characters.
    * @since 1.0.0
    * @default Random 20 Character String {@link randomString} if this is set to nothing or not included. */
-  msh_10?: string
+  msh_10?: string;
   /** Processing ID
    * @since 1.0.0 */
-  msh_11_1: 'D' | 'P' | 'T'
+  msh_11_1: "D" | "P" | "T";
   /** Processing Mode
    * @since 1.0.0 */
-  msh_11_2?: 'A' | 'I' | 'R' | ''
+  msh_11_2?: "A" | "I" | "R" | "";
 }
 
 /**
@@ -54,9 +54,9 @@ export interface HL7_2_3_MSH {
  * @since 1.0.0
  */
 export class HL7_2_3 extends HL7_SPEC_BASE {
-  constructor () {
-    super()
-    this.name = '2.3'
+  constructor() {
+    super();
+    this.name = "2.3";
   }
 
   /**
@@ -65,33 +65,47 @@ export class HL7_2_3 extends HL7_SPEC_BASE {
    * @param msh
    * @return boolean
    */
-  checkMSH (msh: HL7_2_3_MSH): boolean {
-    if (typeof msh.msh_9_1 === 'undefined' ||
-      typeof msh.msh_9_2 === 'undefined') {
-      throw new Error('MSH.9.1 & MSH 9.2 must be defined.')
+  checkMSH(msh: HL7_2_3_MSH): boolean {
+    if (
+      typeof msh.msh_9_1 === "undefined" ||
+      typeof msh.msh_9_2 === "undefined"
+    ) {
+      throw new Error("MSH.9.1 & MSH 9.2 must be defined.");
     }
 
     if (msh.msh_9_1.length !== 3) {
-      throw new Error('MSH.9.1 must be 3 characters in length.')
+      throw new Error("MSH.9.1 must be 3 characters in length.");
     }
 
     if (msh.msh_9_2.length !== 3) {
-      throw new Error('MSH.9.2 must be 3 characters in length.')
+      throw new Error("MSH.9.2 must be 3 characters in length.");
     }
 
-    if (typeof msh.msh_10 !== 'undefined' && (msh.msh_10.length < 0 || msh.msh_10.length > 20)) {
-      throw new Error('MSH.10 must be greater than 0 and less than 20 characters.')
+    if (
+      typeof msh.msh_10 !== "undefined" &&
+      (msh.msh_10.length < 0 || msh.msh_10.length > 20)
+    ) {
+      throw new Error(
+        "MSH.10 must be greater than 0 and less than 20 characters.",
+      );
     }
 
     if (msh.msh_11_1.length > 1) {
-      throw new Error('MSH.11.1 has to be 1 character long. Valid inputs are: D, P, or T')
+      throw new Error(
+        "MSH.11.1 has to be 1 character long. Valid inputs are: D, P, or T",
+      );
     }
 
-    if (typeof msh.msh_11_2 !== 'undefined' && (msh.msh_11_2.length > 1 || msh.msh_11_2 === '')) {
-      throw new Error('MSH.11.2 can either be undefined/blank and 1 character long.')
+    if (
+      typeof msh.msh_11_2 !== "undefined" &&
+      (msh.msh_11_2.length > 1 || msh.msh_11_2 === "")
+    ) {
+      throw new Error(
+        "MSH.11.2 can either be undefined/blank and 1 character long.",
+      );
     }
 
-    return true
+    return true;
   }
 
   /**
@@ -100,22 +114,22 @@ export class HL7_2_3 extends HL7_SPEC_BASE {
    * @param mshHeader
    * @param message
    */
-  buildMSH (mshHeader: HL7_2_3_MSH, message: Message): void {
-    if (typeof mshHeader !== 'undefined') {
-      message.set('MSH.7', createHL7Date(new Date(), message._opt.date))
-      message.set('MSH.9.1', mshHeader.msh_9_1.toString())
-      message.set('MSH.9.2', mshHeader.msh_9_2.toString())
+  buildMSH(mshHeader: HL7_2_3_MSH, message: Message): void {
+    if (typeof mshHeader !== "undefined") {
+      message.set("MSH.7", createHL7Date(new Date(), message._opt.date));
+      message.set("MSH.9.1", mshHeader.msh_9_1.toString());
+      message.set("MSH.9.2", mshHeader.msh_9_2.toString());
       // if control ID is blank, then randomize it.
-      if (typeof mshHeader.msh_10 === 'undefined') {
-        message.set('MSH.10', randomString())
+      if (typeof mshHeader.msh_10 === "undefined") {
+        message.set("MSH.10", randomString());
       } else {
-        message.set('MSH.10', mshHeader.msh_10.toString())
+        message.set("MSH.10", mshHeader.msh_10.toString());
       }
-      message.set('MSH.11.1', mshHeader.msh_11_1)
-      if (typeof mshHeader.msh_11_2 !== 'undefined') {
-        message.set('MSH.11.2', mshHeader.msh_11_2)
+      message.set("MSH.11.1", mshHeader.msh_11_1);
+      if (typeof mshHeader.msh_11_2 !== "undefined") {
+        message.set("MSH.11.2", mshHeader.msh_11_2);
       }
-      message.set('MSH.12', this.name)
+      message.set("MSH.12", this.name);
     }
   }
 }

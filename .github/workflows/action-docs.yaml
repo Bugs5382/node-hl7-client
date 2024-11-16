@@ -2,24 +2,42 @@ name: Publish Docs
 on:
   workflow_dispatch:
   workflow_call:
+
 permissions:
   contents: write
+  actions: write
+  checks: write
 
 jobs:
   History:
     runs-on: ubuntu-latest
     steps:
+      - name: Check if branch exists
+        id: branch_check
+        run: |
+          if git show-ref --verify --quiet refs/heads/gh-pages; then
+            echo "Branch exists"
+            echo "exists=true" >> $GITHUB_ENV
+          else
+            echo "Branch does not exist"
+            echo "exists=false" >> $GITHUB_ENV
+          fi
+        continue-on-error: true
+
       - name: Get the gh-pages repo
+        if: env.exists == 'true'
         uses: actions/checkout@v4
         with:
           ref: gh-pages
 
       - name: TAR the existing docs
+        if: env.exists == 'true'
         run: |
           mkdir -p ./docs
           tar -cvf documentation.tar ./docs
 
       - name: Create a document artifact
+        if: env.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: documentation
@@ -38,8 +56,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: documentation
+        continue-on-error: true
 
       - run: tar -xf documentation.tar ./docs -C ./docs
+        continue-on-error: true
 
       - name: Build
         uses: actions/setup-node@v4
@@ -64,7 +84,20 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
+      - name: Check if branch exists
+        id: branch_check
+        run: |
+          if git show-ref --verify --quiet refs/heads/gh-pages; then
+            echo "Branch exists"
+            echo "exists=true" >> $GITHUB_ENV
+          else
+            echo "Branch does not exist"
+            echo "exists=false" >> $GITHUB_ENV
+          fi
+        continue-on-error: true
+
       - name: Checkout the gh-pages repo
+        if: env.exists == 'true'
         uses: actions/checkout@v4
         with:
           ref: gh-pages
@@ -76,6 +109,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: newdocumentation
+        continue-on-error: true
 
       - name: Extract Tar
         run: tar -xf newdocumentation.tar ./docs -C ./docs
@@ -83,7 +117,9 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
+          allow_empty_commit: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
           publish_dir: ./docs
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
