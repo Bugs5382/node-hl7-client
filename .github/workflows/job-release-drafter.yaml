@@ -10,17 +10,25 @@ on:
       - develop
 
 jobs:
-  update_release_draft:
+  Update_Draft_Release:
     name: Release Drafter
     runs-on: ubuntu-latest
 
     steps:
 
-      - name: Update Release Draft
+      - name: Update Release Draft (Develop)
         if: github.ref_name == 'develop'
         uses: release-drafter/release-drafter@v6
         with:
           prerelease: ${{ github.ref_name == 'develop' }}
+          commitish: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Release Draft
+        if: github.ref_name == 'main'
+        uses: release-drafter/release-drafter@v6
+        with:
           commitish: ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
