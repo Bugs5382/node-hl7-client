@@ -1,11 +1,11 @@
-import EventEmitter from 'events'
+import EventEmitter from "events";
 import {
   ClientListenerOptions,
   ClientOptions,
   normalizeClientOptions,
-  OutboundHandler
-} from '../utils/normalizedClient.js'
-import { Connection } from './connection.js'
+  OutboundHandler,
+} from "../utils/normalizedClient.js";
+import { Connection } from "./connection.js";
 
 /**
  * Client Class
@@ -13,9 +13,9 @@ import { Connection } from './connection.js'
  * @since 1.0.0 */
 export class Client extends EventEmitter {
   /** @internal */
-  _opt: ReturnType<typeof normalizeClientOptions>
+  _opt: ReturnType<typeof normalizeClientOptions>;
   /** @internal */
-  _connections: Connection[]
+  _connections: Connection[];
   /** @internal */
   readonly stats = {
     /** Total outbound connections able to connect to at this moment.
@@ -26,8 +26,8 @@ export class Client extends EventEmitter {
     _totalSent: 0,
     /** Overall Ack *
      * @since 2.0.0 */
-    _totalAck: 0
-  }
+    _totalAck: 0,
+  };
 
   /**
    * This creates a new client to a new server connection.
@@ -40,23 +40,23 @@ export class Client extends EventEmitter {
    * const client = new Client({host: '0.0.0.0'})
    * ```
    */
-  constructor (props?: ClientOptions) {
-    super()
-    this._opt = normalizeClientOptions(props)
-    this._connections = []
+  constructor(props?: ClientOptions) {
+    super();
+    this._opt = normalizeClientOptions(props);
+    this._connections = [];
   }
 
   /**
    * Close all connections
    * @since 2.0.0
    */
-  closeAll (): void {
+  closeAll(): void {
     // loop through!
     this._connections.map(async (connection) => {
-      void connection.close()
-    })
+      void connection.close();
+    });
     // reset!
-    this._connections = []
+    this._connections = [];
   }
 
   /** Connect to a listener to a specified port.
@@ -71,22 +71,25 @@ export class Client extends EventEmitter {
    * ```
    * Review the {@link InboundResponse} on the properties returned.
    */
-  createConnection (props: ClientListenerOptions, cb: OutboundHandler): Connection {
-    const outbound = new Connection(this, props, cb)
+  createConnection(
+    props: ClientListenerOptions,
+    cb: OutboundHandler,
+  ): Connection {
+    const outbound = new Connection(this, props, cb);
 
-    outbound.on('client.acknowledged', (total: number) => {
-      this.stats._totalAck = total
-    })
+    outbound.on("client.acknowledged", (total: number) => {
+      this.stats._totalAck = total;
+    });
 
-    outbound.on('client.sent', (total: number) => {
-      this.stats._totalSent = total
-    })
+    outbound.on("client.sent", (total: number) => {
+      this.stats._totalSent = total;
+    });
 
     // add this connection
-    this._connections.push(outbound)
+    this._connections.push(outbound);
 
     // send back current outbound
-    return outbound
+    return outbound;
   }
 
   /**
@@ -94,23 +97,23 @@ export class Client extends EventEmitter {
    * The port might be different from each different "connection"
    * @since 1.1.0
    */
-  getHost (): string {
-    return this._opt.host
+  getHost(): string {
+    return this._opt.host;
   }
 
   /**
    * Total ack in this object lifetime.
    * @since 2.0.0
    */
-  totalAck (): number {
-    return this.stats._totalAck
+  totalAck(): number {
+    return this.stats._totalAck;
   }
 
   /**
    * Total sent messages in this object lifetime.
    * @since 2.0.0
    */
-  totalSent (): number {
-    return this.stats._totalSent
+  totalSent(): number {
+    return this.stats._totalSent;
   }
 }

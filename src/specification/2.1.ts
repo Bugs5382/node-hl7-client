@@ -1,6 +1,6 @@
-import { Message } from '../builder/message.js'
-import { createHL7Date, randomString } from '../utils/utils.js'
-import { HL7_SPEC_BASE } from './specification.js'
+import { Message } from "../builder/message.js";
+import { createHL7Date, randomString } from "../utils/utils.js";
+import { HL7_SPEC_BASE } from "./specification.js";
 
 /**
  * HL7 2.1 MSH Specification
@@ -26,7 +26,7 @@ import { HL7_SPEC_BASE } from './specification.js'
 export interface HL7_2_1_MSH {
   /** Message Code
    * @since 1.0.0 */
-  msh_9: string
+  msh_9: string;
   /** Message Control ID
    * @remarks This ID is unique to the message being sent
    * so the client can track
@@ -34,10 +34,10 @@ export interface HL7_2_1_MSH {
    * Max 20 characters.
    * @since 1.0.0
    * @default Random 20 Character String {@link randomString} if this is set to nothing or not included. */
-  msh_10?: string
+  msh_10?: string;
   /** Processing ID
    * @since 1.0.0 */
-  msh_11: 'D' | 'P' | 'T'
+  msh_11: "D" | "P" | "T";
 }
 
 /**
@@ -46,9 +46,9 @@ export interface HL7_2_1_MSH {
  * @since 1.0.0
  */
 export class HL7_2_1 extends HL7_SPEC_BASE {
-  constructor () {
-    super()
-    this.name = '2.1'
+  constructor() {
+    super();
+    this.name = "2.1";
   }
 
   /**
@@ -57,16 +57,21 @@ export class HL7_2_1 extends HL7_SPEC_BASE {
    * @param msh
    * @return boolean
    */
-  checkMSH (msh: HL7_2_1_MSH): boolean {
-    if (typeof msh.msh_9 === 'undefined') {
-      throw new Error('MSH.9 must be defined.')
+  checkMSH(msh: HL7_2_1_MSH): boolean {
+    if (typeof msh.msh_9 === "undefined") {
+      throw new Error("MSH.9 must be defined.");
     }
 
-    if (typeof msh.msh_10 !== 'undefined' && (msh.msh_10.length < 0 || msh.msh_10.length > 20)) {
-      throw new Error('MSH.10 must be greater than 0 and less than 20 characters.')
+    if (
+      typeof msh.msh_10 !== "undefined" &&
+      (msh.msh_10.length < 0 || msh.msh_10.length > 20)
+    ) {
+      throw new Error(
+        "MSH.10 must be greater than 0 and less than 20 characters.",
+      );
     }
 
-    return true
+    return true;
   }
 
   /**
@@ -75,18 +80,18 @@ export class HL7_2_1 extends HL7_SPEC_BASE {
    * @param mshHeader
    * @param message
    */
-  buildMSH (mshHeader: HL7_2_1_MSH, message: Message): void {
-    if (typeof mshHeader !== 'undefined') {
-      message.set('MSH.7', createHL7Date(new Date(), message._opt.date))
-      message.set('MSH.9', mshHeader.msh_9.toString())
+  buildMSH(mshHeader: HL7_2_1_MSH, message: Message): void {
+    if (typeof mshHeader !== "undefined") {
+      message.set("MSH.7", createHL7Date(new Date(), message._opt.date));
+      message.set("MSH.9", mshHeader.msh_9.toString());
       // if control ID is blank, then randomize it.
-      if (typeof mshHeader.msh_10 === 'undefined') {
-        message.set('MSH.10', randomString())
+      if (typeof mshHeader.msh_10 === "undefined") {
+        message.set("MSH.10", randomString());
       } else {
-        message.set('MSH.10', mshHeader.msh_10.toString())
+        message.set("MSH.10", mshHeader.msh_10.toString());
       }
-      message.set('MSH.11', mshHeader.msh_11)
-      message.set('MSH.12', this.name)
+      message.set("MSH.11", mshHeader.msh_11);
+      message.set("MSH.12", this.name);
     }
   }
 }

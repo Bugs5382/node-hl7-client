@@ -6,14 +6,26 @@
  * @param min Min Number
  * @param max Max Number
  */
-export const assertNumber = (props: Record<string, number>, name: string, min: number, max?: number): void => {
-  const val = props[name]
-  if (isNaN(val) || !Number.isFinite(val) || val < min || (max != null && val > max)) {
-    throw new TypeError(max != null
-      ? `${name} must be a number (${min}, ${max}).`
-      : `${name} must be a number >= ${min}.`)
+export const assertNumber = (
+  props: Record<string, number>,
+  name: string,
+  min: number,
+  max?: number,
+): void => {
+  const val = props[name];
+  if (
+    isNaN(val) ||
+    !Number.isFinite(val) ||
+    val < min ||
+    (max != null && val > max)
+  ) {
+    throw new TypeError(
+      max != null
+        ? `${name} must be a number (${min}, ${max}).`
+        : `${name} must be a number >= ${min}.`,
+    );
   }
-}
+};
 
 /**
  * Create a valid HL7 Date.
@@ -24,15 +36,15 @@ export const assertNumber = (props: Record<string, number>, name: string, min: n
  */
 export const createHL7Date = (date: Date, length?: string): string => {
   switch (length) {
-    case '8':
-      return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}`
-    case '12':
-      return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}${padHL7Date(date.getHours(), 2)}${padHL7Date(date.getMinutes(), 2)}`
-    case '14':
+    case "8":
+      return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}`;
+    case "12":
+      return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}${padHL7Date(date.getHours(), 2)}${padHL7Date(date.getMinutes(), 2)}`;
+    case "14":
     default:
-      return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}${padHL7Date(date.getHours(), 2)}${padHL7Date(date.getMinutes(), 2)}${padHL7Date(date.getSeconds(), 2)}`
+      return `${date.getFullYear()}${padHL7Date(date.getMonth() + 1, 2)}${padHL7Date(date.getDate(), 2)}${padHL7Date(date.getHours(), 2)}${padHL7Date(date.getMinutes(), 2)}${padHL7Date(date.getSeconds(), 2)}`;
   }
-}
+};
 
 /**
  * Decode Hex String
@@ -40,12 +52,12 @@ export const createHL7Date = (date: Date, length?: string): string => {
  * @param value
  */
 export const decodeHexString = (value: string): string => {
-  const result = new Array(value.length / 2)
+  const result = new Array(value.length / 2);
   for (let i = 0; i < value.length; i += 2) {
-    result[i / 2] = String.fromCharCode(parseInt(value.slice(i, i + 2), 16))
+    result[i / 2] = String.fromCharCode(parseInt(value.slice(i, i + 2), 16));
   }
-  return result.join('')
-}
+  return result.join("");
+};
 
 /**
  * Escape for RegEx Expressing
@@ -53,8 +65,8 @@ export const decodeHexString = (value: string): string => {
  * @param value
  */
 export const escapeForRegExp = (value: string): string => {
-  return value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
-}
+  return value.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
+};
 
 /**
  * Calculate exponential backoff/retry delay.
@@ -76,11 +88,16 @@ export const escapeForRegExp = (value: string): string => {
  * @param attempts
  * @param exp
  */
-export const expBackoff = (step: number, high: number, attempts: number, exp = 2): number => {
-  const slots = Math.ceil(Math.min(high / step, Math.pow(exp, attempts)))
-  const max = Math.min(slots * step, high)
-  return Math.floor(Math.random() * (max - step) + step)
-}
+export const expBackoff = (
+  step: number,
+  high: number,
+  attempts: number,
+  exp = 2,
+): number => {
+  const slots = Math.ceil(Math.min(high / step, Math.pow(exp, attempts)));
+  const max = Math.min(slots * step, high);
+  return Math.floor(Math.random() * (max - step) + step);
+};
 
 /**
  * Check to see if the message starts with Batch (BHS) header segment.
@@ -88,22 +105,23 @@ export const expBackoff = (step: number, high: number, attempts: number, exp = 2
  * @param message
  */
 export const isBatch = (message: string): boolean => {
-  const lines = split(message).filter(line => line.startsWith('MSH')).length > 1 || false
+  const lines =
+    split(message).filter((line) => line.startsWith("MSH")).length > 1 || false;
   if (lines) {
-    return true
-  } else if (message.startsWith('MSH') && !lines) {
-    return false
+    return true;
+  } else if (message.startsWith("MSH") && !lines) {
+    return false;
   }
-  return message.startsWith('BHS')
-}
+  return message.startsWith("BHS");
+};
 
 /**
  * Check to see if the message starts with a File Batch (FHS) header segment.
  * @param message
  */
 export const isFile = (message: string): boolean => {
-  return message.startsWith('FHS')
-}
+  return message.startsWith("FHS");
+};
 
 /**
  * Is Number
@@ -112,9 +130,9 @@ export const isFile = (message: string): boolean => {
  * @param value
  */
 export const isHL7Number = (value: string | number): boolean => {
-  value = typeof value === 'string' ? parseInt(value) : value
-  return !isNaN(value) || !Number.isFinite(value)
-}
+  value = typeof value === "string" ? parseInt(value) : value;
+  return !isNaN(value) || !Number.isFinite(value);
+};
 
 /**
  * Is String
@@ -122,7 +140,7 @@ export const isHL7Number = (value: string | number): boolean => {
  * @since 1.0.0
  * @param value
  */
-export const isHL7String = (value: any): boolean => typeof value === 'string'
+export const isHL7String = (value: any): boolean => typeof value === "string";
 
 /**
  * HL7 Padding for Date
@@ -131,10 +149,14 @@ export const isHL7String = (value: any): boolean => typeof value === 'string'
  * @param width
  * @param z
  */
-export const padHL7Date = (n: number, width: number, z: string = '0'): string => {
-  const s = n.toString()
-  return s.length >= width ? s : new Array(width - s.length + 1).join(z) + s
-}
+export const padHL7Date = (
+  n: number,
+  width: number,
+  z: string = "0",
+): string => {
+  const s = n.toString();
+  return s.length >= width ? s : new Array(width - s.length + 1).join(z) + s;
+};
 
 /**
  * Valid IPv4 Checker
@@ -142,12 +164,12 @@ export const padHL7Date = (n: number, width: number, z: string = '0'): string =>
  * @param ip
  */
 export const validIPv4 = (ip: string): boolean => {
-  const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/
+  const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
   if (ipv4Regex.test(ip)) {
-    return ip.split('.').every(part => parseInt(part) <= 255)
+    return ip.split(".").every((part) => parseInt(part) <= 255);
   }
-  return false
-}
+  return false;
+};
 
 /**
  * Valid IPv6 Checker
@@ -155,12 +177,12 @@ export const validIPv4 = (ip: string): boolean => {
  * @param ip
  */
 export const validIPv6 = (ip: string): boolean => {
-  const ipv6Regex = /^([\da-f]{1,4}:){7}[\da-f]{1,4}$/i
+  const ipv6Regex = /^([\da-f]{1,4}:){7}[\da-f]{1,4}$/i;
   if (ipv6Regex.test(ip)) {
-    return ip.split(':').every(part => part.length <= 4)
+    return ip.split(":").every((part) => part.length <= 4);
   }
-  return false
-}
+  return false;
+};
 
 /**
  * Generate a random string
@@ -168,16 +190,17 @@ export const validIPv6 = (ip: string): boolean => {
  * @param length
  */
 export const randomString = (length = 20): string => {
-  let result = ''
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_'
-  const charactersLength = characters.length
-  let counter = 0
+  let result = "";
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
+  const charactersLength = characters.length;
+  let counter = 0;
   while (counter < length) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength))
-    counter += 1
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    counter += 1;
   }
-  return result
-}
+  return result;
+};
 
 /**
  * Split the message.
@@ -187,18 +210,20 @@ export const randomString = (length = 20): string => {
  * @param segments
  */
 export const split = (data: string, segments: string[] = []): string[] => {
-  const getSegIndex = [...getSegIndexes(['FHS', 'BHS', 'MSH', 'BTS', 'FTS'], data)]
-  getSegIndex.sort((a, b) => parseInt(a) - parseInt(b))
+  const getSegIndex = [
+    ...getSegIndexes(["FHS", "BHS", "MSH", "BTS", "FTS"], data),
+  ];
+  getSegIndex.sort((a, b) => parseInt(a) - parseInt(b));
   for (let i = 0; i < getSegIndex.length; i++) {
-    const start = parseInt(getSegIndex[i])
-    let end = parseInt(getSegIndex[i + 1])
+    const start = parseInt(getSegIndex[i]);
+    let end = parseInt(getSegIndex[i + 1]);
     if (i + 1 === getSegIndex.length) {
-      end = data.length
+      end = data.length;
     }
-    segments.push(data.slice(start, end))
+    segments.push(data.slice(start, end));
   }
-  return segments
-}
+  return segments;
+};
 
 /**
  * Get Segment Indexes
@@ -208,34 +233,38 @@ export const split = (data: string, segments: string[] = []): string[] => {
  * @param data
  * @param list
  */
-const getSegIndexes = (names: string[], data: string, list: string[] = []): string[] => {
+const getSegIndexes = (
+  names: string[],
+  data: string,
+  list: string[] = [],
+): string[] => {
   for (let i = 0; i < names.length; i++) {
-    const regex = new RegExp(`(\\n|\\r|)(${names[i]})\\|`, 'g')
-    let m
+    const regex = new RegExp(`(\\n|\\r|)(${names[i]})\\|`, "g");
+    let m;
     while ((m = regex.exec(data)) != null) {
-      const s = m[0]
-      if (s.includes('\r\n')) {
-        m.index = m.index + 2
-      } else if (s.includes('\n')) {
-        m.index++
-      } else if (s.includes('\r')) {
-        m.index++
+      const s = m[0];
+      if (s.includes("\r\n")) {
+        m.index = m.index + 2;
+      } else if (s.includes("\n")) {
+        m.index++;
+      } else if (s.includes("\r")) {
+        m.index++;
       }
       if (m.index !== null) {
-        list.push(m.index.toString())
+        list.push(m.index.toString());
       }
     }
   }
-  return list
-}
+  return list;
+};
 
 /**
  * @since 2.0.0
  */
-export interface Deferred<T=any> {
-  resolve: (value: T | PromiseLike<T>) => void
-  reject: (reason?: any) => void
-  promise: Promise<T>
+export interface Deferred<T = any> {
+  resolve: (value: T | PromiseLike<T>) => void;
+  reject: (reason?: any) => void;
+  promise: Promise<T>;
 }
 
 /**
@@ -243,15 +272,15 @@ export interface Deferred<T=any> {
  * @since 2.0.0
  * @param noUncaught
  */
-export const createDeferred = <T=any>(noUncaught?: boolean): Deferred<T> => {
-  const dfd: any = {}
+export const createDeferred = <T = any>(noUncaught?: boolean): Deferred<T> => {
+  const dfd: any = {};
   dfd.promise = new Promise((resolve, reject) => {
-    dfd.resolve = resolve
-    dfd.reject = reject
-  })
+    dfd.resolve = resolve;
+    dfd.reject = reject;
+  });
   /* istanbul ignore next */
   if (noUncaught === false) {
-    dfd.promise.catch(() => {})
+    dfd.promise.catch(() => {});
   }
-  return dfd
-}
+  return dfd;
+};

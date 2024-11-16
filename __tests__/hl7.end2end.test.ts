@@ -1,289 +1,278 @@
 import fs from "fs";
-import {Server} from 'node-hl7-server'
+import { Server } from "node-hl7-server";
 import path from "node:path";
-import { describe, expect, test } from 'vitest';
-import tcpPortUsed from 'tcp-port-used'
-import Client, {Batch, Message, ReadyState} from '../src'
-import {createDeferred} from "../src/utils/utils";
-import {expectEvent} from './__utils__'
+import { describe, expect, test } from "vitest";
+import tcpPortUsed from "tcp-port-used";
+import Client, { Batch, Message, ReadyState } from "../src";
+import { createDeferred } from "../src/utils/utils";
+import { expectEvent } from "./__utils__";
 
 const port = Number(process.env.TEST_PORT) || 3000;
 
-describe('node hl7 end to end - client', () => {
+describe("node hl7 end to end - client", () => {
+  describe("server/client sanity checks", () => {
+    test("...simple connect", async () => {
+      await tcpPortUsed.check(3000, "0.0.0.0");
 
-  describe('server/client sanity checks', () => {
+      const dfd = createDeferred<void>();
+      const dfdConnectionChecks = createDeferred<void>();
 
-    test('...simple connect', async () => {
+      const server = new Server({ bindAddress: "0.0.0.0" });
+      const listener = server.createInbound({ port }, async (req, res) => {
+        const messageReq = req.getMessage();
+        expect(messageReq.get("MSH.12").toString()).toBe("2.7");
+        await res.sendResponse("AA");
+      });
 
-      await tcpPortUsed.check(3000, '0.0.0.0')
+      await expectEvent(listener, "listen");
 
-      let dfd = createDeferred<void>()
-      let dfdConnectionChecks = createDeferred<void>()
+      const client = new Client({ host: "0.0.0.0" });
 
-      const server = new Server({bindAddress: '0.0.0.0'})
-      const listener = server.createInbound({port}, async (req, res) => {
-        const messageReq = req.getMessage()
-        expect(messageReq.get('MSH.12').toString()).toBe('2.7')
-        await res.sendResponse('AA')
-      })
-
-      await expectEvent(listener, 'listen')
-
-      const client = new Client({ host: '0.0.0.0' })
-
-      const outbound = client.createConnection({port}, async (res) => {
-        const messageRes = res.getMessage()
-        expect(messageRes.get('MSA.1').toString()).toBe('AA')
-        dfd.resolve()
-      })
+      const outbound = client.createConnection({ port }, async (res) => {
+        const messageRes = res.getMessage();
+        expect(messageRes.get("MSA.1").toString()).toBe("AA");
+        dfd.resolve();
+      });
 
       // Ensure no errors on the connection
       outbound.on("client.error", (err) => {
-        if(err.message === "Socket closed unexpectedly by server.") dfdConnectionChecks.reject('Connection terminated incorrectly');
-      })
+        if (err.message === "Socket closed unexpectedly by server.")
+          dfdConnectionChecks.reject("Connection terminated incorrectly");
+      });
 
       // Ensure connection closes successfully
       outbound.on("close", () => {
-        
-        outbound.on('connection', () => {
-           dfdConnectionChecks.reject('Unexpected follow on connection attempted.');
+        outbound.on("connection", () => {
+          dfdConnectionChecks.reject(
+            "Unexpected follow on connection attempted.",
+          );
         });
 
         // Give the connection time to report any errors.
-        setTimeout(dfdConnectionChecks.resolve,500)
-      })
+        setTimeout(dfdConnectionChecks.resolve, 500);
+      });
 
-      await expectEvent(outbound, 'connect')
+      await expectEvent(outbound, "connect");
 
-      let message = new Message({
+      const message = new Message({
         messageHeader: {
-          msh_9_1: 'ADT',
-          msh_9_2: 'A01',
-          msh_10: 'CONTROL_ID',
-          msh_11_1: 'D'
-        }
-      })
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "D",
+        },
+      });
 
-      await outbound.sendMessage(message)
+      await outbound.sendMessage(message);
 
-      await dfd.promise
+      await dfd.promise;
 
-      expect(client.totalSent()).toEqual(1)
-      expect(client.totalAck()).toEqual(1)
+      expect(client.totalSent()).toEqual(1);
+      expect(client.totalAck()).toEqual(1);
 
-      await outbound.close()
-      await listener.close()
+      await outbound.close();
+      await listener.close();
 
-      client.closeAll()
+      client.closeAll();
 
       await dfdConnectionChecks.promise;
       expect(outbound._connectionTimer).toBeUndefined();
       expect((outbound as any)._readyState).toEqual(ReadyState.CLOSED);
       expect(client._connections.length).toEqual(0);
+    });
 
-    })
+    test.skip("...send simple message twice, no ACK needed", async () => {
+      await tcpPortUsed.check(3000, "0.0.0.0");
 
-    test.skip('...send simple message twice, no ACK needed', async () => {
+      const dfd = createDeferred<void>();
+      let totalSent = 0;
 
-      await tcpPortUsed.check(3000, '0.0.0.0')
+      const server = new Server({ bindAddress: "0.0.0.0" });
+      const listener = server.createInbound({ port }, async (req, res) => {
+        const messageReq = req.getMessage();
+        expect(messageReq.get("MSH.12").toString()).toBe("2.7");
+        totalSent++;
+        await res.sendResponse("AA");
+      });
 
-      let dfd = createDeferred<void>()
-      let totalSent = 0
+      await expectEvent(listener, "listen");
 
-      const server = new Server({bindAddress: '0.0.0.0'})
-      const listener = server.createInbound({port}, async (req, res) => {
-        const messageReq = req.getMessage()
-        expect(messageReq.get('MSH.12').toString()).toBe('2.7')
-        totalSent++
-        await res.sendResponse('AA')
-      })
+      const client = new Client({ host: "0.0.0.0" });
+      const outbound = client.createConnection(
+        { port, waitAck: false },
+        async () => {
+          if (totalSent === 2) {
+            dfd.resolve();
+          }
+        },
+      );
 
-      await expectEvent(listener, 'listen')
+      await expectEvent(outbound, "connect");
 
-      const client = new Client({ host: '0.0.0.0' })
-      const outbound = client.createConnection({port, waitAck: false }, async () => {
-        if (totalSent === 2) {
-          dfd.resolve()
-        }
-      })
-
-      await expectEvent(outbound, 'connect')
-
-      let message = new Message({
+      const message = new Message({
         messageHeader: {
-          msh_9_1: 'ADT',
-          msh_9_2: 'A01',
-          msh_10: 'CONTROL_ID',
-          msh_11_1: 'D'
-        }
-      })
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "D",
+        },
+      });
 
-      await outbound.sendMessage(message)
+      await outbound.sendMessage(message);
 
-      let message2 = new Message({
+      const message2 = new Message({
         messageHeader: {
-          msh_9_1: 'ADT',
-          msh_9_2: 'A01',
-          msh_10: 'CONTROL_ID',
-          msh_11_1: 'D'
-        }
-      })
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "D",
+        },
+      });
 
-      await outbound.sendMessage(message2)
+      await outbound.sendMessage(message2);
 
-      await dfd.promise
+      await dfd.promise;
 
-      expect(client.totalSent()).toEqual(2)
-      expect(client.totalAck()).toEqual(2)
+      expect(client.totalSent()).toEqual(2);
+      expect(client.totalAck()).toEqual(2);
 
-      await outbound.close()
-      await listener.close()
+      await outbound.close();
+      await listener.close();
 
-      client.closeAll()
+      client.closeAll();
+    });
+  });
 
-    })
-  })
+  describe("server/client failure checks", () => {
+    test("...host does not exist, error out", async () => {
+      const client = new Client({ host: "0.0.0.0", connectionTimeout: 1000 });
+      const outbound = client.createConnection({ port }, async () => {});
 
-  describe('server/client failure checks', () => {
-    test('...host does not exist, error out', async () => {
+      await expectEvent(outbound, "client.timeout");
 
-      const client = new Client({ host: '0.0.0.0', connectionTimeout: 1000 })
-      const outbound = client.createConnection({ port }, async () => {})
+      const error = await expectEvent(outbound, "client.error");
+      expect(error.code).toBe("ECONNREFUSED");
+    });
 
-      await expectEvent(outbound, 'client.timeout')
+    test("...tls host does not exist, error out", async () => {
+      const client = new Client({
+        host: "0.0.0.0",
+        connectionTimeout: 1000,
+        tls: { rejectUnauthorized: false },
+      });
+      const outbound = client.createConnection({ port }, async () => {});
 
-      const error = await expectEvent(outbound, 'client.error')
-      expect(error.code).toBe('ECONNREFUSED')
-    })
+      await expectEvent(outbound, "client.timeout");
 
-    test('...tls host does not exist, error out', async () => {
+      const error = await expectEvent(outbound, "client.error");
+      expect(error.code).toBe("ECONNREFUSED");
+    });
+  });
 
-      const client = new Client({ host: '0.0.0.0', connectionTimeout: 1000, tls: { rejectUnauthorized: false } })
-      const outbound = client.createConnection({ port }, async () => {})
+  describe("...no tls", () => {
+    describe("...no file", () => {
+      test.skip("...send batch with two message, get proper ACK", async () => {
+        const dfd = createDeferred<void>();
 
-      await expectEvent(outbound, 'client.timeout')
+        const server = new Server({ bindAddress: "0.0.0.0" });
+        const inbound = server.createInbound({ port }, async (req, res) => {
+          const messageReq = req.getMessage();
+          expect(messageReq.get("MSH.12").toString()).toBe("2.7");
+          await res.sendResponse("AA");
+        });
 
-      const error = await expectEvent(outbound, 'client.error')
-      expect(error.code).toBe('ECONNREFUSED')
-    })
+        await expectEvent(inbound, "listen");
 
-  })
+        const client = new Client({ host: "0.0.0.0" });
+        const outbound = client.createConnection({ port }, async (res) => {
+          const messageRes = res.getMessage();
+          expect(messageRes.get("MSA.1").toString()).toBe("AA");
+          dfd.resolve();
+        });
 
-  describe('...no tls', () => {
-
-    describe('...no file', () => {
-
-      test.skip('...send batch with two message, get proper ACK', async () => {
-
-        let dfd = createDeferred<void>()
-
-        const server = new Server({ bindAddress: '0.0.0.0' })
-        const inbound = server.createInbound({port}, async (req, res) => {
-          const messageReq = req.getMessage()
-          expect(messageReq.get('MSH.12').toString()).toBe('2.7')
-          await res.sendResponse('AA')
-        })
-
-        await expectEvent(inbound, 'listen')
-
-        const client = new Client({ host: '0.0.0.0' })
-        const outbound = client.createConnection({port}, async (res) => {
-          const messageRes = res.getMessage()
-          expect(messageRes.get('MSA.1').toString()).toBe('AA')
-          dfd.resolve()
-        })
-
-        const batch = new Batch()
-        batch.start()
+        const batch = new Batch();
+        batch.start();
 
         const message = new Message({
           messageHeader: {
-            msh_9_1: 'ADT',
-            msh_9_2: 'A01',
-            msh_10: 'CONTROL_ID',
-            msh_11_1: 'D'
-          }
-        })
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
+            msh_10: "CONTROL_ID",
+            msh_11_1: "D",
+          },
+        });
 
-        batch.add(message)
-        batch.add(message)
+        batch.add(message);
+        batch.add(message);
 
-        batch.end()
+        batch.end();
 
-        await outbound.sendMessage(batch)
+        await outbound.sendMessage(batch);
 
-        await dfd.promise
+        await dfd.promise;
 
-        expect(client.totalSent()).toEqual(1)
-        expect(client.totalAck()).toEqual(1)
+        expect(client.totalSent()).toEqual(1);
+        expect(client.totalAck()).toEqual(1);
 
-        await outbound.close()
-        await inbound.close()
+        await outbound.close();
+        await inbound.close();
 
-        client.closeAll()
-      })
+        client.closeAll();
+      });
+    });
+  });
 
-    })
+  describe("...tls", () => {
+    describe("...no file", () => {
+      test("...simple", async () => {
+        const dfd = createDeferred<void>();
 
-  })
+        const server = new Server({
+          bindAddress: "0.0.0.0",
+          tls: {
+            key: fs.readFileSync(path.join("certs/", "server-key.pem")),
+            cert: fs.readFileSync(path.join("certs/", "server-crt.pem")),
+            rejectUnauthorized: false,
+          },
+        });
+        const inbound = server.createInbound({ port }, async (req, res) => {
+          const messageReq = req.getMessage();
+          expect(messageReq.get("MSH.12").toString()).toBe("2.7");
+          await res.sendResponse("AA");
+        });
 
-  describe('...tls', () => {
+        await expectEvent(inbound, "listen");
 
-    describe('...no file', () => {
+        const client = new Client({
+          host: "0.0.0.0",
+          tls: { rejectUnauthorized: false },
+        });
+        const outbound = client.createConnection({ port }, async (res) => {
+          const messageRes = res.getMessage();
+          expect(messageRes.get("MSA.1").toString()).toBe("AA");
+          dfd.resolve();
+        });
 
-      test('...simple', async () => {
-
-        let dfd = createDeferred<void>()
-
-        const server = new Server(
-          {
-            bindAddress: '0.0.0.0',
-            tls:
-              {
-                key: fs.readFileSync(path.join('certs/', 'server-key.pem')),
-                cert: fs.readFileSync(path.join('certs/', 'server-crt.pem')),
-                rejectUnauthorized: false
-              }
-          })
-        const inbound = server.createInbound({port, }, async (req, res) => {
-          const messageReq = req.getMessage()
-          expect(messageReq.get('MSH.12').toString()).toBe('2.7')
-          await res.sendResponse('AA')
-        })
-
-        await expectEvent(inbound, 'listen')
-
-        const client = new Client({ host: '0.0.0.0', tls: { rejectUnauthorized: false } })
-        const outbound = client.createConnection({port, }, async (res) => {
-          const messageRes = res.getMessage()
-          expect(messageRes.get('MSA.1').toString()).toBe('AA')
-          dfd.resolve()
-        })
-
-        await expectEvent(outbound, 'connect')
+        await expectEvent(outbound, "connect");
 
         const message = new Message({
           messageHeader: {
-            msh_9_1: 'ADT',
-            msh_9_2: 'A01',
-            msh_10: 'CONTROL_ID',
-            msh_11_1: 'D'
-          }
-        })
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
+            msh_10: "CONTROL_ID",
+            msh_11_1: "D",
+          },
+        });
 
-        await outbound.sendMessage(message)
+        await outbound.sendMessage(message);
 
-        dfd.promise
+        dfd.promise;
 
-        await outbound.close()
-        await inbound.close()
+        await outbound.close();
+        await inbound.close();
 
-        client.closeAll()
-
-      }, 70000)
-
-    })
-
-  })
-
-})
+        client.closeAll();
+      }, 70000);
+    });
+  });
+});

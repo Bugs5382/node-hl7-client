@@ -5,12 +5,11 @@ export default defineConfig({
     coverage: {
       exclude: [
         '__tests__/__utils__/**',
-        '__tests__/__data__/**',
+        'docker',
         'bin',
         'certs',
         'docs',
-        'lib',
-        'src/api.ts'
+        'lib'
       ]
     }
   }

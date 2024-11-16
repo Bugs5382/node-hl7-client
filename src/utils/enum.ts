@@ -16,7 +16,7 @@ export enum Delimiters {
   /** The escape string used within the code. */
   Escape,
   /** Usually within each Field, seperated by ~ */
-  SubComponent
+  SubComponent,
 }
 
 /**
@@ -34,5 +34,5 @@ export enum ReadyState {
   /** The client is closing the connection by force or by timeout */
   CLOSING,
   /** The client connection is closed.  */
-  CLOSED
+  CLOSED,
 }

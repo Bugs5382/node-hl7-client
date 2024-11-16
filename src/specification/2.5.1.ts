@@ -1,5 +1,5 @@
-import { Message } from '../builder/message.js'
-import { HL7_2_5, HL7_2_5_MSH } from './2.5.js'
+import { Message } from "../builder/message.js";
+import { HL7_2_5, HL7_2_5_MSH } from "./2.5.js";
 
 /**
  * HL7 2.5.1 MSH Specification
@@ -24,7 +24,7 @@ import { HL7_2_5, HL7_2_5_MSH } from './2.5.js'
  * so this way your code is much neater.
  *
  */
-export type HL7_2_5_1_MSH = HL7_2_5_MSH
+export type HL7_2_5_1_MSH = HL7_2_5_MSH;
 
 /**
  * Hl7 Specification Version 2.5.1
@@ -32,9 +32,9 @@ export type HL7_2_5_1_MSH = HL7_2_5_MSH
  * @since 1.0.0
  */
 export class HL7_2_5_1 extends HL7_2_5 {
-  constructor () {
-    super()
-    this.name = '2.5.1'
+  constructor() {
+    super();
+    this.name = "2.5.1";
   }
 
   /**
@@ -43,9 +43,9 @@ export class HL7_2_5_1 extends HL7_2_5 {
    * @param msh
    * @return boolean
    */
-  checkMSH (msh: HL7_2_5_1_MSH): boolean {
-    super.checkMSH(msh)
-    return true
+  checkMSH(msh: HL7_2_5_1_MSH): boolean {
+    super.checkMSH(msh);
+    return true;
   }
 
   /**
@@ -54,7 +54,7 @@ export class HL7_2_5_1 extends HL7_2_5 {
    * @param mshHeader
    * @param message
    */
-  buildMSH (mshHeader: HL7_2_5_1_MSH, message: Message): void {
-    super.buildMSH(mshHeader, message)
+  buildMSH(mshHeader: HL7_2_5_1_MSH, message: Message): void {
+    super.buildMSH(mshHeader, message);
   }
 }

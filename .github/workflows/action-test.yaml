@@ -12,6 +12,7 @@ on:
       - ready_for_review
       - synchronize
 
+
 jobs:
 
   Build:
@@ -31,12 +32,15 @@ jobs:
         run: |
           npm install --package-lock-only
           npm install --ignore-scripts
-          npm run build
 
       - name: Run Tests and Lint
         run: |
           npm run lint
           npm run test
+
+      - name: Run Build
+        run: |
+          npm run build
 
       - name: Upload build artifact
         if: matrix.node-version == 'lts/*'
@@ -46,8 +50,6 @@ jobs:
           path: |
             package.json
             package-lock.json
+            README.md
+            LICENSE
             ./lib
-
-  Release_Draft:
-    needs: Build
-    uses: ./.github/workflows/release-drafter.yaml
