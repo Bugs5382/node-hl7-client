@@ -1,5 +1,5 @@
-import { Message } from '../builder/message.js'
-import { HL7_2_3_1 } from './2.3.1.js'
+import { Message } from "../builder/message.js";
+import { HL7_2_3_1, HL7_2_3_1_MSH } from "./2.3.1.js";
 
 /**
  * HL7 2.4 MSH Specification
@@ -24,32 +24,15 @@ import { HL7_2_3_1 } from './2.3.1.js'
  * so this way your code is much neater.
  *
  */
-export interface HL7_2_4_MSH {
-  /** Message Code
-   * @since 1.0.0 */
-  msh_9_1: string
-  /** Trigger Event
-   * @since 1.0.0 */
-  msh_9_2: string
+export type HL7_2_4_MSH = HL7_2_3_1_MSH & {
   /** Message Structure
    * @since 2.2.0
    * @default If not specified, it will be the combo of 9.1 and 9.2 with an underscore. */
-  msh_9_3?: string
-  /** Message Control ID
-   * @remarks This ID is unique to the message being sent
-   * so the client can track
-   * to see if they get a response back from the server that this particular message was successful.
-   * Max 20 characters.
-   * @since 1.0.0
-   * @default Random 20 Character String {@link randomString} if this is set to nothing or not included. */
-  msh_10?: string
-  /** Processing ID
-   * @since 1.0.0 */
-  msh_11_1: 'D' | 'P' | 'T'
+  msh_9_3?: string;
   /** Processing Mode
    * @since 1.0.0 */
-  msh_11_2?: 'A' | 'I' | 'R' | 'T' | ''
-}
+  msh_11_2?: "A" | "I" | "R" | "T" | "";
+};
 
 /**
  * Hl7 Specification Version 2.4
@@ -57,9 +40,9 @@ export interface HL7_2_4_MSH {
  * @since 1.0.0
  */
 export class HL7_2_4 extends HL7_2_3_1 {
-  constructor () {
-    super()
-    this.name = '2.4'
+  constructor() {
+    super();
+    this.name = "2.4";
   }
 
   /**
@@ -68,12 +51,17 @@ export class HL7_2_4 extends HL7_2_3_1 {
    * @param msh
    * @return boolean
    */
-  checkMSH (msh: HL7_2_4_MSH): boolean {
-    super.checkMSH(msh)
-    if (typeof msh.msh_9_3 !== 'undefined' && (msh.msh_9_3.length < 3 || msh.msh_9_3.length > 10)) {
-      throw new Error('MSH.9.3 must be 3 to 10 characters in length if specified.')
+  checkMSH(msh: HL7_2_4_MSH): boolean {
+    super.checkMSH(msh);
+    if (
+      typeof msh.msh_9_3 !== "undefined" &&
+      (msh.msh_9_3.length < 3 || msh.msh_9_3.length > 10)
+    ) {
+      throw new Error(
+        "MSH.9.3 must be 3 to 10 characters in length if specified.",
+      );
     }
-    return true
+    return true;
   }
 
   /**
@@ -82,8 +70,13 @@ export class HL7_2_4 extends HL7_2_3_1 {
    * @param mshHeader
    * @param message
    */
-  buildMSH (mshHeader: HL7_2_4_MSH, message: Message): void {
-    super.buildMSH(mshHeader, message)
-    message.set('MSH.9.3', typeof mshHeader.msh_9_3 !== 'undefined' ? mshHeader.msh_9_3.toString() : `${mshHeader.msh_9_1.toString()}_${mshHeader.msh_9_2.toString()}`)
+  buildMSH(mshHeader: HL7_2_4_MSH, message: Message): void {
+    super.buildMSH(mshHeader, message);
+    message.set(
+      "MSH.9.3",
+      typeof mshHeader.msh_9_3 !== "undefined"
+        ? mshHeader.msh_9_3.toString()
+        : `${mshHeader.msh_9_1.toString()}_${mshHeader.msh_9_2.toString()}`,
+    );
   }
 }

@@ -1,5 +1,5 @@
-import { Message } from '../builder/message.js'
-import { HL7_2_7 } from './2.7.js'
+import { Message } from "../builder/message.js";
+import { HL7_2_7, HL7_2_7_MSH } from "./2.7.js";
 
 /**
  * HL7 2.7.1 MSH Specification
@@ -23,31 +23,7 @@ import { HL7_2_7 } from './2.7.js'
  * so this way your code is much neater.
  *
  */
-export interface HL7_2_7_1_MSH {
-  /** Message Code
-   * @since 1.0.0 */
-  msh_9_1: string
-  /** Trigger Event
-   * @since 1.0.0 */
-  msh_9_2: string
-  /** Message Structure
-   * @since 2.2.0
-   * @default If not specified, it will be the combo of 9.1 and 9.2 with an underscore. */
-  msh_9_3?: string
-  /** Message Control ID
-   * @remarks This ID is unique to the message being sent
-   * so the client can track
-   * to see if they get a response back from the server that this particular message was successful.
-   * @since 1.0.0
-   * @default Random 20 Character String {@link randomString} if this is set to nothing or not included. */
-  msh_10?: string
-  /** Processing ID
-   * @since 1.0.0 */
-  msh_11_1: 'D' | 'P' | 'T'
-  /** Processing Mode
-   * @since 1.0.0 */
-  msh_11_2?: 'A' | 'I' | 'R' | 'T' | ''
-}
+export type HL7_2_7_1_MSH = HL7_2_7_MSH;
 
 /**
  * Hl7 Specification Version 2.7.1
@@ -55,9 +31,9 @@ export interface HL7_2_7_1_MSH {
  * @since 1.0.0
  */
 export class HL7_2_7_1 extends HL7_2_7 {
-  constructor () {
-    super()
-    this.name = '2.7.1'
+  constructor() {
+    super();
+    this.name = "2.7.1";
   }
 
   /**
@@ -66,8 +42,8 @@ export class HL7_2_7_1 extends HL7_2_7 {
    * @param msh
    * @return boolean
    */
-  checkMSH (msh: HL7_2_7_1_MSH): boolean {
-    return super.checkMSH(msh)
+  checkMSH(msh: HL7_2_7_1_MSH): boolean {
+    return super.checkMSH(msh);
   }
 
   /**
@@ -76,7 +52,7 @@ export class HL7_2_7_1 extends HL7_2_7 {
    * @param mshHeader
    * @param message
    */
-  buildMSH (mshHeader: HL7_2_7_1_MSH, message: Message): void {
-    super.buildMSH(mshHeader, message)
+  buildMSH(mshHeader: HL7_2_7_1_MSH, message: Message): void {
+    super.buildMSH(mshHeader, message);
   }
 }

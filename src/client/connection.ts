@@ -1,67 +1,78 @@
-import EventEmitter from 'node:events'
-import net, { Socket } from 'node:net'
-import { clearTimeout } from 'node:timers'
-import tls from 'node:tls'
-import Batch from '../builder/batch.js'
-import FileBatch from '../builder/fileBatch.js'
-import Message from '../builder/message.js'
-import { PROTOCOL_MLLP_FOOTER, PROTOCOL_MLLP_HEADER } from '../utils/constants.js'
-import { ReadyState } from '../utils/enum.js'
-import { HL7FatalError } from '../utils/exception.js'
-import { ClientListenerOptions, normalizeClientListenerOptions, OutboundHandler } from '../utils/normalizedClient.js'
-import { createDeferred, Deferred, expBackoff } from '../utils/utils.js'
-import { Client } from './client.js'
-import { InboundResponse } from './module/inboundResponse.js'
+import EventEmitter from "node:events";
+import net, { Socket } from "node:net";
+import { clearTimeout } from "node:timers";
+import tls from "node:tls";
+import Batch from "../builder/batch.js";
+import FileBatch from "../builder/fileBatch.js";
+import Message from "../builder/message.js";
+import { ReadyState } from "../utils/enum.js";
+import { HL7FatalError } from "../utils/exception.js";
+import {
+  ClientListenerOptions,
+  normalizeClientListenerOptions,
+  OutboundHandler,
+} from "../utils/normalizedClient.js";
+import {
+  createDeferred,
+  Deferred,
+  expBackoff,
+  isBatch,
+} from "../utils/utils.js";
+import { Client } from "./client.js";
+import { InboundResponse } from "./module/inboundResponse.js";
+import { MLLPCodec } from "../utils/codec.js";
 
-/* eslint-disable */
 export interface IConnection extends EventEmitter {
   /** The connection has been closed manually. You have to start the connection again. */
-  on(name: 'close', cb: () => void): this;
+  on(name: "close", cb: () => void): this;
   /** The connection is made. */
-  on(name: 'connect', cb: () => void): this;
+  on(name: "connect", cb: () => void): this;
   /** The connection is being (re)established or attempting to re-connect. */
-  on(name: 'connection', cb: () => void): this;
+  on(name: "connection", cb: () => void): this;
   /** The handle is open to do a manual start to connect. */
-  on(name: 'open', cb: () => void): this;
+  on(name: "open", cb: () => void): this;
   /** The total acknowledged for this connection. */
-  on(name: 'client.acknowledged', cb: (number: number) => void): this;
+  on(name: "client.acknowledged", cb: (number: number) => void): this;
   /** The connection has an error. */
-  on(name: 'client.error', cb: (err: any) => void): this;
+  on(name: "client.error", cb: (err: any) => void): this;
   /** The total sent for this connection. */
-  on(name: 'client.sent', cb: (number: number) => void): this;
+  on(name: "client.sent", cb: (number: number) => void): this;
   /** The connection has timeout. Review "client.error" event for the reason. */
-  on(name: 'client.timeout', cb: () => void): this;
+  on(name: "client.timeout", cb: () => void): this;
 }
-/* eslint-enable */
 
 /** Connection Class
  * @remarks Create a connection customer that will listen to result send to the particular port.
  * @since 1.0.0 */
 export class Connection extends EventEmitter implements IConnection {
   /** @internal */
-  _handler: OutboundHandler
+  _handler: OutboundHandler;
   /** @internal */
-  private readonly _main: Client
+  private readonly _main: Client;
   /** @internal */
-  private readonly _opt: ReturnType<typeof normalizeClientListenerOptions>
+  private readonly _opt: ReturnType<typeof normalizeClientListenerOptions>;
   /** @internal */
-  private _retryCount: number
+  private _retryCount: number;
   /** @internal */
-  private _retryTimeoutCount: number
+  private _retryTimeoutCount: number;
   /** @internal */
-  _retryTimer: NodeJS.Timeout | undefined
+  _retryTimer: NodeJS.Timeout | undefined;
   /** @internal */
-  _connectionTimer?: NodeJS.Timeout | undefined
+  _connectionTimer?: NodeJS.Timeout | undefined;
   /** @internal */
-  private _socket: Socket | undefined
+  private _socket: Socket | undefined;
   /** @internal */
-  protected _readyState: ReadyState
+  protected _readyState: ReadyState;
   /** @internal */
-  _pendingSetup: Promise<boolean> | boolean
+  _pendingSetup: Promise<boolean> | boolean;
   /** @internal */
-  _onConnect: Deferred<void>
+  _onConnect: Deferred<void>;
   /** @internal */
-  private _awaitingResponse: boolean
+  private _awaitingResponse: boolean;
+  /** @internal */
+  private _dataResult: boolean | undefined;
+  /** @internal */
+  private _codec: MLLPCodec | null;
   /** @internal */
   readonly stats = {
     /** Total acknowledged messages back from server.
@@ -69,8 +80,8 @@ export class Connection extends EventEmitter implements IConnection {
     acknowledged: 0,
     /** Total message sent to server.
      * @since 1.1.0 */
-    sent: 0
-  }
+    sent: 0,
+  };
 
   /**
    * @since 1.0.0
@@ -83,32 +94,38 @@ export class Connection extends EventEmitter implements IConnection {
    * const OB = client.createConnection({ port: 3000 }, async (res) => {})
    * ```
    */
-  constructor (client: Client, props: ClientListenerOptions, handler: OutboundHandler) {
-    super()
+  constructor(
+    client: Client,
+    props: ClientListenerOptions,
+    handler: OutboundHandler,
+  ) {
+    super();
 
-    this._handler = handler
-    this._main = client
-    this._awaitingResponse = false
+    this._handler = handler;
+    this._main = client;
+    this._awaitingResponse = false;
 
-    this._opt = normalizeClientListenerOptions(client._opt, props)
+    this._opt = normalizeClientListenerOptions(client._opt, props);
 
-    this._connect = this._connect.bind(this)
+    this._connect = this._connect.bind(this);
 
-    this._pendingSetup = true
-    this._retryCount = 0
-    this._retryTimeoutCount = 0
-    this._retryTimer = undefined
-    this._connectionTimer = undefined
-    this._onConnect = createDeferred(true)
+    this._pendingSetup = true;
+    this._retryCount = 0;
+    this._retryTimeoutCount = 0;
+    this._retryTimer = undefined;
+    this._connectionTimer = undefined;
+    this._codec = null;
+
+    this._onConnect = createDeferred(true);
 
     if (this._opt.autoConnect) {
-      this._readyState = ReadyState.CONNECTING
-      this.emit('connecting')
-      this._socket = this._connect()
+      this._readyState = ReadyState.CONNECTING;
+      this.emit("connecting");
+      this._socket = this._connect();
     } else {
-      this._readyState = ReadyState.OPEN
-      this.emit('open')
-      this._socket = undefined
+      this._readyState = ReadyState.OPEN;
+      this.emit("open");
+      this._socket = undefined;
     }
   }
 
@@ -122,39 +139,41 @@ export class Connection extends EventEmitter implements IConnection {
    * OB.close()
    * ```
    */
-  async close (): Promise<void> {
+  async close(): Promise<void> {
     if (this._readyState === ReadyState.CLOSED) {
-      return // We are already closed. Nothing to do.
+      return; // We are already closed. Nothing to do.
     }
 
     if (this._readyState === ReadyState.CLOSING) {
-      return await new Promise(resolve => this._socket?.once('close', resolve))
+      return await new Promise((resolve) =>
+        this._socket?.once("close", resolve),
+      );
     }
 
     if (this._readyState === ReadyState.CONNECTING) {
       // clear retry timer
-      if (typeof this._retryTimer !== 'undefined') {
-        clearTimeout(this._retryTimer)
+      if (typeof this._retryTimer !== "undefined") {
+        clearTimeout(this._retryTimer);
       }
       // let's clear out the try timer forcefully
-      this._retryTimer = undefined
+      this._retryTimer = undefined;
     }
 
     // normal closing
-    this._readyState = ReadyState.CLOSING
+    this._readyState = ReadyState.CLOSING;
 
     // remove socket
-    this._socket?.destroy()
-    this._socket?.end()
+    this._socket?.destroy();
+    this._socket?.end();
 
     // Ensure no further reconnections are attempted
-    clearTimeout(this._connectionTimer)
+    clearTimeout(this._connectionTimer);
 
     // Emit close event on the socket
-    this.emit('close')
+    this.emit("close");
 
     // Set closure state
-    this._readyState = ReadyState.CLOSED
+    this._readyState = ReadyState.CLOSED;
   }
 
   /**
@@ -162,34 +181,36 @@ export class Connection extends EventEmitter implements IConnection {
    * @remarks Get the port that this connection will connect to.
    * @since 2.0.0
    */
-  getPort (): number {
-    return this._opt.port
+  getPort(): number {
+    return this._opt.port;
   }
 
   /**
    * Start the connection if not auto started.
    * @since 2.0.0
    */
-  async start (): Promise<void> {
+  async start(): Promise<void> {
     if (this._readyState === ReadyState.CONNECTING) {
-      return
+      return;
     }
 
     if (this._readyState === ReadyState.CONNECTED) {
-      return
+      return;
     }
 
     if (this._readyState === ReadyState.OPEN) {
-      return
+      return;
     }
 
     if (this._readyState === ReadyState.CLOSING) {
-      return await new Promise(resolve => this._socket?.once('close', resolve))
+      return await new Promise((resolve) =>
+        this._socket?.once("close", resolve),
+      );
     }
 
-    this.emit('connecting')
+    this.emit("connecting");
 
-    this._socket = this._connect()
+    this._socket = this._connect();
   }
 
   /** Send a HL7 Message to the Listener
@@ -214,35 +235,46 @@ export class Connection extends EventEmitter implements IConnection {
    *
    * ```
    */
-  async sendMessage (message: Message | Batch | FileBatch): Promise<void> {
-    let attempts = 0
-    const maxAttempts = this._opt.maxAttempts
-    const emitter = new EventEmitter()
+  async sendMessage(message: Message | Batch | FileBatch): Promise<void> {
+    let attempts = 0;
+    const maxAttempts = this._opt.maxAttempts;
+    const emitter = new EventEmitter();
+    const codec = new MLLPCodec(this._opt.encoding);
 
     const checkConnection = async (): Promise<boolean> => {
-      return this._readyState === ReadyState.CONNECTED
-    }
+      return this._readyState === ReadyState.CONNECTED;
+    };
 
     const checkAcknowledgement = async (): Promise<boolean> => {
-      return this._awaitingResponse
-    }
+      return this._awaitingResponse;
+    };
 
     const checkSend = async (_message: string): Promise<boolean> => {
-      while (true) { // noinspection InfiniteLoopJS
+      while (true) {
+        // noinspection InfiniteLoopJS
         try {
-          if ((this._readyState === ReadyState.CLOSED) || (this._readyState === ReadyState.CLOSING)) {
+          if (
+            this._readyState === ReadyState.CLOSED ||
+            this._readyState === ReadyState.CLOSING
+          ) {
             // noinspection ExceptionCaughtLocallyJS
-            throw new HL7FatalError('In an invalid state to be able to send message.')
+            throw new HL7FatalError(
+              "In an invalid state to be able to send message.",
+            );
           }
           if (this._readyState !== ReadyState.CONNECTED) {
             // if we are not connected,
             // check to see if we are now connected.
             if (this._pendingSetup === false) {
               this._pendingSetup = checkConnection().finally(() => {
-                this._pendingSetup = false
-              })
+                this._pendingSetup = false;
+              });
             }
-          } else if (this._readyState === ReadyState.CONNECTED && this._opt.waitAck && this._awaitingResponse) {
+          } else if (
+            this._readyState === ReadyState.CONNECTED &&
+            this._opt.waitAck &&
+            this._awaitingResponse
+          ) {
             // Ok, we ar now confirmed connected.
             // However, since we are checking
             // to make sure we wait for an ACKNOWLEDGEMENT from the server,
@@ -252,177 +284,232 @@ export class Connection extends EventEmitter implements IConnection {
             // check to see if we are now connected.
             if (this._pendingSetup === false) {
               this._pendingSetup = checkAcknowledgement().finally(() => {
-                this._pendingSetup = false
-              })
+                this._pendingSetup = false;
+              });
             }
           }
-          return await this._pendingSetup
+          return await this._pendingSetup;
         } catch (err: any) {
-          Error.captureStackTrace(err)
+          Error.captureStackTrace(err);
           if (++attempts >= maxAttempts) {
-            throw err
+            throw err;
           } else {
-            emitter.emit('retry', err)
+            emitter.emit("retry", err);
           }
         }
       }
-    }
+    };
 
     // get the message
-    const theMessage = message.toString()
+    const theMessage = message.toString();
 
     // check to see if we should be sending
-    await checkSend(theMessage)
+    await checkSend(theMessage);
 
     // ok, if our options are to wait for an acknowledgement, set the var to "true"
     if (this._opt.waitAck) {
-      this._awaitingResponse = true
+      this._awaitingResponse = true;
     }
 
-    // add MLLP settings to the message
-    const messageToSend = Buffer.from(`${PROTOCOL_MLLP_HEADER}${theMessage}${PROTOCOL_MLLP_FOOTER}`)
-
     // send the message
-    this._socket?.write(messageToSend, this._opt.encoding, () => {
-      // we sent a message
-      ++this.stats.sent
-      // emit
-      this.emit('client.sent', this.stats.sent)
-    })
+    codec.sendMessage(this._socket, theMessage, this._opt.encoding);
+    // we sent a message
+    ++this.stats.sent;
+    // emit
+    this.emit("client.sent", this.stats.sent);
   }
 
   /** @internal */
-  private _connect (): Socket {
-    let socket: Socket
-    const host = this._main._opt.host
-    const port = this._opt.port
+  private _connect(): Socket {
+    let socket: Socket;
+    const host = this._main._opt.host;
+    const port = this._opt.port;
 
-    this._retryTimer = undefined
+    this._retryTimer = undefined;
 
-    if (typeof this._main._opt.tls !== 'undefined') {
+    if (typeof this._main._opt.tls !== "undefined") {
       socket = tls.connect({
         host,
         port,
         ...this._main._opt.socket,
-        ...this._main._opt.tls
-      })
+        ...this._main._opt.tls,
+      });
     } else {
       socket = net.connect({
         host,
-        port
-      })
+        port,
+      });
     }
 
-    this._socket = socket
+    this._codec = new MLLPCodec();
+    this._socket = socket;
 
     // set no delay
-    socket.setNoDelay(true)
+    socket.setNoDelay(true);
 
-    let connectionError: Error | boolean | undefined
+    let connectionError: Error | boolean | undefined;
 
-    if (this._main._opt.connectionTimeout > 0 && (this._readyState === ReadyState.CONNECTED || this._readyState === ReadyState.CONNECTING)) {
+    if (
+      this._main._opt.connectionTimeout > 0 &&
+      (this._readyState === ReadyState.CONNECTED ||
+        this._readyState === ReadyState.CONNECTING)
+    ) {
       if (this._retryTimeoutCount < this._main._opt.maxTimeout) {
         this._connectionTimer = setTimeout(() => {
-          ++this._retryTimeoutCount
-          this.emit('client.timeout')
-          socket.destroy()
-        }, this._main._opt.connectionTimeout)
+          ++this._retryTimeoutCount;
+          this.emit("client.timeout");
+          socket.destroy();
+        }, this._main._opt.connectionTimeout);
       } else if (this._retryTimeoutCount >= this._main._opt.maxTimeout) {
-        void this.close()
+        void this.close();
       }
     }
 
-    socket.on('error', err => {
-      connectionError = (connectionError != null) ? connectionError : err
-    })
+    socket.on("error", (err) => {
+      connectionError = connectionError != null ? connectionError : err;
+    });
 
-    socket.on('close', () => {
+    socket.on("close", () => {
       if (this._readyState === ReadyState.CLOSING) {
-        this._readyState = ReadyState.CLOSED
-      } else if (!(this._readyState === ReadyState.CLOSED && this._connectionTimer != null && (this._connectionTimer as unknown as { _destroyed: boolean })._destroyed)) {
-        connectionError = (connectionError != null) ? connectionError : new HL7FatalError('Socket closed unexpectedly by server.')
+        this._readyState = ReadyState.CLOSED;
+      } else if (
+        !(
+          this._readyState === ReadyState.CLOSED &&
+          this._connectionTimer != null &&
+          (this._connectionTimer as unknown as { _destroyed: boolean })
+            ._destroyed
+        ) &&
+        this._main._opt.connectionTimeout > 0
+      ) {
+        connectionError =
+          connectionError != null
+            ? connectionError
+            : new HL7FatalError("Socket closed unexpectedly by server.");
         if (this._readyState === ReadyState.OPEN) {
-          this._onConnect = createDeferred(true)
+          this._onConnect = createDeferred(true);
         }
-        this._readyState = ReadyState.CONNECTING
-        const retryCount = this._retryCount++
-        const delay = expBackoff(this._opt.retryLow, this._opt.retryHigh, retryCount)
+        this._readyState = ReadyState.CONNECTING;
+        const retryCount = this._retryCount++;
+        const delay = expBackoff(
+          this._opt.retryLow,
+          this._opt.retryHigh,
+          retryCount,
+        );
         if (retryCount < this._opt.maxConnectionAttempts) {
-          this._retryTimer = setTimeout(this._connect, delay)
-          this.emit('client.error', connectionError)
+          this._retryTimer = setTimeout(this._connect, delay);
+          this.emit("client.error", connectionError);
         } else if (retryCount > this._opt.maxConnectionAttempts) {
           // stop this from going again
-          void this.close()
+          void this.close();
         }
       }
-    })
+    });
 
-    socket.on('connect', () => {
+    socket.on("connect", () => {
       // accepting connections
-      this._readyState = ReadyState.CONNECTED
+      this._readyState = ReadyState.CONNECTED;
       // reset retryCount count
-      this._retryCount = 1
+      this._retryCount = 1;
       // emit
-      this.emit('connect')
-    })
+      this.emit("connect");
+    });
 
-    socket.on('data', (buffer) => {
-      // we got some sort of response, bad, good, or error,
-      // so lets tell the system we got "something"
-      this._awaitingResponse = false
+    socket.on("data", (buffer) => {
+      socket.cork();
 
-      socket.cork()
-
-      const indexOfVT = buffer.toString().indexOf(PROTOCOL_MLLP_HEADER)
-      const indexOfFSCR = buffer.toString().indexOf(PROTOCOL_MLLP_FOOTER)
-
-      let loadedMessage = buffer.toString().substring(indexOfVT, indexOfFSCR + 2)
-      loadedMessage = loadedMessage.replace(PROTOCOL_MLLP_HEADER, '')
-
-      if (loadedMessage.includes(PROTOCOL_MLLP_FOOTER)) {
-        // strip them out
-        loadedMessage = loadedMessage.replace(PROTOCOL_MLLP_FOOTER, '')
-        if (typeof this._handler !== 'undefined') {
-          // response
-          const response = new InboundResponse(loadedMessage)
-          // got an ACK, failure or not
-          ++this.stats.acknowledged
-          // update ack total
-          this.emit('client.acknowledged', this.stats.acknowledged)
-          // send it back
-          void this._handler(response)
-        }
+      try {
+        this._dataResult = this._codec?.receiveData(buffer);
+      } catch (err) {
+        this.emit("data.error", err);
       }
 
-      socket.uncork()
-    })
+      socket.uncork();
+
+      if (this._dataResult === true) {
+        // we got some sort of response, bad, good, or error,
+        // so let's tell the system we got "something"
+        this._awaitingResponse = false;
+
+        try {
+          const loadedMessage = this._codec?.getLastMessage();
+
+          // copy the completed message to continue processing and clear the buffer
+          const completedMessageCopy = JSON.parse(
+            JSON.stringify(loadedMessage),
+          );
+
+          // parser either is batch or a message
+          let parser: FileBatch | Batch | Message;
+
+          // send raw information to the emit
+          this.emit("data.raw", completedMessageCopy);
+
+          if (typeof this._handler !== "undefined") {
+            if (isBatch(completedMessageCopy)) {
+              // parser the batch
+              parser = new Batch({ text: completedMessageCopy });
+              // load the messages
+              const allMessage = parser.messages();
+              // loop messages
+              allMessage.forEach((message: Message) => {
+                // parse this message
+                const messageParsed = new Message({ text: message.toString() });
+                // increase the total message
+                ++this.stats.acknowledged;
+                // response
+                const response = new InboundResponse(messageParsed.toString());
+                // update ack total
+                this.emit("client.acknowledged", this.stats.acknowledged);
+                // send it back
+                void this._handler(response);
+              });
+            } else {
+              // parse this message
+              const messageParsed = new Message({ text: completedMessageCopy });
+              // increase the total message
+              ++this.stats.acknowledged;
+              // response
+              const response = new InboundResponse(messageParsed.toString());
+              // update ack total
+              this.emit("client.acknowledged", this.stats.acknowledged);
+              // send it back
+              void this._handler(response);
+            }
+          }
+        } catch (err) {
+          this.emit("data.error", err);
+        }
+      }
+    });
 
     const readerLoop = async (): Promise<void> => {
       try {
-        await this._negotiate()
+        await this._negotiate();
       } catch (err: any) {
-        if (err.code !== 'READ_END') {
-          socket.destroy(err)
+        if (err.code !== "READ_END") {
+          socket.destroy(err);
         }
       }
-    }
+    };
 
-    void readerLoop().then(_r => { /* noop */ })
+    void readerLoop().then((_r) => {
+      /* noop */
+    });
 
-    return socket
+    return socket;
   }
 
   /** @internal */
-  private async _negotiate (): Promise<void> {
+  private async _negotiate(): Promise<void> {
     if (this._socket?.writable === true) {
       // we are open, not yet ready, but we can
-      this._readyState = ReadyState.OPEN
+      this._readyState = ReadyState.OPEN;
       // on connect resolve
-      this._onConnect.resolve()
+      this._onConnect.resolve();
       // emit
-      this.emit('connection')
+      this.emit("connection");
     }
   }
 }
 
-export default Connection
+export default Connection;

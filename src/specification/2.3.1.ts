@@ -1,6 +1,5 @@
-import { Message } from '../builder/message.js'
-import { createHL7Date, randomString } from '../utils/utils.js'
-import { HL7_SPEC_BASE } from './specification.js'
+import { Message } from "../builder/message.js";
+import { HL7_2_3, HL7_2_3_MSH } from "./2.3.js";
 
 /**
  * HL7 2.3.1 MSH Specification
@@ -25,38 +24,17 @@ import { HL7_SPEC_BASE } from './specification.js'
  * so this way your code is much neater.
  *
  */
-export interface HL7_2_3_1_MSH {
-  /** Message Code
-   * @since 1.0.0 */
-  msh_9_1: string
-  /** Trigger Event
-   * @since 1.0.0 */
-  msh_9_2: string
-  /** Message Control ID
-   * @remarks This ID is unique to the message being sent
-   * so the client can track
-   * to see if they get a response back from the server that this particular message was successful.
-   * Max 20 characters.
-   * @since 1.0.0
-   * @default Random 20 Character String {@link randomString} if this is set to nothing or not included. */
-  msh_10?: string
-  /** Processing ID
-   * @since 1.0.0 */
-  msh_11_1: 'D' | 'P' | 'T'
-  /** Processing Mode
-   * @since 1.0.0 */
-  msh_11_2?: 'A' | 'I' | 'R' | 'T' | ''
-}
+export type HL7_2_3_1_MSH = HL7_2_3_MSH;
 
 /**
  * Hl7 Specification Version 2.3.1
  * @remarks Used to indicate that the message should follow 2.7 specification for retrieval or building a message.
  * @since 1.0.0
  */
-export class HL7_2_3_1 extends HL7_SPEC_BASE {
-  constructor () {
-    super()
-    this.name = '2.3.1'
+export class HL7_2_3_1 extends HL7_2_3 {
+  constructor() {
+    super();
+    this.name = "2.3.1";
   }
 
   /**
@@ -65,25 +43,9 @@ export class HL7_2_3_1 extends HL7_SPEC_BASE {
    * @param msh
    * @return boolean
    */
-  checkMSH (msh: HL7_2_3_1_MSH): boolean {
-    if (typeof msh.msh_9_1 === 'undefined' ||
-      typeof msh.msh_9_2 === 'undefined') {
-      throw new Error('MSH.9.1 & MSH 9.2 must be defined.')
-    }
-
-    if (msh.msh_9_1.length !== 3) {
-      throw new Error('MSH.9.1 must be 3 characters in length.')
-    }
-
-    if (msh.msh_9_2.length !== 3) {
-      throw new Error('MSH.9.2 must be 3 characters in length.')
-    }
-
-    if (typeof msh.msh_10 !== 'undefined' && (msh.msh_10.length < 0 || msh.msh_10.length > 20)) {
-      throw new Error('MSH.10 must be greater than 0 and less than 20 characters.')
-    }
-
-    return true
+  checkMSH(msh: HL7_2_3_1_MSH): boolean {
+    super.checkMSH(msh);
+    return true;
   }
 
   /**
@@ -92,22 +54,7 @@ export class HL7_2_3_1 extends HL7_SPEC_BASE {
    * @param mshHeader
    * @param message
    */
-  buildMSH (mshHeader: HL7_2_3_1_MSH, message: Message): void {
-    if (typeof mshHeader !== 'undefined') {
-      message.set('MSH.7', createHL7Date(new Date(), message._opt.date))
-      message.set('MSH.9.1', mshHeader.msh_9_1.toString())
-      message.set('MSH.9.2', mshHeader.msh_9_2.toString())
-      // if control ID is blank, then randomize it.
-      if (typeof mshHeader.msh_10 === 'undefined') {
-        message.set('MSH.10', randomString())
-      } else {
-        message.set('MSH.10', mshHeader.msh_10.toString())
-      }
-      message.set('MSH.11.1', mshHeader.msh_11_1)
-      if (typeof mshHeader.msh_11_2 !== 'undefined') {
-        message.set('MSH.11.2', mshHeader.msh_11_2)
-      }
-      message.set('MSH.12', this.name)
-    }
+  buildMSH(mshHeader: HL7_2_3_1_MSH, message: Message): void {
+    super.buildMSH(mshHeader, message);
   }
 }

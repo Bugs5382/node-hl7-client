@@ -1,19 +1,19 @@
-import { HL7FatalError } from '../../utils/exception.js'
-import { isHL7String } from '../../utils/utils.js'
-import { ValueNode } from './valueNode.js'
+import { HL7FatalError } from "../../utils/exception.js";
+import { isHL7String } from "../../utils/utils.js";
+import { ValueNode } from "./valueNode.js";
 
 /** @internal */
 export class SubComponent extends ValueNode {
   /** @internal */
-  toString (): string {
-    if (typeof this.message !== 'undefined') {
-      return this.message.unescape(this.toRaw())
+  toString(): string {
+    if (typeof this.message !== "undefined") {
+      return this.message.unescape(this.toRaw());
     }
-    throw new HL7FatalError('this.message is undefined. Unable to continue.')
+    throw new HL7FatalError("this.message is undefined. Unable to continue.");
   }
 
   /** @internal */
-  isEmpty (): boolean {
-    return !isHL7String(this.toString())
+  isEmpty(): boolean {
+    return !isHL7String(this.toString());
   }
 }

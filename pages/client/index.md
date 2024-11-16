@@ -14,7 +14,7 @@ used not done in this library.
 It uses the standard TCP/MLLP which has not generally been secured since the message itself.
 From a networking perspective, most HL7 messages do not transit the public internet.
 They are internal to each other or over an IPSEC tunnel with a remote site
-creating a networking layer separation from normal day-to-day traffic. 
+creating a networking layer separation from normal day-to-day traffic.
 
 > Note: There are plans within this library to allow you to "hook" into the sending sequence and return an encrypted text string and then the other side would have to decrypt it prior to processing the HL7 message.
 
@@ -42,29 +42,29 @@ THis library supports IPv4, IPv6, or Fully Qualified Domain Names ("FQDN").
 > Note: The IP address used in this document follow [RFC5737](https://datatracker.ietf.org/doc/html/rfc5737) and [RFC3849](https://datatracker.ietf.org/doc/html/rfc3849) and are not production IPs. Please use real IPs, either internal or external.
 
 ```ts
-const client = new Client({ host: '192.0.2.1' })
+const client = new Client({ host: "192.0.2.1" });
 ```
 
-This starts a basic client to host ```192.0.2.1```, but no connection has yet to take place.
+This starts a basic client to host `192.0.2.1`, but no connection has yet to take place.
 Since HL7 message are sent to ports,
 and to establish a connection you have to start an outbound connection ("OB") and for this example, port `5678`
 
 ```ts
 const OB_ADT = client.createConnection({ port: 5678 }, async (res) => {
-  const messageRes = res.getMessage()
-  const check = messageRes.get('MSA.1').toString() // MSA is a Message Acknoedlgement Segment
+  const messageRes = res.getMessage();
+  const check = messageRes.get("MSA.1").toString(); // MSA is a Message Acknoedlgement Segment
   if (check === "AA") {
     // yep. the server got our message.
   } else {
     // something might have gone wrong.
   }
-})
+});
 ```
 
 Now you can send a message to this port by:
 
 ```ts
-await OB_ADT.sendMessage(message) //  message being a Message object and not the string of the message.
+await OB_ADT.sendMessage(message); //  message being a Message object and not the string of the message.
 ```
 
 Outbound connections are designed to "stay" connected until they need to be closed,
@@ -77,7 +77,7 @@ Your app would have to restart the connection process if it completely died.
 To close your connection without it trying to reconnect:
 
 ```ts
-await OB_ADT.close()
+await OB_ADT.close();
 ```
 
 Will close the connection permanently.
@@ -90,4 +90,3 @@ Since this is an outbound connection,
 the server/broker should be able to return to the instance that sent the message in the first place.
 If that instance dies after sending the message and not getting a response,
 the response from the server might be lost forever.
-

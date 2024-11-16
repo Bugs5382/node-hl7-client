@@ -1,4 +1,4 @@
-import { Message } from '../../builder/message.js'
+import { Message } from "../../builder/message.js";
 
 /**
  * Inbound Request
@@ -6,7 +6,7 @@ import { Message } from '../../builder/message.js'
  */
 export class InboundResponse {
   /** @internal */
-  private readonly _message: Message
+  private readonly _message: Message;
 
   /**
    * Process the Inbound Response from the Server
@@ -15,8 +15,8 @@ export class InboundResponse {
    * @since 1.0.0
    * @param data
    */
-  constructor (data: string) {
-    this._message = new Message({ text: data.toString().trimEnd() })
+  constructor(data: string) {
+    this._message = new Message({ text: data.toString().trimEnd() });
   }
 
   /** '
@@ -24,7 +24,7 @@ export class InboundResponse {
    * @since 1.0.0
    * @return Message
    */
-  getMessage (): Message {
-    return this._message
+  getMessage(): Message {
+    return this._message;
   }
 }

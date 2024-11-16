@@ -1,8 +1,11 @@
 /** @internal */
-export const PROTOCOL_MLLP_HEADER = String.fromCharCode(0x0b)
+export const PROTOCOL_MLLP_HEADER = Buffer.from([0x0b]);
 
 /** @internal */
-export const PROTOCOL_MLLP_FOOTER = `${String.fromCharCode(0x1c)}${String.fromCharCode(0x0d)}`
+export const PROTOCOL_MLLP_END = Buffer.from([0x1c]);
 
 /** @internal */
-export const NAME_FORMAT = /[ `!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~]/ //eslint-disable-line
+export const PROTOCOL_MLLP_FOOTER = Buffer.from([0x0d]);
+
+/** @internal */
+export const NAME_FORMAT = /[ `!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~]/; //eslint-disable-line

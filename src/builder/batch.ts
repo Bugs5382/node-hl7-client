@@ -1,12 +1,15 @@
-import { HL7FatalError, HL7ParserError } from '../utils/exception.js'
-import { ClientBuilderOptions, normalizedClientBatchBuilderOptions } from '../utils/normalizedBuilder.js'
-import { createHL7Date, split } from '../utils/utils.js'
-import { FileBatch } from './fileBatch.js'
-import { HL7Node } from './interface/hL7Node.js'
-import { Message } from './message.js'
-import { RootBase } from './modules/rootBase.js'
-import { Segment } from './modules/segment.js'
-import { SegmentList } from './modules/segmentList.js'
+import { HL7FatalError, HL7ParserError } from "../utils/exception.js";
+import {
+  ClientBuilderOptions,
+  normalizedClientBatchBuilderOptions,
+} from "../utils/normalizedBuilder.js";
+import { createHL7Date, split } from "../utils/utils.js";
+import { FileBatch } from "./fileBatch.js";
+import { HL7Node } from "./interface/hL7Node.js";
+import { Message } from "./message.js";
+import { RootBase } from "./modules/rootBase.js";
+import { Segment } from "./modules/segment.js";
+import { SegmentList } from "./modules/segmentList.js";
 
 /**
  * Batch Class
@@ -17,27 +20,31 @@ import { SegmentList } from './modules/segmentList.js'
  */
 export class Batch extends RootBase {
   /** @internal **/
-  _opt: ReturnType<typeof normalizedClientBatchBuilderOptions>
+  _opt: ReturnType<typeof normalizedClientBatchBuilderOptions>;
   /** @internal */
-  protected _lines: string[]
+  protected _lines: string[];
   /** @internal */
-  _messagesCount: number
+  _messagesCount: number;
 
   /**
    * @since 1.0.0
    * @param props Passing the options to build the batch.
    */
-  constructor (props?: ClientBuilderOptions) {
-    const opt = normalizedClientBatchBuilderOptions(props)
-    super(opt)
-    this._lines = []
-    this._opt = opt
-    this._messagesCount = 0
+  constructor(props?: ClientBuilderOptions) {
+    const opt = normalizedClientBatchBuilderOptions(props);
+    super(opt);
+    this._lines = [];
+    this._opt = opt;
+    this._messagesCount = 0;
 
-    if (typeof opt.text !== 'undefined' && opt.parsing === true && opt.text !== '') {
-      this._lines = split(opt.text).filter(line => line.startsWith('MSH'))
+    if (
+      typeof opt.text !== "undefined" &&
+      opt.parsing === true &&
+      opt.text !== ""
+    ) {
+      this._lines = split(opt.text).filter((line) => line.startsWith("MSH"));
     } else {
-      this.set('BHS.7', createHL7Date(new Date(), this._opt.date))
+      this.set("BHS.7", createHL7Date(new Date(), this._opt.date));
     }
   }
 
@@ -50,13 +57,13 @@ export class Batch extends RootBase {
    * @param message The {@link Message} to add into the batch.
    * @param index Used Internally mostly to add an MSH segment within a BHS segment at a certain index.
    */
-  add (message: Message, index?: number | undefined): void {
-    this.setDirty()
-    this._messagesCount = this._messagesCount + 1
-    if (typeof index !== 'undefined') {
-      this.children.splice(index, 0, message)
+  add(message: Message, index?: number | undefined): void {
+    this.setDirty();
+    this._messagesCount = this._messagesCount + 1;
+    if (typeof index !== "undefined") {
+      this.children.splice(index, 0, message);
     } else {
-      this.children.push(message)
+      this.children.push(message);
     }
   }
 
@@ -70,9 +77,9 @@ export class Batch extends RootBase {
    * {@link FileBatch} for more information.
    * @since 1.0.0
    */
-  end (): void {
-    const segment = this._addSegment('BTS')
-    segment.set('1', this._messagesCount)
+  end(): void {
+    const segment = this._addSegment("BTS");
+    segment.set("1", this._messagesCount);
   }
 
   /**
@@ -88,8 +95,8 @@ export class Batch extends RootBase {
    * const date = batch.get(7)
    * ```
    */
-  get (path: string | number): HL7Node {
-    return super.get(path)
+  get(path: string | number): HL7Node {
+    return super.get(path);
   }
 
   /**
@@ -103,8 +110,8 @@ export class Batch extends RootBase {
    * @param name The name of the segment.
    * At max usually three characters long.
    */
-  getFirstSegment (name: string): Segment {
-    return this._getFirstSegment(name)
+  getFirstSegment(name: string): Segment {
+    return this._getFirstSegment(name);
   }
 
   /**
@@ -129,16 +136,19 @@ export class Batch extends RootBase {
    * ```
    * @returns Returns an array of messages or a HL7ParserError will throw.
    */
-  messages (): Message[] {
-    if (typeof this._lines !== 'undefined' && typeof this._opt.newLine !== 'undefined') {
-      const message: Message[] = []
-      const re = new RegExp(`${this._opt.newLine}$`, 'g')
+  messages(): Message[] {
+    if (
+      typeof this._lines !== "undefined" &&
+      typeof this._opt.newLine !== "undefined"
+    ) {
+      const message: Message[] = [];
+      const re = new RegExp(`${this._opt.newLine}$`, "g");
       for (let i = 0; i < this._lines.length; i++) {
-        message.push(new Message({ text: this._lines[i].replace(re, '') }))
+        message.push(new Message({ text: this._lines[i].replace(re, "") }));
       }
-      return message
+      return message;
     }
-    throw new HL7FatalError('No messages inside batch.')
+    throw new HL7FatalError("No messages inside batch.");
   }
 
   /**
@@ -159,8 +169,8 @@ export class Batch extends RootBase {
    * batch.set('BHS.3').set(0).set('BHS.3.1', 'abc');
    * ```
    */
-  set (path: string | number, value?: any): HL7Node {
-    return super.set(path, value)
+  set(path: string | number, value?: any): HL7Node {
+    return super.set(path, value);
   }
 
   /**
@@ -172,8 +182,8 @@ export class Batch extends RootBase {
    * @param style Your options produce: YYYYMMDDHHMMSS = 14 | YYYYMMDDHHMM = 12 | YYYYMMDD = 8
    * @defaultValue YYYYMMDDHHMMSS (14)
    */
-  start (style?: '8' | '12' | '14'): void {
-    this.set('BHS.7', createHL7Date(new Date(), style))
+  start(style?: "8" | "12" | "14"): void {
+    this.set("BHS.7", createHL7Date(new Date(), style));
   }
 
   /**
@@ -193,85 +203,99 @@ export class Batch extends RootBase {
    * ```
    * You can set an `extension` parameter on Batch to set a custom extension if you don't want to be HL7.
    */
-  toFile (name: string, newLine?: boolean, location?: string, extension: string = 'hl7'): string {
-    const fileBatch = new FileBatch({ location, newLine: newLine === true ? '\n' : '', extension })
-    fileBatch.start()
+  toFile(
+    name: string,
+    newLine?: boolean,
+    location?: string,
+    extension: string = "hl7",
+  ): string {
+    const fileBatch = new FileBatch({
+      location,
+      newLine: newLine === true ? "\n" : "",
+      extension,
+    });
+    fileBatch.start();
 
-    fileBatch.set('FHS.3', this.get('BHS.3').toString())
-    fileBatch.set('FHS.4', this.get('BHS.4').toString())
-    fileBatch.set('FHS.5', this.get('BHS.5').toString())
-    fileBatch.set('FHS.6', this.get('BHS.6').toString())
-    fileBatch.set('FHS.7', this.get('BHS.7').toString())
-    fileBatch.set('FHS.9', `hl7.${name}.${this.get('BHS.7').toString()}.${fileBatch._opt.extension as string}`)
+    fileBatch.set("FHS.3", this.get("BHS.3").toString());
+    fileBatch.set("FHS.4", this.get("BHS.4").toString());
+    fileBatch.set("FHS.5", this.get("BHS.5").toString());
+    fileBatch.set("FHS.6", this.get("BHS.6").toString());
+    fileBatch.set("FHS.7", this.get("BHS.7").toString());
+    fileBatch.set(
+      "FHS.9",
+      `hl7.${name}.${this.get("BHS.7").toString()}.${fileBatch._opt.extension as string}`,
+    );
 
-    fileBatch.add(this)
+    fileBatch.add(this);
 
-    fileBatch.end()
+    fileBatch.end();
 
-    fileBatch.createFile(name)
+    fileBatch.createFile(name);
 
-    return fileBatch.fileName()
+    return fileBatch.fileName();
   }
 
   /** @internal */
-  protected createChild (text: string, _index: number): HL7Node {
-    return new Segment(this, text.trim())
+  protected createChild(text: string, _index: number): HL7Node {
+    return new Segment(this, text.trim());
   }
 
   /** @internal */
-  read (path: string[]): HL7Node {
-    const segmentName = path.shift() as string
+  read(path: string[]): HL7Node {
+    const segmentName = path.shift() as string;
     if (path.length === 0) {
-      const segments = this.children.filter(x => (x as Segment).name === segmentName) as Segment[]
+      const segments = this.children.filter(
+        (x) => (x as Segment).name === segmentName,
+      ) as Segment[];
       if (segments.length > 0) {
-        return new SegmentList(this, segments) as HL7Node
+        return new SegmentList(this, segments) as HL7Node;
       }
     } else {
-      if (typeof segmentName === 'undefined') {
-        throw new HL7FatalError('Segment name is not defined.')
+      if (typeof segmentName === "undefined") {
+        throw new HL7FatalError("Segment name is not defined.");
       }
-      const segment = this._getFirstSegment(segmentName)
-      if (typeof segment !== 'undefined') {
-        return segment.read(path)
+      const segment = this._getFirstSegment(segmentName);
+      if (typeof segment !== "undefined") {
+        return segment.read(path);
       }
     }
-    throw new HL7FatalError('Unable to process the read function correctly.')
+    throw new HL7FatalError("Unable to process the read function correctly.");
   }
 
   /** @internal */
-  protected writeCore (path: string[], value: string): HL7Node {
-    const segmentName = path.shift() as string
-    if (typeof segmentName === 'undefined') {
-      throw new HL7ParserError('Segment name is not defined.')
+  protected writeCore(path: string[], value: string): HL7Node {
+    const segmentName = path.shift() as string;
+    if (typeof segmentName === "undefined") {
+      throw new HL7ParserError("Segment name is not defined.");
     }
-    return this.writeAtIndex(path, value, 0, segmentName)
+    return this.writeAtIndex(path, value, 0, segmentName);
   }
 
   /** @internal **/
-  private _addSegment (path: string): Segment {
-    if (typeof path === 'undefined') {
-      throw new HL7ParserError('Missing segment path.')
+  private _addSegment(path: string): Segment {
+    if (typeof path === "undefined") {
+      throw new HL7ParserError("Missing segment path.");
     }
 
-    const preparedPath = this.preparePath(path)
+    const preparedPath = this.preparePath(path);
     if (preparedPath.length !== 1) {
-      throw new HL7ParserError(`Invalid segment ${path}.`)
+      throw new HL7ParserError(`Invalid segment ${path}.`);
     }
 
-    return this.addChild(preparedPath[0]) as Segment
+    return this.addChild(preparedPath[0]) as Segment;
   }
 
   /** @internal */
-  private _getFirstSegment (name: string): Segment {
-    const children = this.children
+  private _getFirstSegment(name: string): Segment {
+    const children = this.children;
     for (let i = 0, l = children.length; i < l; i++) {
-      const segment = children[i] as Segment
+      const segment = children[i] as Segment;
       if (segment.name === name) {
-        return segment
+        return segment;
       }
     }
-    throw new HL7FatalError('Unable to process _getFirstSegment.')
+    throw new HL7FatalError("Unable to process _getFirstSegment.");
   }
 }
 
-export default Batch
+export default Batch;

@@ -1,6 +1,6 @@
 {
   "name": "node-hl7-client",
-  "version": "2.3.1",
+  "version": "3.0.0-beta.1",
   "description": "A pure Node.js HL7 Client that allows for communication to a HL7 Broker/Server that can send properly formatted HL7 messages with ease.It can also parse and then you can extract message segments out.",
   "module": "./lib/esm/index.js",
   "main": "./lib/cjs/index.js",
@@ -27,10 +27,12 @@
     }
   },
   "files": [
-    "lib/"
+    "lib/",
+    "README.md",
+    "LICENSE"
   ],
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=20.15.0"
   },
   "scripts": {
     "clean": "rm -rf coverage docs lib temp",
@@ -38,8 +40,9 @@
     "build:watch": "tsc -p src/tsconfig.esm.json -w",
     "build:watch:cjs": "tsc -p src/tsconfig.cjs.json -w",
     "npm:lint": "npmPkgJsonLint .",
-    "lint": "npm run npm:lint && ts-standard -p src/tsconfig.esm.json | snazzy",
-    "lint:fix": "npm run npm:lint . && ts-standard -p src/tsconfig.esm.json --fix | snazzy",
+    "format": "prettier --write 'pages/**/*.md' 'src/**/*.ts' '__tests__/**/*.ts'",
+    "lint": "npm run npm:lint && eslint | snazzy",
+    "lint:fix": "npm run npm:lint && eslint --fix | snazzy",
     "pack": "npm pack",
     "prepublishOnly": "npm run clean && npm run build && npm run pack",
     "test": "vitest run",
@@ -48,8 +51,6 @@
     "test:coverage": "vitest --coverage",
     "typedoc": "typedoc",
     "typedoc:watch": "typedoc -watch",
-    "semantic-release": "semantic-release",
-    "semantic-release:dry-run": "semantic-release --dry-run",
     "update": "npx npm-check-updates -u --enginesNode && npm run update:post-update",
     "update:post-update": "npm install && npm run test"
   },
@@ -72,28 +73,31 @@
   },
   "homepage": "https://github.com/Bugs5382/node-hl7-client#readme",
   "devDependencies": {
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
-    "@the-rabbit-hole/semantic-release-config": "^1.5.0",
-    "@types/node": "^20.14.9",
+    "@eslint/js": "^9.15.0",
+    "@types/eslint__js": "^8.42.3",
+    "@types/node": "^22.9.0",
     "@types/tcp-port-used": "^1.0.4",
-    "@typescript-eslint/parser": "^7.14.1",
-    "@vitest/coverage-v8": "^1.6.0",
-    "@vitest/ui": "^1.6.0",
-    "node-hl7-server": "^2.4.1",
-    "npm-check-updates": "^16.14.20",
+    "@typescript-eslint/eslint-plugin": "^8.14.0",
+    "@typescript-eslint/parser": "^8.14.0",
+    "@vitest/coverage-v8": "^2.1.5",
+    "@vitest/ui": "^2.1.5",
+    "eslint": "^9.14.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.12.0",
+    "node-hl7-server": "^3.0.1-beta.1",
+    "npm-check-updates": "^17.1.11",
     "npm-package-json-lint": "^8.0.0",
     "portfinder": "^1.0.32",
     "pre-commit": "^1.2.2",
-    "semantic-release": "^24.0.0",
     "snazzy": "^9.0.0",
     "tcp-port-used": "^1.0.2",
     "ts-node": "^10.9.2",
-    "ts-standard": "^12.0.2",
-    "tsd": "^0.31.1",
-    "typedoc": "^0.26.3",
-    "typescript": "5.5.2",
-    "vitest": "^1.6.0"
+    "tsd": "^0.31.2",
+    "typedoc": "^0.26.11",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.14.0",
+    "vitest": "^2.1.5"
   },
   "precommit": [
     "lint:fix",
