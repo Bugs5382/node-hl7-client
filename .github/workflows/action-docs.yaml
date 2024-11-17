@@ -12,10 +12,13 @@ jobs:
   History:
     runs-on: ubuntu-latest
     steps:
+      - name: Fetch all branches
+        run: git fetch --all
+
       - name: Check if branch exists
         id: branch_check
         run: |
-          if git rev-parse --verify gh-pages >/dev/null 2>&1; then
+          if git rev-parse --verify origin/gh-pages >/dev/null 2>&1; then
             echo "Branch exists"
             echo "exists=true" >> $GITHUB_ENV
           else
@@ -84,10 +87,13 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
+      - name: Fetch all branches
+        run: git fetch --all
+
       - name: Check if branch exists
         id: branch_check
         run: |
-          if git rev-parse --verify gh-pages >/dev/null 2>&1; then
+          if git rev-parse --verify origin/gh-pages >/dev/null 2>&1; then
             echo "Branch exists"
             echo "exists=true" >> $GITHUB_ENV
           else
