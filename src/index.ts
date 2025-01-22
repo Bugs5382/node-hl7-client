@@ -36,7 +36,7 @@ export type {
   ClientBuilderMessageOptions,
   ClientBuilderOptions,
 } from "./utils/normalizedBuilder.js";
-export type {
+export {
   HL7Error,
   HL7FatalError,
   HL7ParserError,
