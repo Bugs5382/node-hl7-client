@@ -1,8 +1,6 @@
 {
   "extends": "npm-package-json-lint-config-default",
   "rules": {
-    "valid-values-author": ["error", [
-      "Shane Froebel"
-    ]]
+    "valid-values-author": ["error", ["Shane Froebel"]]
   }
 }

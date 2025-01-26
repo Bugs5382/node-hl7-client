@@ -65,7 +65,7 @@ You can view it [here](https://bugs5382.github.io/node-hl7-client/).
 
 - [node-rabbitmq-client](https://github.com/cody-greene/node-rabbitmq-client): Code Design/Auto Re-Connect/Resend, Inspiration
 - [artifacthealth/hl7parser](https://github.com/artifacthealth/hl7parser): Used as a template for HL7 builder/parser
-- My Wife and Baby Girl.
+- My Wife, Baby Girl, and Baby Boy
 
 ## License
 
