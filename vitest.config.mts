@@ -5,6 +5,8 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       exclude: [
+        '*.mjs',
+        '*.mts',
         '__tests__/__utils__/**',
         'docker',
         'bin',
