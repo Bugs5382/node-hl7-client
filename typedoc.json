@@ -5,6 +5,7 @@
   "excludeInternal": true,
   "includeVersion": true,
   "githubPages": false,
+  "plugin": ["@shipgirl/typedoc-plugin-versions"],
   "out": "./docs",
   "name": "Node HL7 Client",
   "navigationLinks": {
