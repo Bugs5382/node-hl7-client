@@ -265,7 +265,8 @@ describe("node hl7 client - sanity tests", () => {
       "BHS:-+?*:::::20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1";
     const hl7_line_breaks: string =
       "MSH|^~\\&|device||Host||20240101000000+0000||OUL^R22^OUL_R22|2|P|2.5.1|||NE|AL||UNICODE UTF-8|||LAB-01^IHE\r";
-    const hl7_field_seperation: string = "MSH|^~\\&|HUBWS|46355||DAL|202412091132||ORM^O01|MZ54932|P|2.3|PID|1|999-99-9999|CHART^^^CID~MEDICAL^^^MRN||PTLASTNAME^PTFIRSTNAME^||19750825|F|||4690 MAIN STREET^^MASON^OH^45040||^^^^^513^5550124||||||999654321||"
+    const hl7_field_seperation: string =
+      "MSH|^~\\&|HUBWS|46355||DAL|202412091132||ORM^O01|MZ54932|P|2.3\rPID|1|999-99-9999|CHART^^^CID~MEDICAL^^^MRN||PTLASTNAME^PTFIRSTNAME^||19750825|F|||4690 MAIN STREET^^MASON^OH^45040||^^^^^513^5550124||||||999654321||";
 
     test("...clean up line breaks", async () => {
       const message = new Message({ text: hl7_line_breaks });
@@ -362,7 +363,13 @@ describe("node hl7 client - sanity tests", () => {
 
     test("...field separation", () => {
       const message = new Message({ text: hl7_field_seperation });
-      console.log(message.toString());
-    })
+      expect(message.get("PID.1").toString()).toBe("1");
+      expect(message.get("PID.2").toString()).toBe("999-99-9999");
+      expect(message.get("PID.3").get(0).get(0).toString()).toBe("CHART");
+      expect(message.get("PID.3").get(0).get(3).toString()).toBe("CID");
+      expect(message.get("PID.3").get(1).get(0).toString()).toBe("MEDICAL");
+      expect(message.get("PID.3").get(1).get(3).toString()).toBe("MRN");
+      expect(message.get("PID.5.1").toString()).toBe("PTLASTNAME");
+    });
   });
 });
