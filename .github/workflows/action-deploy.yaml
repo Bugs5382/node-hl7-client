@@ -63,6 +63,7 @@ jobs:
       - name: Publish to npm
         uses: JS-DevTools/npm-publish@v3
         with:
+          provenance: true
           token: ${{ secrets.NPM_TOKEN }}
           tag: ${{ steps.set-npm-tag.outputs.NPM_TAG }}
 

@@ -15,7 +15,7 @@ export class FieldRepetition extends ValueNode {
   /** @internal */
   read(path: string[]): HL7Node {
     const component = this.children[parseInt(path.shift() as string) - 1];
-    return path.length > 0 ? component.read(path) : component;
+    return component && path.length > 0 ? component.read(path) : component;
   }
 
   /** @internal */

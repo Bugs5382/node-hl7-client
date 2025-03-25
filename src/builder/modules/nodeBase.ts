@@ -294,7 +294,7 @@ export class NodeBase extends EventEmitter implements HL7Node {
     }
 
     if (typeof this._delimiter === "undefined") {
-      throw new HL7FatalError("this.message is not defined.");
+      throw new HL7FatalError("The proposed element does not have a delimiter defined.");
     }
 
     this._delimiterText = this.message.delimiters[this._delimiter];

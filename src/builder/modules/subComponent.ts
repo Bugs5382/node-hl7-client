@@ -1,9 +1,15 @@
 import { HL7FatalError } from "../../utils/exception.js";
 import { isHL7String } from "../../utils/utils.js";
 import { ValueNode } from "./valueNode.js";
+import { NodeBase } from "./nodeBase.js";
 
 /** @internal */
 export class SubComponent extends ValueNode {
+  /** @internal */
+  constructor(parent: NodeBase, key: string, text: string) {
+    super(parent, key, text);
+  }
+
   /** @internal */
   toString(): string {
     if (typeof this.message !== "undefined") {
