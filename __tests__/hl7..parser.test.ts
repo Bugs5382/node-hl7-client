@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { Message } from "../src";
 
 describe("hl7 parser tests", () => {
-  describe('field separations', () => {
+  describe("field separations", () => {
     test("...field separation ... part 1", () => {
       const hl7_field_seperation: string =
         "MSH|^~\\&|HUBWS|46355||DAL|202412091132||ORM^O01|MZ54932|P|2.3\rPID|1|999-99-9999|CHART^^^CID~MEDICAL^^^MRN||PTLASTNAME^PTFIRSTNAME^||19750825|F|||4690 MAIN STREET^^MASON^OH^45040||^^^^^513^5550124||||||999654321||";
@@ -33,5 +33,5 @@ describe("hl7 parser tests", () => {
       const message = new Message({ text: hl7_field_seperation_3 });
       expect(message.get("PID.3").get(1).get(0).toString()).toBe("7777");
     });
-  })
+  });
 });
