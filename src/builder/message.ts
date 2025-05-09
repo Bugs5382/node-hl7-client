@@ -231,6 +231,14 @@ export class Message extends RootBase {
     return fileBatch.fileName();
   }
 
+  displayStructure() {
+    if (typeof this._children !== "undefined") {
+    }
+    this._children.forEach((child) => {
+      console.log(child);
+    });
+  }
+
   /**
    * Write Core of the Message
    * @since 1.0.0

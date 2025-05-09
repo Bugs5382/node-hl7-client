@@ -34,4 +34,17 @@ describe("hl7 parser tests", () => {
       expect(message.get("PID.3").get(1).get(0).toString()).toBe("7777");
     });
   });
+
+  describe("display all fields", () => {
+    const message = new Message({
+      // @ts-expect-error not filling this out for unit testing
+      messageHeader: {
+        msh_9_1: "ADT",
+        msh_9_2: "A01",
+        msh_10: "123456",
+      },
+    });
+
+    console.log(message.displayStructure());
+  });
 });
