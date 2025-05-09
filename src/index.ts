@@ -36,11 +36,7 @@ export type {
   ClientBuilderMessageOptions,
   ClientBuilderOptions,
 } from "./utils/normalizedBuilder.js";
-export type {
-  HL7Error,
-  HL7FatalError,
-  HL7ParserError,
-} from "./utils/exception.js";
+export { HL7Error, HL7FatalError, HL7ParserError } from "./utils/exception.js";
 
 export default Client;
 export {

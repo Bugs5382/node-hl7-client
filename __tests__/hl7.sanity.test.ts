@@ -1,5 +1,12 @@
 import { describe, expect, test } from "vitest";
-import { Batch, FileBatch, isBatch, isFile, Message } from "../src";
+import {
+  Batch,
+  FileBatch,
+  HL7FatalError,
+  isBatch,
+  isFile,
+  Message,
+} from "../src";
 import { HL7_2_4 } from "../src/specification/2.4";
 import { MSH_HEADER } from "./__data__/constants";
 
@@ -11,7 +18,9 @@ describe("node hl7 client - sanity tests", () => {
         const message = new Message();
       } catch (err) {
         expect(err).toEqual(
-          new Error("mshHeader must be set if no HL7 message is being passed."),
+          new HL7FatalError(
+            "mshHeader must be set if no HL7 message is being passed.",
+          ),
         );
       }
     });
@@ -21,7 +30,9 @@ describe("node hl7 client - sanity tests", () => {
         new Message({ text: "" });
       } catch (err) {
         expect(err).toEqual(
-          new Error("mshHeader must be set if no HL7 message is being passed."),
+          new HL7FatalError(
+            "mshHeader must be set if no HL7 message is being passed.",
+          ),
         );
       }
     });
@@ -190,7 +201,9 @@ describe("node hl7 client - sanity tests", () => {
         });
       } catch (err) {
         expect(err).toEqual(
-          new Error("Unable to process a single MSH as a batch. Use Message."),
+          new HL7FatalError(
+            "Unable to process a single MSH as a batch. Use Message.",
+          ),
         );
       }
     });
@@ -325,7 +338,7 @@ describe("node hl7 client - sanity tests", () => {
         const message = new Message({ text: hl7_batch_msh_string });
       } catch (err) {
         expect(err).toEqual(
-          new Error("Multiple MSH segments found. Use Batch."),
+          new HL7FatalError("Multiple MSH segments found. Use Batch."),
         );
       }
     });

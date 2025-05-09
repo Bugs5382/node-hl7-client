@@ -81,6 +81,50 @@ describe("node hl7 end to end - client", () => {
       expect(client._connections.length).toEqual(0);
     });
 
+    test.skip("queues messages before manual connect (autoConnect: false)", async () => {
+      const dfd = createDeferred<void>();
+
+      const server = new Server({ bindAddress: "0.0.0.0" });
+      const listener = server.createInbound({ port }, async (_req, res) => {
+        await res.sendResponse("AA");
+      });
+
+      await expectEvent(listener, "listen");
+
+      const client = new Client({ host: "0.0.0.0" });
+
+      // Create connection without auto-connecting
+      const outbound = client.createConnection(
+        { port, autoConnect: false },
+        async () => {
+          dfd.resolve();
+        },
+      );
+
+      const message = new Message({
+        messageHeader: {
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "D",
+        },
+      });
+
+      await outbound.sendMessage(message); // Should queue
+
+      outbound.connect();
+
+      await expectEvent(outbound, "connect");
+      await dfd.promise;
+
+      expect(client.totalSent()).toEqual(1);
+      expect(client.totalAck()).toEqual(1);
+
+      await outbound.close();
+      await listener.close();
+      client.closeAll();
+    });
+
     test.skip("...send simple message twice, no ACK needed", async () => {
       await tcpPortUsed.check(3000, "0.0.0.0");
 

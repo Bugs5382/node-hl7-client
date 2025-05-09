@@ -40,7 +40,8 @@
     "build:watch": "tsc -p src/tsconfig.esm.json -w",
     "build:watch:cjs": "tsc -p src/tsconfig.cjs.json -w",
     "npm:lint": "npmPkgJsonLint .",
-    "format": "prettier --write 'pages/**/*.md' 'src/**/*.ts' '__tests__/**/*.ts'",
+    "format:check": "prettier --check 'pages/**/*.md' 'src/**/*.ts' '__tests__/**/*.ts'",
+    "format:write": "prettier --write 'pages/**/*.md' 'src/**/*.ts' '__tests__/**/*.ts'",
     "lint": "npm run npm:lint && eslint | snazzy",
     "lint:fix": "npm run npm:lint && eslint --fix | snazzy",
     "pack": "npm pack",
@@ -100,6 +101,7 @@
     "vitest": "^2.1.5"
   },
   "precommit": [
+    "format:write",
     "lint:fix",
     "build"
   ]
