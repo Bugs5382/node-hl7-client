@@ -27,6 +27,9 @@ export class Client extends EventEmitter {
     /** Overall Ack *
      * @since 2.0.0 */
     _totalAck: 0,
+    /** Overall Pending
+     * @since 3.1.0 */
+    _totalPending: 0,
   };
 
   /**
@@ -85,6 +88,10 @@ export class Client extends EventEmitter {
       this.stats._totalSent = total;
     });
 
+    outbound.on("client.pending", (total: number) => {
+      this.stats._totalPending = total;
+    });
+
     // add this connection
     this._connections.push(outbound);
 
@@ -107,6 +114,15 @@ export class Client extends EventEmitter {
    */
   totalAck(): number {
     return this.stats._totalAck;
+  }
+
+  /**
+   * Total pending messages that need to be sent out
+   * on reconnection to the server.
+   * @since 3.1.0
+   */
+  totalPending(): number {
+    return this.stats._totalPending;
   }
 
   /**

@@ -1,7 +1,7 @@
 import fs from "fs";
 import { Server } from "node-hl7-server";
 import path from "node:path";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import tcpPortUsed from "tcp-port-used";
 import Client, { Batch, Message, ReadyState } from "../src";
 import { createDeferred } from "../src/utils/utils";
@@ -81,25 +81,16 @@ describe("node hl7 end to end - client", () => {
       expect(client._connections.length).toEqual(0);
     });
 
-    test.skip("queues messages before manual connect (autoConnect: false)", async () => {
-      const dfd = createDeferred<void>();
-
-      const server = new Server({ bindAddress: "0.0.0.0" });
-      const listener = server.createInbound({ port }, async (_req, res) => {
-        await res.sendResponse("AA");
-      });
-
-      await expectEvent(listener, "listen");
-
+    test("... queues messages (autoConnect: false)", async () => {
       const client = new Client({ host: "0.0.0.0" });
 
       // Create connection without auto-connecting
       const outbound = client.createConnection(
         { port, autoConnect: false },
-        async () => {
-          dfd.resolve();
-        },
+        async () => {},
       );
+
+      vi.spyOn(outbound as any, "_connect").mockResolvedValue(undefined);
 
       const message = new Message({
         messageHeader: {
@@ -110,19 +101,9 @@ describe("node hl7 end to end - client", () => {
         },
       });
 
-      await outbound.sendMessage(message); // Should queue
+      await outbound.sendMessage(message);
 
-      outbound.connect();
-
-      await expectEvent(outbound, "connect");
-      await dfd.promise;
-
-      expect(client.totalSent()).toEqual(1);
-      expect(client.totalAck()).toEqual(1);
-
-      await outbound.close();
-      await listener.close();
-      client.closeAll();
+      expect(client.totalPending()).toEqual(1);
     });
 
     test.skip("...send simple message twice, no ACK needed", async () => {

@@ -64,7 +64,7 @@ export class Connection extends EventEmitter implements IConnection {
   /** @internal */
   protected _readyState: ReadyState;
   /** @internal */
-  _pendingSetup: Promise<boolean> | boolean;
+  private _pendingSetup: boolean;
   /** @internal */
   _onConnect: Deferred<void>;
   /** @internal */
@@ -80,6 +80,9 @@ export class Connection extends EventEmitter implements IConnection {
     /** Total acknowledged messages back from server.
      * @since 1.1.0 */
     acknowledged: 0,
+    /** Pending Messages
+     * @since 3.1.0 */
+    pending: 0,
     /** Total message sent to server.
      * @since 1.1.0 */
     sent: 0,
@@ -111,12 +114,13 @@ export class Connection extends EventEmitter implements IConnection {
 
     this._connect = this._connect.bind(this);
 
-    this._pendingSetup = true;
+    this._pendingSetup = false;
     this._retryCount = 0;
     this._retryTimeoutCount = 0;
     this._retryTimer = undefined;
     this._connectionTimer = undefined;
     this._codec = null;
+    this._pendingMessages = [];
 
     this._onConnect = createDeferred(true);
 
@@ -128,19 +132,6 @@ export class Connection extends EventEmitter implements IConnection {
       this._readyState = ReadyState.OPEN;
       this.emit("open");
       this._socket = undefined;
-    }
-  }
-
-  /**
-   * Connects to the server.
-   * @since
-   */
-  connect(): void {
-    if (
-      this._readyState === ReadyState.CLOSED ||
-      this._readyState === ReadyState.CONNECTING
-    ) {
-      this._connect();
     }
   }
 
@@ -204,7 +195,7 @@ export class Connection extends EventEmitter implements IConnection {
    * Start the connection if not auto started.
    * @since 2.0.0
    */
-  async start(): Promise<void> {
+  async connect(): Promise<void> {
     if (this._readyState === ReadyState.CONNECTING) {
       return;
     }
@@ -290,22 +281,18 @@ export class Connection extends EventEmitter implements IConnection {
     };
 
     if (shouldQueue()) {
-      // Initialize queue array if needed
-      if (!Array.isArray(this._pendingMessages)) {
-        this._pendingMessages = [];
-      }
-
       // Queue the message
       this._pendingMessages.push(theMessage);
 
       // tell the client we have pending messages and the total
-      this.emit("client.pending", this._pendingMessages.length);
+      ++this.stats.pending;
+      this.emit("client.pending", this.stats.pending);
 
       // Attempt connection if not already pending
       if (!this._pendingSetup) {
         this._pendingSetup = true;
         try {
-          this._connect();
+          this._socket = this._connect();
         } catch (err: any) {
           Error.captureStackTrace(err);
           this._pendingSetup = false;
@@ -343,7 +330,7 @@ export class Connection extends EventEmitter implements IConnection {
   }
 
   /** @internal */
-  private _connect(): Socket {
+  protected _connect(): Socket {
     let socket: Socket;
     const host = this._main._opt.host;
     const port = this._opt.port;
