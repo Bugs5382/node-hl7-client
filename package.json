@@ -2,9 +2,24 @@
   "name": "node-hl7-client",
   "version": "3.0.0",
   "description": "A pure Node.js HL7 Client that allows for communication to a HL7 Broker/Server that can send properly formatted HL7 messages with ease.It can also parse and then you can extract message segments out.",
-  "module": "./lib/esm/index.js",
-  "main": "./lib/cjs/index.js",
-  "types": "./lib/types/index.d.ts",
+  "keywords": [
+    "hl7",
+    "hl7-parser",
+    "hl7-client",
+    "hl7-builder",
+    "hl7-speffications",
+    "hl7-validation"
+  ],
+  "homepage": "https://github.com/Bugs5382/node-hl7-client#readme",
+  "bugs": {
+    "url": "https://github.com/Bugs5382/node-hl7-client/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bugs5382/node-hl7-client.git"
+  },
+  "license": "MIT",
+  "author": "Shane Froebel",
   "exports": {
     ".": {
       "types": "./lib/types/index.d.ts",
@@ -19,6 +34,9 @@
       "default": "./lib/cjs/hl7.js"
     }
   },
+  "main": "./lib/cjs/index.js",
+  "module": "./lib/esm/index.js",
+  "types": "./lib/types/index.d.ts",
   "typesVersions": {
     "*": {
       "hl7": [
@@ -31,50 +49,31 @@
     "README.md",
     "LICENSE"
   ],
-  "engines": {
-    "node": ">=20.15.0"
-  },
   "scripts": {
-    "clean": "rm -rf coverage docs lib temp",
     "build": "tsc -p src/tsconfig.esm.json && tsc -p src/tsconfig.cjs.json && tsc -p src/tsconfig.types.json && ./bin/build-types.sh",
     "build:watch": "tsc -p src/tsconfig.esm.json -w",
     "build:watch:cjs": "tsc -p src/tsconfig.cjs.json -w",
-    "npm:lint": "npmPkgJsonLint .",
+    "clean": "rm -rf coverage docs lib temp",
     "format:check": "prettier --check 'pages/**/*.md' 'src/**/*.ts' '__tests__/**/*.ts'",
     "format:write": "prettier --write 'pages/**/*.md' 'src/**/*.ts' '__tests__/**/*.ts'",
     "lint": "npm run npm:lint && eslint | snazzy",
     "lint:fix": "npm run npm:lint && eslint --fix | snazzy",
+    "lint:package": "npx sort-package-json",
+    "npm:lint": "npmPkgJsonLint .",
     "pack": "npm pack",
     "prepublishOnly": "npm run clean && npm run build && npm run pack",
     "test": "vitest run",
+    "test:coverage": "vitest --coverage",
     "test:verbose": "vitest run --reporter verbose",
     "test:watch": "vitest watch",
-    "test:coverage": "vitest --coverage",
     "typedoc": "typedoc",
     "typedoc:watch": "typedoc -watch",
     "update": "npx npm-check-updates -u --enginesNode && npm run update:post-update",
     "update:post-update": "npm install && npm run test"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Bugs5382/node-hl7-client.git"
-  },
-  "keywords": [
-    "hl7",
-    "hl7-parser",
-    "hl7-client",
-    "hl7-builder",
-    "hl7-speffications",
-    "hl7-validation"
-  ],
-  "author": "Shane Froebel",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Bugs5382/node-hl7-client/issues"
-  },
-  "homepage": "https://github.com/Bugs5382/node-hl7-client#readme",
   "devDependencies": {
     "@eslint/js": "^9.15.0",
+    "@ianvs/prettier-plugin-sort-imports": "^4.4.1",
     "@types/eslint__js": "^8.42.3",
     "@types/node": "^22.9.0",
     "@types/tcp-port-used": "^1.0.4",
@@ -91,7 +90,10 @@
     "npm-package-json-lint": "^8.0.0",
     "portfinder": "^1.0.32",
     "pre-commit": "^1.2.2",
+    "redis": "^5.0.1",
+    "redis-memory-server": "^0.12.1",
     "snazzy": "^9.0.0",
+    "sort-package-json": "^3.2.1",
     "tcp-port-used": "^1.0.2",
     "ts-node": "^10.9.2",
     "tsd": "^0.31.2",
@@ -100,9 +102,13 @@
     "typescript-eslint": "^8.14.0",
     "vitest": "^2.1.5"
   },
+  "engines": {
+    "node": ">=20.15.0"
+  },
   "precommit": [
-    "format:write",
+    "lint:package",
     "lint:fix",
+    "format:write",
     "build"
   ]
 }

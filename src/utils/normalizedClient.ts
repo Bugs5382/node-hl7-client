@@ -1,9 +1,9 @@
 import { TcpSocketConnectOpts } from "node:net";
 import type { ConnectionOptions as TLSOptions } from "node:tls";
+import { Batch, FileBatch, Message } from "../builder/index.js";
 import { InboundResponse } from "../client/module/inboundResponse.js";
 import { HL7FatalError } from "./exception.js";
 import { assertNumber, validIPv4, validIPv6 } from "./utils.js";
-import Message from "../builder/message";
 
 /**
  * Outbound Handler
@@ -101,7 +101,7 @@ export interface ClientListenerOptions extends ClientOptions {
    * @remarks
    * `enqueueMessage(message)` is called whenever a message should be stored.
    */
-  enqueueMessage?: (message: Message) => void;
+  enqueueMessage?: (message: Message | Batch | FileBatch) => void;
   /**
    * Your custom function to get messages from your custom enqueueMessage function.
    * Note: You must set up enqueueMessage prop as well.
@@ -119,7 +119,9 @@ export interface ClientListenerOptions extends ClientOptions {
    * @remarks
    * `flushQueue(deliverFn)` is called on reconnect to send stored messages back into the connection.
    */
-  flushQueue?: (callback: (message: Message) => void) => void;
+  flushQueue?: (
+    callback: (message: Message | Batch | FileBatch) => void,
+  ) => void;
   /** Max Connections this connection makes.
    * Has to be greater than 1.
    * @default 10 */

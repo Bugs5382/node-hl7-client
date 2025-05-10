@@ -2,9 +2,8 @@ import EventEmitter from "node:events";
 import net, { Socket } from "node:net";
 import { clearTimeout } from "node:timers";
 import tls from "node:tls";
-import Batch from "../builder/batch.js";
-import FileBatch from "../builder/fileBatch.js";
-import Message from "../builder/message.js";
+import { Batch, FileBatch, Message } from "../builder/index.js";
+import { MLLPCodec } from "../utils/codec.js";
 import { ReadyState } from "../utils/enum.js";
 import { HL7FatalError } from "../utils/exception.js";
 import {
@@ -20,7 +19,6 @@ import {
 } from "../utils/utils.js";
 import { Client } from "./client.js";
 import { InboundResponse } from "./module/inboundResponse.js";
-import { MLLPCodec } from "../utils/codec.js";
 
 export interface IConnection extends EventEmitter {
   /** The connection has been closed manually. You have to start the connection again. */
@@ -72,9 +70,17 @@ export class Connection extends EventEmitter implements IConnection {
   /** @internal */
   private _dataResult: boolean | undefined;
   /** @internal */
+  private readonly _enqueueMessageFn: (
+    message: Message | Batch | FileBatch,
+  ) => void;
+  /** @internal */
+  private _flushQueueFn: (
+    callback: (message: Message | Batch | FileBatch) => void,
+  ) => void;
+  /** @internal */
   private _codec: MLLPCodec | null;
   /** @internal */
-  private _pendingMessages: string[] = [];
+  private readonly _pendingMessages: Array<Message | Batch | FileBatch> = [];
   /** @internal */
   readonly stats = {
     /** Total acknowledged messages back from server.
@@ -122,6 +128,22 @@ export class Connection extends EventEmitter implements IConnection {
     this._codec = null;
     this._pendingMessages = [];
 
+    this._enqueueMessageFn =
+      props.enqueueMessage ??
+      ((message: Message | Batch | FileBatch) =>
+        this._pendingMessages.push(message));
+
+    this._flushQueueFn =
+      props.flushQueue ??
+      ((cb: (message: Message | Batch | FileBatch) => void) => {
+        while (this._pendingMessages.length > 0) {
+          const msg = this._pendingMessages.shift();
+          if (typeof msg !== "undefined") {
+            cb(msg);
+          }
+        }
+      });
+
     this._onConnect = createDeferred(true);
 
     if (this._opt.autoConnect) {
@@ -142,7 +164,7 @@ export class Connection extends EventEmitter implements IConnection {
    * @since 1.0.0
    * @example
    * ```ts
-   * OB.close()
+   * outbound.close()
    * ```
    */
   async close(): Promise<void> {
@@ -219,30 +241,6 @@ export class Connection extends EventEmitter implements IConnection {
     this._socket = this._connect();
   }
 
-  /**
-   * Used to flush the queue if we need to.
-   * @since
-   * @private
-   */
-  private _flushQueue(): void {
-    if (!Array.isArray(this._pendingMessages)) return;
-
-    while (
-      this._pendingMessages.length > 0 &&
-      this._readyState === ReadyState.CONNECTED &&
-      (!this._opt.waitAck || !this._awaitingResponse)
-    ) {
-      const message = this._pendingMessages.shift();
-      if (message) {
-        if (this._opt.waitAck) this._awaitingResponse = true;
-        const codec = new MLLPCodec(this._opt.encoding);
-        codec.sendMessage(this._socket, message, this._opt.encoding);
-        ++this.stats.sent;
-        this.emit("client.sent", this.stats.sent);
-      }
-    }
-  }
-
   /** Send a HL7 Message to the Listener
    * @remarks This function sends a message/batch/file batch to the remote side.
    * It has the ability, if set to auto-retry (defaulted to 1 re-connect before connection closes)
@@ -282,7 +280,7 @@ export class Connection extends EventEmitter implements IConnection {
 
     if (shouldQueue()) {
       // Queue the message
-      this._pendingMessages.push(theMessage);
+      this._enqueueMessageFn(message);
 
       // tell the client we have pending messages and the total
       ++this.stats.pending;
@@ -305,10 +303,7 @@ export class Connection extends EventEmitter implements IConnection {
 
     while (true) {
       try {
-        if (
-          this._readyState === ReadyState.CLOSED ||
-          this._readyState === ReadyState.CLOSING
-        ) {
+        if (this._readyState !== ReadyState.CONNECTED) {
           throw new HL7FatalError("In an invalid state to send message.");
         }
 
@@ -421,7 +416,9 @@ export class Connection extends EventEmitter implements IConnection {
       // reset retryCount count
       this._retryCount = 1;
       // flush queue
-      this._flushQueue();
+      this._flushQueueFn((message) => {
+        void this.sendMessage(message);
+      });
       // emit
       this.emit("connect");
     });
