@@ -3,6 +3,7 @@ import type { ConnectionOptions as TLSOptions } from "node:tls";
 import { InboundResponse } from "../client/module/inboundResponse.js";
 import { HL7FatalError } from "./exception.js";
 import { assertNumber, validIPv4, validIPv6 } from "./utils.js";
+import Message from "../builder/message";
 
 /**
  * Outbound Handler
@@ -86,6 +87,39 @@ export interface ClientListenerOptions extends ClientOptions {
    * @default "utf-8"
    */
   encoding?: BufferEncoding;
+  /**
+   * Your custom function to store messages if messages have to queue.
+   * Note: You must set up flushQueue prop as well.
+   * @param message
+   * @since 3.1.0
+   * @example
+   * ```ts
+   * const enqueueMessage = (message: Message): void => {
+   *   messageQueue.push(message);
+   * };
+   * ```
+   * @remarks
+   * `enqueueMessage(message)` is called whenever a message should be stored.
+   */
+  enqueueMessage?: (message: Message) => void;
+  /**
+   * Your custom function to get messages from your custom enqueueMessage function.
+   * Note: You must set up enqueueMessage prop as well.
+   * @param message
+   * @since 3.1.0
+   * @example
+   * ```ts
+   * const flushQueue = (deliver: (msg: Message) => void): void => {
+   *   while (messageQueue.length > 0) {
+   *     const msg = messageQueue.shift();
+   *     if (msg) deliver(msg);
+   *   }
+   * };
+   * ```
+   * @remarks
+   * `flushQueue(deliverFn)` is called on reconnect to send stored messages back into the connection.
+   */
+  flushQueue?: (callback: (message: Message) => void) => void;
   /** Max Connections this connection makes.
    * Has to be greater than 1.
    * @default 10 */
@@ -205,6 +239,20 @@ export function normalizeClientListenerOptions(
 
   if (typeof props.retryLow === "undefined") {
     props.retryLow = client.retryLow;
+  }
+
+  if (
+    typeof props.enqueueMessage !== "undefined" &&
+    typeof props.flushQueue === "undefined"
+  ) {
+    throw new HL7FatalError("flushQueue is not set.");
+  }
+
+  if (
+    typeof props.enqueueMessage == "undefined" &&
+    typeof props.flushQueue !== "undefined"
+  ) {
+    throw new HL7FatalError("enqueueMessage is not set.");
   }
 
   assertNumber(props, "maxAttempts", 1, 50);

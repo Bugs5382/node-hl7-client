@@ -106,6 +106,36 @@ describe("node hl7 end to end - client", () => {
       expect(client.totalPending()).toEqual(1);
     });
 
+    test("... queues messages to redis", async () => {
+      const client = new Client({ host: "0.0.0.0" });
+
+      // Create connection without auto-connecting
+      const outbound = client.createConnection(
+        {
+          port,
+          autoConnect: false,
+          enqueueMessage: () => {},
+          flushQueue: () => {},
+        },
+        async () => {},
+      );
+
+      vi.spyOn(outbound as any, "_connect").mockResolvedValue(undefined);
+
+      const message = new Message({
+        messageHeader: {
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "D",
+        },
+      });
+
+      await outbound.sendMessage(message);
+
+      expect(client.totalPending()).toEqual(1);
+    });
+
     test.skip("...send simple message twice, no ACK needed", async () => {
       await tcpPortUsed.check(3000, "0.0.0.0");
 
