@@ -4,9 +4,9 @@
 
 The Node HL7 Client builder makes it easy to construct HL7 messages. It focuses on three primary components:
 
-* **Message**
-* **Batch**
-* **File Batch**
+- **Message**
+- **Batch**
+- **File Batch**
 
 The core functionality lies in the `Message` class (`@see Message`), which constructs HL7 messages—starting with the MSH segment—to be sent to a server or broker.
 
@@ -24,11 +24,11 @@ This library assumes familiarity with HL7 standards—it teaches how to use the 
 
 1. [Introduction](#introduction)
 2. [Main Contents of HL7](#main-contents-of-hl7)
-   * [Building a Sample HL7 MSH Segment](#building-a-sample-hl7-msh-segment)
-   * [Using Non-Standard Encoding](#using-non-standard-encoding)
-   * [Chain Method Building](#chain-method-building)
+   - [Building a Sample HL7 MSH Segment](#building-a-sample-hl7-msh-segment)
+   - [Using Non-Standard Encoding](#using-non-standard-encoding)
+   - [Chain Method Building](#chain-method-building)
 3. [Detailed Examples](#detailed-examples)
-   * [Refactoring the Message Class](#refactoring-the-message-class)
+   - [Refactoring the Message Class](#refactoring-the-message-class)
 
 ## Main Contents of HL7
 
@@ -38,8 +38,8 @@ HL7 standards range from version 2.1 to 2.8. For segment definitions and version
 
 One key difference across versions lies in the `MSH.9.3` field:
 
-* **HL7 v2.1–2.3.1**: `MSH.9.3` is a combination of `MSH.9.1` and `MSH.9.2`
-* **HL7 v2.4+**: You can optionally set `MSH.9.3` to `ACK` or a composite string
+- **HL7 v2.1–2.3.1**: `MSH.9.3` is a combination of `MSH.9.1` and `MSH.9.2`
+- **HL7 v2.4+**: You can optionally set `MSH.9.3` to `ACK` or a composite string
 
 **Example** (using HL7 2.4):
 
@@ -130,10 +130,10 @@ A valid message starts with `MSH`, but it's often necessary to include additiona
 
 ```ts
 const PID = message.addSegment("PID");
-PID.set("3", "123456789");     // Patient ID (e.g., MRN)
-PID.set("5.1", "Bunny");       // Last name
-PID.set("5.2", "Bugs");        // First name
-PID.set("5.7", "L");           // Name type (e.g., Legal)
+PID.set("3", "123456789"); // Patient ID (e.g., MRN)
+PID.set("5.1", "Bunny"); // Last name
+PID.set("5.2", "Bugs"); // First name
+PID.set("5.7", "L"); // Name type (e.g., Legal)
 ```
 
 **Resulting HL7 Message:**
@@ -168,8 +168,6 @@ const message = new Message({
 ```
 
 Note: Encoding characters cannot be set using the `.set()` method on a segment—they must be set during initialization.
-
-
 
 | Encoding Character |     Designates      |
 | :----------------: | :-----------------: |

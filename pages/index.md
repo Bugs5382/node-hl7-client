@@ -7,9 +7,9 @@ is to allow any application that needs to integrate into the healthcare ecosyste
 
 For example, let's take three different medical application and equipment companies:
 
-* **GE Healthcare** — Produces medical equipment and software that goes along with it.
-* **Philips Healthcare** — Produces medical equipment and software that goes along with it.
-* **Epic** — A premier Electronic Medical Record ("EMR") system.
+- **GE Healthcare** — Produces medical equipment and software that goes along with it.
+- **Philips Healthcare** — Produces medical equipment and software that goes along with it.
+- **Epic** — A premier Electronic Medical Record ("EMR") system.
 
 GE and Philips systems sometimes need to share data with another system,
 like an EMR, to send the results of a patient’s diagnosis.
@@ -56,11 +56,11 @@ This package documentation, and its peer package [`node-hl7-server`](#), follow 
 
 Keywords such as "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" are standardized terms for technology documentation interoperability. These words carry the following meanings when you encounter them. They may appear in lowercase throughout the documentation, but the intent remains the same.
 
-* **MUST** – This word, or the terms **REQUIRED** or **SHALL**, means that the definition is an absolute requirement of the specification.
-* **MUST NOT** – This phrase, or the term **SHALL NOT**, means that the definition is an absolute prohibition within the specification.
-* **SHOULD** – This word, or the adjective **RECOMMENDED**, means that there may exist valid reasons in particular circumstances to ignore a specific item, but the full implications must be understood and carefully weighed before choosing a different course.
-* **SHOULD NOT** – This phrase, or the phrase **NOT RECOMMENDED**, means that there may exist valid reasons in particular circumstances when the specified behavior is acceptable or even useful. The full implications should be understood and the case carefully weighed before implementing any behavior described with this label.
-* **MAY** – This word, or the adjective **OPTIONAL**, means that an item is truly optional. Any implementation which does not include a particular option MUST be prepared to interoperate with another implementation that does include the option, though perhaps with reduced functionality. Likewise, an implementation that does include a particular option MUST be prepared to interoperate with another implementation that does not — except, of course, for the feature that the option provides.
+- **MUST** – This word, or the terms **REQUIRED** or **SHALL**, means that the definition is an absolute requirement of the specification.
+- **MUST NOT** – This phrase, or the term **SHALL NOT**, means that the definition is an absolute prohibition within the specification.
+- **SHOULD** – This word, or the adjective **RECOMMENDED**, means that there may exist valid reasons in particular circumstances to ignore a specific item, but the full implications must be understood and carefully weighed before choosing a different course.
+- **SHOULD NOT** – This phrase, or the phrase **NOT RECOMMENDED**, means that there may exist valid reasons in particular circumstances when the specified behavior is acceptable or even useful. The full implications should be understood and the case carefully weighed before implementing any behavior described with this label.
+- **MAY** – This word, or the adjective **OPTIONAL**, means that an item is truly optional. Any implementation which does not include a particular option MUST be prepared to interoperate with another implementation that does include the option, though perhaps with reduced functionality. Likewise, an implementation that does include a particular option MUST be prepared to interoperate with another implementation that does not — except, of course, for the feature that the option provides.
 
 ---
 

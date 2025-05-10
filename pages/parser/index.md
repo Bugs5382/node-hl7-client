@@ -12,9 +12,9 @@ If you're using the [client](../client/index.md) or [builder](../builder/index.m
 
 1. [Introduction](#introduction)
 2. [Basic Usage](#basic-usage)
-    * [Single Message](#single-message)
-    * [Batch Message](#batch-message)
-    * [File-Based Parsing](#file-based-parsing)
+   - [Single Message](#single-message)
+   - [Batch Message](#batch-message)
+   - [File-Based Parsing](#file-based-parsing)
 3. [Recommended Use](#recommended-use)
 
 ## Basic Usage
@@ -52,7 +52,7 @@ const messages = batch.messages();
 
 messages.forEach((message: Message) => {
   const msh_9_1 = message.get("MSH.9.1").toString(); // ADT
-  const evn_2 = message.get("EVN.2").toString();     // 20081231
+  const evn_2 = message.get("EVN.2").toString(); // 20081231
 
   // your logic here...
 });
@@ -90,10 +90,11 @@ messages.forEach((message: Message) => {
   // your logic here...
 });
 ```
+
 ## Recommended Use
 
 This parser is typically used on the **server or broker** side of your architecture.
 
 While it is a dependency of [node-hl7-server](https://www.npmjs.com/package/node-hl7-server), this parser is not directly exposed through that library and must be imported independently for use.
 
-> ℹ️ On the client side, messages are parsed *before* being sent back via the response handler — so you typically won’t need to use this parser in client response logic.
+> ℹ️ On the client side, messages are parsed _before_ being sent back via the response handler — so you typically won’t need to use this parser in client response logic.
