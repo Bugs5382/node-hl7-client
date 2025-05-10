@@ -171,12 +171,17 @@ describe("node hl7 end to end - client", () => {
       });
 
       test("... queues messages to redis", async () => {
-        const redisServer = new RedisMemoryServer();
+        let redisServer, port, host;
 
-        await redisServer.start();
-
-        const port = await redisServer.getPort();
-        const host = await redisServer.getHost();
+        if (typeof process.env.REDIS_REMOTE === "undefined") {
+          redisServer = new RedisMemoryServer();
+          await redisServer.start();
+          port = await redisServer.getPort();
+          host = await redisServer.getHost();
+        } else {
+          port = parseInt(process.env.REDIS_PORT || "6379", 10);
+          host = process.env.REDIS_HOST || "localhost";
+        }
 
         const redis = createClient({
           socket: {
