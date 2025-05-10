@@ -1,4 +1,4 @@
 {
   "importOrder": ["^[./]"],
-  "plugins": ["@ianvs/prettier-plugin-sort-imports"]
+  "plugins": ["@ianvs/prettier-plugin-sort-imports", "prettier-plugin-organize-imports"]
 }

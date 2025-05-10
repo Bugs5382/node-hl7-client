@@ -92,6 +92,10 @@ export class Client extends EventEmitter {
       this.stats._totalPending = total;
     });
 
+    outbound.on("client.limitExceeded", (port: number) => {
+      this.emit("limitExceeded", port);
+    });
+
     // add this connection
     this._connections.push(outbound);
 

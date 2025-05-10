@@ -86,9 +86,7 @@ Example (default):
 
 ```ts
 this._enqueueMessageFn =
-  props.enqueueMessage ??
-  ((message: Message | Batch | FileBatch) =>
-    this._pendingMessages.push(message));
+  props.enqueueMessage ?? this.defaultEnqueueMessage.bind(this);
 
 this._flushQueueFn =
   props.flushQueue ??
@@ -102,9 +100,11 @@ this._flushQueueFn =
   });
 ```
 
+> ⚠️ **Note:** There is a max of 10,000 messages by default. It can be overridden to fix the number of your choice or removed completely. The client can also, optionally, listen for event `` to see if a particular connection is in this state.
+
 ### Custom Behavior (Using Redis)
 
-You can override the default queue to use Redis or any other external storage like RabbitMQ, file-based queues, etc.
+You can override the default queue to use Redis or any other external storage like RabbitMQ, file-based queues, etc. **This is strongly recommended.**
 
 **Redis Example (with `node-redis`):**
 

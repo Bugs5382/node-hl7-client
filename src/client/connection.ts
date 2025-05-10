@@ -37,6 +37,8 @@ export interface IConnection extends EventEmitter {
   on(name: "client.sent", cb: (number: number) => void): this;
   /** The connection has timeout. Review "client.error" event for the reason. */
   on(name: "client.timeout", cb: () => void): this;
+  /** When the in-memory queue limit is exceeded */
+  on(name: "client.limitExceeded", cb: (port: number) => void): this;
 }
 
 /** Connection Class
@@ -81,6 +83,14 @@ export class Connection extends EventEmitter implements IConnection {
   private _codec: MLLPCodec | null;
   /** @internal */
   private readonly _pendingMessages: Array<Message | Batch | FileBatch> = [];
+  /** @internal */
+  private readonly _extendMaxLimit: boolean;
+  /** @internal */
+  private readonly _maxHardLimit: number = 10000;
+  /** @internal */
+  private readonly _maxLimit: number;
+  /** @internal */
+  private _notifyOnLimitExceeded: boolean;
   /** @internal */
   readonly stats = {
     /** Total acknowledged messages back from server.
@@ -127,11 +137,12 @@ export class Connection extends EventEmitter implements IConnection {
     this._connectionTimer = undefined;
     this._codec = null;
     this._pendingMessages = [];
+    this._maxLimit = this._opt.maxLimit ?? this._maxHardLimit;
+    this._extendMaxLimit = this._opt.extendMaxLimit ?? false;
+    this._notifyOnLimitExceeded = this._opt.notifyOnLimitExceeded ?? false;
 
     this._enqueueMessageFn =
-      props.enqueueMessage ??
-      ((message: Message | Batch | FileBatch) =>
-        this._pendingMessages.push(message));
+      props.enqueueMessage ?? this.defaultEnqueueMessage.bind(this);
 
     this._flushQueueFn =
       props.flushQueue ??
@@ -154,6 +165,32 @@ export class Connection extends EventEmitter implements IConnection {
       this._readyState = ReadyState.OPEN;
       this.emit("open");
       this._socket = undefined;
+    }
+  }
+
+  /**
+   * This is the default Enqueue Message Handler
+   * @param message
+   * @protected
+   */
+  protected defaultEnqueueMessage(message: Message | Batch | FileBatch): void {
+    if (this._pendingMessages.length >= this._maxLimit) {
+      this.handleQueueOverflow();
+    }
+    this._pendingMessages.push(message);
+  }
+
+  /**
+   * This is checked during Encoding to handle overflow from use of memory.
+   * @protected
+   */
+  protected handleQueueOverflow(): void {
+    if (!this._extendMaxLimit) {
+      this._pendingMessages.shift();
+    }
+
+    if (this._notifyOnLimitExceeded) {
+      this.emit("client.limitExceeded", this._opt.port);
     }
   }
 

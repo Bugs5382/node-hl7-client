@@ -12,47 +12,47 @@ import { Delimiters, ReadyState } from "./utils/enum.js";
 import { OutboundHandler } from "./utils/normalizedClient.js";
 
 export {
-  expBackoff,
   assertNumber,
-  isHL7Number,
-  isHL7String,
-  validIPv4,
-  validIPv6,
   createHL7Date,
+  decodeHexString,
+  escapeForRegExp,
+  expBackoff,
   isBatch,
   isFile,
+  isHL7Number,
+  isHL7String,
   padHL7Date,
-  escapeForRegExp,
-  decodeHexString,
   randomString,
+  validIPv4,
+  validIPv6,
 } from "./utils/utils.js";
 
-export type {
-  ClientOptions,
-  ClientListenerOptions,
-} from "./utils/normalizedClient.js";
+export { MLLPCodec } from "./utils/codec.js";
+export { HL7Error, HL7FatalError, HL7ParserError } from "./utils/exception.js";
 export type {
   ClientBuilderFileOptions,
   ClientBuilderMessageOptions,
   ClientBuilderOptions,
 } from "./utils/normalizedBuilder.js";
-export { HL7Error, HL7FatalError, HL7ParserError } from "./utils/exception.js";
-
-export default Client;
+export type {
+  ClientListenerOptions,
+  ClientOptions,
+} from "./utils/normalizedClient.js";
 export {
+  Batch,
   Client,
   Connection,
-  IConnection,
-  OutboundHandler,
-  InboundResponse,
-  FileBatch,
-  Batch,
-  Message,
-  ReadyState,
-  NodeBase,
-  EmptyNode,
-  Segment,
   Delimiters,
+  EmptyNode,
+  FileBatch,
   HL7Node,
+  IConnection,
+  InboundResponse,
+  Message,
+  NodeBase,
+  OutboundHandler,
+  ReadyState,
+  Segment,
 };
-export { MLLPCodec } from "./utils/codec.js";
+
+export default Client;

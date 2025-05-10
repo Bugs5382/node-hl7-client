@@ -122,6 +122,11 @@ export interface ClientListenerOptions extends ClientOptions {
   flushQueue?: (
     callback: (message: Message | Batch | FileBatch) => void,
   ) => void;
+  /**
+   * @since 3.1.0
+   * @default 10,000
+   */
+  maxLimit?: number;
   /** Max Connections this connection makes.
    * Has to be greater than 1.
    * @default 10 */
@@ -160,9 +165,12 @@ interface ValidatedClientListenerOptions
   extends Pick<Required<ClientListenerOptions>, ValidatedClientListenerKeys> {
   autoConnect: boolean;
   encoding: BufferEncoding;
+  extendMaxLimit: boolean;
   port: number;
   maxAttempts: number;
   maxConnectionAttempts: number;
+  maxLimit: number;
+  notifyOnLimitExceeded: boolean;
   retryHigh: number;
   retryLow: number;
   waitAck: boolean;
@@ -257,6 +265,7 @@ export function normalizeClientListenerOptions(
     throw new HL7FatalError("enqueueMessage is not set.");
   }
 
+  assertNumber(props, "maxLimit", 1);
   assertNumber(props, "maxAttempts", 1, 50);
   assertNumber(props, "maxConnectionAttempts", 1, 50);
   assertNumber(props, "port", 1, 65353);
