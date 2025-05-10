@@ -2,45 +2,46 @@
 
 ## Introduction
 
-The builder is very easy to use. It's made, so you can easily build a Hl7 message with ease. It has three main parts:
+The Node HL7 Client builder makes it easy to construct HL7 messages. It focuses on three primary components:
 
-- Message
-- Batch
-- File Batch
+* **Message**
+* **Batch**
+* **File Batch**
 
-In the end, the Message {@see Message} ("MSH"), does the bulk of the work building out the HL7 message to be sent to the server/broker. However, there are times that your app might be processing lots of messages and you might want to send those off all together. This is where you would batch those messages and send it off as a Batch ("BHS"). The other side just sees it as individual Messages when being parsed, however, the MSH segments could contain the unique Batch ID that it was sent it in case the server/broker needed to get the messages again. More on this later.
+The core functionality lies in the `Message` class (`@see Message`), which constructs HL7 messages—starting with the MSH segment—to be sent to a server or broker.
 
-At times you might even need to group your Batch's and/or Messages into a flat file (a File Batch ("FHS")) and do something with it. Sometimes some applications or even developers, technicians, need to see the raw data. This is where the File Batch process comes in. This will generate a standardized format that could be in turn read and then distracted over like any other message or parsed locally.
+However, if your application needs to process and send multiple messages at once, you can group them into a **Batch** (starting with a BHS segment). While the receiving system parses these as individual messages, you can include a unique Batch ID in each MSH segment for traceability.
 
-Medical exports that deal with interfaces on a day-to-day basis would be able to understand where certain strings and requirements on how to structure an Hl7 message in the end, but it's all about interoperability. Some applications might need certain data in certain fields/locations in order to process it correctly.
+You can also group Messages or Batches into a **File Batch** (starting with an FHS segment). This is useful for generating flat files that can be inspected or processed manually, often required by legacy applications, developers, or support staff.
 
-Please note that HL7 messages group each line into Segments. The standard currently for 2.x HL7 messages from 2.1 to 2.8 is that the Segment name is only three characters long. No more, no less. Exactly three.
+> 💡 **Note**: HL7 messages are composed of segments, each represented by a three-character code (e.g., `MSH`, `PID`). HL7 2.x standards (2.1–2.8) strictly require these segment names to be exactly three characters long.
 
-This NPM package assumes that you understand HL7 requirements and understand where certain data goes. This documentation is just teaching you how to use it, and not teaching you all the possible values of what should go where.
+This library assumes familiarity with HL7 standards—it teaches how to use the builder, not how HL7 itself works.
+
+---
 
 ## Table of Contents
 
 1. [Introduction](#introduction)
 2. [Main Contents of HL7](#main-contents-of-hl7)
-   1. [Build of Sample HL7 MSH Segment](#build-a-sample-hl7-msh-segment)
-   2. [Using Non-Standard Encoding](#using-non-standard-encoding)
-   3. [Chain Method Building](#chain-method-building)
+   * [Building a Sample HL7 MSH Segment](#building-a-sample-hl7-msh-segment)
+   * [Using Non-Standard Encoding](#using-non-standard-encoding)
+   * [Chain Method Building](#chain-method-building)
 3. [Detailed Examples](#detailed-examples)
-   1. [Refactoring the Message Class](#refactoring-the-message-class)
+   * [Refactoring the Message Class](#refactoring-the-message-class)
 
 ## Main Contents of HL7
 
 ### HL7 Specifications
 
-HL7 is set to a set of specification.
-They range from 2.1 to 2.8.
-While it would take hundreds of pages here to describe the difference between the different specification,
-[this site](https://hl7-definition.caristix.com/v2/) can review what the different segments do.
+HL7 standards range from version 2.1 to 2.8. For segment definitions and version-specific differences, refer to [Caristix HL7 Definitions](https://hl7-definition.caristix.com/v2/).
 
-The major difference for the MSH header segment for the versions is from 2.1 to 2.3.1,
-where the field MSH 9.3 is a combined string of MSH 9.1 and MSH 9.2.
-From HL7 version 2.4 and onward, MSH 9.3 can either be ACK or a combined string of MSH 9.1 and MSH 9.2.
-To override MSH 9.3 in 2.4 and higher, follow this example:
+One key difference across versions lies in the `MSH.9.3` field:
+
+* **HL7 v2.1–2.3.1**: `MSH.9.3` is a combination of `MSH.9.1` and `MSH.9.2`
+* **HL7 v2.4+**: You can optionally set `MSH.9.3` to `ACK` or a composite string
+
+**Example** (using HL7 2.4):
 
 ```ts
 const message = new Message({
@@ -56,96 +57,119 @@ const message = new Message({
 });
 ```
 
-This will results in this:
+**Resulting HL7 MSH Segment:**
 
 ```
 MSH|^~\&|||||20081231||ADT^A01^ACK|12345|D^A|2.4
 ```
 
-As the MSH header segment. Otherwise, not including the msh_9_3 above will make it:
+If `msh_9_3` is omitted:
 
 ```
-MSH|^~\&|||||20081231||ADT^A01^ADT_A02|12345|D^A|2.4
+MSH|^~\&|||||20081231||ADT^A01^ADT_A01|12345|D^A|2.4
 ```
 
-### Build a Sample HL7 MSH Segment
+### Building a Sample HL7 MSH Segment
 
-All HL7 messages (not the Batch or File Batch which could contain Messages) start with MSH segments, and they are build quite easily. Right not the deface standard has been version 2.7 of its most common use. There isn't much different between v2.7, v2.7.1 and v2.8, and this is to the fact that v2.5 really expanded the segment types that exist was we moved to more modern Electronic Medical Record systems.
+All HL7 messages begin with an MSH segment. While Batch and File Batch messages encapsulate multiple messages, each message still starts with its own MSH.
 
-> MSH|^~\\&|HNAM_PM|HNA500|AIG||20131017140041||ADT^A01|Q150084616T145947960|P|2.3
+Here is a sample MSH segment (from HL7 v2.3):
 
-First, let's break this message down. Use the Pipe ("|") as the field separator we get these results. ([VIew Here For More Details](https://hl7-definition.caristix.com/v2/HL7v2.3/Segments/MSH))
+```
+MSH|^~\&|HNAM_PM|HNA500|AIG||20131017140041||ADT^A01|Q150084616T145947960|P|2.3
+```
 
-|    MSH.1     |                           MSH.2                           |        MSH.3        |       MSH.4       |               MSH.5               |       MSH.6        |      MSH.7      |     MSH,8      |            MSH.9.1             |         MSH.9.2          |                                          MSH.10                                          |      MSH.11       |  MSH.12  |
-| :----------: | :-------------------------------------------------------: | :-----------------: | :---------------: | :-------------------------------: | :----------------: | :-------------: | :------------: | :----------------------------: | :----------------------: | :--------------------------------------------------------------------------------------: | :---------------: | :------: |
-| Segment Name |                    Encoding Characters                    | Sending Application | Sending Facility  |       Receiving Application       | Receiving Facility | Date of Message |    Security    |       Message Type Code        |   Message Type Trigger   |                                        Unique ID                                         | Production? Test? | HL7 Spec |
-|     MSH      |                           ^~\\&                           |       HNAM_PM       |      HNA500       |                AIG                |                    | 20131017140041  |                |              ADT               |           A01            |                                   Q150084616T145947960                                   |         P         |   2.3    |
-|     n/a      | What the servers should use to parse the message we send. |   Who's sending?    | Name of Facility. | What system are we sending it to? |      Facility      |  YYYYMMDDHHMM   | See Note Below | Admitting, Discharge, Transfer | Admit/visit notification | How to track this message. Used to be able to uniquely find the message from both sides. |    Production     |          |
+**Field Breakdown** ([View full MSH reference](https://hl7-definition.caristix.com/v2/HL7v2.3/Segments/MSH)):
 
-Now this is just the start of a HL7 message. Normally, after this, there are plenty of other segments included that you might need to include as part of your application build to be able to interoperate between systems following their specific requirements.
+| Field     | Description                             |     |
+| --------- | --------------------------------------- | --- |
+| `MSH.1`   | Field separator (\`                     | \`) |
+| `MSH.2`   | Encoding characters (`^~\&`)            |     |
+| `MSH.3`   | Sending application (`HNAM_PM`)         |     |
+| `MSH.4`   | Sending facility (`HNA500`)             |     |
+| `MSH.5`   | Receiving application (`AIG`)           |     |
+| `MSH.7`   | Date/Time of message (`YYYYMMDDHHMMSS`) |     |
+| `MSH.9.1` | Message type (`ADT`)                    |     |
+| `MSH.9.2` | Trigger event (`A01`)                   |     |
+| `MSH.10`  | Message control ID                      |     |
+| `MSH.11`  | Processing ID (`P` for production)      |     |
+| `MSH.12`  | HL7 version (`2.3`)                     |     |
 
-The way this would be built using this library:
+**Creating the message in code:**
 
 ```ts
-import { HL7_2_3 } from "node-hl7-client/hl7"; // note this the spefications are a submobule
+import { HL7_2_3 } from "node-hl7-client/hl7";
 
 const message = new Message({
-  specification: new HL7_2_3(), // we are doing spec 2.3
+  specification: new HL7_2_3(),
   messageHeader: {
-    msh_9_1: "ADT", // required, there is "set" table of data this can be
-    msh_9_2: "A01", // required, there is "set" table of data this can be
-    msh_10: "Q150084616T145947960", // randomized by the class or set by you.
-    msh_11_1: "P", // required
+    msh_9_1: "ADT",
+    msh_9_2: "A01",
+    msh_10: "Q150084616T145947960",
+    msh_11_1: "P",
   },
 });
-message.set("MSH.3", "HNAM_PM"); // not required
-message.set("MSH.4", "HNA500"); // not required
-message.set("MSH.5", "AIG"); // not required
-message.set("MSH.7", "20131017140041"); // note: this is not required normally as Message sets this automaticlly, but you can override
+
+message.set("MSH.3", "HNAM_PM");
+message.set("MSH.4", "HNA500");
+message.set("MSH.5", "AIG");
+message.set("MSH.7", "20131017140041"); // Optional override; auto-set by default
 ```
 
-And at this point you could use the [Client](../client/index.md) to send it off to a server/broker. HL7 messages _are_ always in plain text. They are not encrypted. This library aims to change that by allowing you to create a TLS connection. HTTPS "REST POST" can be done as well, however, you would need to take the result and send it over for the other side to interrupt. This package doesn't include an HTTP client. As far as the security field, it was built into the specification, but has yet to be used for anything.
-
-To export this code back into a string, you can easily do:
+**Exporting to a string:**
 
 ```ts
-const myMessageString: string = message.toString();
+const hl7String = message.toString();
 ```
 
-And, Voilà! You can now send this message as string, with even other segments attached to it to a remote side.
+This message can then be sent to a broker or HL7 server. Note that HL7 messages are plain text. To secure them, consider sending over a TLS or HTTPS transport. This library supports TLS but not HTTP out of the box.
 
 ### Adding Segments
 
-While a single MSH segment/header is all that is needed for the remote side, it does no good if you didn't include any information. In an ADT/A01 message type, you normally have the patient's demographic information.
-
-In this next example, we are going to add a [PID](https://hl7-definition.caristix.com/v2/HL7v2.3/Segments/PID) segment that contains it. All fields in this case _are_ optional. Two fields are required, PID.3 and PID.5, but this page does guide us on how to build the PID segment for the other fields
+A valid message starts with `MSH`, but it's often necessary to include additional segments such as `PID` for patient information.
 
 ```ts
-const PID = message.addSegment("PID"); // Adds the PD1 as a segment for this MSH.
-PID.set("3", "123456789"); // Ususally the MRN or Billing Order Number
-PID.set("5.1", "Bunny"); // Last name
-PID.set("5.2", "Bugs"); // First name
-PID.set("5.7", "L"); // Indicating what type of name it is. Example here is "Legal"
+const PID = message.addSegment("PID");
+PID.set("3", "123456789");     // Patient ID (e.g., MRN)
+PID.set("5.1", "Bunny");       // Last name
+PID.set("5.2", "Bugs");        // First name
+PID.set("5.7", "L");           // Name type (e.g., Legal)
 ```
 
-So with this built, the result will be if output from
-
-```ts
-const myMessage: string = message.toString();
-```
-
-Comes out to be:
+**Resulting HL7 Message:**
 
 ```
-MSH|^~\\&|HNAM_PM|HNA500|AIG||20131017140041||ADT^A01|Q150084616T145947960|P|2.3
+MSH|^~\&|HNAM_PM|HNA500|AIG||20131017140041||ADT^A01|Q150084616T145947960|P|2.3
 PID|||123456789||Bunny^Bugs^^^^^L|||||
 ```
 
-While this is a simple HL7 message, it's still valid.
-
 ### Using Non-Standard Encoding
 
-By default, HL7 standard community has come up with these characters used to encode the HL7 string:
+Default HL7 encoding characters:
+
+| Character | Meaning                |                 |
+| --------- | ---------------------- | --------------- |
+| \`        | \`                     | Field separator |
+| `^`       | Component separator    |                 |
+| `&`       | Subcomponent separator |                 |
+| `~`       | Repetition separator   |                 |
+| `\`       | Escape character       |                 |
+
+These are configurable when instantiating a `Message`, `Batch`, or `FileBatch`:
+
+```ts
+const message = new Message({
+  separatorComponent: "^",
+  separatorEscape: "\\",
+  separatorField: "|",
+  separatorRepetition: "~",
+  separatorSubComponent: "&",
+});
+```
+
+Note: Encoding characters cannot be set using the `.set()` method on a segment—they must be set during initialization.
+
+
 
 | Encoding Character |     Designates      |
 | :----------------: | :-----------------: |
@@ -249,55 +273,24 @@ When you are sending the same type of HL7 message over and over again,
 you can create a function in your code/framework that will generate a new "Message"
 object each and everytime the same way, format, etc. so that you have 100% consistency.
 
-For example, if you have this:
-
 ```ts
-const message = new Message({
-  specification: new HL7_2_3(), // we are doing spec 2.3
-  messageHeader: {
-    msh_9_1: "ADT", // required, there is "set" table of data this can be
-    msh_9_2: "A01", // required, there is "set" table of data this can be
-    msh_11_1: "P", // required
-  },
-});
-```
-
-... you can do it again later in the code:
-
-```ts
-const newMessage = new Message({
-  specification: new HL7_2_3(), // we are doing spec 2.3
-  messageHeader: {
-    msh_9_1: "ADT", // required, there is "set" table of data this can be
-    msh_9_2: "A01", // required, there is "set" table of data this can be
-    msh_11_1: "P", // required
-  },
-});
-```
-
-The issue gets messy. So wrapping this in a function like `createADT_A01`:
-
-```ts
-const createADT_A01 = () => {
+const createADT_A01 = (messageControlId: string) => {
   return new Message({
     messageHeader: {
       msh_9_1: "ADT",
       msh_9_2: "A01",
+      msh_10: messageControlId, // dynamically set
       msh_11_1: "P",
     },
   });
 };
 ```
 
-will create a new object each time and your developers wouldn't have to use the entire Message specs.
-Your developers would just need to use:
+Now your developers can create multiple unique messages while reusing the same base structure:
 
 ```ts
-const messageOne = createADT_A01();
-const messageTwo = createADT_A01();
+const messageOne = createADT_A01("Q150084616T145947960");
+const messageTwo = createADT_A01("Q150084617T145947961");
 ```
 
-You can
-if you want
-pass any parameter into your `createADT_A01` function as long in the end
-the Message class is being properly created.
+This pattern keeps your code clean, consistent, and easy to maintain — especially when working with multiple HL7 messages of the same type.

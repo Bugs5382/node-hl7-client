@@ -2,36 +2,26 @@
 
 ## Introduction
 
-The builder is the parser, the parser is the builder.
-They are one and the same.
-However, in this case, you do not set any specifications at all for anything.
-It is just a matter of how it's used to initialize will it work correctly.
-This should be mostly used on the [node-hl7-server](https://www.npmjs.com/package/node-hl7-server) sister library
+This library serves as both the **builder** and **parser** for HL7 messages. There are no strict configuration requirements — the behavior is determined entirely by how it's initialized. While it is designed to be used with its sister library, [node-hl7-server](https://www.npmjs.com/package/node-hl7-server), it functions independently.
 
-The parser will only accept valid HL7 strings in order for them to be fully processed.
-Any errors within the HL7 segment, even in the exact issue, will cause a failure.
-There are circumstances that this will not work, and you should do proper testing withing your unit tests of your app,
-to ensure the message design you expect to get
-is correct before treating the values like "gold."
+> ⚠️ **Note**: The parser strictly requires valid HL7 strings. Any errors or malformed segments will cause parsing to fail. It’s strongly recommended to write thorough unit tests for your application to validate HL7 message structures before consuming them.
 
-As mentioned in the [client](../client/index.md) or [builder](../builder/index.md),
-you should know what your receiving on what port so getting the proper string either from you getting it from a client
+If you're using the [client](../client/index.md) or [builder](../builder/index.md), be aware of what messages you're receiving on which ports to ensure proper parsing.
 
 ## Table of Contents
 
 1. [Introduction](#introduction)
 2. [Basic Usage](#basic-usage)
+    * [Single Message](#single-message)
+    * [Batch Message](#batch-message)
+    * [File-Based Parsing](#file-based-parsing)
+3. [Recommended Use](#recommended-use)
 
 ## Basic Usage
 
-### Non-File
+### Single Message
 
-Taking your HL7 String, either as a single Message or a Batch containing more than one Message segment,
-you process it like this:
-
-> Note: I am making the code readable, but normally this would be in _one_ long string with the "\r" separating each part of the message.
-
-#### Message
+Use this when you're dealing with a single HL7 message string:
 
 ```ts
 const hl7 = [
@@ -41,10 +31,12 @@ const hl7 = [
 
 const message = new Message({ text: hl7 });
 
-const msh_9_1 = message.get("MSH.9.1").toString(); //  should be ADT
+const msh_9_1 = message.get("MSH.9.1").toString(); // ADT
 ```
 
-#### Batch
+### Batch Message
+
+For HL7 batches that include multiple messages:
 
 ```ts
 const hl7 = [
@@ -56,61 +48,52 @@ const hl7 = [
 
 const batch = new Batch({ text: hl7 });
 
-const messages = batch.messages(); // get all the MSH segments, in this case one should return
+const messages = batch.messages();
 
-let msh_9_1,
-  evn_2 = "";
-messages.forEach((message: Message): void => {
-  msh_9_1 = message.get("MSH.9.1").toString(); // should be ADT
-  evn_2 = message.get("EVN.2").toString(); // should be 20081231
+messages.forEach((message: Message) => {
+  const msh_9_1 = message.get("MSH.9.1").toString(); // ADT
+  const evn_2 = message.get("EVN.2").toString();     // 20081231
+
+  // your logic here...
 });
-
-// your code here...
 ```
 
-#### Files
+### File-Based Parsing
 
-Files are a bit different to parse, but they follow the same basic structure to process.
+To parse HL7 messages from a file, use either a file path or a `Buffer`.
 
-First, you must read the file either by passing the file path into the class:
+**From file path:**
 
 ```ts
 const fileBatch = new FileBatch({
-  fullFilePath: path.join("your/path/here/maybe", "hl7.ADT.20081231.hl7"),
+  fullFilePath: path.join("your/path/here", "hl7.ADT.20081231.hl7"),
 });
 ```
 
-...or input the Buffer version of the file into the class:
+**From file buffer:**
 
 ```ts
 const fileBatch = new FileBatch({
-  fileBuffer: fs.readFileSync(path.join("temp/", "hl7.ADT.20081231.hl7")),
+  fileBuffer: fs.readFileSync(path.join("temp", "hl7.ADT.20081231.hl7")),
 });
 ```
 
-The concept is the same as Batch where you get your message:
+Then extract messages just like a regular batch:
 
 ```ts
 const messages = fileBatch.messages();
 
-let msh_9_1,
-  evn_2 = "";
+messages.forEach((message: Message) => {
+  const msh_9_1 = message.get("MSH.9.1").toString();
+  const evn_2 = message.get("EVN.2").toString();
 
-messages.forEach((message: Message): void => {
-  msh_9_1 = message.get("MSH.9.1").toString(); // could be ADT
-  evn_2 = message.get("EVN.2").toString(); // could be 20081231
+  // your logic here...
 });
-
-// your code here...
 ```
+## Recommended Use
 
-... and then loop through the messages in the array as needed.
+This parser is typically used on the **server or broker** side of your architecture.
 
-## Where to parse?
+While it is a dependency of [node-hl7-server](https://www.npmjs.com/package/node-hl7-server), this parser is not directly exposed through that library and must be imported independently for use.
 
-This part would normally be used on the server/broker side.
-The documentation is included in here,
-even though this library is a dependency of the [node-hl7-server](https://www.npmjs.com/package/node-hl7-server) sister library,
-this library is not accessible via `node-hl7-server` and should be imported on its own if you want to use it.
-
-The client response is already parsed prior to going back through the Client response handler.
+> ℹ️ On the client side, messages are parsed *before* being sent back via the response handler — so you typically won’t need to use this parser in client response logic.
