@@ -28,6 +28,7 @@ const DEFAULT_LISTEN_CLIENT_OPTS = {
   maxAttempts: 10,
   maxConnectionAttempts: 10,
   waitAck: true,
+  maxLimit: 10000
 };
 
 export interface ClientOptions {
