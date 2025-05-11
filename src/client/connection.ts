@@ -3,6 +3,7 @@ import net, { Socket } from "node:net";
 import { clearTimeout } from "node:timers";
 import tls from "node:tls";
 import { Batch, FileBatch, Message } from "../builder/index.js";
+import type { MessageItem } from "../index.js";
 import { MLLPCodec } from "../utils/codec.js";
 import { ReadyState } from "../utils/enum.js";
 import { HL7FatalError } from "../utils/exception.js";
@@ -73,12 +74,14 @@ export class Connection extends EventEmitter implements IConnection {
   private _dataResult: boolean | undefined;
   /** @internal */
   private readonly _enqueueMessageFn: (
-    message: Message | Batch | FileBatch,
-  ) => void;
+    message: MessageItem,
+    notifyPendingCount: (count: number) => void,
+  ) => void | Promise<void>;
   /** @internal */
-  private _flushQueueFn: (
-    callback: (message: Message | Batch | FileBatch) => void,
-  ) => void;
+  private readonly _flushQueueFn: (
+    callback: (message: MessageItem) => void,
+    notifyPendingCount: (count: number) => void,
+  ) => void | Promise<void>;
   /** @internal */
   private _codec: MLLPCodec | null;
   /** @internal */
@@ -141,17 +144,7 @@ export class Connection extends EventEmitter implements IConnection {
 
     this._enqueueMessageFn =
       props.enqueueMessage ?? this.defaultEnqueueMessage.bind(this);
-
-    this._flushQueueFn =
-      props.flushQueue ??
-      ((cb: (message: Message | Batch | FileBatch) => void) => {
-        while (this._pendingMessages.length > 0) {
-          const msg = this._pendingMessages.shift();
-          if (typeof msg !== "undefined") {
-            cb(msg);
-          }
-        }
-      });
+    this._flushQueueFn = props.flushQueue ?? this.defaultFlushQueue.bind(this);
 
     this._onConnect = createDeferred(true);
 
@@ -167,15 +160,49 @@ export class Connection extends EventEmitter implements IConnection {
   }
 
   /**
+   *
+   * @param count
+   */
+  private _handlePendingUpdate = (count: number): void => {
+    this.stats.pending = count;
+    this.emit("client.pending", this.stats.pending);
+  };
+
+  /**
    * This is the default Enqueue Message Handler
    * @param message
+   * @param notifyPendingCount
    * @protected
    */
-  protected defaultEnqueueMessage(message: Message | Batch | FileBatch): void {
-    if (this._pendingMessages.length >= this._maxLimit) {
+  protected defaultEnqueueMessage(
+    message: MessageItem,
+    notifyPendingCount: (count: number) => void,
+  ): void {
+    if (this._pendingMessages.length === this._maxLimit) {
       this.handleQueueOverflow();
     }
     this._pendingMessages.push(message);
+
+    notifyPendingCount(this._pendingMessages.length);
+  }
+
+  /**
+   * This is the default Flush Message Handler
+   * @param callback
+   * @param notifyPendingCount
+   * @protected
+   */
+  protected defaultFlushQueue(
+    callback: (message: MessageItem) => void,
+    notifyPendingCount: (count: number) => void,
+  ): void {
+    while (this._pendingMessages.length > 0) {
+      const msg = this._pendingMessages.shift();
+      if (typeof msg !== "undefined") {
+        callback(msg);
+        notifyPendingCount(this._pendingMessages.length);
+      }
+    }
   }
 
   /**
@@ -315,11 +342,7 @@ export class Connection extends EventEmitter implements IConnection {
 
     if (shouldQueue()) {
       // Queue the message
-      this._enqueueMessageFn(message);
-
-      // tell the client we have pending messages and the total
-      ++this.stats.pending;
-      this.emit("client.pending", this.stats.pending);
+      this._enqueueMessageFn(message, this._handlePendingUpdate);
 
       // Attempt connection if not already pending
       if (!this._pendingSetup) {
@@ -451,9 +474,9 @@ export class Connection extends EventEmitter implements IConnection {
       // reset retryCount count
       this._retryCount = 1;
       // flush queue
-      this._flushQueueFn((message) => {
-        void this.sendMessage(message);
-      });
+      this._flushQueueFn((msg) => {
+        void this.sendMessage(msg);
+      }, this._handlePendingUpdate);
       // emit
       this.emit("connect");
     });

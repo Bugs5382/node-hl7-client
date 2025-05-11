@@ -37,6 +37,7 @@ export type {
 export type {
   ClientListenerOptions,
   ClientOptions,
+  MessageItem,
 } from "./utils/normalizedClient.js";
 export {
   Batch,

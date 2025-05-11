@@ -5,7 +5,8 @@ import path from "node:path";
 import { RedisMemoryServer } from "redis-memory-server";
 import tcpPortUsed from "tcp-port-used";
 import { describe, expect, test, vi } from "vitest";
-import Client, { Batch, FileBatch, Message, ReadyState } from "../src";
+import type { MessageItem } from "../src";
+import Client, { Batch, Message, ReadyState } from "../src";
 import { createDeferred } from "../src/utils/utils";
 import { expectEvent } from "./__utils__";
 
@@ -193,12 +194,17 @@ describe("node hl7 end to end - client", () => {
         // connect to redis
         await redis.connect();
 
-        const enqueueMessage = async (message: Message | Batch | FileBatch) => {
+        const enqueueMessage = async (
+          message: MessageItem,
+          notifyPendingCount: (count: number) => void,
+        ) => {
+          notifyPendingCount(1);
           await redis.lPush("hl7queue", message.toString());
         };
 
         const flushQueue = async (
-          callback: (message: Message | Batch | FileBatch) => void,
+          callback: (message: MessageItem) => void,
+          notifyPendingCount: (count: number) => void,
         ) => {
           while ((await redis.lLen("hl7queue")) > 0) {
             const result = await redis.blPop("hl7queue", 1); // 1 second timeout
@@ -206,6 +212,7 @@ describe("node hl7 end to end - client", () => {
             if (result && result.element) {
               const msg = new Message({ text: result.element });
               callback(msg);
+              notifyPendingCount(0);
             }
           }
         };
@@ -237,6 +244,35 @@ describe("node hl7 end to end - client", () => {
         await outbound.sendMessage(message);
 
         expect(client.totalPending()).toEqual(1);
+      });
+
+      test("... queues messages 10,001 still is 10000 (autoConnect: false)", async () => {
+        const client = new Client({ host: "0.0.0.0" });
+
+        // Create connection without auto-connecting
+        const outbound = client.createConnection(
+          { port, autoConnect: false },
+          async () => {},
+        );
+
+        vi.spyOn(outbound as any, "_connect").mockResolvedValue(undefined);
+
+        const message = new Message({
+          messageHeader: {
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
+            msh_10: "CONTROL_ID",
+            msh_11_1: "D",
+          },
+        });
+
+        for (let i = 0; i < 10001; i++) {
+          await outbound.sendMessage(message);
+        }
+
+        console.log(client.totalPending());
+
+        expect(client.totalPending()).toEqual(10000);
       });
     });
   });

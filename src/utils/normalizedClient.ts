@@ -12,6 +12,7 @@ import { assertNumber, validIPv4, validIPv6 } from "./utils.js";
  * @param res
  */
 export type OutboundHandler = (res: InboundResponse) => Promise<void> | void;
+export type MessageItem = Message | Batch | FileBatch;
 
 const DEFAULT_CLIENT_OPTS = {
   encoding: "utf-8",
@@ -102,7 +103,10 @@ export interface ClientListenerOptions extends ClientOptions {
    * @remarks
    * `enqueueMessage(message)` is called whenever a message should be stored.
    */
-  enqueueMessage?: (message: Message | Batch | FileBatch) => void;
+  enqueueMessage?: (
+    message: MessageItem,
+    notifyPendingCount: (count: number) => void,
+  ) => void | Promise<void>;
   /**
    * Your custom function to get messages from your custom enqueueMessage function.
    * Note: You must set up enqueueMessage prop as well.
@@ -118,11 +122,12 @@ export interface ClientListenerOptions extends ClientOptions {
    * };
    * ```
    * @remarks
-   * `flushQueue(deliverFn)` is called on reconnect to send stored messages back into the connection.
+   * `flushQueue(deliverFn)` is called on reconnecting and established to send stored messages back into the connection.
    */
   flushQueue?: (
-    callback: (message: Message | Batch | FileBatch) => void,
-  ) => void;
+    callback: (message: MessageItem) => void,
+    notifyPendingCount: (count: number) => void,
+  ) => void | Promise<void>;
   /**
    * @since 3.1.0
    * @default 10,000
