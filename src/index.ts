@@ -5,6 +5,7 @@ import { Message } from "./builder/message.js";
 import { EmptyNode } from "./builder/modules/emptyNode.js";
 import { NodeBase } from "./builder/modules/nodeBase.js";
 import { Segment } from "./builder/modules/segment.js";
+import { SegmentList } from "./builder/modules/segmentList.js";
 import { Client } from "./client/client.js";
 import { Connection, IConnection } from "./client/connection.js";
 import { InboundResponse } from "./client/module/inboundResponse.js";
@@ -58,6 +59,7 @@ export {
   OutboundHandler,
   ReadyState,
   Segment,
+  SegmentList,
 };
 
 export default Client;

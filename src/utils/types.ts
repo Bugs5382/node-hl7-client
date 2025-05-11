@@ -12,7 +12,7 @@ export type MessageItem = Message | Batch | FileBatch;
  * @param res
  */
 export type OutboundHandler = (res: InboundResponse) => Promise<void> | void;
-export type NotifyPendingCount = (count: number) => void;
+export type NotifyPendingCount = (count: number) => Promise<void>;
 export type FallBackHandler = (message: MessageItem) => void;
 
 /**
@@ -161,7 +161,6 @@ export interface ClientListenerOptions extends ClientOptions {
   /**
    * Your custom function to store messages if messages have to queue.
    * Note: You must set up flushQueue prop as well.
-   * @param message
    * @since 3.1.0
    * @example
    * ```ts
@@ -179,7 +178,6 @@ export interface ClientListenerOptions extends ClientOptions {
   /**
    * Your custom function to get messages from your custom enqueueMessage function.
    * Note: You must set up enqueueMessage prop as well.
-   * @param message
    * @since 3.1.0
    * @example
    * ```ts

@@ -77,12 +77,12 @@ export class Connection extends EventEmitter implements IConnection {
   /** @internal */
   private readonly _enqueueMessageFn: (
     message: MessageItem,
-    notifyPendingCount: (count: number) => void,
+    notifyPendingCount: NotifyPendingCount,
   ) => void | Promise<void>;
   /** @internal */
   private readonly _flushQueueFn: (
-    callback: (message: MessageItem) => void,
-    notifyPendingCount: (count: number) => void,
+    callback: FallBackHandler,
+    notifyPendingCount: NotifyPendingCount,
   ) => void | Promise<void>;
   /** @internal */
   private _codec: MLLPCodec | null;
@@ -162,53 +162,57 @@ export class Connection extends EventEmitter implements IConnection {
   }
 
   /**
-   *
+   * The handle that handles telling the client how many pending message this connection has.
+   * @since 3.1.0
    * @param count
    */
-  private _handlePendingUpdate = (count: number): void => {
+  private async _handlePendingUpdate(count: number): Promise<void> {
     this.stats.pending = count;
     this.emit("client.pending", this.stats.pending);
-  };
+  }
 
   /**
    * This is the default Enqueue Message Handler
+   * @since 3.1.0
    * @param message
    * @param notifyPendingCount
    * @protected
    */
-  protected defaultEnqueueMessage(
+  protected async defaultEnqueueMessage(
     message: MessageItem,
     notifyPendingCount: NotifyPendingCount,
-  ): void {
+  ): Promise<void> {
     if (this._pendingMessages.length === this._maxLimit) {
       this.handleQueueOverflow();
     }
     this._pendingMessages.push(message);
 
-    notifyPendingCount(this._pendingMessages.length);
+    await notifyPendingCount(this._pendingMessages.length);
   }
 
   /**
    * This is the default Flush Message Handler
+   * @since 3.1.0
    * @param callback
    * @param notifyPendingCount
    * @protected
    */
-  protected defaultFlushQueue(
+  protected async defaultFlushQueue(
     callback: FallBackHandler,
     notifyPendingCount: NotifyPendingCount,
-  ): void {
+  ): Promise<void> {
     while (this._pendingMessages.length > 0) {
       const msg = this._pendingMessages.shift();
       if (typeof msg !== "undefined") {
         callback(msg);
-        notifyPendingCount(this._pendingMessages.length);
+        await notifyPendingCount(this._pendingMessages.length);
       }
     }
   }
 
   /**
    * This is checked during Encoding to handle overflow from use of memory.
+   * @since 3.1.0
    * @protected
    */
   protected handleQueueOverflow(): void {
@@ -320,7 +324,7 @@ export class Connection extends EventEmitter implements IConnection {
    *    msh_9_1: "ADT",
    *    msh_9_2: "A01",
    *    msh_11_1: "P" // marked for production here in the example
-   *  }async sendMessage (message: Message | Batch | FileBatch): void {
+   *  }
    * })
    *
    * await OB.sendMessage(message)
@@ -344,7 +348,7 @@ export class Connection extends EventEmitter implements IConnection {
 
     if (shouldQueue()) {
       // Queue the message
-      this._enqueueMessageFn(message, this._handlePendingUpdate);
+      await this._enqueueMessageFn(message, this._handlePendingUpdate);
 
       // Attempt connection if not already pending
       if (!this._pendingSetup) {

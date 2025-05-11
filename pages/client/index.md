@@ -85,28 +85,76 @@ If you don't supply these functions, messages are stored in an internal array (`
 Example (default):
 
 ```ts
-this._enqueueMessageFn =
-  props.enqueueMessage ?? this.defaultEnqueueMessage.bind(this);
+/**
+ * This is the default Enqueue Message Handler
+ * @since 3.1.0
+ * @param message
+ * @param notifyPendingCount
+ * @protected
+ */
+async function defaultEnqueueMessage(
+  message: MessageItem,
+  notifyPendingCount: NotifyPendingCount,
+): Promise<void> {
+  if (this._pendingMessages.length === this._maxLimit) {
+    this.handleQueueOverflow();
+  }
+  this._pendingMessages.push(message);
+  await notifyPendingCount(this._pendingMessages.length);
+}
 
-this._flushQueueFn =
-  props.flushQueue ??
-  ((cb: (message: Message | Batch | FileBatch) => void) => {
-    while (this._pendingMessages.length > 0) {
-      const msg = this._pendingMessages.shift();
-      if (typeof msg !== "undefined") {
-        cb(msg);
-      }
+/**
+ * This is the default Flush Message Handler
+ * @since 3.1.0
+ * @param callback
+ * @param notifyPendingCount
+ * @protected
+ */
+async function defaultFlushQueue(
+  callback: FallBackHandler,
+  notifyPendingCount: NotifyPendingCount,
+): Promise<void> {
+  while (this._pendingMessages.length > 0) {
+    const msg = this._pendingMessages.shift();
+    if (typeof msg !== "undefined") {
+      callback(msg);
+      await notifyPendingCount(this._pendingMessages.length);
     }
-  });
+  }
+}
+
+/**
+ * This is checked during Encoding to handle overflow from use of memory.
+ * @since 3.1.0
+ * @protected
+ */
+function handleQueueOverflow(): void {
+  if (!this._extendMaxLimit) {
+    this._pendingMessages.shift();
+  }
+  if (this._notifyOnLimitExceeded) {
+    this.emit("client.limitExceeded", this._opt.port);
+  }
+}
+
+/**
+ * The handle that handles telling the client how many pending message this connection has.
+ * @since 3.1.0
+ * @param count
+ */
+async function _handlePendingUpdate(count: number): Promise<void> {
+  this.stats.pending = count;
+  this.emit("client.pending", this.stats.pending);
+}
 ```
 
-> ⚠️ **Note:** There is a max of 10,000 messages by default. It can be overridden to fix the number of your choice or removed completely. The client can also, optionally, listen for event `` to see if a particular connection is in this state.
+> ⚠️ **Note:** There is a max of 10,000 messages by default. It can be overridden to fix the amount of your choice or removed completely. The client can also, optionally, listen for event `client.limitExceeded` to see if a particular connection is in this state.
 
 ### Custom Behavior (Using Redis)
 
 You can override the default queue to use Redis or any other external storage like RabbitMQ, file-based queues, etc. **This is strongly recommended.**
 
-**Redis Example (with `node-redis`):**
+**Redis Example:**
 
 ```ts
 import { createClient } from "@redis/client";
@@ -114,12 +162,17 @@ import { createClient } from "@redis/client";
 const redis = createClient(); // assumision your server is put in here
 await redis.connect();
 
-const enqueueMessage = async (message: Message | Batch | FileBatch) => {
+const enqueueMessage = async (
+  message: MessageItem,
+  notifyPendingCount: NotifyPendingCount,
+) => {
   await redis.lPush("hl7queue", message.toString());
+  await notifyPendingCount(await redis.lLen("hl7queue"));
 };
 
 const flushQueue = async (
-  callback: (message: Message | Batch | FileBatch) => void,
+  callback: (message: MessageItem) => void,
+  notifyPendingCount: NotifyPendingCount,
 ) => {
   while ((await redis.lLen("hl7queue")) > 0) {
     const result = await redis.blPop("hl7queue", 1); // 1 second timeout
@@ -127,6 +180,7 @@ const flushQueue = async (
     if (result && result.element) {
       const msg = new Message({ text: result.element });
       callback(msg);
+      await notifyPendingCount(await redis.lLen("hl7queue"));
     }
   }
 };
@@ -165,14 +219,14 @@ This library has been **successfully tested** running across **multiple pod inst
 
 ### 💾 Offloading Messages with Custom Queues
 
-When inside Kubertnues setup you should use custom logic to store outbound messages (via `enqueueMessage`) ,
+When inside Kubernetes setup you should use custom logic to store outbound messages (via `enqueueMessage`) ,
 you must avoid using the built-in in-memory storage within the pod.
 Always offload the queue to a **persistent, external system** such as:
 
-- Redis (Prefered)
+- Redis (preferred)
 - RabbitMQ
 - SQL/NoSQL Databases
-- Flat files or S3 buckets (need Presentation Storage)
+- Flat files or S3 buckets (need persistent storage among reboots.)
 
 This ensures your message queue is resilient to pod restarts, crashes, and horizontal scaling.
 

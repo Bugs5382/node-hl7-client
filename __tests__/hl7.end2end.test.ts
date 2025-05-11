@@ -5,8 +5,13 @@ import path from "node:path";
 import { RedisMemoryServer } from "redis-memory-server";
 import tcpPortUsed from "tcp-port-used";
 import { describe, expect, test, vi } from "vitest";
-import type { MessageItem } from "../src";
-import Client, { Batch, Message, ReadyState } from "../src";
+import Client, {
+  Batch,
+  Message,
+  MessageItem,
+  NotifyPendingCount,
+  ReadyState,
+} from "../src";
 import { createDeferred } from "../src/utils/utils";
 import { expectEvent } from "./__utils__";
 
@@ -196,15 +201,15 @@ describe("node hl7 end to end - client", () => {
 
         const enqueueMessage = async (
           message: MessageItem,
-          notifyPendingCount: (count: number) => void,
+          notifyPendingCount: NotifyPendingCount,
         ) => {
-          notifyPendingCount(1);
           await redis.lPush("hl7queue", message.toString());
+          await notifyPendingCount(await redis.lLen("hl7queue"));
         };
 
         const flushQueue = async (
           callback: (message: MessageItem) => void,
-          notifyPendingCount: (count: number) => void,
+          notifyPendingCount: NotifyPendingCount,
         ) => {
           while ((await redis.lLen("hl7queue")) > 0) {
             const result = await redis.blPop("hl7queue", 1); // 1 second timeout
@@ -212,7 +217,7 @@ describe("node hl7 end to end - client", () => {
             if (result && result.element) {
               const msg = new Message({ text: result.element });
               callback(msg);
-              notifyPendingCount(0);
+              await notifyPendingCount(await redis.lLen("hl7queue"));
             }
           }
         };
