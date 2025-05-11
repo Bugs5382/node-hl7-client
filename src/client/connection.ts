@@ -166,7 +166,7 @@ export class Connection extends EventEmitter implements IConnection {
    * @since 3.1.0
    * @param count
    */
-  private async _handlePendingUpdate(count: number): Promise<void> {
+  private _handlePendingUpdate = async (count: number): Promise<void> => {
     this.stats.pending = count;
     this.emit("client.pending", this.stats.pending);
   }
