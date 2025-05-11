@@ -169,7 +169,7 @@ export class Connection extends EventEmitter implements IConnection {
   private _handlePendingUpdate = async (count: number): Promise<void> => {
     this.stats.pending = count;
     this.emit("client.pending", this.stats.pending);
-  }
+  };
 
   /**
    * This is the default Enqueue Message Handler
