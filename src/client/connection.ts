@@ -7,11 +7,13 @@ import type { MessageItem } from "../index.js";
 import { MLLPCodec } from "../utils/codec.js";
 import { ReadyState } from "../utils/enum.js";
 import { HL7FatalError } from "../utils/exception.js";
+import { normalizeClientListenerOptions } from "../utils/normalizedClient.js";
 import {
   ClientListenerOptions,
-  normalizeClientListenerOptions,
+  FallBackHandler,
+  NotifyPendingCount,
   OutboundHandler,
-} from "../utils/normalizedClient.js";
+} from "../utils/types.js";
 import {
   createDeferred,
   Deferred,
@@ -176,7 +178,7 @@ export class Connection extends EventEmitter implements IConnection {
    */
   protected defaultEnqueueMessage(
     message: MessageItem,
-    notifyPendingCount: (count: number) => void,
+    notifyPendingCount: NotifyPendingCount,
   ): void {
     if (this._pendingMessages.length === this._maxLimit) {
       this.handleQueueOverflow();
@@ -193,8 +195,8 @@ export class Connection extends EventEmitter implements IConnection {
    * @protected
    */
   protected defaultFlushQueue(
-    callback: (message: MessageItem) => void,
-    notifyPendingCount: (count: number) => void,
+    callback: FallBackHandler,
+    notifyPendingCount: NotifyPendingCount,
   ): void {
     while (this._pendingMessages.length > 0) {
       const msg = this._pendingMessages.shift();

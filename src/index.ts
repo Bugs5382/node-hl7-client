@@ -9,8 +9,20 @@ import { Client } from "./client/client.js";
 import { Connection, IConnection } from "./client/connection.js";
 import { InboundResponse } from "./client/module/inboundResponse.js";
 import { Delimiters, ReadyState } from "./utils/enum.js";
-import { OutboundHandler } from "./utils/normalizedClient.js";
+import {
+  FallBackHandler,
+  NotifyPendingCount,
+  OutboundHandler,
+} from "./utils/types.js";
 
+export type {
+  ClientBuilderFileOptions,
+  ClientBuilderMessageOptions,
+  ClientBuilderOptions,
+  ClientListenerOptions,
+  ClientOptions,
+  MessageItem,
+} from "./utils/types.js";
 export {
   assertNumber,
   createHL7Date,
@@ -29,28 +41,20 @@ export {
 
 export { MLLPCodec } from "./utils/codec.js";
 export { HL7Error, HL7FatalError, HL7ParserError } from "./utils/exception.js";
-export type {
-  ClientBuilderFileOptions,
-  ClientBuilderMessageOptions,
-  ClientBuilderOptions,
-} from "./utils/normalizedBuilder.js";
-export type {
-  ClientListenerOptions,
-  ClientOptions,
-  MessageItem,
-} from "./utils/normalizedClient.js";
 export {
   Batch,
   Client,
   Connection,
   Delimiters,
   EmptyNode,
+  FallBackHandler,
   FileBatch,
   HL7Node,
   IConnection,
   InboundResponse,
   Message,
   NodeBase,
+  NotifyPendingCount,
   OutboundHandler,
   ReadyState,
   Segment,

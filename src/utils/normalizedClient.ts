@@ -1,18 +1,8 @@
 import { TcpSocketConnectOpts } from "node:net";
 import type { ConnectionOptions as TLSOptions } from "node:tls";
-import { Batch, FileBatch, Message } from "../builder/index.js";
-import { InboundResponse } from "../client/module/inboundResponse.js";
 import { HL7FatalError } from "./exception.js";
+import { ClientListenerOptions, ClientOptions } from "./types.js";
 import { assertNumber, validIPv4, validIPv6 } from "./utils.js";
-
-/**
- * Outbound Handler
- * @remarks Used to receive a response from the server
- * @since 1.0.0
- * @param res
- */
-export type OutboundHandler = (res: InboundResponse) => Promise<void> | void;
-export type MessageItem = Message | Batch | FileBatch;
 
 const DEFAULT_CLIENT_OPTS = {
   encoding: "utf-8",
@@ -31,122 +21,6 @@ const DEFAULT_LISTEN_CLIENT_OPTS = {
   waitAck: true,
   maxLimit: 10000,
 };
-
-export interface ClientOptions {
-  /**
-   * How long a connection attempt checked before ending the socket and attempting again.
-   * If this is set to zero, the client will stay connected.
-   * Min. is 0 (Stay Connected), and Max. is 60000 (60 seconds.)
-   * Use with caution.
-   * @default 0
-   */
-  connectionTimeout?: number;
-  /** Host - You can do a FQDN or the IPv(4|6) address. */
-  host?: string;
-  /** IPv4 - If this is set to true, only IPv4 address will be used and also validated upon installation from the hostname property.
-   * @default false */
-  ipv4?: boolean;
-  /** IPv6 - If this is set to true, only IPv6 address will be used and also validated upon installation from the hostname property.
-   * @default false */
-  ipv6?: boolean;
-  /** Max attempts
-   * to send the message before an error is thrown if we are in the process of re-attempting to connect to the server.
-   * Has to be greater than 1. You cannot exceed 50.
-   * @default 10 */
-  maxAttempts?: number;
-  /** If we are trying to establish an initial connection to the server, let's end it after this many attempts.
-   * The time between re-connecting is determined by {@link connectionTimeout}.
-   * You cannot exceed 50.
-   * @since 1.1.0
-   * @default 30
-   */
-  maxConnectionAttempts?: number;
-  /** The number of times a connection timeout occurs until it stops attempting and just stops.
-   * @since 2.1.0
-   * @default 10
-   */
-  maxTimeout?: number;
-  /** Max delay, in milliseconds, for exponential-backoff when reconnecting
-   * @default 30_000 */
-  retryHigh?: number;
-  /** Step size, in milliseconds, for exponential-backoff when reconnecting
-   * @default 1000 */
-  retryLow?: number;
-  /** Additional options when creating the TCP socket with net.connect(). */
-  socket?: TcpSocketConnectOpts;
-  /** Enable TLS, or set TLS specific options like overriding the CA for
-   * self-signed certificates. */
-  tls?: boolean | TLSOptions;
-}
-
-export interface ClientListenerOptions extends ClientOptions {
-  /** If set to false, you have to tell the system to start trying to connect
-   * by sending 'start' method.
-   * @default true
-   */
-  autoConnect?: boolean;
-  /** Encoding of the messages we expect from the HL7 message.
-   * @default "utf-8"
-   */
-  encoding?: BufferEncoding;
-  /**
-   * Your custom function to store messages if messages have to queue.
-   * Note: You must set up flushQueue prop as well.
-   * @param message
-   * @since 3.1.0
-   * @example
-   * ```ts
-   * const enqueueMessage = (message: Message): void => {
-   *   messageQueue.push(message);
-   * };
-   * ```
-   * @remarks
-   * `enqueueMessage(message)` is called whenever a message should be stored.
-   */
-  enqueueMessage?: (
-    message: MessageItem,
-    notifyPendingCount: (count: number) => void,
-  ) => void | Promise<void>;
-  /**
-   * Your custom function to get messages from your custom enqueueMessage function.
-   * Note: You must set up enqueueMessage prop as well.
-   * @param message
-   * @since 3.1.0
-   * @example
-   * ```ts
-   * const flushQueue = (deliver: (msg: Message) => void): void => {
-   *   while (messageQueue.length > 0) {
-   *     const msg = messageQueue.shift();
-   *     if (msg) deliver(msg);
-   *   }
-   * };
-   * ```
-   * @remarks
-   * `flushQueue(deliverFn)` is called on reconnecting and established to send stored messages back into the connection.
-   */
-  flushQueue?: (
-    callback: (message: MessageItem) => void,
-    notifyPendingCount: (count: number) => void,
-  ) => void | Promise<void>;
-  /**
-   * @since 3.1.0
-   * @default 10,000
-   */
-  maxLimit?: number;
-  /** Max Connections this connection makes.
-   * Has to be greater than 1.
-   * @default 10 */
-  maxConnections?: number;
-  /** The port we should connect to on the server. */
-  port: number;
-  /** Wait for ACK before sending a new message.
-   * If this is set to false, you can send as many messages as you want but since you are not expecting any ACK from a
-   * previous message sent before sending another one.
-   * This does not stop the "total acknowledgement" counter on the
-   * client object to stop increasing.
-   * @default true **/
-  waitAck?: boolean;
-}
 
 type ValidatedClientKeys = "host" | "connectionTimeout";
 

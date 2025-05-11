@@ -1,10 +1,10 @@
 import EventEmitter from "events";
+import { normalizeClientOptions } from "../utils/normalizedClient.js";
 import {
   ClientListenerOptions,
   ClientOptions,
-  normalizeClientOptions,
   OutboundHandler,
-} from "../utils/normalizedClient.js";
+} from "../utils/types.js";
 import { Connection } from "./connection.js";
 
 /**
