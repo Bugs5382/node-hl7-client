@@ -86,8 +86,6 @@ export class Connection extends EventEmitter implements IConnection {
   /** @internal */
   private readonly _extendMaxLimit: boolean;
   /** @internal */
-  private readonly _maxHardLimit: number = 10000;
-  /** @internal */
   private readonly _maxLimit: number;
   /** @internal */
   private _notifyOnLimitExceeded: boolean;
@@ -137,7 +135,7 @@ export class Connection extends EventEmitter implements IConnection {
     this._connectionTimer = undefined;
     this._codec = null;
     this._pendingMessages = [];
-    this._maxLimit = this._opt.maxLimit ?? this._maxHardLimit;
+    this._maxLimit = this._opt.maxLimit;
     this._extendMaxLimit = this._opt.extendMaxLimit ?? false;
     this._notifyOnLimitExceeded = this._opt.notifyOnLimitExceeded ?? false;
 
