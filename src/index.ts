@@ -1,62 +1,65 @@
-import { Client } from "./client/client.js";
-import { Message } from "./builder/message.js";
 import { Batch } from "./builder/batch.js";
 import { FileBatch } from "./builder/fileBatch.js";
-import { Connection, IConnection } from "./client/connection.js";
-import { Delimiters, ReadyState } from "./utils/enum.js";
-import { OutboundHandler } from "./utils/normalizedClient.js";
-import { InboundResponse } from "./client/module/inboundResponse.js";
-import { NodeBase } from "./builder/modules/nodeBase.js";
 import { HL7Node } from "./builder/interface/hL7Node.js";
+import { Message } from "./builder/message.js";
 import { EmptyNode } from "./builder/modules/emptyNode.js";
+import { NodeBase } from "./builder/modules/nodeBase.js";
 import { Segment } from "./builder/modules/segment.js";
+import { SegmentList } from "./builder/modules/segmentList.js";
+import { Client } from "./client/client.js";
+import { Connection, IConnection } from "./client/connection.js";
+import { InboundResponse } from "./client/module/inboundResponse.js";
+import { Delimiters, ReadyState } from "./utils/enum.js";
+import {
+  FallBackHandler,
+  NotifyPendingCount,
+  OutboundHandler,
+} from "./utils/types.js";
 
-export {
-  expBackoff,
-  assertNumber,
-  isHL7Number,
-  isHL7String,
-  validIPv4,
-  validIPv6,
-  createHL7Date,
-  isBatch,
-  isFile,
-  padHL7Date,
-  escapeForRegExp,
-  decodeHexString,
-  randomString,
-} from "./utils/utils.js";
-
-export type {
-  ClientOptions,
-  ClientListenerOptions,
-} from "./utils/normalizedClient.js";
 export type {
   ClientBuilderFileOptions,
   ClientBuilderMessageOptions,
   ClientBuilderOptions,
-} from "./utils/normalizedBuilder.js";
-export type {
-  HL7Error,
-  HL7FatalError,
-  HL7ParserError,
-} from "./utils/exception.js";
-
-export default Client;
+  ClientListenerOptions,
+  ClientOptions,
+  MessageItem,
+} from "./utils/types.js";
 export {
+  assertNumber,
+  createHL7Date,
+  decodeHexString,
+  escapeForRegExp,
+  expBackoff,
+  isBatch,
+  isFile,
+  isHL7Number,
+  isHL7String,
+  padHL7Date,
+  randomString,
+  validIPv4,
+  validIPv6,
+} from "./utils/utils.js";
+
+export { MLLPCodec } from "./utils/codec.js";
+export { HL7Error, HL7FatalError, HL7ParserError } from "./utils/exception.js";
+export {
+  Batch,
   Client,
   Connection,
-  IConnection,
-  OutboundHandler,
-  InboundResponse,
-  FileBatch,
-  Batch,
-  Message,
-  ReadyState,
-  NodeBase,
-  EmptyNode,
-  Segment,
   Delimiters,
+  EmptyNode,
+  FallBackHandler,
+  FileBatch,
   HL7Node,
+  IConnection,
+  InboundResponse,
+  Message,
+  NodeBase,
+  NotifyPendingCount,
+  OutboundHandler,
+  ReadyState,
+  Segment,
+  SegmentList,
 };
-export { MLLPCodec } from "./utils/codec.js";
+
+export default Client;

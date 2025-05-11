@@ -1,11 +1,11 @@
 import EventEmitter from "events";
+import { Delimiters } from "../../utils/enum.js";
+import { HL7FatalError } from "../../utils/exception.js";
 import { isHL7Number, isHL7String, padHL7Date } from "../../utils/utils.js";
 import { Batch } from "../batch.js";
-import { EmptyNode } from "./emptyNode.js";
-import { HL7FatalError } from "../../utils/exception.js";
-import { Delimiters } from "../../utils/enum.js";
 import { HL7Node } from "../interface/hL7Node.js";
 import { Message } from "../message.js";
+import { EmptyNode } from "./emptyNode.js";
 
 /**
  * Node Base

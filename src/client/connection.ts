@@ -2,16 +2,18 @@ import EventEmitter from "node:events";
 import net, { Socket } from "node:net";
 import { clearTimeout } from "node:timers";
 import tls from "node:tls";
-import Batch from "../builder/batch.js";
-import FileBatch from "../builder/fileBatch.js";
-import Message from "../builder/message.js";
+import { Batch, FileBatch, Message } from "../builder/index.js";
+import type { MessageItem } from "../index.js";
+import { MLLPCodec } from "../utils/codec.js";
 import { ReadyState } from "../utils/enum.js";
 import { HL7FatalError } from "../utils/exception.js";
+import { normalizeClientListenerOptions } from "../utils/normalizedClient.js";
 import {
   ClientListenerOptions,
-  normalizeClientListenerOptions,
+  FallBackHandler,
+  NotifyPendingCount,
   OutboundHandler,
-} from "../utils/normalizedClient.js";
+} from "../utils/types.js";
 import {
   createDeferred,
   Deferred,
@@ -20,7 +22,6 @@ import {
 } from "../utils/utils.js";
 import { Client } from "./client.js";
 import { InboundResponse } from "./module/inboundResponse.js";
-import { MLLPCodec } from "../utils/codec.js";
 
 export interface IConnection extends EventEmitter {
   /** The connection has been closed manually. You have to start the connection again. */
@@ -39,6 +40,8 @@ export interface IConnection extends EventEmitter {
   on(name: "client.sent", cb: (number: number) => void): this;
   /** The connection has timeout. Review "client.error" event for the reason. */
   on(name: "client.timeout", cb: () => void): this;
+  /** When the in-memory queue limit is exceeded */
+  on(name: "client.limitExceeded", cb: (port: number) => void): this;
 }
 
 /** Connection Class
@@ -64,7 +67,7 @@ export class Connection extends EventEmitter implements IConnection {
   /** @internal */
   protected _readyState: ReadyState;
   /** @internal */
-  _pendingSetup: Promise<boolean> | boolean;
+  private _pendingSetup: boolean;
   /** @internal */
   _onConnect: Deferred<void>;
   /** @internal */
@@ -72,12 +75,33 @@ export class Connection extends EventEmitter implements IConnection {
   /** @internal */
   private _dataResult: boolean | undefined;
   /** @internal */
+  private readonly _enqueueMessageFn: (
+    message: MessageItem,
+    notifyPendingCount: NotifyPendingCount,
+  ) => void | Promise<void>;
+  /** @internal */
+  private readonly _flushQueueFn: (
+    callback: FallBackHandler,
+    notifyPendingCount: NotifyPendingCount,
+  ) => void | Promise<void>;
+  /** @internal */
   private _codec: MLLPCodec | null;
+  /** @internal */
+  private readonly _pendingMessages: Array<Message | Batch | FileBatch> = [];
+  /** @internal */
+  private readonly _extendMaxLimit: boolean;
+  /** @internal */
+  private readonly _maxLimit: number;
+  /** @internal */
+  private _notifyOnLimitExceeded: boolean;
   /** @internal */
   readonly stats = {
     /** Total acknowledged messages back from server.
      * @since 1.1.0 */
     acknowledged: 0,
+    /** Pending Messages
+     * @since 3.1.0 */
+    pending: 0,
     /** Total message sent to server.
      * @since 1.1.0 */
     sent: 0,
@@ -109,12 +133,20 @@ export class Connection extends EventEmitter implements IConnection {
 
     this._connect = this._connect.bind(this);
 
-    this._pendingSetup = true;
+    this._pendingSetup = false;
     this._retryCount = 0;
     this._retryTimeoutCount = 0;
     this._retryTimer = undefined;
     this._connectionTimer = undefined;
     this._codec = null;
+    this._pendingMessages = [];
+    this._maxLimit = this._opt.maxLimit;
+    this._extendMaxLimit = this._opt.extendMaxLimit ?? false;
+    this._notifyOnLimitExceeded = this._opt.notifyOnLimitExceeded ?? false;
+
+    this._enqueueMessageFn =
+      props.enqueueMessage ?? this.defaultEnqueueMessage.bind(this);
+    this._flushQueueFn = props.flushQueue ?? this.defaultFlushQueue.bind(this);
 
     this._onConnect = createDeferred(true);
 
@@ -129,6 +161,70 @@ export class Connection extends EventEmitter implements IConnection {
     }
   }
 
+  /**
+   * The handle that handles telling the client how many pending message this connection has.
+   * @since 3.1.0
+   * @param count
+   */
+  private _handlePendingUpdate = async (count: number): Promise<void> => {
+    this.stats.pending = count;
+    this.emit("client.pending", this.stats.pending);
+  };
+
+  /**
+   * This is the default Enqueue Message Handler
+   * @since 3.1.0
+   * @param message
+   * @param notifyPendingCount
+   * @protected
+   */
+  protected async defaultEnqueueMessage(
+    message: MessageItem,
+    notifyPendingCount: NotifyPendingCount,
+  ): Promise<void> {
+    if (this._pendingMessages.length === this._maxLimit) {
+      this.handleQueueOverflow();
+    }
+    this._pendingMessages.push(message);
+
+    await notifyPendingCount(this._pendingMessages.length);
+  }
+
+  /**
+   * This is the default Flush Message Handler
+   * @since 3.1.0
+   * @param callback
+   * @param notifyPendingCount
+   * @protected
+   */
+  protected async defaultFlushQueue(
+    callback: FallBackHandler,
+    notifyPendingCount: NotifyPendingCount,
+  ): Promise<void> {
+    while (this._pendingMessages.length > 0) {
+      const msg = this._pendingMessages.shift();
+      if (typeof msg !== "undefined") {
+        callback(msg);
+        await notifyPendingCount(this._pendingMessages.length);
+      }
+    }
+  }
+
+  /**
+   * This is checked during Encoding to handle overflow from use of memory.
+   * @since 3.1.0
+   * @protected
+   */
+  protected handleQueueOverflow(): void {
+    if (!this._extendMaxLimit) {
+      this._pendingMessages.shift();
+    }
+
+    if (this._notifyOnLimitExceeded) {
+      this.emit("client.limitExceeded", this._opt.port);
+    }
+  }
+
   /** Close Client Listener Instance.
    * @remarks Force close a connection.
    * It will stop any re-connection timers.
@@ -136,7 +232,7 @@ export class Connection extends EventEmitter implements IConnection {
    * @since 1.0.0
    * @example
    * ```ts
-   * OB.close()
+   * outbound.close()
    * ```
    */
   async close(): Promise<void> {
@@ -189,7 +285,7 @@ export class Connection extends EventEmitter implements IConnection {
    * Start the connection if not auto started.
    * @since 2.0.0
    */
-  async start(): Promise<void> {
+  async connect(): Promise<void> {
     if (this._readyState === ReadyState.CONNECTING) {
       return;
     }
@@ -221,14 +317,14 @@ export class Connection extends EventEmitter implements IConnection {
    * @example
    * ```ts
    *
-   * // the OB was set from the orginial 'createConnection' method.
+   * // the OB was set from the original 'createConnection' method.
    *
    * let message = new Message({
    *  messageHeader: {
    *    msh_9_1: "ADT",
    *    msh_9_2: "A01",
    *    msh_11_1: "P" // marked for production here in the example
-   *  }async sendMessage (message: Message | Batch | FileBatch): void {
+   *  }
    * })
    *
    * await OB.sendMessage(message)
@@ -236,91 +332,64 @@ export class Connection extends EventEmitter implements IConnection {
    * ```
    */
   async sendMessage(message: Message | Batch | FileBatch): Promise<void> {
-    let attempts = 0;
-    const maxAttempts = this._opt.maxAttempts;
+    const theMessage = message.toString();
     const emitter = new EventEmitter();
     const codec = new MLLPCodec(this._opt.encoding);
+    const maxAttempts = this._opt.maxAttempts;
+    let attempts = 0;
 
-    const checkConnection = async (): Promise<boolean> => {
-      return this._readyState === ReadyState.CONNECTED;
+    // If not ready to send, queue the message
+    const shouldQueue = (): boolean => {
+      return (
+        this._readyState !== ReadyState.CONNECTED ||
+        (this._opt.waitAck && this._awaitingResponse)
+      );
     };
 
-    const checkAcknowledgement = async (): Promise<boolean> => {
-      return this._awaitingResponse;
-    };
+    if (shouldQueue()) {
+      // Queue the message
+      await this._enqueueMessageFn(message, this._handlePendingUpdate);
 
-    const checkSend = async (_message: string): Promise<boolean> => {
-      while (true) {
-        // noinspection InfiniteLoopJS
+      // Attempt connection if not already pending
+      if (!this._pendingSetup) {
+        this._pendingSetup = true;
         try {
-          if (
-            this._readyState === ReadyState.CLOSED ||
-            this._readyState === ReadyState.CLOSING
-          ) {
-            // noinspection ExceptionCaughtLocallyJS
-            throw new HL7FatalError(
-              "In an invalid state to be able to send message.",
-            );
-          }
-          if (this._readyState !== ReadyState.CONNECTED) {
-            // if we are not connected,
-            // check to see if we are now connected.
-            if (this._pendingSetup === false) {
-              this._pendingSetup = checkConnection().finally(() => {
-                this._pendingSetup = false;
-              });
-            }
-          } else if (
-            this._readyState === ReadyState.CONNECTED &&
-            this._opt.waitAck &&
-            this._awaitingResponse
-          ) {
-            // Ok, we ar now confirmed connected.
-            // However, since we are checking
-            // to make sure we wait for an ACKNOWLEDGEMENT from the server,
-            // that the message was gotten correctly from the last one we sent.
-            // We are still waiting, we need to recheck again
-            // if we are not connected,
-            // check to see if we are now connected.
-            if (this._pendingSetup === false) {
-              this._pendingSetup = checkAcknowledgement().finally(() => {
-                this._pendingSetup = false;
-              });
-            }
-          }
-          return await this._pendingSetup;
+          this._socket = this._connect();
         } catch (err: any) {
           Error.captureStackTrace(err);
-          if (++attempts >= maxAttempts) {
-            throw err;
-          } else {
-            emitter.emit("retry", err);
-          }
+          this._pendingSetup = false;
+          emitter.emit("connection.error", err);
         }
       }
-    };
 
-    // get the message
-    const theMessage = message.toString();
+      return;
+    }
 
-    // check to see if we should be sending
-    await checkSend(theMessage);
+    while (true) {
+      try {
+        if (this._readyState !== ReadyState.CONNECTED) {
+          throw new HL7FatalError("In an invalid state to send message.");
+        }
 
-    // ok, if our options are to wait for an acknowledgement, set the var to "true"
+        break; // ready to send
+      } catch (err: any) {
+        Error.captureStackTrace(err);
+        if (++attempts >= maxAttempts) throw err;
+        emitter.emit("retry", err);
+      }
+    }
+
     if (this._opt.waitAck) {
       this._awaitingResponse = true;
     }
 
-    // send the message
     codec.sendMessage(this._socket, theMessage, this._opt.encoding);
-    // we sent a message
     ++this.stats.sent;
-    // emit
     this.emit("client.sent", this.stats.sent);
   }
 
   /** @internal */
-  private _connect(): Socket {
+  protected _connect(): Socket {
     let socket: Socket;
     const host = this._main._opt.host;
     const port = this._opt.port;
@@ -410,6 +479,10 @@ export class Connection extends EventEmitter implements IConnection {
       this._readyState = ReadyState.CONNECTED;
       // reset retryCount count
       this._retryCount = 1;
+      // flush queue
+      this._flushQueueFn((msg) => {
+        void this.sendMessage(msg);
+      }, this._handlePendingUpdate);
       // emit
       this.emit("connect");
     });

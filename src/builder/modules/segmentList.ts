@@ -2,7 +2,10 @@ import { HL7Node } from "../interface/hL7Node.js";
 import { NodeBase } from "./nodeBase.js";
 import { Segment } from "./segment.js";
 
-/** @internal */
+/**
+ * Segment List
+ * @since 1.0.0
+ */
 export class SegmentList extends NodeBase {
   /** @internal */
   private readonly _segments: Segment[];

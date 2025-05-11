@@ -2,30 +2,15 @@
 
 ## Introduction
 
-To send a HL7 message, your client connects to a server/broker on a port that will accept a message.
-THis has been traditionally done over the TCP/MLLP design.
-UDP is not generally accepted
-since the client usually wants to know if they got a proper response from the server that the message was accepted.
+To send an HL7 message, your client must connect to a server or broker that accepts messages on a specific port. Traditionally, this communication has used the TCP/MLLP protocol. UDP is not generally used because clients typically need confirmation that their message was received and accepted by the server.
 
-Over time and now that REST API has become more widely accepted,
-HTTPS/HTTP can be used as long as the system parses the message correctly.
-This method
-used not done in this library.
-It uses the standard TCP/MLLP which has not generally been secured since the message itself.
-From a networking perspective, most HL7 messages do not transit the public internet.
-They are internal to each other or over an IPSEC tunnel with a remote site
-creating a networking layer separation from normal day-to-day traffic.
+While HTTPS/HTTP (via REST APIs) has become more common in modern architectures, this library currently supports only the traditional TCP/MLLP transport. MLLP does not natively provide encryption, but since HL7 messages are often exchanged within trusted networks or over secure IPSEC tunnels, additional message-level security has not always been prioritized.
 
-> Note: There are plans within this library to allow you to "hook" into the sending sequence and return an encrypted text string and then the other side would have to decrypt it prior to processing the HL7 message.
+> **Note:** Future versions of this library may include hooks that allow message encryption prior to transmission. The recipient would be responsible for decrypting the message before processing.
 
-There might be times when you're connecting to the same server/broker, but over multiple ports.
-Each port, usually designed in HL7 interfaced systems, handles a single type of message type.
-From ADTs to ORU since the work they are doing is far different.
-This is the most common method;
-however, some setups can accept both,
-parse the messages, and determine their best course of action on the received data.
+In many HL7 environments, multiple ports on the same server handle different types of messages (e.g., ADT vs. ORU), each associated with a specific workflow. While most systems use dedicated ports for specific message types, some can handle multiple types on the same port and parse accordingly.
 
-Thus, let's show you would start using this library Client.
+Let's walk through how to get started using this library's `Client`.
 
 ## Table of Contents
 
@@ -35,58 +20,215 @@ Thus, let's show you would start using this library Client.
 
 ## Basic Usage
 
-THis library supports IPv4, IPv6, or Fully Qualified Domain Names ("FQDN").
+This library supports connections over IPv4, IPv6, or Fully Qualified Domain Names (FQDNs).
 
-> Note: IPv4 and IPv6 format testing are done to ensure they are correctly formatted. FQDNs are not check that it's resolved correctly from DNS.
+> **Note:** IPv4 and IPv6 formats are validated for correctness. FQDNs are not checked against DNS for resolution.
 
-> Note: The IP address used in this document follow [RFC5737](https://datatracker.ietf.org/doc/html/rfc5737) and [RFC3849](https://datatracker.ietf.org/doc/html/rfc3849) and are not production IPs. Please use real IPs, either internal or external.
+> **Note:** The IP addresses shown in this documentation follow [RFC5737](https://datatracker.ietf.org/doc/html/rfc5737) and [RFC3849](https://datatracker.ietf.org/doc/html/rfc3849) for documentation use. Replace them with actual internal or external IPs in production.
+
+### Step 1: Create the Client
 
 ```ts
 const client = new Client({ host: "192.0.2.1" });
 ```
 
-This starts a basic client to host `192.0.2.1`, but no connection has yet to take place.
-Since HL7 message are sent to ports,
-and to establish a connection you have to start an outbound connection ("OB") and for this example, port `5678`
+This initializes a client targeting `192.0.2.1`, but does not yet establish a connection.
+
+### Step 2: Create an Outbound Connection
+
+HL7 messages are sent to specific ports. You must initiate an outbound connection to begin sending.
 
 ```ts
 const OB_ADT = client.createConnection({ port: 5678 }, async (res) => {
   const messageRes = res.getMessage();
-  const check = messageRes.get("MSA.1").toString(); // MSA is a Message Acknoedlgement Segment
-  if (check === "AA") {
-    // yep. the server got our message.
+  const status = messageRes.get("MSA.1").toString(); // MSA is the Message Acknowledgment Segment
+
+  if (status === "AA") {
+    // Message was accepted successfully
   } else {
-    // something might have gone wrong.
+    // The message may have failed to process
   }
 });
 ```
 
-Now you can send a message to this port by:
+### Step 3: Send a Message
 
 ```ts
-await OB_ADT.sendMessage(message); //  message being a Message object and not the string of the message.
+await OB_ADT.sendMessage(message); // `message` must be a Message object, not a raw string.
 ```
 
-Outbound connections are designed to "stay" connected until they need to be closed,
-so this way messages can be sent at any time without having to re-establish the connection.
+Outbound connections are persistent by design. This allows multiple messages to be sent without repeatedly re-establishing the connection.
 
-If it does disconnect, the library will attempt to reconnect for up to 10 times,
-or user configured, to re-established before closing the connection.
-Your app would have to restart the connection process if it completely died.
+If the connection drops, the library will attempt to reconnect up to 10 times (or a user-defined limit) before giving up. If reconnection fails, your application will need to restart the connection process.
 
-To close your connection without it trying to reconnect:
+### Step 4: Close the Connection
+
+To permanently close a connection without attempting to reconnect:
 
 ```ts
 await OB_ADT.close();
 ```
 
-Will close the connection permanently.
+## Saved Messages
 
-## Running in Kubernetes
+This library allows you to override the default in-memory message queue behavior
+by supplying your own message queuing logic.
+You can provide two functions:
 
-In theory (to be tested in the near future)
-this library will work on a instance running in Kubernetes including more than one instance of the pod.
-Since this is an outbound connection,
-the server/broker should be able to return to the instance that sent the message in the first place.
-If that instance dies after sending the message and not getting a response,
-the response from the server might be lost forever.
+- `enqueueMessage(message)` – called when a message is ready to be stored.
+- `flushQueue(callback)` – called to retrieve messages and deliver them back to the client for processing.
+
+### Default Behavior (In-Memory)
+
+If you don't supply these functions, messages are stored in an internal array (`_pendingMessages`), and flushed in order.
+
+Example (default):
+
+```ts
+/**
+ * This is the default Enqueue Message Handler
+ * @since 3.1.0
+ * @param message
+ * @param notifyPendingCount
+ * @protected
+ */
+async function defaultEnqueueMessage(
+  message: MessageItem,
+  notifyPendingCount: NotifyPendingCount,
+): Promise<void> {
+  if (this._pendingMessages.length === this._maxLimit) {
+    this.handleQueueOverflow();
+  }
+  this._pendingMessages.push(message);
+  await notifyPendingCount(this._pendingMessages.length);
+}
+
+/**
+ * This is the default Flush Message Handler
+ * @since 3.1.0
+ * @param callback
+ * @param notifyPendingCount
+ * @protected
+ */
+async function defaultFlushQueue(
+  callback: FallBackHandler,
+  notifyPendingCount: NotifyPendingCount,
+): Promise<void> {
+  while (this._pendingMessages.length > 0) {
+    const msg = this._pendingMessages.shift();
+    if (typeof msg !== "undefined") {
+      callback(msg);
+      await notifyPendingCount(this._pendingMessages.length);
+    }
+  }
+}
+
+/**
+ * This is checked during Encoding to handle overflow from use of memory.
+ * @since 3.1.0
+ * @protected
+ */
+function handleQueueOverflow(): void {
+  if (!this._extendMaxLimit) {
+    this._pendingMessages.shift();
+  }
+  if (this._notifyOnLimitExceeded) {
+    this.emit("client.limitExceeded", this._opt.port);
+  }
+}
+
+/**
+ * The handle that handles telling the client how many pending message this connection has.
+ * @since 3.1.0
+ * @param count
+ */
+async function _handlePendingUpdate(count: number): Promise<void> {
+  this.stats.pending = count;
+  this.emit("client.pending", this.stats.pending);
+}
+```
+
+> ⚠️ **Note:** There is a max of 10,000 messages by default. It can be overridden to fix the amount of your choice or removed completely. The client can also, optionally, listen for event `client.limitExceeded` to see if a particular connection is in this state.
+
+### Custom Behavior (Using Redis)
+
+You can override the default queue to use Redis or any other external storage like RabbitMQ, file-based queues, etc. **This is strongly recommended.**
+
+**Redis Example:**
+
+```ts
+import { createClient } from "@redis/client";
+
+const redis = createClient(); // assumision your server is put in here
+await redis.connect();
+
+const enqueueMessage = async (
+  message: MessageItem,
+  notifyPendingCount: NotifyPendingCount,
+) => {
+  await redis.lPush("hl7queue", message.toString());
+  await notifyPendingCount(await redis.lLen("hl7queue"));
+};
+
+const flushQueue = async (
+  callback: (message: MessageItem) => void,
+  notifyPendingCount: NotifyPendingCount,
+) => {
+  while ((await redis.lLen("hl7queue")) > 0) {
+    const result = await redis.blPop("hl7queue", 1); // 1 second timeout
+
+    if (result && result.element) {
+      const msg = new Message({ text: result.element });
+      callback(msg);
+      await notifyPendingCount(await redis.lLen("hl7queue"));
+    }
+  }
+};
+
+const client = new Client({ host: "0.0.0.0" });
+
+// Create connection without auto-connecting
+const outbound = client.createConnection(
+  {
+    port,
+    autoConnect: false,
+    enqueueMessage,
+    flushQueue,
+  },
+  async () => {}, // simplied here
+);
+```
+
+**Important:**
+
+- `enqueueMessage` must be a synchronous or non-async function.
+- `flushQueue` can be `async`, but it should call `callback(message)` rather than processing the message directly.
+- The message passed to `enqueueMessage` is always one of `Message`, `Batch`, or `FileBatch`.
+
+This flexible queuing system allows seamless integration with external storage systems—such as Redis, RabbitMQ, databases, or even flat files—enabling you to offload in-memory storage and better manage system resources.
+
+> 🔐 **Data Safety Warning:**
+> If using shared queues (like Redis), **tag or isolate messages per client instance** to prevent sending messages to the wrong downstream service. Mismatching or leaking data between client/ports can result in serious issues in production systems.
+
+### ⚙️ Scalability & Message Reliability in Kubernetes
+
+This library has been **successfully tested** running across **multiple pod instances** in a **Kubernetes** environment. Because this is an **outbound client connection**, the upstream HL7 server or broker returns its response to the **same client instance** that initiated the request.
+
+> ⚠️ **Important Note on Reliability:**
+> If a pod sends a message and then crashes or is terminated **before receiving the response**, that response may be **lost permanently** unless handled by an external failover or retry strategy.
+
+### 💾 Offloading Messages with Custom Queues
+
+When inside Kubernetes setup you should use custom logic to store outbound messages (via `enqueueMessage`) ,
+you must avoid using the built-in in-memory storage within the pod.
+Always offload the queue to a **persistent, external system** such as:
+
+- Redis (preferred)
+- RabbitMQ
+- SQL/NoSQL Databases
+- Flat files or S3 buckets (need persistent storage among reboots.)
+
+This ensures your message queue is resilient to pod restarts, crashes, and horizontal scaling.
+
+> 🔐 **Data Safety Warning:**
+> If using shared queues (like Redis), **tag or isolate messages per client instance** to prevent sending messages to the wrong downstream service. Mismatching or leaking data between client/ports can result in serious issues in production systems.
