@@ -12,39 +12,22 @@ jobs:
   History:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch all branches
-        run: git fetch --all
-
-      - name: Check if branch exists
-        id: branch_check
-        run: |
-          if git rev-parse --verify origin/gh-pages >/dev/null 2>&1; then
-            echo "Branch exists"
-            echo "exists=true" >> $GITHUB_ENV
-          else
-            echo "Branch does not exist"
-            echo "exists=false" >> $GITHUB_ENV
-          fi
-        continue-on-error: true
-
       - name: Get the gh-pages repo
-        if: env.exists == 'true'
         uses: actions/checkout@v4
         with:
           ref: gh-pages
 
-      - name: TAR the existing docs
-        if: env.exists == 'true'
+      - name: Tar the existing docs
         run: |
           mkdir -p ./docs
           tar -cvf documentation.tar ./docs
 
       - name: Create a document artifact
-        if: env.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: documentation
           path: documentation.tar
+
   Build:
     needs: History
     runs-on: ubuntu-latest
@@ -52,17 +35,16 @@ jobs:
       - name: Checkout src
         uses: actions/checkout@v4
 
-      - name: Create Directory
+      - name: Make Directory
         run: mkdir -p ./docs
 
       - name: Download the existing documents artifact
         uses: actions/download-artifact@v4
         with:
           name: documentation
-        continue-on-error: true
 
-      - run: tar -xf documentation.tar ./docs -C ./docs
-        continue-on-error: true
+      - name: Tar Docs
+        run: tar -xf documentation.tar ./docs -C ./docs
 
       - name: Build
         uses: actions/setup-node@v4
@@ -70,7 +52,9 @@ jobs:
           node-version: lts/*
 
       - name: Install NPM
-        run: npm install --ignore-scripts
+        run: |
+          npm install --package-lock-only --force
+          npm install --ignore-scripts --force
 
       - name: Build Documents
         run: npm run typedoc
@@ -83,24 +67,15 @@ jobs:
         with:
           name: newdocumentation
           path: newdocumentation.tar
+
   Commit:
     needs: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch all branches
-        run: git fetch --all
-
-      - name: Check if branch exists
-        id: branch_check
-        run: |
-          if git rev-parse --verify origin/gh-pages >/dev/null 2>&1; then
-            echo "Branch exists"
-            echo "exists=true" >> $GITHUB_ENV
-          else
-            echo "Branch does not exist"
-            echo "exists=false" >> $GITHUB_ENV
-          fi
-        continue-on-error: true
+      - name: Checkout the gh-pages repo
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
 
       - name: Checkout the gh-pages repo
         if: env.exists == 'true'
