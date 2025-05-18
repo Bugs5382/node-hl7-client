@@ -22,9 +22,12 @@ class HL7FatalError extends HL7Error {
 
 /** Used to indicate a fatal failure of a connection.
  * @since 1.0.0 */
-class HL7ParserError extends Error {
+class HL7ParserError extends HL7Error {
   /** @internal */
   name = "HL7ParserError";
+  constructor(message: string) {
+    super(404, message);
+  }
 }
 
 export { HL7Error, HL7FatalError, HL7ParserError };

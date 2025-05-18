@@ -1,5 +1,6 @@
-import { describe, expect, test, beforeEach } from "vitest";
-import { Client } from "../src";
+import { beforeEach, describe, expect, test } from "vitest";
+import { Client, HL7FatalError } from "../src";
+import { expectHL7FatalError } from "./__utils__/expectHL7FatalError";
 
 describe("node hl7 client", () => {
   describe("sanity tests - client class", () => {
@@ -110,6 +111,40 @@ describe("node hl7 client", () => {
       } catch (err: any) {
         expect(err.message).toBe("port must be a number (1, 65353).");
       }
+    });
+
+    test("error - flushQueue needs to be set", async () => {
+      try {
+        client.createConnection(
+          // @ts-ignore message is not doing anything
+          { port: 12345, enqueueMessage: (message) => {} },
+          async () => {},
+        );
+      } catch (err) {
+        expect(err).toEqual(new HL7FatalError("flushQueue is not set."));
+      }
+    });
+
+    test("error - enqueueMessage needs to be set", async () => {
+      try {
+        client.createConnection(
+          // @ts-ignore message is not doing anything
+          { port: 12345, flushQueue: (message) => {} },
+          async () => {},
+        );
+      } catch (err) {
+        expectHL7FatalError(err, "enqueueMessage is not set.");
+      }
+    });
+
+    test("error - enqueueMessage needs to be set", async () => {
+      const outbound = client.createConnection(
+        // @ts-ignore message is not doing anything
+        { port: 12345, autoConnect: false },
+        async () => {},
+      );
+
+      expect(outbound.getPort()).toEqual(12345);
     });
   });
 });

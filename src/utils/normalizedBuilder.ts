@@ -1,8 +1,12 @@
 import fs from "fs";
 import { HL7_2_7 } from "../specification/2.7.js";
-import { MSH } from "../specification/specification.js";
 import { HL7FatalError } from "./exception.js";
 import { ParserPlan } from "./parserPlan.js";
+import {
+  ClientBuilderFileOptions,
+  ClientBuilderMessageOptions,
+  ClientBuilderOptions,
+} from "./types.js";
 import { isBatch } from "./utils.js";
 
 const DEFAULT_CLIENT_BUILDER_OPTS = {
@@ -22,92 +26,6 @@ const DEFAULT_CLIENT_FILE_OPTS = {
   extension: "hl7",
   location: "",
 };
-
-/**
- * Client Builder Options
- * @remarks Used to specific default paramaters around building an HL7 message if that is
- * so desired.
- * It also sets up checking of input values to make sure they match up to the proper
- * HL7 specification.
- * @since 1.0.0
- */
-export interface ClientBuilderOptions {
-  /** The date type for the date field. Usually generated at the time of the class being initialized.
-   * @since 1.0.0
-   * @default 14
-   */
-  date?: string;
-  /** At the end of each line, add this as the new line character.
-   * @since 1.0.0
-   * @default \r */
-  newLine?: string;
-  /** Parsing a message?
-   * @since 1.0.0
-   * @default false
-   */
-  parsing?: boolean;
-  /** The character used to separate different components.
-   * @since 1.0.0
-   * @default ^ */
-  separatorComponent?: string;
-  /** The character used to escape characters that need it in order for the computer to interpret the string correctly.
-   * @since 1.0.0
-   * @default \\ */
-  separatorEscape?: string;
-  /** The character used for separating fields.
-   * @since 1.0.0
-   * @default | */
-  separatorField?: string;
-  /** The character used for repetition field/values pairs.
-   * @since 1.0.0
-   * @default ~ */
-  separatorRepetition?: string;
-  /** The character used to have subcomponents seperated.
-   * @since 1.0.0
-   * @default & */
-  separatorSubComponent?: string;
-  /** The HL7 spec we are going to be creating.
-   * This will be formatted into the MSH header by default.
-   * @since 1.0.0
-   * @default 2.7 via class new HL7_2_7() */
-  specification?: any;
-  /** The HL7 string that we are going to parse.
-   * @default "" */
-  text?: string;
-}
-
-export interface ClientBuilderMessageOptions extends ClientBuilderOptions {
-  /**
-   * MSH Header Options
-   * @since 1.0.0
-   */
-  messageHeader?: MSH;
-}
-
-export interface ClientBuilderFileOptions extends ClientBuilderOptions {
-  /**
-   * Extension of the file when it gets created.
-   * @since 1.0.0
-   * @default hl7
-   */
-  extension?: string;
-  /** The file as a buffer passed onto the constructor
-   * @since 1.0.0  */
-  fileBuffer?: Buffer;
-  /** If you are providing the full file path, please set it here.
-   * @since 1.0.0 */
-  fullFilePath?: string;
-  /** Location where the file will be saved.
-   * If this is not set,
-   * the files will get save it in the same directory of the executing file that is calling the function.
-   * If running this package inside a DOCKER/KUBERNETES node,
-   * if the container is destroyed and the files are not saved on a folder mounted outside the node,
-   * the files will be lost on restart.
-   * @since 1.0.0
-   * @default ""
-   */
-  location?: string;
-}
 
 export function normalizedClientMessageBuilderOptions(
   raw?: ClientBuilderMessageOptions,

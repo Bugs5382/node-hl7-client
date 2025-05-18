@@ -1,7 +1,7 @@
-import { Component } from "./component.js";
 import { Delimiters } from "../../utils/enum.js";
-import { HL7Node } from "../interface/hL7Node.js";
 import { HL7FatalError } from "../../utils/exception.js";
+import { HL7Node } from "../interface/hL7Node.js";
+import { Component } from "./component.js";
 import { NodeBase } from "./nodeBase.js";
 import { ValueNode } from "./valueNode.js";
 

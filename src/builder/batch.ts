@@ -1,8 +1,6 @@
 import { HL7FatalError, HL7ParserError } from "../utils/exception.js";
-import {
-  ClientBuilderOptions,
-  normalizedClientBatchBuilderOptions,
-} from "../utils/normalizedBuilder.js";
+import { normalizedClientBatchBuilderOptions } from "../utils/normalizedBuilder.js";
+import { ClientBuilderOptions } from "../utils/types.js";
 import { createHL7Date, split } from "../utils/utils.js";
 import { FileBatch } from "./fileBatch.js";
 import { HL7Node } from "./interface/hL7Node.js";

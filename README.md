@@ -1,72 +1,84 @@
-## Node HL7 Client
+Here’s your complete, cleaned-up README with the improved **Keyword Definitions** section integrated and all other enhancements preserved:
 
-> A pure Node.js HL7 Client
-that allows for communication to a HL7 Broker/Server that can send properly formatted HL7 messages with ease.
-Separately, it can also parse and extract out any segment within an HL7 message.
-Messages could come as one after the other (MSH), as a Batch (BHS), or in a batch file (FHS).
+---
 
-Included in this package:
-* The Client, which can connect to a HL7 server and send messages and get response back from that Hl7 Server and do something with the results if needed.
-* The Parser will decode an HL7 message string for your manipulation.
-* The Builder can create a properly formatted HL7 message(s) to be sent either a single message, batch of messages, or batch of messages written into a file for further processing.
+# Node HL7 Client
 
-Benefits:
+> A pure TypeScript HL7 client for Node.js enabling seamless communication with HL7 servers.
 
-- :fast_forward: No external dependencies, making this ultra-fast.
-- :electric_plug: Automatically re-connect or retry sending
-- :memo: Written in typescript and published with heavily commented type definitions
-- :bust_in_silhouette: Peer `node-hl7-server` npm package that in conjunction with this one could create a powerful HL7 system.
-- :computer: Works in Windows or Linux-based systems
-- :guide_dog: With typed settings of key segment generation of the HL7 message (MSH, BHS, and FHS) it ensures that you are building your message in compliance with the HL7 standards defined at [https://www.hl7.org](https://www.hl7.org/implement/standards/index.cfm?ref=nav)
+`node-hl7-client` is a lightweight, dependency-free library built for high-performance communication with HL7 brokers/servers. It supports sending properly formatted HL7 messages, handling responses, and working with both single and batched HL7 message formats (MSH, BHS, and FHS).
 
-If you are using this NPM package, please consider giving it a :star: star.
-This will increase its visibility and solicit more contribution from the outside.
+---
 
-## Install
+## ✨ Features
 
-Install using NPM into your package:
-```
+* ⚡ **Zero External Dependencies** – Ultra-fast performance with no bloat.
+* 🔁 **Auto Reconnect & Retry** – Automatically handles connection interruptions.
+* 🧠 **TypeScript + Typed Definitions** – Fully typed for modern development environments.
+* 🤝 **Companion Package Available** – Use alongside [`node-hl7-server`](https://www.npmjs.com/package/node-hl7-server) for a complete HL7 solution.
+* 💻 **Cross-Platform Support** – Works on Windows, macOS, and Linux.
+* 🧭 **Standards-Based** – Typed builders ensure MSH, BHS, and FHS segments follow HL7.org specifications.
+
+---
+
+## 📦 Install
+
+```bash
 npm install node-hl7-client
 ```
 
-## Table of Contents
+---
 
-1. [Keyword Definitions](#Keyword-Definitions)
+## 📚 What's Included?
+
+* **HL7 Client** – Connects to a remote HL7 server, sends messages, and processes responses.
+* **HL7 Parser** – Parses raw HL7 message strings into accessible segments.
+* **HL7 Builder** – Builds valid HL7 messages, batches, or complete HL7 batch files.
+
+---
+
+## 🧾 Table of Contents
+
+1. [Keyword Definitions](#keyword-definitions)
 2. [Documentation](#documentation)
 3. [Acknowledgements](#acknowledgements)
 4. [License](#license)
 
+---
+
 ## Keyword Definitions
 
-This NPM is designed to support medical applications with potential impact on patient care and diagnoses,
-this package documentation,
-and its peer package [node-hl7-server](https://www.npmjs.com/package/node-hl7-server) follow these definitions when it comes to the documentation.
+This NPM package is designed to support medical applications with potential impact on patient care and diagnoses. This documentation, along with its peer package [node-hl7-server](https://www.npmjs.com/package/node-hl7-server), uses the following standardized definitions for clarity and interoperability:
 
-Keywords such as "MUST", "MUST NOT", "REQUIRED",
-"SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL".
-These are standardized terms for technology documentation interoperability.
-These words should have these meaning when you are reading them.
-They might be sans uppercase throughout the documentation, but they would have the same meaning regardless.
+Keywords such as **"MUST"**, **"MUST NOT"**, **"REQUIRED"**, **"SHALL"**, **"SHALL NOT"**, **"SHOULD"**, **"SHOULD NOT"**, **"RECOMMENDED"**, **"MAY"**, and **"OPTIONAL"** are used consistently throughout the documentation. These terms retain their meaning even when not capitalized.
 
-* **MUST** - This word, or the terms "**REQUIRED**" or "**SHALL**", mean that the definition is an absolute requirement of the specification.
-* **MUST NOT** - This phrase, or the phrase "**SHALL NOT**", mean that the definition is an absolute prohibition of the specification.
-* **SHOULD** - This word, or the adjective "**RECOMMENDED**", mean that there may exist valid reasons in particular circumstances to ignore a particular item, but the full implications must be understood and carefully weighed before choosing a different course.
-* **SHOULD NOT** - This phrase, or the phrase "**NOT RECOMMENDED**", mean that there may exist valid reasons in particular circumstances when the particular behavior is acceptable or even useful. The full implications should be understood, and the case carefully weighed before implementing any behavior described with this label.
-* **MAY** - This word, or the adjective "**OPTIONAL**", mean that an item is truly optional.  Any implementation which does not include a particular option MUST be prepared to interoperate with another implementation which does include the option, though perhaps with reduced functionality. In the same vein, an implementation which does include a particular option MUST be prepared to interoperate with another implementation, which does not include the option (except, of course, for the feature the option provides.)
+* **MUST** – This word, or the terms **"REQUIRED"** or **"SHALL"**, indicates an absolute requirement of the specification.
+* **MUST NOT** – This phrase, or the phrase **"SHALL NOT"**, indicates an absolute prohibition of the specification.
+* **SHOULD** – This word, or the adjective **"RECOMMENDED"**, means that there may be valid reasons in particular circumstances to ignore a particular item, but the full implications must be understood and carefully weighed before doing so.
+* **SHOULD NOT** – This phrase, or the phrase **"NOT RECOMMENDED"**, means that there may be valid reasons in particular circumstances when the behavior is acceptable or even useful. The full implications should be understood and the case carefully weighed before implementation.
+* **MAY** – This word, or the adjective **"OPTIONAL"**, means that the item is truly optional. Implementations that do not include a particular option MUST still interoperate with those that do, though possibly with reduced functionality. Likewise, implementations that include an option MUST interoperate with those that do not (except, of course, for the specific feature provided by the option).
 
-## Documentation
+---
 
-It's way too extensive to include on this README alone.
-Please [read this](pages/index.md) to gain more information.
-GitHub pages now has mostly full listing of all methods, classes, etc., but only for the most recent release.
-You can view it [here](https://bugs5382.github.io/node-hl7-client/).
+## 📖 Documentation
 
-## Acknowledgements
+Full API documentation, usage examples, and advanced configurations are available on the project site:
+🔗 [https://bugs5382.github.io/node-hl7-client/](https://bugs5382.github.io/node-hl7-client/)
 
-- [node-rabbitmq-client](https://github.com/cody-greene/node-rabbitmq-client): Code Design/Auto Re-Connect/Resend, Inspiration
-- [artifacthealth/hl7parser](https://github.com/artifacthealth/hl7parser): Used as a template for HL7 builder/parser
-- My Wife and Baby Girl.
+---
 
-## License
+## 🙏 Acknowledgements
 
-Licensed under [MIT](LICENSE).
+* [`node-rabbitmq-client`](https://github.com/cody-greene/node-rabbitmq-client) – Connection logic inspiration.
+* [`artifacthealth/hl7parser`](https://github.com/artifacthealth/hl7parser) – Design reference for parser and builder.
+* My wife and baby girl – for their love, patience, and inspiration.
+
+---
+
+## 📄 License
+
+MIT © [LICENSE](LICENSE)
+
+---
+
+Let me know if you’d like a Markdown badge section added or a usage example next!

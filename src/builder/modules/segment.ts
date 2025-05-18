@@ -1,9 +1,9 @@
 import { Delimiters } from "../../utils/enum.js";
 import { HL7FatalError } from "../../utils/exception.js";
 import { isHL7Number, isHL7String } from "../../utils/utils.js";
+import { HL7Node } from "../interface/hL7Node.js";
 import { Field } from "./field.js";
 import { NodeBase } from "./nodeBase.js";
-import { HL7Node } from "../interface/hL7Node.js";
 import { SubComponent } from "./subComponent.js";
 
 /**

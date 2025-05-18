@@ -1,5 +1,11 @@
 import { createHL7Date, Message } from "../../src";
 
+/**
+ * Create a Ack Message
+ * @since 1.0.0
+ * @param type
+ * @param message
+ */
 export function _createAckMessage(type: string, message: Message): Message {
   const ackMessage = new Message({
     messageHeader: {
