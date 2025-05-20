@@ -1,14 +1,8 @@
-Here’s your complete, cleaned-up README with the improved **Keyword Definitions** section integrated and all other enhancements preserved:
-
----
-
 # Node HL7 Client
 
 > A pure TypeScript HL7 client for Node.js enabling seamless communication with HL7 servers.
 
 `node-hl7-client` is a lightweight, dependency-free library built for high-performance communication with HL7 brokers/servers. It supports sending properly formatted HL7 messages, handling responses, and working with both single and batched HL7 message formats (MSH, BHS, and FHS).
-
----
 
 ## ✨ Features
 
@@ -19,15 +13,11 @@ Here’s your complete, cleaned-up README with the improved **Keyword Definition
 * 💻 **Cross-Platform Support** – Works on Windows, macOS, and Linux.
 * 🧭 **Standards-Based** – Typed builders ensure MSH, BHS, and FHS segments follow HL7.org specifications.
 
----
-
 ## 📦 Install
 
 ```bash
 npm install node-hl7-client
 ```
-
----
 
 ## 📚 What's Included?
 
@@ -35,16 +25,12 @@ npm install node-hl7-client
 * **HL7 Parser** – Parses raw HL7 message strings into accessible segments.
 * **HL7 Builder** – Builds valid HL7 messages, batches, or complete HL7 batch files.
 
----
-
 ## 🧾 Table of Contents
 
 1. [Keyword Definitions](#keyword-definitions)
 2. [Documentation](#documentation)
 3. [Acknowledgements](#acknowledgements)
 4. [License](#license)
-
----
 
 ## Keyword Definitions
 
@@ -58,14 +44,10 @@ Keywords such as **"MUST"**, **"MUST NOT"**, **"REQUIRED"**, **"SHALL"**, **"SHA
 * **SHOULD NOT** – This phrase, or the phrase **"NOT RECOMMENDED"**, means that there may be valid reasons in particular circumstances when the behavior is acceptable or even useful. The full implications should be understood and the case carefully weighed before implementation.
 * **MAY** – This word, or the adjective **"OPTIONAL"**, means that the item is truly optional. Implementations that do not include a particular option MUST still interoperate with those that do, though possibly with reduced functionality. Likewise, implementations that include an option MUST interoperate with those that do not (except, of course, for the specific feature provided by the option).
 
----
-
 ## 📖 Documentation
 
 Full API documentation, usage examples, and advanced configurations are available on the project site:
 🔗 [https://bugs5382.github.io/node-hl7-client/](https://bugs5382.github.io/node-hl7-client/)
-
----
 
 ## 🙏 Acknowledgements
 
@@ -73,12 +55,8 @@ Full API documentation, usage examples, and advanced configurations are availabl
 * [`artifacthealth/hl7parser`](https://github.com/artifacthealth/hl7parser) – Design reference for parser and builder.
 * My wife and baby girl – for their love, patience, and inspiration.
 
----
 
 ## 📄 License
 
 MIT © [LICENSE](LICENSE)
 
----
-
-Let me know if you’d like a Markdown badge section added or a usage example next!
