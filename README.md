@@ -28,9 +28,9 @@ npm install node-hl7-client
 ## 🧾 Table of Contents
 
 1. [Keyword Definitions](#keyword-definitions)
-2. [Documentation](#documentation)
-3. [Acknowledgements](#acknowledgements)
-4. [License](#license)
+2. [Documentation](#-documentation)
+3. [Acknowledgements](#-acknowledgements)
+4. [License](#-license)
 
 ## Keyword Definitions
 
