@@ -12,6 +12,7 @@ import { EmptyNode } from "./emptyNode";
  * @since 1.0.0
  */
 export class NodeBase extends EventEmitter implements HL7Node {
+  static empty = new EmptyNode();
   protected parent: NodeBase | null;
 
   _name: string;
@@ -39,8 +40,6 @@ export class NodeBase extends EventEmitter implements HL7Node {
     this._path = [];
     this._text = text;
   }
-
-  static empty = new EmptyNode();
 
   get(path: string | number): HL7Node {
     let ret: any;

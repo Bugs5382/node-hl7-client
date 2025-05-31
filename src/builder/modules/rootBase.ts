@@ -46,32 +46,9 @@ export class RootBase extends NodeBase {
   }
 
   /** @internal */
-  protected static _makeMatchEscape(delimiters: string): RegExp {
-    const sequences = [
-      escapeForRegExp(delimiters[Delimiters.Escape]),
-      escapeForRegExp(delimiters[Delimiters.Field]),
-      escapeForRegExp(delimiters[Delimiters.Repetition]),
-      escapeForRegExp(delimiters[Delimiters.Component]),
-      escapeForRegExp(delimiters[Delimiters.SubComponent]),
-    ];
-    return new RegExp(sequences.join("|"), "g");
-  }
-
-  /** @internal */
-  protected static _makeMatchUnescape(delimiters: string): RegExp {
-    // setup regular expression for matching escape sequences, see http://www.hl7standards.com/blog/2006/11/02/hl7-escape-sequences/
-    const matchEscape = escapeForRegExp(delimiters[Delimiters.Escape]);
-    return new RegExp(
-      [matchEscape, "[^", matchEscape, "]*", matchEscape].join(""),
-      "g",
-    );
-  }
-
-  /** @internal */
   get delimiters(): string {
     return this._delimiters;
   }
-
   /** @internal */
   escape(text: string): string {
     if (text === null) {
@@ -107,7 +84,6 @@ export class RootBase extends NodeBase {
       throw new HL7FatalError(`Escape sequence for ${match} is not known.`);
     });
   }
-
   /** @internal */
   unescape(text: string): string {
     if (text === null) {
@@ -145,5 +121,26 @@ export class RootBase extends NodeBase {
 
       return "";
     });
+  }
+  /** @internal */
+  protected static _makeMatchEscape(delimiters: string): RegExp {
+    const sequences = [
+      escapeForRegExp(delimiters[Delimiters.Escape]),
+      escapeForRegExp(delimiters[Delimiters.Field]),
+      escapeForRegExp(delimiters[Delimiters.Repetition]),
+      escapeForRegExp(delimiters[Delimiters.Component]),
+      escapeForRegExp(delimiters[Delimiters.SubComponent]),
+    ];
+    return new RegExp(sequences.join("|"), "g");
+  }
+
+  /** @internal */
+  protected static _makeMatchUnescape(delimiters: string): RegExp {
+    // setup regular expression for matching escape sequences, see http://www.hl7standards.com/blog/2006/11/02/hl7-escape-sequences/
+    const matchEscape = escapeForRegExp(delimiters[Delimiters.Escape]);
+    return new RegExp(
+      [matchEscape, "[^", matchEscape, "]*", matchEscape].join(""),
+      "g",
+    );
   }
 }

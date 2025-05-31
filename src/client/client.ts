@@ -13,10 +13,6 @@ import { Connection } from "./connection";
  * @since 1.0.0 */
 export class Client extends EventEmitter {
   /** @internal */
-  _opt: ReturnType<typeof normalizeClientOptions>;
-  /** @internal */
-  _connections: Connection[];
-  /** @internal */
   readonly stats = {
     /** Total outbound connections able to connect to at this moment.
      * @since 1.1.0 */
@@ -31,6 +27,10 @@ export class Client extends EventEmitter {
      * @since 3.1.0 */
     _totalPending: 0,
   };
+  /** @internal */
+  _opt: ReturnType<typeof normalizeClientOptions>;
+  /** @internal */
+  _connections: Connection[];
 
   /**
    * This creates a new client to a new server connection.
