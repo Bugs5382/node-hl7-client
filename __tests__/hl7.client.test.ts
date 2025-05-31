@@ -4,71 +4,86 @@ import { expectHL7FatalError } from "./__utils__/expectHL7FatalError";
 
 describe("node hl7 client", () => {
   describe("sanity tests - client class", () => {
-    test("error - hostname has to be string", async () => {
-      try {
-        // @ts-expect-error this is not a string
-        new Client({ host: 351123 });
-      } catch (err: any) {
-        expect(err.message).toBe("hostname is not valid string.");
-      }
-    });
+    describe("valid", () => {
+      test("valid - properties exist", async () => {
+        const client = new Client({ host: "hl7.server.local" });
+        expect(client).toHaveProperty("createConnection");
+      });
 
-    test("error - ipv4 and ipv6 both can not be true exist", async () => {
-      try {
-        new Client({ host: "5.8.6.1", ipv6: true, ipv4: true });
-      } catch (err: any) {
-        expect(err.message).toBe(
-          "ipv4 and ipv6 both can't be set to be both used exclusively.",
+      test("valid - ensure getHost() is what we set in the host", async () => {
+        const client = new Client({ host: "hl7.server.local" });
+        expect(client.getHost()).toEqual("hl7.server.local");
+      });
+
+      test("valid - port is being set correctly", async () => {
+        const client = new Client({ host: "hl7.server.local" });
+        const outbound = client.createConnection(
+          // @ts-ignore message is not doing anything
+          { port: 12345, autoConnect: false },
+          async () => {},
         );
-      }
+
+        expect(outbound.getPort()).toEqual(12345);
+      });
     });
 
-    test("error - ipv4 not valid address", async () => {
-      try {
-        new Client({ host: "123.34.52.455", ipv4: true });
-      } catch (err: any) {
-        expect(err.message).toBe("hostname is not a valid IPv4 address.");
-      }
-    });
+    describe("errors", () => {
+      test("error - hostname has to be string", async () => {
+        try {
+          // @ts-expect-error this is not a string
+          new Client({ host: 351123 });
+        } catch (err: any) {
+          expect(err.message).toBe("hostname is not valid string.");
+        }
+      });
 
-    test("error - ipv4 valid address", async () => {
-      try {
-        new Client({ host: "123.34.52.45", ipv4: true });
-      } catch (err: any) {
-        expect(err.message).toBeUndefined();
-      }
-    });
+      test("error - ipv4 and ipv6 both can not be true exist", async () => {
+        try {
+          new Client({ host: "5.8.6.1", ipv6: true, ipv4: true });
+        } catch (err: any) {
+          expect(err.message).toBe(
+            "ipv4 and ipv6 both can't be set to be both used exclusively.",
+          );
+        }
+      });
 
-    test("error - ipv6 not valid address", async () => {
-      try {
-        new Client({
-          host: "2001:0db8:85a3:0000:zz00:8a2e:0370:7334",
-          ipv6: true,
-        });
-      } catch (err: any) {
-        expect(err.message).toBe("hostname is not a valid IPv6 address.");
-      }
-    });
+      test("error - ipv4 not valid address", async () => {
+        try {
+          new Client({ host: "123.34.52.455", ipv4: true });
+        } catch (err: any) {
+          expect(err.message).toBe("hostname is not a valid IPv4 address.");
+        }
+      });
 
-    test("error - ipv6 valid address", async () => {
-      try {
-        new Client({
-          host: "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
-          ipv6: true,
-        });
-      } catch (err: any) {
-        expect(err.message).toBeUndefined();
-      }
-    });
+      test("error - ipv4 valid address", async () => {
+        try {
+          new Client({ host: "123.34.52.45", ipv4: true });
+        } catch (err: any) {
+          expect(err.message).toBeUndefined();
+        }
+      });
 
-    test("properties exist", async () => {
-      const client = new Client({ host: "hl7.server.local" });
-      expect(client).toHaveProperty("createConnection");
-    });
+      test("error - ipv6 not valid address", async () => {
+        try {
+          new Client({
+            host: "2001:0db8:85a3:0000:zz00:8a2e:0370:7334",
+            ipv6: true,
+          });
+        } catch (err: any) {
+          expect(err.message).toBe("hostname is not a valid IPv6 address.");
+        }
+      });
 
-    test("ensure getHost() is what we set in the host", async () => {
-      const client = new Client({ host: "hl7.server.local" });
-      expect(client.getHost()).toEqual("hl7.server.local");
+      test("error - ipv6 valid address", async () => {
+        try {
+          new Client({
+            host: "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
+            ipv6: true,
+          });
+        } catch (err: any) {
+          expect(err.message).toBeUndefined();
+        }
+      });
     });
   });
 
@@ -135,16 +150,6 @@ describe("node hl7 client", () => {
       } catch (err) {
         expectHL7FatalError(err, "enqueueMessage is not set.");
       }
-    });
-
-    test("error - enqueueMessage needs to be set", async () => {
-      const outbound = client.createConnection(
-        // @ts-ignore message is not doing anything
-        { port: 12345, autoConnect: false },
-        async () => {},
-      );
-
-      expect(outbound.getPort()).toEqual(12345);
     });
   });
 });
