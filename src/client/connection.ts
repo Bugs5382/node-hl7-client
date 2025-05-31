@@ -1,27 +1,22 @@
-import EventEmitter from "node:events";
-import net, { Socket } from "node:net";
-import { clearTimeout } from "node:timers";
-import tls from "node:tls";
-import { Batch, FileBatch, Message } from "../builder/index.js";
-import type { MessageItem } from "../index.js";
-import { MLLPCodec } from "../utils/codec.js";
-import { ReadyState } from "../utils/enum.js";
-import { HL7FatalError } from "../utils/exception.js";
-import { normalizeClientListenerOptions } from "../utils/normalizedClient.js";
+import { MLLPCodec } from "@/utils/codec";
+import { ReadyState } from "@/utils/enum";
+import { HL7FatalError } from "@/utils/exception";
+import { normalizeClientListenerOptions } from "@/utils/normalizedClient";
 import {
   ClientListenerOptions,
   FallBackHandler,
   NotifyPendingCount,
   OutboundHandler,
-} from "../utils/types.js";
-import {
-  createDeferred,
-  Deferred,
-  expBackoff,
-  isBatch,
-} from "../utils/utils.js";
-import { Client } from "./client.js";
-import { InboundResponse } from "./module/inboundResponse.js";
+} from "@/utils/types";
+import { createDeferred, Deferred, expBackoff, isBatch } from "@/utils/utils";
+import EventEmitter from "node:events";
+import net, { Socket } from "node:net";
+import { clearTimeout } from "node:timers";
+import tls from "node:tls";
+import { Batch, FileBatch, Message } from "../builder/index";
+import type { MessageItem } from "../index";
+import { Client } from "./client";
+import { InboundResponse } from "./module/inboundResponse";
 
 export interface IConnection extends EventEmitter {
   /** The connection has been closed manually. You have to start the connection again. */

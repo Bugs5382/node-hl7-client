@@ -1,13 +1,13 @@
-import { HL7FatalError, HL7ParserError } from "../utils/exception.js";
-import { normalizedClientBatchBuilderOptions } from "../utils/normalizedBuilder.js";
-import { ClientBuilderOptions } from "../utils/types.js";
-import { createHL7Date, split } from "../utils/utils.js";
-import { FileBatch } from "./fileBatch.js";
-import { HL7Node } from "./interface/hL7Node.js";
-import { Message } from "./message.js";
-import { RootBase } from "./modules/rootBase.js";
-import { Segment } from "./modules/segment.js";
-import { SegmentList } from "./modules/segmentList.js";
+import { HL7FatalError, HL7ParserError } from "@/utils/exception";
+import { normalizedClientBatchBuilderOptions } from "@/utils/normalizedBuilder";
+import { ClientBuilderOptions } from "@/utils/types";
+import { createHL7Date, split } from "@/utils/utils";
+import { FileBatch } from "./fileBatch";
+import { HL7Node } from "./interface/hL7Node";
+import { Message } from "./message";
+import { RootBase } from "./modules/rootBase";
+import { Segment } from "./modules/segment";
+import { SegmentList } from "./modules/segmentList";
 
 /**
  * Batch Class

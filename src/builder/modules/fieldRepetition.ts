@@ -1,9 +1,9 @@
-import { Delimiters } from "../../utils/enum.js";
-import { HL7FatalError } from "../../utils/exception.js";
-import { HL7Node } from "../interface/hL7Node.js";
-import { Component } from "./component.js";
-import { NodeBase } from "./nodeBase.js";
-import { ValueNode } from "./valueNode.js";
+import { Delimiters } from "@/utils/enum";
+import { HL7FatalError } from "@/utils/exception";
+import { HL7Node } from "../interface/hL7Node";
+import { Component } from "./component";
+import { NodeBase } from "./nodeBase";
+import { ValueNode } from "./valueNode";
 
 /** @internal */
 export class FieldRepetition extends ValueNode {

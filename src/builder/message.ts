@@ -1,13 +1,13 @@
-import { HL7FatalError, HL7ParserError } from "../utils/exception.js";
-import { normalizedClientMessageBuilderOptions } from "../utils/normalizedBuilder.js";
-import { ClientBuilderMessageOptions } from "../utils/types.js";
-import { isHL7Number, split } from "../utils/utils.js";
-import { FileBatch } from "./fileBatch.js";
-import { HL7Node } from "./interface/hL7Node.js";
-import { NodeBase } from "./modules/nodeBase.js";
-import { RootBase } from "./modules/rootBase.js";
-import { Segment } from "./modules/segment.js";
-import { SegmentList } from "./modules/segmentList.js";
+import { HL7FatalError, HL7ParserError } from "@/utils/exception";
+import { normalizedClientMessageBuilderOptions } from "@/utils/normalizedBuilder";
+import { ClientBuilderMessageOptions } from "@/utils/types";
+import { isHL7Number, split } from "@/utils/utils";
+import { FileBatch } from "./fileBatch";
+import { HL7Node } from "./interface/hL7Node";
+import { NodeBase } from "./modules/nodeBase";
+import { RootBase } from "./modules/rootBase";
+import { Segment } from "./modules/segment";
+import { SegmentList } from "./modules/segmentList";
 
 /**
  * Message Class

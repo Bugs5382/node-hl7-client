@@ -14,7 +14,6 @@ describe("node hl7 client - sanity tests", () => {
   describe("...Message", () => {
     test("error - Message Object - nothing passed", async () => {
       try {
-        // @ts-expect-error
         const message = new Message();
       } catch (err) {
         expect(err).toEqual(
@@ -195,7 +194,6 @@ describe("node hl7 client - sanity tests", () => {
   describe("...Batch", () => {
     test("error - Batch Object - single MSH passed", async () => {
       try {
-        // @ts-expect-error
         const batch = new Batch({
           text: "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231",
         });
@@ -334,7 +332,6 @@ describe("node hl7 client - sanity tests", () => {
 
     test("...should be used as a Batch", async () => {
       try {
-        // @ts-expect-error
         const message = new Message({ text: hl7_batch_msh_string });
       } catch (err) {
         expect(err).toEqual(

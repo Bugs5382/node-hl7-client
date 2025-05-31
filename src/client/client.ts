@@ -1,11 +1,11 @@
-import EventEmitter from "events";
-import { normalizeClientOptions } from "../utils/normalizedClient.js";
+import { normalizeClientOptions } from "@/utils/normalizedClient";
 import {
   ClientListenerOptions,
   ClientOptions,
   OutboundHandler,
-} from "../utils/types.js";
-import { Connection } from "./connection.js";
+} from "@/utils/types";
+import EventEmitter from "events";
+import { Connection } from "./connection";
 
 /**
  * Client Class

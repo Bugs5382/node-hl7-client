@@ -1,8 +1,8 @@
-import { Delimiters } from "../../utils/enum.js";
-import { HL7FatalError } from "../../utils/exception.js";
-import { ClientBuilderOptions } from "../../utils/types.js";
-import { decodeHexString, escapeForRegExp } from "../../utils/utils.js";
-import { NodeBase } from "./nodeBase.js";
+import { Delimiters } from "@/utils/enum";
+import { HL7FatalError } from "@/utils/exception";
+import { ClientBuilderOptions } from "@/utils/types";
+import { decodeHexString, escapeForRegExp } from "@/utils/utils";
+import { NodeBase } from "./nodeBase";
 
 /**
  * Root Base
