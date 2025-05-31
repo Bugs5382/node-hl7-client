@@ -1,20 +1,20 @@
-import { Batch } from "./builder/batch.js";
-import { FileBatch } from "./builder/fileBatch.js";
-import { HL7Node } from "./builder/interface/hL7Node.js";
-import { Message } from "./builder/message.js";
-import { EmptyNode } from "./builder/modules/emptyNode.js";
-import { NodeBase } from "./builder/modules/nodeBase.js";
-import { Segment } from "./builder/modules/segment.js";
-import { SegmentList } from "./builder/modules/segmentList.js";
-import { Client } from "./client/client.js";
-import { Connection, IConnection } from "./client/connection.js";
-import { InboundResponse } from "./client/module/inboundResponse.js";
-import { Delimiters, ReadyState } from "./utils/enum.js";
+import { Batch } from "./builder/batch";
+import { FileBatch } from "./builder/fileBatch";
+import { HL7Node } from "./builder/interface/hL7Node";
+import { Message } from "./builder/message";
+import { EmptyNode } from "./builder/modules/emptyNode";
+import { NodeBase } from "./builder/modules/nodeBase";
+import { Segment } from "./builder/modules/segment";
+import { SegmentList } from "./builder/modules/segmentList";
+import { Client } from "./client/client";
+import { Connection, IConnection } from "./client/connection";
+import { InboundResponse } from "./client/module/inboundResponse";
+import { Delimiters, ReadyState } from "./utils/enum";
 import {
   FallBackHandler,
   NotifyPendingCount,
   OutboundHandler,
-} from "./utils/types.js";
+} from "./utils/types";
 
 export type {
   ClientBuilderFileOptions,
@@ -23,7 +23,7 @@ export type {
   ClientListenerOptions,
   ClientOptions,
   MessageItem,
-} from "./utils/types.js";
+} from "./utils/types";
 export {
   assertNumber,
   createHL7Date,
@@ -38,28 +38,30 @@ export {
   randomString,
   validIPv4,
   validIPv6,
-} from "./utils/utils.js";
+} from "./utils/utils";
 
-export { MLLPCodec } from "./utils/codec.js";
-export { HL7Error, HL7FatalError, HL7ParserError } from "./utils/exception.js";
+export { MLLPCodec } from "./utils/codec";
+export { HL7Error, HL7FatalError, HL7ParserError } from "./utils/exception";
 export {
   Batch,
   Client,
   Connection,
   Delimiters,
   EmptyNode,
-  FallBackHandler,
   FileBatch,
-  HL7Node,
-  IConnection,
   InboundResponse,
   Message,
   NodeBase,
-  NotifyPendingCount,
-  OutboundHandler,
   ReadyState,
   Segment,
   SegmentList,
+};
+export type {
+  FallBackHandler,
+  HL7Node,
+  IConnection,
+  NotifyPendingCount,
+  OutboundHandler,
 };
 
 export default Client;

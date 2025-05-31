@@ -1,15 +1,15 @@
-import { Message } from "../builder/message.js";
-import { HL7_2_1_MSH } from "./2.1.js";
-import { HL7_2_2_MSH } from "./2.2.js";
-import { HL7_2_3_1_MSH } from "./2.3.1.js";
-import { HL7_2_3_MSH } from "./2.3.js";
-import { HL7_2_4_MSH } from "./2.4.js";
-import { HL7_2_5_1_MSH } from "./2.5.1.js";
-import { HL7_2_5_MSH } from "./2.5.js";
-import { HL7_2_6_MSH } from "./2.6.js";
-import { HL7_2_7_1_MSH } from "./2.7.1.js";
-import { HL7_2_7_MSH } from "./2.7.js";
-import { HL7_2_8_MSH } from "./2.8.js";
+import { Message } from "../builder/message";
+import { HL7_2_1_MSH } from "./2.1";
+import { HL7_2_2_MSH } from "./2.2";
+import { HL7_2_3_MSH } from "./2.3";
+import { HL7_2_3_1_MSH } from "./2.3.1";
+import { HL7_2_4_MSH } from "./2.4";
+import { HL7_2_5_MSH } from "./2.5";
+import { HL7_2_5_1_MSH } from "./2.5.1";
+import { HL7_2_6_MSH } from "./2.6";
+import { HL7_2_7_MSH } from "./2.7";
+import { HL7_2_7_1_MSH } from "./2.7.1";
+import { HL7_2_8_MSH } from "./2.8";
 
 /**
  * MSH Unions

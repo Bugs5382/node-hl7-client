@@ -1,6 +1,6 @@
-import { Delimiters } from "../../utils/enum.js";
-import { HL7FatalError } from "../../utils/exception.js";
-import { NodeBase } from "./nodeBase.js";
+import { Delimiters } from "@/utils/enum";
+import { HL7FatalError } from "@/utils/exception";
+import { NodeBase } from "./nodeBase";
 
 /** @internal */
 export class ValueNode extends NodeBase {

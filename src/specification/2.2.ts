@@ -1,6 +1,6 @@
-import { Message } from "../builder/message.js";
-import { createHL7Date, randomString } from "../utils/utils.js";
-import { HL7_SPEC_BASE } from "./specification.js";
+import { Message } from "../builder/message";
+import { createHL7Date, randomString } from "../utils/utils";
+import { HL7_SPEC_BASE } from "./specification";
 
 /**
  * HL7 2.2 MSH Specification

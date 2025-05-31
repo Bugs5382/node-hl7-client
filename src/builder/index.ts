@@ -1,3 +1,3 @@
-export { Batch } from "./batch.js";
-export { FileBatch } from "./fileBatch.js";
-export { Message } from "./message.js";
+export { Batch } from "./batch";
+export { FileBatch } from "./fileBatch";
+export { Message } from "./message";

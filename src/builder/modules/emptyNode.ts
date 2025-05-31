@@ -1,4 +1,4 @@
-import { HL7Node } from "../interface/hL7Node.js";
+import { HL7Node } from "../interface/hL7Node";
 
 /**
  * Empty Node

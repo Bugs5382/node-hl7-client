@@ -1,16 +1,16 @@
+import { NAME_FORMAT } from "@/utils/constants";
+import { HL7FatalError, HL7ParserError } from "@/utils/exception";
+import { normalizedClientFileBuilderOptions } from "@/utils/normalizedBuilder";
+import { ClientBuilderFileOptions } from "@/utils/types";
+import { createHL7Date, split } from "@/utils/utils";
 import fs from "node:fs";
 import path from "node:path";
-import { NAME_FORMAT } from "../utils/constants.js";
-import { HL7FatalError, HL7ParserError } from "../utils/exception.js";
-import { normalizedClientFileBuilderOptions } from "../utils/normalizedBuilder.js";
-import { ClientBuilderFileOptions } from "../utils/types.js";
-import { createHL7Date, split } from "../utils/utils.js";
-import { Batch } from "./batch.js";
-import { HL7Node } from "./interface/hL7Node.js";
-import { Message } from "./message.js";
-import { RootBase } from "./modules/rootBase.js";
-import { Segment } from "./modules/segment.js";
-import { SegmentList } from "./modules/segmentList.js";
+import { Batch } from "./batch";
+import { HL7Node } from "./interface/hL7Node";
+import { Message } from "./message";
+import { RootBase } from "./modules/rootBase";
+import { Segment } from "./modules/segment";
+import { SegmentList } from "./modules/segmentList";
 
 /**
  * File Batch Class

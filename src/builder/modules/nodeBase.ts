@@ -1,17 +1,18 @@
+import { Delimiters } from "@/utils/enum";
+import { HL7FatalError } from "@/utils/exception";
+import { isHL7Number, isHL7String, padHL7Date } from "@/utils/utils";
 import EventEmitter from "events";
-import { Delimiters } from "../../utils/enum.js";
-import { HL7FatalError } from "../../utils/exception.js";
-import { isHL7Number, isHL7String, padHL7Date } from "../../utils/utils.js";
-import { Batch } from "../batch.js";
-import { HL7Node } from "../interface/hL7Node.js";
-import { Message } from "../message.js";
-import { EmptyNode } from "./emptyNode.js";
+import { Batch } from "../batch";
+import { HL7Node } from "../interface/hL7Node";
+import { Message } from "../message";
+import { EmptyNode } from "./emptyNode";
 
 /**
  * Node Base
  * @since 1.0.0
  */
 export class NodeBase extends EventEmitter implements HL7Node {
+  static empty = new EmptyNode();
   protected parent: NodeBase | null;
 
   _name: string;
@@ -39,8 +40,6 @@ export class NodeBase extends EventEmitter implements HL7Node {
     this._path = [];
     this._text = text;
   }
-
-  static empty = new EmptyNode();
 
   get(path: string | number): HL7Node {
     let ret: any;

@@ -1,8 +1,8 @@
+import { InboundResponse } from "@/client/module/inboundResponse";
+import { MSH } from "@/specification/specification";
 import { TcpSocketConnectOpts } from "node:net";
 import type { ConnectionOptions as TLSOptions } from "tls";
-import { Batch, FileBatch, Message } from "../builder/index.js";
-import { InboundResponse } from "../client/module/inboundResponse.js";
-import { MSH } from "../specification/specification.js";
+import { Batch, FileBatch, Message } from "../builder/index";
 
 export type MessageItem = Message | Batch | FileBatch;
 /**

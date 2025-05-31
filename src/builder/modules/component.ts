@@ -1,8 +1,8 @@
-import { Delimiters } from "../../utils/enum.js";
-import { HL7Node } from "../interface/hL7Node.js";
-import { NodeBase } from "./nodeBase.js";
-import { SubComponent } from "./subComponent.js";
-import { ValueNode } from "./valueNode.js";
+import { Delimiters } from "@/utils/enum";
+import { HL7Node } from "../interface/hL7Node";
+import { NodeBase } from "./nodeBase";
+import { SubComponent } from "./subComponent";
+import { ValueNode } from "./valueNode";
 
 /** @internal */
 export class Component extends ValueNode {

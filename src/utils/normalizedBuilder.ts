@@ -1,13 +1,13 @@
+import { HL7_2_7 } from "@/specification/2.7";
 import fs from "fs";
-import { HL7_2_7 } from "../specification/2.7.js";
-import { HL7FatalError } from "./exception.js";
-import { ParserPlan } from "./parserPlan.js";
+import { HL7FatalError } from "./exception";
+import { ParserPlan } from "./parserPlan";
 import {
   ClientBuilderFileOptions,
   ClientBuilderMessageOptions,
   ClientBuilderOptions,
-} from "./types.js";
-import { isBatch } from "./utils.js";
+} from "./types";
+import { isBatch } from "./utils";
 
 const DEFAULT_CLIENT_BUILDER_OPTS = {
   date: "14",

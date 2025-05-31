@@ -1,6 +1,6 @@
-import { HL7Node } from "../interface/hL7Node.js";
-import { NodeBase } from "./nodeBase.js";
-import { Segment } from "./segment.js";
+import { HL7Node } from "../interface/hL7Node";
+import { NodeBase } from "./nodeBase";
+import { Segment } from "./segment";
 
 /**
  * Segment List
