@@ -1,4 +1,3 @@
-import { HL7_2_7 } from "@/specification/2.7";
 import fs from "fs";
 import { HL7FatalError } from "./exception";
 import { ParserPlan } from "./parserPlan";
@@ -18,7 +17,6 @@ const DEFAULT_CLIENT_BUILDER_OPTS = {
   separatorField: "|",
   separatorRepetition: "~",
   separatorSubComponent: "&",
-  specification: new HL7_2_7(),
   text: "",
 };
 
@@ -35,14 +33,10 @@ export function normalizedClientMessageBuilderOptions(
     ...raw,
   };
 
-  if (typeof props.messageHeader === "undefined" && props.text === "") {
-    throw new HL7FatalError(
-      "mshHeader must be set if no HL7 message is being passed.",
-    );
-  } else if (
-    typeof props.messageHeader === "undefined" &&
-    typeof props.text !== "undefined" &&
-    props.text.slice(0, 3) !== "MSH"
+  if (
+    typeof props.text != "undefined" &&
+    props.text !== "" &&
+    props.text?.slice(0, 3) !== "MSH"
   ) {
     throw new Error("text must begin with the MSH segment.");
   }
@@ -58,9 +52,10 @@ export function normalizedClientMessageBuilderOptions(
     props.date = "14";
   }
 
-  if (props.text === "") {
-    props.text = `MSH${props.separatorField as string}${props.separatorComponent as string}${props.separatorRepetition as string}${props.separatorEscape as string}${props.separatorSubComponent as string}`;
-  } else if (typeof props.text !== "undefined") {
+  // if (props.text === "") {
+  //   props.text = `MSH${props.separatorField as string}${props.separatorComponent as string}${props.separatorRepetition as string}${props.separatorEscape as string}${props.separatorSubComponent as string}`;
+  // } else
+  if (typeof props.text !== "undefined" && props.text !== "") {
     const plan: ParserPlan = new ParserPlan(props.text.slice(3, 8));
     props.parsing = true;
     // check to make sure that we set the correct properties
@@ -70,10 +65,10 @@ export function normalizedClientMessageBuilderOptions(
     props.separatorRepetition = plan.separatorRepetition;
     props.separatorEscape = plan.separatorEscape;
     props.separatorSubComponent = plan.separatorSubComponent;
-    // remove default specs
-    props.specification = undefined;
     // cleanup
     props.text = props.text.trim();
+  } else {
+    props.text = "";
   }
 
   return props;

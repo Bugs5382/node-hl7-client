@@ -29,7 +29,7 @@ export const assertNumber = (
 
 /**
  * Create a valid HL7 Date.
- * @remarks Custom for this package and based of HL7 specification.
+ * @remarks Custom for this package and based of HL7 standards.
  * @since 1.0.0
  * @param date
  * @param length

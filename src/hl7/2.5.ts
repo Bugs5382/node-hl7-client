@@ -1,15 +1,15 @@
 import { Message } from "../builder/message";
-import { HL7_2_3, HL7_2_3_MSH } from "./2.3";
+import { HL7_2_4, HL7_2_4_MSH } from "./2.4";
 
 /**
- * HL7 2.3.1 MSH Specification
+ * HL7 2.5 MSH Specification
  * @remarks Only the required ones are listed below for typescript validation to pass.
  * @since 1.0.0
  * @example
  * To make it easier on having to fill this out each time, you may do this in your code:
  * ```
  * // Make this a constant in your application.
- * const MSH_HEADER: HL7_2_3_1_MSH = {
+ * const MSH_HEADER: HL7_2_5_MSH = {
  *   msh_9_1: "ADT",
  *   msh_9_2: "A01",
  *   msh_11_1: "D",
@@ -24,26 +24,26 @@ import { HL7_2_3, HL7_2_3_MSH } from "./2.3";
  * so this way your code is much neater.
  *
  */
-export type HL7_2_3_1_MSH = HL7_2_3_MSH;
+export type HL7_2_5_MSH = HL7_2_4_MSH;
 
 /**
- * Hl7 Specification Version 2.3.1
- * @remarks Used to indicate that the message should follow 2.7 specification for retrieval or building a message.
+ * Hl7 Specification Version 2.5
+ * @remarks Used to indicate that the message should follow 2.7 hl7 for retrieval or building a message.
  * @since 1.0.0
  */
-export class HL7_2_3_1 extends HL7_2_3 {
+export class HL7_2_5 extends HL7_2_4 {
   constructor() {
     super();
-    this.name = "2.3.1";
+    this.name = "2.5";
   }
 
   /**
-   * Check MSH Header Properties for HL7 2.3.1
+   * Check MSH Header Properties for HL7 2.5
    * @since 1.0.0
    * @param msh
    * @return boolean
    */
-  checkMSH(msh: HL7_2_3_1_MSH): boolean {
+  checkMSH(msh: HL7_2_5_MSH): boolean {
     super.checkMSH(msh);
     return true;
   }
@@ -54,7 +54,7 @@ export class HL7_2_3_1 extends HL7_2_3 {
    * @param mshHeader
    * @param message
    */
-  buildMSH(mshHeader: HL7_2_3_1_MSH, message: Message): void {
+  buildMSH(mshHeader: HL7_2_5_MSH, message: Message): void {
     super.buildMSH(mshHeader, message);
   }
 }

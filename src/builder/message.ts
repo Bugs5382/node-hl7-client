@@ -1,6 +1,6 @@
 import { HL7FatalError, HL7ParserError } from "@/utils/exception";
 import { normalizedClientMessageBuilderOptions } from "@/utils/normalizedBuilder";
-import { ClientBuilderMessageOptions } from "@/utils/types";
+import { ClientBuilderOptions } from "@/utils/types";
 import { isHL7Number, split } from "@/utils/utils";
 import { FileBatch } from "./fileBatch";
 import { HL7Node } from "./interface/hL7Node";
@@ -34,7 +34,7 @@ export class Message extends RootBase {
    * which then you add segments with fields and values for your Hl7 message.
    *
    */
-  constructor(props?: ClientBuilderMessageOptions) {
+  constructor(props?: ClientBuilderOptions) {
     const opt = normalizedClientMessageBuilderOptions(props);
 
     super(opt);
@@ -52,11 +52,11 @@ export class Message extends RootBase {
       }
     }
 
-    if (typeof this._opt.messageHeader !== "undefined") {
-      if (this._opt.specification.checkMSH(this._opt.messageHeader) === true) {
-        this._opt.specification.buildMSH(this._opt.messageHeader, this);
-      }
-    }
+    // if (typeof this._opt.messageHeader !== "undefined") {
+    //   if (this._opt.hl7.checkMSH(this._opt.messageHeader) === true) {
+    //     this._opt.hl7.buildMSH(this._opt.messageHeader, this);
+    //   }
+    // }
   }
 
   /**
@@ -267,6 +267,17 @@ export class Message extends RootBase {
    */
   protected pathCore(): string[] {
     return [];
+  }
+
+  /**
+   * Total Segments
+   * @remarks That match the name.
+   * @since 4.0.0
+   * @param name
+   */
+  totalSegment(name: string): number {
+    return this.children.filter((segment) => (segment as Segment).name === name)
+      .length;
   }
 
   /** @internal */

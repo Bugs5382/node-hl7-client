@@ -1,6 +1,6 @@
 import { Message } from "../builder/message";
 import { createHL7Date, randomString } from "../utils/utils";
-import { HL7_SPEC_BASE } from "./specification";
+import { HL7_BASE } from "./base";
 
 /**
  * HL7 2.2 MSH Specification
@@ -41,15 +41,15 @@ export interface HL7_2_2_MSH {
   msh_10?: string;
   /** Processing ID
    * @since 1.0.0 */
-  msh_11: "D" | "P" | "T";
+  msh_11: "P" | "T";
 }
 
 /**
  * Hl7 Specification Version 2.2
- * @remarks Used to indicate that the message should follow 2.7 specification for retrieval or building a message.
+ * @remarks Used to indicate that the message should follow 2.7 hl7 for retrieval or building a message.
  * @since 1.0.0
  */
-export class HL7_2_2 extends HL7_SPEC_BASE {
+export class HL7_2_2 extends HL7_BASE {
   constructor() {
     super();
     this.name = "2.2";

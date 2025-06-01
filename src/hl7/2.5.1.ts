@@ -28,7 +28,7 @@ export type HL7_2_5_1_MSH = HL7_2_5_MSH;
 
 /**
  * Hl7 Specification Version 2.5.1
- * @remarks Used to indicate that the message should follow 2.7 specification for retrieval or building a message.
+ * @remarks Used to indicate that the message should follow 2.7 hl7 for retrieval or building a message.
  * @since 1.0.0
  */
 export class HL7_2_5_1 extends HL7_2_5 {

@@ -56,7 +56,7 @@
     "format:check": "prettier --check 'pages/**/*.md' 'src/**/*.ts' '__tests__/**/*.ts'",
     "format:write": "prettier --write 'pages/**/*.md' 'src/**/*.ts' '__tests__/**/*.ts'",
     "lint": "npm run npm:lint && eslint | snazzy",
-    "lint:fix": "npm run npm:lint && eslint --fix | snazzy",
+    "lint:fix": "npm run npm:lint && eslint --fix | snazzy && npm run format:write",
     "lint:package": "npx sort-package-json",
     "npm:lint": "npmPkgJsonLint .",
     "pack": "npm pack",

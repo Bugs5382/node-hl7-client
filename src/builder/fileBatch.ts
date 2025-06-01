@@ -70,7 +70,7 @@ export class FileBatch extends RootBase {
     // if we are adding a message to a file
     if (message instanceof Message) {
       // and we already added a batch segment, we need to add it to the batch segment since we cannot add a batch and then a MSH segment.
-      // That would violate HL7 specification.
+      // That would violate HL7 specs.
       if (this._batchCount >= 1) {
         // get the first batch segment we find
         const batch = this._getFirstBatch();

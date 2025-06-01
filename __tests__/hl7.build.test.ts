@@ -12,7 +12,6 @@ import {
 } from "../src";
 import {
   HL7_2_1,
-  HL7_2_2,
   HL7_2_3,
   HL7_2_3_1,
   HL7_2_4,
@@ -23,6 +22,7 @@ import {
   HL7_2_7_1,
   HL7_2_8,
 } from "../src/hl7";
+import { receivingApplication, receivingFacility, sendingApplication, sendingFacility } from "../src/hl7/types/msh";
 import { MSH_HEADER } from "./__data__/constants";
 import { sleep } from "./__utils__";
 
@@ -110,25 +110,31 @@ describe("node hl7 client - builder tests", () => {
     });
   });
 
-  describe("builder message (MSH) specification", () => {
+  describe("builder message (MSH) hl7", () => {
     test("2.1 - build", async () => {
-      const message = new Message({
-        specification: new HL7_2_1(),
-        messageHeader: {
-          msh_9: "ADT",
-          msh_10: "12345",
-          msh_11: "D",
-        },
+      const message = new HL7_2_1();
+
+      // build MSH Header
+      message.MSH({
+        [sendingApplication]: "Unit Testing",
+        [sendingFacility]: "Unit Testing",
+        [receivingApplication]: "Unit Testing",
+        [receivingFacility]: "Unit Testing",
+        msh_9: "ADT",
+        msh_10: "12345",
+        msh_11: "T",
       });
-      message.set("MSH.7", "20081231");
-      expect(message.toString()).toBe(
-        "MSH|^~\\&|||||20081231||ADT|12345|D|2.1",
+
+      console.log(message._message.toString());
+
+      message._message.set("MSH.7", "20081231");
+      expect(message._message.toString()).toBe(
+        "MSH|^~\\&|Hello||||20081231||ADT|12345|T|2.1",
       );
     });
 
     test("2.2 - build", async () => {
       const message = new Message({
-        specification: new HL7_2_2(),
         messageHeader: {
           msh_9_1: "ADT",
           msh_9_2: "A01",

@@ -1,6 +1,6 @@
 import { Message } from "../builder/message";
 import { createHL7Date, randomString } from "../utils/utils";
-import { HL7_SPEC_BASE } from "./specification";
+import { HL7_BASE } from "./base";
 
 /**
  * HL7 2.3 MSH Specification
@@ -50,10 +50,10 @@ export interface HL7_2_3_MSH {
 
 /**
  * Hl7 Specification Version 2.3
- * @remarks Used to indicate that the message should follow 2.7 specification for retrieval or building a message.
+ * @remarks Used to indicate that the message should follow 2.7 hl7 for retrieval or building a message.
  * @since 1.0.0
  */
-export class HL7_2_3 extends HL7_SPEC_BASE {
+export class HL7_2_3 extends HL7_BASE {
   constructor() {
     super();
     this.name = "2.3";

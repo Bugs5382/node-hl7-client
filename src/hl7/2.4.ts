@@ -36,7 +36,7 @@ export type HL7_2_4_MSH = HL7_2_3_1_MSH & {
 
 /**
  * Hl7 Specification Version 2.4
- * @remarks Used to indicate that the message should follow 2.7 specification for retrieval or building a message.
+ * @remarks Used to indicate that the message should follow 2.7 hl7 for retrieval or building a message.
  * @since 1.0.0
  */
 export class HL7_2_4 extends HL7_2_3_1 {

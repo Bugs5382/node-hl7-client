@@ -1,5 +1,5 @@
 import { InboundResponse } from "@/client/module/inboundResponse";
-import { MSH } from "@/specification/specification";
+import { MSH } from "@/hl7/base";
 import { TcpSocketConnectOpts } from "node:net";
 import type { ConnectionOptions as TLSOptions } from "tls";
 import { Batch, FileBatch, Message } from "../builder/index";
@@ -19,8 +19,6 @@ export type FallBackHandler = (message: MessageItem) => void;
  * Client Builder Options
  * @remarks Used to specific default parameters around building an HL7 message if that is
  * so desired.
- * It also sets up checking of input values to make sure they match up to the proper
- * HL7 specification.
  * @since 1.0.0
  */
 export interface ClientBuilderOptions {
@@ -58,11 +56,6 @@ export interface ClientBuilderOptions {
    * @since 1.0.0
    * @default & */
   separatorSubComponent?: string;
-  /** The HL7 spec we are going to be creating.
-   * This will be formatted into the MSH header by default.
-   * @since 1.0.0
-   * @default 2.7 via class new HL7_2_7() */
-  specification?: any;
   /** The HL7 string that we are going to parse.
    * @default "" */
   text?: string;
