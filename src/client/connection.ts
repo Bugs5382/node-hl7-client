@@ -1,20 +1,22 @@
-import { MLLPCodec } from "@/utils/codec";
-import { ReadyState } from "@/utils/enum";
-import { HL7FatalError } from "@/utils/exception";
-import { normalizeClientListenerOptions } from "@/utils/normalizedClient";
+import { normalizeClientListenerOptions } from "@/client/normalizedClient";
+import { Deferred } from "@/declaration/deferred";
+import { ReadyState } from "@/declaration/enum";
+import { HL7FatalError } from "@/helpers/exception";
+import { MLLPCodec } from "@/modules/codec";
 import {
   ClientListenerOptions,
   FallBackHandler,
   NotifyPendingCount,
   OutboundHandler,
-} from "@/utils/types";
-import { createDeferred, Deferred, expBackoff, isBatch } from "@/utils/utils";
+} from "@/modules/types";
+import { createDeferred } from "@/utils/createDeferred";
+import { expBackoff } from "@/utils/expBackoff";
 import EventEmitter from "node:events";
 import net, { Socket } from "node:net";
 import { clearTimeout } from "node:timers";
 import tls from "node:tls";
 import { Batch, FileBatch, Message } from "../builder/index";
-import type { MessageItem } from "../index";
+import { isBatch, MessageItem } from "../index";
 import { Client } from "./client";
 import { InboundResponse } from "./module/inboundResponse";
 

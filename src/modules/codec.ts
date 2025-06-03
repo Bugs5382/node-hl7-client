@@ -1,9 +1,9 @@
-import { Socket } from "node:net";
 import {
   PROTOCOL_MLLP_END,
   PROTOCOL_MLLP_FOOTER,
   PROTOCOL_MLLP_HEADER,
-} from "./constants";
+} from "@/helpers/constants";
+import { Socket } from "node:net";
 
 /** MLLPCodec Class
  * @since 3.1.0 */

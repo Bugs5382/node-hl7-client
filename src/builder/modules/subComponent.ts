@@ -1,5 +1,5 @@
-import { HL7FatalError } from "@/utils/exception";
-import { isHL7String } from "@/utils/utils";
+import { HL7FatalError } from "@/helpers/exception";
+import { isHL7String } from "@/utils/is";
 import { ValueNode } from "./valueNode";
 
 /** @internal */

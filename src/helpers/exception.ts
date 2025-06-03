@@ -1,6 +1,6 @@
 /** Parent Cass of HL7 Error
  * @since 1.0.0 */
-class HL7Error extends Error {
+export class HL7Error extends Error {
   code: number;
   /** @internal */
   constructor(code: number, message: string) {
@@ -12,7 +12,7 @@ class HL7Error extends Error {
 
 /** Used to indicate a fatal failure of a connection.
  * @since 1.0.0 */
-class HL7FatalError extends HL7Error {
+export class HL7FatalError extends HL7Error {
   /** @internal */
   name = "HL7FatalError";
   constructor(message: string) {
@@ -22,12 +22,10 @@ class HL7FatalError extends HL7Error {
 
 /** Used to indicate a fatal failure of a connection.
  * @since 1.0.0 */
-class HL7ParserError extends HL7Error {
+export class HL7ParserError extends HL7Error {
   /** @internal */
   name = "HL7ParserError";
   constructor(message: string) {
     super(404, message);
   }
 }
-
-export { HL7Error, HL7FatalError, HL7ParserError };

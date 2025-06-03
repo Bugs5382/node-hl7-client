@@ -1,8 +1,9 @@
+import { HL7FatalError } from "@/helpers/exception";
+import { ClientListenerOptions, ClientOptions } from "@/modules/types";
+import { assertNumber } from "@/utils";
+import { validIPv4, validIPv6 } from "@/utils/ipAddress";
 import { TcpSocketConnectOpts } from "node:net";
 import type { ConnectionOptions as TLSOptions } from "node:tls";
-import { HL7FatalError } from "./exception";
-import { ClientListenerOptions, ClientOptions } from "./types";
-import { assertNumber, validIPv4, validIPv6 } from "./utils";
 
 const DEFAULT_CLIENT_OPTS = {
   encoding: "utf-8",

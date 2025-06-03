@@ -1,14 +1,16 @@
+import { HL7FatalError } from "@/helpers/exception";
 import { HL7_2_1_MSH } from "@/hl7/2.1/msh";
 import {
   processingId,
   receivingApplication,
   receivingFacility,
   sendingApplication,
-  sendingFacility
-} from "@/hl7/types/msh";
-import { HL7FatalError } from "@/utils/exception";
-import { ClientBuilderOptions } from "@/utils/types";
-import { createHL7Date, randomString } from "@/utils/utils";
+  sendingFacility,
+} from "@/hl7/types/symbols";
+import { HL7Validator } from "@/modules/hl7Validator";
+import { ClientBuilderOptions } from "@/modules/types";
+import { createHL7Date } from "@/utils/createHL7Date";
+import { randomString } from "@/utils/randomString";
 import { HL7_BASE } from "../base";
 
 /**
@@ -45,7 +47,7 @@ export class HL7_2_1 extends HL7_BASE {
    * @since 1.0.0
    * @param props
    */
-  MSH(props: Partial<HL7_2_1_MSH>): void {
+  buildMSH(props: Partial<HL7_2_1_MSH>): void {
     const msh = { ...props };
 
     if (props.msh_3) {
@@ -62,6 +64,7 @@ export class HL7_2_1 extends HL7_BASE {
     }
 
     const mshHeader = this._message.addSegment("MSH");
+    const validator = new HL7Validator(mshHeader);
 
     mshHeader.set(
       "1",
@@ -112,7 +115,13 @@ export class HL7_2_1 extends HL7_BASE {
       mshHeader.set("10", props.msh_10.toString());
     }
 
-    mshHeader.set("11", props.msh_11);
+    validator.validateAndSet("11", props.msh_11, {
+      required: true,
+      type: "string",
+      length: 1,
+      allowedValues: ["P", "T"],
+    });
+
     mshHeader.set("12", this.name);
   }
 

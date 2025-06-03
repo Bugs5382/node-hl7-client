@@ -22,7 +22,6 @@ import {
   HL7_2_7_1,
   HL7_2_8,
 } from "../src/hl7";
-import { receivingApplication, receivingFacility, sendingApplication, sendingFacility } from "../src/hl7/types/msh";
 import { MSH_HEADER } from "./__data__/constants";
 import { sleep } from "./__utils__";
 
@@ -115,21 +114,17 @@ describe("node hl7 client - builder tests", () => {
       const message = new HL7_2_1();
 
       // build MSH Header
-      message.MSH({
-        [sendingApplication]: "Unit Testing",
-        [sendingFacility]: "Unit Testing",
-        [receivingApplication]: "Unit Testing",
-        [receivingFacility]: "Unit Testing",
+      message.buildMSH({
         msh_9: "ADT",
         msh_10: "12345",
         msh_11: "T",
       });
 
-      console.log(message._message.toString());
+      console.log(message.toString());
 
-      message._message.set("MSH.7", "20081231");
-      expect(message._message.toString()).toBe(
-        "MSH|^~\\&|Hello||||20081231||ADT|12345|T|2.1",
+      // message._message.set("MSH.7", "20081231");
+      expect(message.toString()).toBe(
+        "MSH|^~\\&|||||20081231||ADT|12345|T|2.1",
       );
     });
 

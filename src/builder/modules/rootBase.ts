@@ -1,7 +1,8 @@
-import { Delimiters } from "@/utils/enum";
-import { HL7FatalError } from "@/utils/exception";
-import { ClientBuilderOptions } from "@/utils/types";
-import { decodeHexString, escapeForRegExp } from "@/utils/utils";
+import { Delimiters } from "@/declaration/enum";
+import { HL7FatalError } from "@/helpers/exception";
+import { ClientBuilderMessageOptions } from "@/modules/types";
+import { decodeHexString } from "@/utils/decodeHexString";
+import { escapeForRegExp } from "@/utils/escapeForRegExp";
 import { NodeBase } from "./nodeBase";
 
 /**
@@ -31,7 +32,7 @@ export class RootBase extends NodeBase {
     RootBase._defaultDelimiters,
   );
 
-  constructor(opt: ClientBuilderOptions) {
+  constructor(opt: ClientBuilderMessageOptions) {
     super(null, opt.text, Delimiters.Segment);
 
     this._delimiters = `${opt.newLine as string}${opt.separatorField as string}${opt.separatorComponent as string}${opt.separatorRepetition as string}${opt.separatorEscape as string}${opt.separatorSubComponent as string}`;

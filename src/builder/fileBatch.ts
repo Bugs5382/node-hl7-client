@@ -1,8 +1,9 @@
-import { NAME_FORMAT } from "@/utils/constants";
-import { HL7FatalError, HL7ParserError } from "@/utils/exception";
-import { normalizedClientFileBuilderOptions } from "@/utils/normalizedBuilder";
-import { ClientBuilderFileOptions } from "@/utils/types";
-import { createHL7Date, split } from "@/utils/utils";
+import { normalizedClientFileParserOptions } from "@/builder/normalizedParser";
+import { NAME_FORMAT } from "@/helpers/constants";
+import { HL7FatalError, HL7ParserError } from "@/helpers/exception";
+import { ClientBuilderFileOptions } from "@/modules/types";
+import { createHL7Date } from "@/utils/createHL7Date";
+import { split } from "@/utils/spilt";
 import fs from "node:fs";
 import path from "node:path";
 import { Batch } from "./batch";
@@ -25,7 +26,7 @@ export class FileBatch extends RootBase {
   /** @internal */
   protected _fileName: string;
   /** @internal **/
-  _opt: ReturnType<typeof normalizedClientFileBuilderOptions>;
+  _opt: ReturnType<typeof normalizedClientFileParserOptions>;
   /** @internal */
   protected _lines: string[];
   /** @internal */
@@ -38,7 +39,7 @@ export class FileBatch extends RootBase {
    * @param props Passing the options to build the file batch.
    */
   constructor(props?: ClientBuilderFileOptions) {
-    const opt = normalizedClientFileBuilderOptions(props);
+    const opt = normalizedClientFileParserOptions(props);
     super(opt);
     this._fileName = "";
     this._lines = [];
@@ -47,11 +48,7 @@ export class FileBatch extends RootBase {
     this._messagesCount = 0;
     this._fileName = "";
 
-    if (
-      typeof opt.text !== "undefined" &&
-      opt.parsing === true &&
-      opt.text !== ""
-    ) {
+    if (typeof opt.text !== "undefined" && opt.text !== "") {
       this._lines = split(opt.text).filter((line) => line.startsWith("MSH"));
     } else {
       this.set("FHS.7", createHL7Date(new Date(), this._opt.date));

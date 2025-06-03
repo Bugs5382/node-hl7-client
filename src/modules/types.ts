@@ -2,7 +2,7 @@ import { InboundResponse } from "@/client/module/inboundResponse";
 import { MSH } from "@/hl7/base";
 import { TcpSocketConnectOpts } from "node:net";
 import type { ConnectionOptions as TLSOptions } from "tls";
-import { Batch, FileBatch, Message } from "../builder/index";
+import { Batch, FileBatch, Message } from "../builder";
 
 export type MessageItem = Message | Batch | FileBatch;
 /**
@@ -26,16 +26,11 @@ export interface ClientBuilderOptions {
    * @since 1.0.0
    * @default 14
    */
-  date?: string;
+  date?: "8" | "12" | "14";
   /** At the end of each line, add this as the new line character.
    * @since 1.0.0
    * @default \r */
   newLine?: string;
-  /** Parsing a message?
-   * @since 1.0.0
-   * @default false
-   */
-  parsing?: boolean;
   /** The character used to separate different components.
    * @since 1.0.0
    * @default ^ */
@@ -56,9 +51,6 @@ export interface ClientBuilderOptions {
    * @since 1.0.0
    * @default & */
   separatorSubComponent?: string;
-  /** The HL7 string that we are going to parse.
-   * @default "" */
-  text?: string;
 }
 
 export interface ClientBuilderMessageOptions extends ClientBuilderOptions {
@@ -67,6 +59,9 @@ export interface ClientBuilderMessageOptions extends ClientBuilderOptions {
    * @since 1.0.0
    */
   messageHeader?: MSH;
+  /** The HL7 string that we are going to parse.
+   * @default "" */
+  text?: string;
 }
 
 export interface ClientBuilderFileOptions extends ClientBuilderOptions {
@@ -92,6 +87,9 @@ export interface ClientBuilderFileOptions extends ClientBuilderOptions {
    * @default ""
    */
   location?: string;
+  /** The HL7 string that we are going to parse.
+   * @default "" */
+  text?: string;
 }
 
 export interface ClientOptions {

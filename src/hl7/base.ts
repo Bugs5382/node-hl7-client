@@ -1,9 +1,6 @@
 import { HL7_2_1_MSH } from "@/hl7/2.1/msh";
-import { normalizedClientMessageBuilderOptions } from "@/utils/normalizedBuilder";
-import {
-  ClientBuilderMessageOptions,
-  ClientBuilderOptions,
-} from "@/utils/types";
+import { normalizedClientBuilderOptions } from "@/hl7/normalizedBuilder";
+import { ClientBuilderOptions } from "@/modules/types";
 import { Message } from "../builder/message";
 import { HL7_2_2_MSH } from "./2.2";
 import { HL7_2_3_MSH } from "./2.3";
@@ -38,13 +35,14 @@ export type MSH =
  * @since 1.0.0
  */
 export interface HL7_SPEC {
-  _message: Message | undefined;
   /** Name of the HL7 Spec */
   name: string;
   /** Build MSH */
-  MSH: (mshHeader: MSH) => void;
+  buildMSH: (mshHeader: MSH) => void;
   /** Check the MSH Header for this Specification */
   checkMSH: (options: MSH) => boolean;
+  /** */
+  toString: () => string;
 }
 
 /**
@@ -57,18 +55,19 @@ export class HL7_BASE implements HL7_SPEC {
   name = "";
   /** Name
    * @since 4.0.0 */
-  _message: Message;
+  protected _message: Message;
   /**
-   * Options
+   * Options for the Hl7 Message.
    * @since 4.0.0 */
-  readonly _opt: ClientBuilderMessageOptions;
+  readonly _opt: ClientBuilderOptions;
 
   /**
    * Create a new HL7 Message
    * @since 4.0.0
    */
   constructor(props?: ClientBuilderOptions) {
-    const opt = normalizedClientMessageBuilderOptions(props);
+    const opt = normalizedClientBuilderOptions(props);
+
     this._opt = opt;
     this._message = new Message(opt);
   }
@@ -80,7 +79,7 @@ export class HL7_BASE implements HL7_SPEC {
    * @param _mshHeader
    * @return void
    */
-  MSH(_mshHeader: MSH): void {
+  buildMSH(_mshHeader: MSH): void {
     throw new Error("Not Implemented");
   }
 
@@ -92,5 +91,13 @@ export class HL7_BASE implements HL7_SPEC {
    */
   checkMSH(_options: MSH): boolean {
     throw new Error("Not Implemented");
+  }
+
+  /**
+   * Return the string of the entire HL7 message.
+   * @since 4.0.0
+   */
+  toString(): string {
+    return this._message.toString();
   }
 }

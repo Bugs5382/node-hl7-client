@@ -1,15 +1,14 @@
-import fs from "fs";
-import { HL7FatalError } from "./exception";
-import { ParserPlan } from "./parserPlan";
+import { HL7FatalError } from "@/helpers/exception";
+import { ParserPlan } from "@/modules/parserPlan";
 import {
   ClientBuilderFileOptions,
   ClientBuilderMessageOptions,
-  ClientBuilderOptions,
-} from "./types";
-import { isBatch } from "./utils";
+} from "@/modules/types";
+import fs from "fs";
+
+import { isBatch } from "@/utils/is";
 
 const DEFAULT_CLIENT_BUILDER_OPTS = {
-  date: "14",
   newLine: "\r",
   parsing: false,
   separatorComponent: "^",
@@ -25,7 +24,7 @@ const DEFAULT_CLIENT_FILE_OPTS = {
   location: "",
 };
 
-export function normalizedClientMessageBuilderOptions(
+export function normalizedClientMessageParserOptions(
   raw?: ClientBuilderMessageOptions,
 ): ClientBuilderMessageOptions {
   const props: ClientBuilderMessageOptions = {
@@ -57,7 +56,6 @@ export function normalizedClientMessageBuilderOptions(
   // } else
   if (typeof props.text !== "undefined" && props.text !== "") {
     const plan: ParserPlan = new ParserPlan(props.text.slice(3, 8));
-    props.parsing = true;
     // check to make sure that we set the correct properties
     props.newLine = props.text.includes("\r") ? "\r" : "\n";
     props.separatorField = plan.separatorField;
@@ -74,10 +72,10 @@ export function normalizedClientMessageBuilderOptions(
   return props;
 }
 
-export function normalizedClientBatchBuilderOptions(
-  raw?: ClientBuilderOptions,
-): ClientBuilderOptions {
-  const props: ClientBuilderOptions = {
+export function normalizedClientBatchParserOptions(
+  raw?: ClientBuilderMessageOptions,
+): ClientBuilderMessageOptions {
+  const props: ClientBuilderMessageOptions = {
     ...DEFAULT_CLIENT_BUILDER_OPTS,
     ...raw,
   };
@@ -117,7 +115,6 @@ export function normalizedClientBatchBuilderOptions(
     props.text = `BHS${props.separatorField as string}${props.separatorComponent as string}${props.separatorRepetition as string}${props.separatorEscape as string}${props.separatorSubComponent as string}`;
   } else if (typeof props.text !== "undefined") {
     const plan: ParserPlan = new ParserPlan(props.text.slice(3, 8));
-    props.parsing = true;
     // check to make sure that we set the correct properties
     props.newLine = props.text.includes("\r") ? "\r" : "\n";
     props.separatorField = plan.separatorField;
@@ -130,7 +127,7 @@ export function normalizedClientBatchBuilderOptions(
   return props;
 }
 
-export function normalizedClientFileBuilderOptions(
+export function normalizedClientFileParserOptions(
   raw?: ClientBuilderFileOptions,
 ): ClientBuilderFileOptions {
   const props: ClientBuilderFileOptions = {
@@ -192,7 +189,6 @@ export function normalizedClientFileBuilderOptions(
     props.text = `FHS${props.separatorField as string}${props.separatorComponent as string}${props.separatorRepetition as string}${props.separatorEscape as string}${props.separatorSubComponent as string}`;
   } else if (typeof props.text !== "undefined") {
     const plan: ParserPlan = new ParserPlan(props.text.slice(3, 8));
-    props.parsing = true;
     // check to make sure that we set the correct properties
     props.newLine = props.text.includes("\r") ? "\r" : "\n";
     props.separatorField = plan.separatorField;
