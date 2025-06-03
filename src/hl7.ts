@@ -1,5 +1,5 @@
 /** HL7 Class **/
-export { HL7_2_1 } from "@/hl7/2.1/2.1";
+export { HL7_2_1 } from "@/hl7/2.1";
 export type { HL7_2_1_MSH } from "@/hl7/2.1/msh";
 
 export { HL7_2_2 } from "@/hl7/2.2";
