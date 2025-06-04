@@ -2,6 +2,7 @@ import {
   processingId,
   receivingApplication,
   receivingFacility,
+  security,
   sendingApplication,
   sendingFacility,
 } from "@/hl7/types/symbols";
@@ -31,6 +32,14 @@ export interface HL7_MSH {
   /** Receiving Facility
    * @since 4.0.0 */
   [receivingFacility]?: string;
+  /** Security
+   * @remarks Optional, String Data
+   * @since 4.0.0 */
+  msh_8?: string;
+  /** Security
+   * @remarks Optional, String Data
+   * @since 4.0.0 */
+  [security]?: string;
   /** Processing ID
    * @since 1.0.0 */
   msh_11: "P" | "T";

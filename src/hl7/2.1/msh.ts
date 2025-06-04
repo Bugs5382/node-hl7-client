@@ -1,4 +1,5 @@
 import { HL7_MSH } from "@/hl7/types/msh";
+import { messageCode, messageControlId } from "@/hl7/types/symbols";
 
 /**
  * HL7 2.1 MSH Specification
@@ -23,8 +24,13 @@ import { HL7_MSH } from "@/hl7/types/msh";
  */
 export interface HL7_2_1_MSH extends HL7_MSH {
   /** Message Code
+   * @example ADT
    * @since 1.0.0 */
   msh_9: string;
+  /** Message Code
+   * @example ADT
+   * @since 1.0.0 */
+  [messageCode]: string;
   /** Message Control ID
    * @remarks This ID is unique to the message being sent
    * so the client can track
@@ -33,4 +39,12 @@ export interface HL7_2_1_MSH extends HL7_MSH {
    * @since 1.0.0
    * @default Random 20 Character String {@link randomString} if this is set to nothing or not included. */
   msh_10?: string;
+  /** Message Control ID
+   * @remarks This ID is unique to the message being sent
+   * so the client can track
+   * to see if they get a response back from the server that this particular message was successful.
+   * Max 20 characters.
+   * @since 1.0.0
+   * @default Random 20 Character String {@link randomString} if this is set to nothing or not included. */
+  [messageControlId]?: string;
 }

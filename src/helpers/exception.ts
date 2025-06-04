@@ -29,3 +29,13 @@ export class HL7ParserError extends HL7Error {
     super(404, message);
   }
 }
+
+/** Used to indicate a fatal failure of a validator.
+ * @since 1.0.0 */
+export class HL7ValidationError extends HL7Error {
+  /** @internal */
+  name = "HL7ValidationError";
+  constructor(message: string) {
+    super(404, message);
+  }
+}

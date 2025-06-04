@@ -26,7 +26,7 @@ export interface ClientBuilderOptions {
    * @since 1.0.0
    * @default 14
    */
-  date?: "8" | "12" | "14";
+  date?: "8" | "12" | "14" | "19";
   /** At the end of each line, add this as the new line character.
    * @since 1.0.0
    * @default \r */

@@ -1,13 +1,41 @@
 import { Segment } from "@/builder/modules/segment";
 import { ValidationRule } from "@/declaration/validationRule";
+import { HL7ValidationError } from "@/helpers";
+
+interface HL7ValidationProps {
+  /** */
+  hardError?: boolean;
+  /** */
+  segment: Segment;
+}
 
 /**
- *
+ * @since 4.0.0
  */
-export class HL7Validator {
+export class Validator {
+  /**
+   * Errors
+   * @since 4.0.0
+   * @private
+   */
   private errors: string[] = [];
+  /**
+   * Segment
+   * @since 4.0.0
+   * @private
+   */
+  private segment: Segment;
+  /**
+   * Regardless if errors are soft, always throw and exception or deviation from the rule.
+   * @since 4.0.0
+   * @private
+   */
+  private readonly hardError: boolean;
 
-  constructor(private segment: Segment) {}
+  constructor(props: HL7ValidationProps) {
+    this.hardError = props.hardError || false;
+    this.segment = props.segment;
+  }
 
   private resolvePath(path: string): any {
     return this.segment.get(path);
@@ -27,11 +55,11 @@ export class HL7Validator {
     const isSet = depVal !== undefined && depVal !== null && depVal !== "";
 
     if (dep.mustBeSet && !isSet) {
-      this.errors.push(`Field ${fieldPath} requires ${dep.path} to be set`);
+      this._throwError(`Field ${fieldPath} requires ${dep.path} to be set`);
     }
 
     if (dep.mustEqual !== undefined && depVal !== dep.mustEqual) {
-      this.errors.push(
+      this._throwError(
         `Field ${fieldPath} requires ${dep.path} to equal "${dep.mustEqual}", but got "${depVal}"`,
       );
     }
@@ -42,21 +70,20 @@ export class HL7Validator {
       rules.required &&
       (value === undefined || value === null || value === "")
     ) {
-      this.errors.push(`Field ${fieldPath} is required`);
-      return;
+      this._throwError(`Field ${fieldPath} is required`, true);
     }
 
     if (value !== undefined && value !== null) {
       if (rules.type === "number" && isNaN(Number(value))) {
-        this.errors.push(`Field ${fieldPath} must be a number`);
+        this._throwError(`Field ${fieldPath} must be a number`);
       }
 
       if (rules.type === "string" && typeof value !== "string") {
-        this.errors.push(`Field ${fieldPath} must be a string`);
+        this._throwError(`Field ${fieldPath} must be a string`);
       }
 
       if (rules.type === "date" && !/^\d{8}$/.test(String(value))) {
-        this.errors.push(
+        this._throwError(
           `Field ${fieldPath} must be a valid date in YYYYMMDD format`,
         );
       }
@@ -65,31 +92,32 @@ export class HL7Validator {
       const len = valStr.length;
 
       if (typeof rules.length === "number" && len !== rules.length) {
-        this.errors.push(
+        this._throwError(
           `Field ${fieldPath} must be exactly ${rules.length} characters`,
         );
       }
 
       if (typeof rules.length === "object") {
         if (rules.length.min && len < rules.length.min) {
-          this.errors.push(
+          this._throwError(
             `Field ${fieldPath} must be at least ${rules.length.min} characters`,
           );
         }
         if (rules.length.max && len > rules.length.max) {
-          this.errors.push(
+          this._throwError(
             `Field ${fieldPath} must be at most ${rules.length.max} characters`,
           );
         }
       }
 
       if (rules.pattern && !rules.pattern.test(valStr)) {
-        this.errors.push(`Field ${fieldPath} does not match expected format`);
+        this._throwError(`Field ${fieldPath} does not match expected format`);
       }
 
       if (rules.allowedValues && !rules.allowedValues.includes(valStr)) {
-        this.errors.push(
+        this._throwError(
           `Field ${fieldPath} must be one of: ${rules.allowedValues.join(", ")}`,
+          true,
         );
       }
     }
@@ -110,6 +138,14 @@ export class HL7Validator {
     }
 
     return this.errors;
+  }
+
+  private _throwError(message: string, forceThrow: boolean = false) {
+    if (this.hardError || forceThrow) {
+      throw new HL7ValidationError(message);
+    }
+
+    this.errors.push(message);
   }
 
   // public delete(

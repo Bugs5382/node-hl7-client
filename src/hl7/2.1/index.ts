@@ -1,14 +1,13 @@
-import { HL7FatalError } from "@/helpers/exception";
+import { HL7FatalError, HL7ValidationError } from "@/helpers/exception";
 import { HL7_2_1_MSH } from "@/hl7/2.1/msh";
 import {
-  processingId,
   receivingApplication,
   receivingFacility,
   sendingApplication,
   sendingFacility,
 } from "@/hl7/types/symbols";
-import { HL7Validator } from "@/modules/hl7Validator";
 import { ClientBuilderOptions } from "@/modules/types";
+import { Validator } from "@/modules/validator";
 import { createHL7Date } from "@/utils/createHL7Date";
 import { randomString } from "@/utils/randomString";
 import { HL7_BASE } from "../base";
@@ -23,12 +22,12 @@ import { HL7_BASE } from "../base";
  * const message = new HL7_2_1();
  *
  * message.buildMSH({
- *  msh_9: "ADT",
+ *  msh_9: "ACK",
  *  msh_10: "12345",
- *  msh_11: "D",
+ *  msh_11: "T",
  * });
  *
- * Will generate: MSH|^~\&||||||20081231||ADT|12345|D|2.1
+ * Will generate: MSH|^~\&||||||20081231||ACK|12345|T|2.1
  *
  * ```
  */
@@ -39,7 +38,7 @@ export class HL7_2_1 extends HL7_BASE {
    */
   constructor(props?: ClientBuilderOptions) {
     super(props);
-    this.name = "2.1";
+    this.version = "2.1";
   }
 
   /**
@@ -50,12 +49,6 @@ export class HL7_2_1 extends HL7_BASE {
   buildMSH(props: Partial<HL7_2_1_MSH>): void {
     const msh = { ...props };
 
-    if (props.msh_3) {
-      msh[sendingApplication] = props.msh_3;
-    } else if (msh[sendingApplication]) {
-      props.msh_3 = msh[sendingApplication];
-    }
-
     // make sure there is only one MSH header per message.
     if (this._message.totalSegment("MSH") > 0) {
       throw new HL7FatalError(
@@ -64,56 +57,83 @@ export class HL7_2_1 extends HL7_BASE {
     }
 
     const mshHeader = this._message.addSegment("MSH");
-    const validator = new HL7Validator(mshHeader);
+    const validator = new Validator({ segment: mshHeader });
 
-    mshHeader.set(
+    if (this._opt.separatorComponent?.length !== 1) {
+      throw new HL7ValidationError(
+        `Separator Component has to be a single character.`,
+      );
+    }
+
+    validator.validateAndSet(
       "1",
       `${this._opt.separatorComponent as string}${this._opt.separatorRepetition as string}${this._opt.separatorEscape as string}${this._opt.separatorSubComponent as string}`,
+      {
+        required: true,
+        type: "string",
+        length: 4,
+      },
     );
 
-    if (
-      typeof msh[sendingApplication] !== "undefined" ||
-      typeof props.msh_3 !== "undefined"
-    ) {
-      mshHeader.set("3", msh[sendingApplication]);
-    }
+    validator.validateAndSet("3", props.msh_3 || msh[sendingApplication], {
+      required: false,
+      type: "string",
+      length: { min: 1, max: 15 },
+    });
 
-    if (
-      typeof msh[sendingFacility] !== "undefined" ||
-      typeof props.msh_4 !== "undefined"
-    ) {
-      mshHeader.set("4", msh[sendingFacility]);
-    }
+    validator.validateAndSet("4", props.msh_4 || msh[sendingFacility], {
+      required: false,
+      type: "string",
+      length: { min: 1, max: 20 },
+    });
 
-    if (
-      typeof msh[receivingApplication] !== "undefined" ||
-      typeof props.msh_5 !== "undefined"
-    ) {
-      mshHeader.set("5", msh[receivingApplication]);
-    }
+    validator.validateAndSet("5", props.msh_5 || msh[receivingApplication], {
+      required: false,
+      type: "string",
+      length: { min: 1, max: 15 },
+    });
 
-    if (
-      typeof msh[receivingFacility] !== "undefined" ||
-      typeof props.msh_6 !== "undefined"
-    ) {
-      mshHeader.set("6", msh[receivingFacility]);
-    }
+    validator.validateAndSet("4", props.msh_6 || msh[receivingFacility], {
+      required: false,
+      type: "string",
+      length: { min: 1, max: 30 },
+    });
 
-    mshHeader.set("7", createHL7Date(new Date(), this._opt.date));
+    validator.validateAndSet("7", createHL7Date(new Date(), this._opt.date), {
+      required: true,
+      type: "string",
+    });
 
-    if (
-      typeof msh[processingId] !== "undefined" ||
-      typeof props.msh_9 !== "undefined"
-    ) {
-      mshHeader.set("9", msh[processingId] || props.msh_9);
-    }
+    validator.validateAndSet("8", props.msh_8, {
+      required: false,
+      type: "string",
+      length: { min: 1, max: 40 },
+    });
 
-    // if control ID is blank, then randomize it.
-    if (typeof props.msh_10 === "undefined") {
-      mshHeader.set("10", randomString());
-    } else {
-      mshHeader.set("10", props.msh_10.toString());
-    }
+    // review https://hl7-definition.caristix.com/v2/HL7v2.1/Tables/0076 for valid values
+    validator.validateAndSet("9", props.msh_9, {
+      required: true,
+      type: "string",
+      allowedValues: [
+        "ACK",
+        "ARD",
+        "BAR",
+        "DSR",
+        "MCF",
+        "ORF",
+        "ORM",
+        "ORR",
+        "ORU",
+        "OSQ",
+        "UDM",
+      ],
+    });
+
+    validator.validateAndSet("10", props.msh_10 || randomString(), {
+      required: false,
+      type: "string",
+      length: { min: 1, max: 20 },
+    });
 
     validator.validateAndSet("11", props.msh_11, {
       required: true,
@@ -122,29 +142,6 @@ export class HL7_2_1 extends HL7_BASE {
       allowedValues: ["P", "T"],
     });
 
-    mshHeader.set("12", this.name);
-  }
-
-  /**
-   * Check MSH Header Properties for HL7 2.1
-   * @since 1.0.0
-   * @param msh
-   * @return boolean
-   */
-  checkMSH(msh: HL7_2_1_MSH): boolean {
-    if (typeof msh.msh_9 === "undefined") {
-      throw new Error("MSH.9 must be defined.");
-    }
-
-    if (
-      typeof msh.msh_10 !== "undefined" &&
-      (msh.msh_10.length < 0 || msh.msh_10.length > 20)
-    ) {
-      throw new Error(
-        "MSH.10 must be greater than 0 and less than 20 characters.",
-      );
-    }
-
-    return true;
+    mshHeader.set("12", this.version);
   }
 }

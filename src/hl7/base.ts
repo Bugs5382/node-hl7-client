@@ -36,11 +36,11 @@ export type MSH =
  */
 export interface HL7_SPEC {
   /** Name of the HL7 Spec */
-  name: string;
+  version: string;
   /** Build MSH */
   buildMSH: (mshHeader: MSH) => void;
   /** Check the MSH Header for this Specification */
-  checkMSH: (options: MSH) => boolean;
+  checkMSH: (mshHeader: MSH) => boolean;
   /** */
   toString: () => string;
 }
@@ -50,9 +50,9 @@ export interface HL7_SPEC {
  * @since 1.0.0
  */
 export class HL7_BASE implements HL7_SPEC {
-  /** Name
+  /** Version
    * @since 1.0.0 */
-  name = "";
+  version = "";
   /** Name
    * @since 4.0.0 */
   protected _message: Message;
@@ -86,10 +86,10 @@ export class HL7_BASE implements HL7_SPEC {
   /**
    * Check MSH Header Properties
    * @since 1.0.0
-   * @param _options
+   * @param _mshHeader
    * @return boolean
    */
-  checkMSH(_options: MSH): boolean {
+  checkMSH(_mshHeader: MSH): boolean {
     throw new Error("Not Implemented");
   }
 
