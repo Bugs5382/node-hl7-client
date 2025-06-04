@@ -1,34 +1,7 @@
-import { HL7_2_1_MSH } from "@/hl7/2.1/msh";
+import { ACC, MSH } from "@/hl7/headers";
 import { normalizedClientBuilderOptions } from "@/hl7/normalizedBuilder";
 import { ClientBuilderOptions } from "@/modules/types";
 import { Message } from "../builder/message";
-import { HL7_2_2_MSH } from "./2.2";
-import { HL7_2_3_MSH } from "./2.3";
-import { HL7_2_3_1_MSH } from "./2.3.1";
-import { HL7_2_4_MSH } from "./2.4";
-import { HL7_2_5_MSH } from "./2.5";
-import { HL7_2_5_1_MSH } from "./2.5.1";
-import { HL7_2_6_MSH } from "./2.6";
-import { HL7_2_7_MSH } from "./2.7";
-import { HL7_2_7_1_MSH } from "./2.7.1";
-import { HL7_2_8_MSH } from "./2.8";
-
-/**
- * MSH Unions
- * @since 1.0.0
- */
-export type MSH =
-  | HL7_2_1_MSH
-  | HL7_2_2_MSH
-  | HL7_2_3_MSH
-  | HL7_2_3_1_MSH
-  | HL7_2_4_MSH
-  | HL7_2_5_MSH
-  | HL7_2_5_1_MSH
-  | HL7_2_6_MSH
-  | HL7_2_7_MSH
-  | HL7_2_7_1_MSH
-  | HL7_2_8_MSH;
 
 /**
  * HL7 Base Interface
@@ -37,11 +10,13 @@ export type MSH =
 export interface HL7_SPEC {
   /** Name of the HL7 Spec */
   version: string;
-  /** Build MSH */
+  /** Build ACC (Accident) Segment */
+  buildACC: (accHeader: ACC) => void;
+  /** Build MSH (Message Header) Segment */
   buildMSH: (mshHeader: MSH) => void;
-  /** Check the MSH Header for this Specification */
+  /** Check the MSH Header for this Specification validation. */
   checkMSH: (mshHeader: MSH) => boolean;
-  /** */
+  /** Export compiled H7 String */
   toString: () => string;
 }
 
@@ -70,6 +45,17 @@ export class HL7_BASE implements HL7_SPEC {
 
     this._opt = opt;
     this._message = new Message(opt);
+  }
+
+  /**
+   * Build the ACC Segment
+   * @remarks Add a ACC Segment to the HL7 Message
+   * @since 4.0.0
+   * @param _accHeader
+   * @return void
+   */
+  buildACC(_accHeader: ACC): void {
+    throw new Error("Not Implemented");
   }
 
   /**
