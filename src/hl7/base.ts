@@ -1,6 +1,9 @@
-import { ACC, MSH } from "@/hl7/headers";
+import { HL7ValidationError } from "@/helpers";
+import { ACC, ADD, MSH } from "@/hl7/headers";
 import { normalizedClientBuilderOptions } from "@/hl7/normalizedBuilder";
+import { addendumContinuationPointer } from "@/hl7/types/symbols";
 import { ClientBuilderOptions } from "@/modules/types";
+import { Validator } from "@/modules/validator";
 import { Message } from "../builder/message";
 
 /**
@@ -12,6 +15,8 @@ export interface HL7_SPEC {
   version: string;
   /** Build ACC (Accident) Segment */
   buildACC: (accHeader: ACC) => void;
+  /** Build ADD (Addendum) Segment */
+  buildADD: (addHeader: ADD) => void;
   /** Build MSH (Message Header) Segment */
   buildMSH: (mshHeader: MSH) => void;
   /** Check the MSH Header for this Specification validation. */
@@ -35,6 +40,10 @@ export class HL7_BASE implements HL7_SPEC {
    * Options for the Hl7 Message.
    * @since 4.0.0 */
   readonly _opt: ClientBuilderOptions;
+  /**
+   * Max length of ADD Segment. Changes based off extended class.
+   * @since 4.0.0 */
+  protected _maxAddSegmentLength: number | undefined;
 
   /**
    * Create a new HL7 Message
@@ -48,8 +57,35 @@ export class HL7_BASE implements HL7_SPEC {
   }
 
   /**
+   * Build the ADD Segment
+   * @remarks Add an ADD Segment to the HL7 Message
+   * @param addHeader
+   */
+  buildADD(addHeader: ADD) {
+    const lastSegment = this._message.getLastSegment();
+    if (["MSH", "BHS", "FHS"].includes(lastSegment._name)) {
+      throw new HL7ValidationError(
+        "This segment must not follow a MSH, BHS, or FHS",
+      );
+    }
+    const validator = new Validator({
+      segment: this._message.addSegment("ADD"),
+    });
+
+    validator.validateAndSet(
+      "1",
+      addHeader.add_1 || addHeader[addendumContinuationPointer],
+      {
+        required: false,
+        type: "string",
+        length: { min: 0, max: this._maxAddSegmentLength },
+      },
+    );
+  }
+
+  /**
    * Build the ACC Segment
-   * @remarks Add a ACC Segment to the HL7 Message
+   * @remarks Add an ACC Segment to the HL7 Message
    * @since 4.0.0
    * @param _props
    * @return void

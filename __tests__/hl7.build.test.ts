@@ -10,6 +10,7 @@ import {
   HL7Node,
   Message,
 } from "../src";
+import { HL7ValidationError } from "../src/helpers";
 import {
   HL7_2_1,
   HL7_2_3,
@@ -110,24 +111,45 @@ describe("node hl7 client - builder tests", () => {
   });
 
   describe("builder message (MSH) hl7", () => {
-    test("2.1 - build", async () => {
-      const message = new HL7_2_1({ date: "8" });
+    describe("2.1", async () => {
+      let message_HL7_2_1: HL7_2_1;
+      beforeEach(async () => {
+        message_HL7_2_1 = new HL7_2_1({ date: "8" });
+      });
+      test("... basic", async () => {
+        // build MSH Header
+        message_HL7_2_1.buildMSH({
+          msh_9: "ACK",
+          msh_10: "12345",
+          msh_11: "T",
+        });
 
-      // build MSH Header
-      message.buildMSH({
-        msh_9: "ACK",
-        msh_10: "12345",
-        msh_11: "T",
+        // message._message.set("MSH.7", "20081231");
+        expect(message_HL7_2_1.toString()).toBe(
+          `MSH|^~\\&|||||${createHL7Date(new Date(), "8")}||ACK|12345|T|2.1`,
+        );
       });
 
-      message.buildACC({
-        acc_1: createHL7Date(new Date(), "14")
-      })
+      test("... ADD segment can't follow MSH", async () => {
+        try {
+          // build MSH Header
+          message_HL7_2_1.buildMSH({
+            msh_9: "ACK",
+            msh_10: "12345",
+            msh_11: "T",
+          });
 
-      // message._message.set("MSH.7", "20081231");
-      expect(message.toString()).toBe(
-        `MSH|^~\\&|||||${createHL7Date(new Date(), "8")}||ACK|12345|T|2.1`,
-      );
+          message_HL7_2_1.buildADD({
+            add_1: "Fail",
+          });
+        } catch (err) {
+          expect(err).toEqual(
+            new HL7ValidationError(
+              "This segment must not follow a MSH, BHS, or FHS",
+            ),
+          );
+        }
+      });
     });
 
     test("2.2 - build", async () => {

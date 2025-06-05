@@ -2,7 +2,10 @@
 export const accidentDateTime = Symbol("accidentDateTime");
 export const accidentCode = Symbol("accidentCode");
 export const accidentLocation = Symbol("accidentLocation");
-
+//add
+export const addendumContinuationPointer = Symbol(
+  "addendumContinuationPointer",
+);
 // msh
 export const sendingApplication = Symbol("sendingApplication");
 export const sendingFacility = Symbol("sendingFacility");

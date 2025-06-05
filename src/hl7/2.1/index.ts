@@ -1,4 +1,5 @@
 import { HL7FatalError, HL7ValidationError } from "@/helpers/exception";
+import { ADD } from "@/hl7/headers";
 import {
   accidentCode,
   accidentDateTime,
@@ -42,8 +43,21 @@ export class HL7_2_1 extends HL7_BASE {
   constructor(props?: ClientBuilderOptions) {
     super(props);
     this.version = "2.1";
+    this._maxAddSegmentLength = 60;
   }
 
+  /**
+   *
+   * @param props
+   */
+  buildADD(props: ADD): void {
+    super.buildADD(props);
+  }
+
+  /**
+   *
+   * @param props
+   */
   buildACC(props: Partial<HL7_2_1_ACC>) {
     const acc = { ...props };
 
@@ -60,13 +74,13 @@ export class HL7_2_1 extends HL7_BASE {
     validator.validateAndSet("2", props.acc_2 || acc[accidentCode], {
       required: false,
       type: "string",
-      length: { min: 1, max: 2 },
+      length: 2,
     });
 
     validator.validateAndSet("3", props.acc_3 || acc[accidentLocation], {
       required: false,
       type: "string",
-      length: { min: 1, max: 25 },
+      length: 25,
     });
   }
 
