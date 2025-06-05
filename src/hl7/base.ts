@@ -51,10 +51,10 @@ export class HL7_BASE implements HL7_SPEC {
    * Build the ACC Segment
    * @remarks Add a ACC Segment to the HL7 Message
    * @since 4.0.0
-   * @param _accHeader
+   * @param _props
    * @return void
    */
-  buildACC(_accHeader: ACC): void {
+  buildACC(_props: ACC): void {
     throw new Error("Not Implemented");
   }
 
@@ -62,20 +62,20 @@ export class HL7_BASE implements HL7_SPEC {
    * Build MSH Header
    * @remarks Add the required fields based on the spec chosen.
    * @since 1.0.0
-   * @param _mshHeader
+   * @param _props
    * @return void
    */
-  buildMSH(_mshHeader: MSH): void {
+  buildMSH(_props: MSH): void {
     throw new Error("Not Implemented");
   }
 
   /**
    * Check MSH Header Properties
    * @since 1.0.0
-   * @param _mshHeader
+   * @param _props
    * @return boolean
    */
-  checkMSH(_mshHeader: MSH): boolean {
+  checkMSH(_props: MSH): boolean {
     throw new Error("Not Implemented");
   }
 

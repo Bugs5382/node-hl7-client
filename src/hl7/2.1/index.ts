@@ -1,6 +1,8 @@
 import { HL7FatalError, HL7ValidationError } from "@/helpers/exception";
-import { HL7_2_1_MSH } from "@/hl7/2.1/msh";
 import {
+  accidentCode,
+  accidentDateTime,
+  accidentLocation,
   receivingApplication,
   receivingFacility,
   sendingApplication,
@@ -11,6 +13,7 @@ import { Validator } from "@/modules/validator";
 import { createHL7Date } from "@/utils/createHL7Date";
 import { randomString } from "@/utils/randomString";
 import { HL7_BASE } from "../base";
+import { HL7_2_1_ACC, HL7_2_1_MSH } from "./types";
 
 /**
  * Hl7 Version 2.1
@@ -41,6 +44,32 @@ export class HL7_2_1 extends HL7_BASE {
     this.version = "2.1";
   }
 
+  buildACC(props: Partial<HL7_2_1_ACC>) {
+    const acc = { ...props };
+
+    const validator = new Validator({
+      segment: this._message.addSegment("ACC"),
+    });
+
+    validator.validateAndSet("1", props.acc_1 || acc[accidentDateTime], {
+      required: false,
+      type: "string",
+      length: { min: 1, max: 19 },
+    });
+
+    validator.validateAndSet("2", props.acc_2 || acc[accidentCode], {
+      required: false,
+      type: "string",
+      length: { min: 1, max: 2 },
+    });
+
+    validator.validateAndSet("3", props.acc_3 || acc[accidentLocation], {
+      required: false,
+      type: "string",
+      length: { min: 1, max: 25 },
+    });
+  }
+
   /**
    * Build HL7 MSH Segment
    * @since 1.0.0
@@ -56,8 +85,7 @@ export class HL7_2_1 extends HL7_BASE {
       );
     }
 
-    const mshHeader = this._message.addSegment("MSH");
-    const validator = new Validator({ segment: mshHeader });
+    const validator = new Validator({ segment: this._message.addSegment("MSH") });
 
     if (this._opt.separatorComponent?.length !== 1) {
       throw new HL7ValidationError(
@@ -142,6 +170,6 @@ export class HL7_2_1 extends HL7_BASE {
       allowedValues: ["P", "T"],
     });
 
-    mshHeader.set("12", this.version);
+    validator.validateAndSet("12", this.version);
   }
 }

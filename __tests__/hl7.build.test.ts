@@ -120,6 +120,10 @@ describe("node hl7 client - builder tests", () => {
         msh_11: "T",
       });
 
+      message.buildACC({
+        acc_1: createHL7Date(new Date(), "14")
+      })
+
       // message._message.set("MSH.7", "20081231");
       expect(message.toString()).toBe(
         `MSH|^~\\&|||||${createHL7Date(new Date(), "8")}||ACK|12345|T|2.1`,

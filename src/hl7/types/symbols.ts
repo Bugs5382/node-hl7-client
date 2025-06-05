@@ -1,3 +1,8 @@
+// acc
+export const accidentDateTime = Symbol("accidentDateTime");
+export const accidentCode = Symbol("accidentCode");
+export const accidentLocation = Symbol("accidentLocation");
+
 // msh
 export const sendingApplication = Symbol("sendingApplication");
 export const sendingFacility = Symbol("sendingFacility");
