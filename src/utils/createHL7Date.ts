@@ -10,7 +10,6 @@
  *                 "19" = YYYYMMDDHHMMSS.SSSS (fractional seconds)
  * @returns A string formatted as an HL7-compatible date.
  */
-
 export const createHL7Date = (
   date: Date,
   length?: "8" | "12" | "14" | "19",

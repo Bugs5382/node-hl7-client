@@ -53,8 +53,8 @@ export class HL7_2_1 extends HL7_BASE {
 
     validator.validateAndSet("1", props.acc_1 || acc[accidentDateTime], {
       required: false,
-      type: "string",
-      length: { min: 1, max: 19 },
+      type: "date",
+      length: { min: 8, max: 19 },
     });
 
     validator.validateAndSet("2", props.acc_2 || acc[accidentCode], {
@@ -85,7 +85,9 @@ export class HL7_2_1 extends HL7_BASE {
       );
     }
 
-    const validator = new Validator({ segment: this._message.addSegment("MSH") });
+    const validator = new Validator({
+      segment: this._message.addSegment("MSH"),
+    });
 
     if (this._opt.separatorComponent?.length !== 1) {
       throw new HL7ValidationError(
@@ -129,7 +131,8 @@ export class HL7_2_1 extends HL7_BASE {
 
     validator.validateAndSet("7", createHL7Date(new Date(), this._opt.date), {
       required: true,
-      type: "string",
+      type: "date",
+      length: { min: 8, max: 19 },
     });
 
     validator.validateAndSet("8", props.msh_8, {

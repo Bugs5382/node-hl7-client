@@ -82,9 +82,12 @@ export class Validator {
         this._throwError(`Field ${fieldPath} must be a string`);
       }
 
-      if (rules.type === "date" && !/^\d{8}$/.test(String(value))) {
+      if (
+        rules.type === "date" &&
+        !/^\d{8}(\d{4})?(\d{2})?(\.\d{4})?$/.test(String(value))
+      ) {
         this._throwError(
-          `Field ${fieldPath} must be a valid date in YYYYMMDD format`,
+          `Field ${fieldPath} must be a valid HL7 date in one of the following formats: YYYYMMDD, YYYYMMDDHHMM, YYYYMMDDHHMMSS, or YYYYMMDDHHMMSS.SSSS`,
         );
       }
 
