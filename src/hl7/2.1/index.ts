@@ -1,5 +1,8 @@
 import { HL7FatalError, HL7ValidationError } from "@/helpers/exception";
+import { HL7_2_1_BLG } from "@/hl7/2.1/blg";
 import { ADD } from "@/hl7/headers";
+import { TABLE_0076 } from "@/hl7/tables/0076";
+import { TABLE_0100 } from "@/hl7/tables/0100";
 import {
   accidentCode,
   accidentDateTime,
@@ -9,12 +12,15 @@ import {
   sendingApplication,
   sendingFacility,
 } from "@/hl7/types/symbols";
-import { ClientBuilderOptions } from "@/modules/types";
 import { Validator } from "@/modules/validator";
 import { createHL7Date } from "@/utils/createHL7Date";
 import { randomString } from "@/utils/randomString";
 import { HL7_BASE } from "../base";
-import { HL7_2_1_ACC, HL7_2_1_MSH } from "./types";
+import {
+  ClientBuilderOptions_Hl7_2_1,
+  HL7_2_1_ACC,
+  HL7_2_1_MSH,
+} from "./types";
 
 /**
  * Hl7 Version 2.1
@@ -36,14 +42,19 @@ import { HL7_2_1_ACC, HL7_2_1_MSH } from "./types";
  * ```
  */
 export class HL7_2_1 extends HL7_BASE {
+  private _table_0100: string[];
+  private _table_0076: string[];
   /**
    *
    * @param props
    */
-  constructor(props?: ClientBuilderOptions) {
+  constructor(props?: ClientBuilderOptions_Hl7_2_1) {
     super(props);
     this.version = "2.1";
     this._maxAddSegmentLength = 60;
+
+    this._table_0100 = props?.table_0100 || TABLE_0100;
+    this._table_0076 = props?.table_0076 || TABLE_0076;
   }
 
   /**
@@ -78,6 +89,33 @@ export class HL7_2_1 extends HL7_BASE {
     });
 
     validator.validateAndSet("3", props.acc_3 || acc[accidentLocation], {
+      required: false,
+      type: "string",
+      length: 25,
+    });
+  }
+
+  buildBLG(props: Partial<HL7_2_1_BLG>) {
+    const blg = { ...props };
+    const validator = new Validator({
+      segment: this._message.addSegment("BLG"),
+    });
+
+    // see https://hl7-definition.caristix.com/v2/HL7v2.1/Tables/0100
+    validator.validateAndSet("1", props.blg_1, {
+      required: false,
+      type: "string",
+      length: { min: 1, max: 15 },
+      allowedValues: this._table_0100,
+    });
+
+    validator.validateAndSet("2", props.blg_2, {
+      required: false,
+      type: "string",
+      length: 2,
+    });
+
+    validator.validateAndSet("3", props.blg_3, {
       required: false,
       type: "string",
       length: 25,
@@ -159,19 +197,7 @@ export class HL7_2_1 extends HL7_BASE {
     validator.validateAndSet("9", props.msh_9, {
       required: true,
       type: "string",
-      allowedValues: [
-        "ACK",
-        "ARD",
-        "BAR",
-        "DSR",
-        "MCF",
-        "ORF",
-        "ORM",
-        "ORR",
-        "ORU",
-        "OSQ",
-        "UDM",
-      ],
+      allowedValues: this._table_0076,
     });
 
     validator.validateAndSet("10", props.msh_10 || randomString(), {

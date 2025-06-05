@@ -1,5 +1,5 @@
 import { HL7ValidationError } from "@/helpers";
-import { ACC, ADD, MSH } from "@/hl7/headers";
+import { ACC, ADD, BLG, MSH } from "@/hl7/headers";
 import { normalizedClientBuilderOptions } from "@/hl7/normalizedBuilder";
 import { addendumContinuationPointer } from "@/hl7/types/symbols";
 import { ClientBuilderOptions } from "@/modules/types";
@@ -17,6 +17,8 @@ export interface HL7_SPEC {
   buildACC: (accHeader: ACC) => void;
   /** Build ADD (Addendum) Segment */
   buildADD: (addHeader: ADD) => void;
+  /** Build BLG (Billing) Segment */
+  buildBLG: (blgHeader: BLG) => void;
   /** Build MSH (Message Header) Segment */
   buildMSH: (mshHeader: MSH) => void;
   /** Check the MSH Header for this Specification validation. */
@@ -81,6 +83,15 @@ export class HL7_BASE implements HL7_SPEC {
         length: { min: 0, max: this._maxAddSegmentLength },
       },
     );
+  }
+
+  /**
+   *
+   * @since 4.0.0
+   * @param _blgHeader
+   */
+  buildBLG(_blgHeader: BLG) {
+    throw new Error("Not Implemented");
   }
 
   /**
