@@ -3,18 +3,7 @@ import { HL7_2_1_BLG } from "@/hl7/2.1/blg";
 import { ADD } from "@/hl7/headers";
 import { TABLE_0076 } from "@/hl7/tables/0076";
 import { TABLE_0100 } from "@/hl7/tables/0100";
-import {
-  accidentCode,
-  accidentDateTime,
-  accidentLocation,
-  billingAccountId,
-  billingChargeType,
-  billingWhenToCharge,
-  receivingApplication,
-  receivingFacility,
-  sendingApplication,
-  sendingFacility,
-} from "@/hl7/types/symbols";
+import * as symbols from "@/hl7/types/symbols";
 import { Validator } from "@/modules/validator";
 import { createHL7Date } from "@/utils/createHL7Date";
 import { randomString } from "@/utils/randomString";
@@ -79,23 +68,31 @@ export class HL7_2_1 extends HL7_BASE {
       segment: this._message.addSegment("ACC"),
     });
 
-    validator.validateAndSet("1", props.acc_1 || acc[accidentDateTime], {
-      required: false,
-      type: "date",
-      length: { min: 8, max: 19 },
-    });
+    validator.validateAndSet(
+      "1",
+      props.acc_1 || acc[symbols.accidentDateTime],
+      {
+        required: false,
+        type: "date",
+        length: { min: 8, max: 19 },
+      },
+    );
 
-    validator.validateAndSet("2", props.acc_2 || acc[accidentCode], {
+    validator.validateAndSet("2", props.acc_2 || acc[symbols.accidentCode], {
       required: false,
       type: "string",
       length: 2,
     });
 
-    validator.validateAndSet("3", props.acc_3 || acc[accidentLocation], {
-      required: false,
-      type: "string",
-      length: 25,
-    });
+    validator.validateAndSet(
+      "3",
+      props.acc_3 || acc[symbols.accidentLocation],
+      {
+        required: false,
+        type: "string",
+        length: 25,
+      },
+    );
   }
 
   buildBLG(props: Partial<HL7_2_1_BLG>) {
@@ -105,24 +102,68 @@ export class HL7_2_1 extends HL7_BASE {
     });
 
     // see https://hl7-definition.caristix.com/v2/HL7v2.1/Tables/0100
-    validator.validateAndSet("1", props.blg_1 || blg[billingWhenToCharge], {
-      required: false,
-      type: "string",
-      length: { min: 1, max: 15 },
-      allowedValues: this._table_0100,
-    });
+    validator.validateAndSet(
+      "1",
+      props.blg_1 || blg[symbols.billingWhenToCharge],
+      {
+        required: false,
+        type: "string",
+        length: { min: 1, max: 15 },
+        allowedValues: this._table_0100,
+      },
+    );
 
-    validator.validateAndSet("2", props.blg_2 || blg[billingChargeType], {
-      required: false,
-      type: "string",
-      length: 2,
-    });
+    validator.validateAndSet(
+      "2",
+      props.blg_2 || blg[symbols.billingChargeType],
+      {
+        required: false,
+        type: "string",
+        length: 2,
+      },
+    );
 
-    validator.validateAndSet("3", props.blg_3 || blg[billingAccountId], {
-      required: false,
-      type: "string",
-      length: 25,
-    });
+    validator.validateAndSet(
+      "3",
+      props.blg_3 || blg[symbols.billingAccountId],
+      {
+        required: false,
+        type: "string",
+        length: 25,
+      },
+    );
+  }
+
+  buildDG1(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildDSC(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildDSP(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildERR(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildEVN(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildFT1(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildGT1(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildIN1(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
   }
 
   /**
@@ -160,29 +201,41 @@ export class HL7_2_1 extends HL7_BASE {
       },
     );
 
-    validator.validateAndSet("3", props.msh_3 || msh[sendingApplication], {
-      required: false,
-      type: "string",
-      length: { min: 1, max: 15 },
-    });
+    validator.validateAndSet(
+      "3",
+      props.msh_3 || msh[symbols.sendingApplication],
+      {
+        required: false,
+        type: "string",
+        length: { min: 1, max: 15 },
+      },
+    );
 
-    validator.validateAndSet("4", props.msh_4 || msh[sendingFacility], {
+    validator.validateAndSet("4", props.msh_4 || msh[symbols.sendingFacility], {
       required: false,
       type: "string",
       length: { min: 1, max: 20 },
     });
 
-    validator.validateAndSet("5", props.msh_5 || msh[receivingApplication], {
-      required: false,
-      type: "string",
-      length: { min: 1, max: 15 },
-    });
+    validator.validateAndSet(
+      "5",
+      props.msh_5 || msh[symbols.receivingApplication],
+      {
+        required: false,
+        type: "string",
+        length: { min: 1, max: 15 },
+      },
+    );
 
-    validator.validateAndSet("4", props.msh_6 || msh[receivingFacility], {
-      required: false,
-      type: "string",
-      length: { min: 1, max: 30 },
-    });
+    validator.validateAndSet(
+      "4",
+      props.msh_6 || msh[symbols.receivingFacility],
+      {
+        required: false,
+        type: "string",
+        length: { min: 1, max: 30 },
+      },
+    );
 
     validator.validateAndSet("7", createHL7Date(new Date(), this._opt.date), {
       required: true,
@@ -216,6 +269,93 @@ export class HL7_2_1 extends HL7_BASE {
       allowedValues: ["P", "T"],
     });
 
-    validator.validateAndSet("12", this.version);
+    validator.validateAndSet("12", this.version, {
+      required: true,
+      type: "string",
+    });
+  }
+
+  buildMRG(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildMSA(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildNCK(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildNK1(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildNPU(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildNSC(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildNST(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildNTE(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildOBR(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildOBX(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildORC(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildPD1(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildPID(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildPR1(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildPV1(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildQRD(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildQRF(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildRX1(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildUB1(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildURD(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  buildURS(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
   }
 }
