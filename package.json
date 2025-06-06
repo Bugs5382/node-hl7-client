@@ -109,7 +109,6 @@
   "precommit": [
     "lint:package",
     "lint:fix",
-    "format:write",
-    "build"
+    "format:write"
   ]
 }
