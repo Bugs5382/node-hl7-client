@@ -1,10 +1,10 @@
-import { HL7ValidationError } from "@/helpers";
+import { Message } from "@/builder";
+import { HL7FatalError, HL7ValidationError } from "@/helpers";
 import { ACC, ADD, BLG, MSH } from "@/hl7/headers";
 import { normalizedClientBuilderOptions } from "@/hl7/normalizedBuilder";
 import { addendumContinuationPointer } from "@/hl7/types/symbols";
 import { ClientBuilderOptions } from "@/modules/types";
 import { Validator } from "@/modules/validator";
-import { Message } from "../builder/message";
 
 /**
  * HL7 Base Interface
@@ -151,7 +151,7 @@ export class HL7_BASE implements HL7_SPEC {
    * @return void
    */
   buildACC(_props: ACC): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   /**
@@ -160,39 +160,39 @@ export class HL7_BASE implements HL7_SPEC {
    * @param _props
    */
   buildBLG(_props: BLG) {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildDG1(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildDSC(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildDSP(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildERR(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildEVN(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildFT1(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildGT1(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildIN1(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   /**
@@ -203,91 +203,91 @@ export class HL7_BASE implements HL7_SPEC {
    * @return void
    */
   buildMSH(_props: MSH): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildMRG(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildMSA(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildNCK(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildNK1(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildNPU(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildNSC(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildNST(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildNTE(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildOBR(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildOBX(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildORC(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildPD1(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildPID(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildPR1(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildPV1(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildQRD(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildQRF(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildRX1(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildUB1(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildURD(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   buildURS(_props: any): void {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   /**
@@ -297,7 +297,7 @@ export class HL7_BASE implements HL7_SPEC {
    * @return boolean
    */
   checkMSH(_props: MSH): boolean {
-    throw new Error("Not Implemented");
+    throw new HL7FatalError("Not Implemented");
   }
 
   /**
