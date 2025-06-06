@@ -14,15 +14,73 @@ export interface HL7_SPEC {
   /** Name of the HL7 Spec */
   version: string;
   /** Build ACC (Accident) Segment */
-  buildACC: (accHeader: ACC) => void;
+  buildACC: (props: ACC) => void;
   /** Build ADD (Addendum) Segment */
-  buildADD: (addHeader: ADD) => void;
+  buildADD: (props: ADD) => void;
   /** Build BLG (Billing) Segment */
-  buildBLG: (blgHeader: BLG) => void;
+  buildBLG: (props: BLG) => void;
+  /** */
+  buildDG1: (props: any) => void;
+  /** */
+  buildDSC: (props: any) => void;
+  /** */
+  buildDSP: (props: any) => void;
+  /** */
+  buildERR: (props: any) => void;
+  /** */
+  buildEVN: (props: any) => void;
+  /** */
+  buildFT1: (props: any) => void;
+  /** */
+  buildGT1: (props: any) => void;
+  /** */
+  buildIN1: (props: any) => void;
+  /** */
+  buildMRG: (props: any) => void;
+  /** */
+  buildMSA: (props: any) => void;
   /** Build MSH (Message Header) Segment */
-  buildMSH: (mshHeader: MSH) => void;
+  buildMSH: (props: MSH) => void;
+  /** */
+  buildNCK: (props: any) => void;
+  /** */
+  buildNK1: (props: any) => void;
+  /** */
+  buildNPU: (props: any) => void;
+  /** */
+  buildNSC: (props: any) => void;
+  /** */
+  buildNST: (props: any) => void;
+  /** */
+  buildNTE: (props: any) => void;
+  /** */
+  buildOBR: (props: any) => void;
+  /** */
+  buildOBX: (props: any) => void;
+  /** */
+  buildORC: (props: any) => void;
+  /** */
+  buildPD1: (props: any) => void;
+  /** */
+  buildPID: (props: any) => void;
+  /** */
+  buildPR1: (props: any) => void;
+  /** */
+  buildPV1: (props: any) => void;
+  /** */
+  buildQRD: (props: any) => void;
+  /** */
+  buildQRF: (props: any) => void;
+  /** */
+  buildRX1: (props: any) => void;
+  /** */
+  buildUB1: (props: any) => void;
+  /** */
+  buildURD: (props: any) => void;
+  /** */
+  buildURS: (props: any) => void;
   /** Check the MSH Header for this Specification validation. */
-  checkMSH: (mshHeader: MSH) => boolean;
+  checkMSH: (props: MSH) => boolean;
   /** Export compiled H7 String */
   toString: () => string;
 }
@@ -86,15 +144,6 @@ export class HL7_BASE implements HL7_SPEC {
   }
 
   /**
-   *
-   * @since 4.0.0
-   * @param _blgHeader
-   */
-  buildBLG(_blgHeader: BLG) {
-    throw new Error("Not Implemented");
-  }
-
-  /**
    * Build the ACC Segment
    * @remarks Add an ACC Segment to the HL7 Message
    * @since 4.0.0
@@ -106,6 +155,47 @@ export class HL7_BASE implements HL7_SPEC {
   }
 
   /**
+   *
+   * @since 4.0.0
+   * @param _props
+   */
+  buildBLG(_props: BLG) {
+    throw new Error("Not Implemented");
+  }
+
+  buildDG1(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildDSC(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildDSP(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildERR(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildEVN(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildFT1(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildGT1(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildIN1(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  /**
    * Build MSH Header
    * @remarks Add the required fields based on the spec chosen.
    * @since 1.0.0
@@ -113,6 +203,90 @@ export class HL7_BASE implements HL7_SPEC {
    * @return void
    */
   buildMSH(_props: MSH): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildMRG(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildMSA(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildNCK(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildNK1(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildNPU(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildNSC(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildNST(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildNTE(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildOBR(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildOBX(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildORC(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildPD1(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildPID(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildPR1(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildPV1(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildQRD(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildQRF(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildRX1(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildUB1(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildURD(_props: any): void {
+    throw new Error("Not Implemented");
+  }
+
+  buildURS(_props: any): void {
     throw new Error("Not Implemented");
   }
 

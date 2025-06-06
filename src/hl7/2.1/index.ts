@@ -6,11 +6,14 @@ import { TABLE_0100 } from "@/hl7/tables/0100";
 import {
   accidentCode,
   accidentDateTime,
-  accidentLocation, billingAccountId, billingChargeType, billingWhenToCharge,
+  accidentLocation,
+  billingAccountId,
+  billingChargeType,
+  billingWhenToCharge,
   receivingApplication,
   receivingFacility,
   sendingApplication,
-  sendingFacility
+  sendingFacility,
 } from "@/hl7/types/symbols";
 import { Validator } from "@/modules/validator";
 import { createHL7Date } from "@/utils/createHL7Date";
@@ -109,13 +112,13 @@ export class HL7_2_1 extends HL7_BASE {
       allowedValues: this._table_0100,
     });
 
-    validator.validateAndSet("2", props.blg_2|| blg[billingChargeType], {
+    validator.validateAndSet("2", props.blg_2 || blg[billingChargeType], {
       required: false,
       type: "string",
       length: 2,
     });
 
-    validator.validateAndSet("3", props.blg_3|| blg[billingAccountId], {
+    validator.validateAndSet("3", props.blg_3 || blg[billingAccountId], {
       required: false,
       type: "string",
       length: 25,
