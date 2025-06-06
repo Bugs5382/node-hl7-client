@@ -6,6 +6,10 @@ export const accidentLocation = Symbol("accidentLocation");
 export const addendumContinuationPointer = Symbol(
   "addendumContinuationPointer",
 );
+// blg
+export const billingWhenToCharge = Symbol("billingWhenToCharge");
+export const billingChargeType = Symbol("billingChargeType");
+export const billingAccountId = Symbol("billingAccountId");
 // msh
 export const sendingApplication = Symbol("sendingApplication");
 export const sendingFacility = Symbol("sendingFacility");
