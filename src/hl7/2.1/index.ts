@@ -1,6 +1,5 @@
-import { HL7FatalError, HL7ValidationError } from "@/helpers/exception";
+import { HL7ValidationError } from "@/helpers/exception";
 import { HL7_2_1_BLG } from "@/hl7/2.1/blg";
-import { ADD } from "@/hl7/headers";
 import { TABLE_0076 } from "@/hl7/tables/0076";
 import { TABLE_0100 } from "@/hl7/tables/0100";
 import * as symbols from "@/hl7/types/symbols";
@@ -50,18 +49,10 @@ export class HL7_2_1 extends HL7_BASE {
   }
 
   /**
-   *
+   * Build ACC Segment
    * @param props
    */
-  buildADD(props: ADD): void {
-    super.buildADD(props);
-  }
-
-  /**
-   *
-   * @param props
-   */
-  buildACC(props: Partial<HL7_2_1_ACC>) {
+  protected _buildACC(props: Partial<HL7_2_1_ACC>) {
     const acc = { ...props };
 
     const validator = new Validator({
@@ -95,7 +86,12 @@ export class HL7_2_1 extends HL7_BASE {
     );
   }
 
-  buildBLG(props: Partial<HL7_2_1_BLG>) {
+  /**
+   *
+   * @param props
+   * @protected
+   */
+  protected _buildBLG(props: Partial<HL7_2_1_BLG>) {
     const blg = { ...props };
     const validator = new Validator({
       segment: this._message.addSegment("BLG"),
@@ -134,46 +130,12 @@ export class HL7_2_1 extends HL7_BASE {
     );
   }
 
-  buildDG1(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildDSC(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildDSP(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildERR(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildEVN(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildFT1(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildGT1(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildIN1(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
   /**
    * Build HL7 MSH Segment
    * @since 1.0.0
    * @param props
    */
-  buildMSH(props: Partial<HL7_2_1_MSH>): void {
-    super.buildMSH(props)
-
+  protected _buildMSH(props: Partial<HL7_2_1_MSH>): void {
     const msh = { ...props };
 
     const validator = new Validator({
@@ -268,89 +230,5 @@ export class HL7_2_1 extends HL7_BASE {
       required: true,
       type: "string",
     });
-  }
-
-  buildMRG(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildMSA(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildNCK(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildNK1(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildNPU(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildNSC(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildNST(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildNTE(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildOBR(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildOBX(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildORC(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildPD1(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildPID(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildPR1(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildPV1(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildQRD(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildQRF(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildRX1(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildUB1(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildURD(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
-  buildURS(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
   }
 }

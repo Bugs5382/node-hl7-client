@@ -1,5 +1,5 @@
 import { InboundResponse } from "@/client/module/inboundResponse";
-import { MSH } from "@/hl7/base";
+import { MSH } from "@/hl7/headers";
 import { TcpSocketConnectOpts } from "node:net";
 import type { ConnectionOptions as TLSOptions } from "tls";
 import { Batch, FileBatch, Message } from "../builder";

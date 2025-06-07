@@ -2,88 +2,10 @@ import { Message } from "@/builder";
 import { HL7FatalError, HL7ValidationError } from "@/helpers";
 import { ACC, ADD, BLG, MSH } from "@/hl7/headers";
 import { normalizedClientBuilderOptions } from "@/hl7/normalizedBuilder";
+import { HL7_SPEC } from "@/hl7/specs";
 import { addendumContinuationPointer } from "@/hl7/types/symbols";
 import { ClientBuilderOptions } from "@/modules/types";
 import { Validator } from "@/modules/validator";
-
-/**
- * HL7 Base Interface
- * @since 1.0.0
- */
-export interface HL7_SPEC {
-  /** Name of the HL7 Spec */
-  version: string;
-  /** Build ACC (Accident) Segment */
-  buildACC: (props: ACC) => void;
-  /** Build ADD (Addendum) Segment */
-  buildADD: (props: ADD) => void;
-  /** Build BLG (Billing) Segment */
-  buildBLG: (props: BLG) => void;
-  /** */
-  buildDG1: (props: any) => void;
-  /** */
-  buildDSC: (props: any) => void;
-  /** */
-  buildDSP: (props: any) => void;
-  /** */
-  buildERR: (props: any) => void;
-  /** */
-  buildEVN: (props: any) => void;
-  /** */
-  buildFT1: (props: any) => void;
-  /** */
-  buildGT1: (props: any) => void;
-  /** */
-  buildIN1: (props: any) => void;
-  /** */
-  buildMRG: (props: any) => void;
-  /** */
-  buildMSA: (props: any) => void;
-  /** Build MSH (Message Header) Segment */
-  buildMSH: (props: MSH) => void;
-  /** */
-  buildNCK: (props: any) => void;
-  /** */
-  buildNK1: (props: any) => void;
-  /** */
-  buildNPU: (props: any) => void;
-  /** */
-  buildNSC: (props: any) => void;
-  /** */
-  buildNST: (props: any) => void;
-  /** */
-  buildNTE: (props: any) => void;
-  /** */
-  buildOBR: (props: any) => void;
-  /** */
-  buildOBX: (props: any) => void;
-  /** */
-  buildORC: (props: any) => void;
-  /** */
-  buildPD1: (props: any) => void;
-  /** */
-  buildPID: (props: any) => void;
-  /** */
-  buildPR1: (props: any) => void;
-  /** */
-  buildPV1: (props: any) => void;
-  /** */
-  buildQRD: (props: any) => void;
-  /** */
-  buildQRF: (props: any) => void;
-  /** */
-  buildRX1: (props: any) => void;
-  /** */
-  buildUB1: (props: any) => void;
-  /** */
-  buildURD: (props: any) => void;
-  /** */
-  buildURS: (props: any) => void;
-  /** Check the MSH Header for this Specification validation. */
-  checkMSH: (props: MSH) => boolean;
-  /** Export compiled H7 String */
-  toString: () => string;
-}
 
 /**
  * Base Class of an HL7 Specification
@@ -117,12 +39,20 @@ export class HL7_BASE implements HL7_SPEC {
   }
 
   /**
+   *
+   * @param props
+   */
+  buildACC(props: ACC) {
+    this.headerExists();
+    this._buildACC(props);
+  }
+  /**
    * Build the ADD Segment
    * @remarks Add an ADD Segment to the HL7 Message
-   * @param addHeader
+   * @param props
    */
-  buildADD(addHeader: ADD) {
-    this.headerExists()
+  buildADD(props: ADD) {
+    this.headerExists();
 
     const lastSegment = this._message.getLastSegment();
 
@@ -139,7 +69,7 @@ export class HL7_BASE implements HL7_SPEC {
 
     validator.validateAndSet(
       "1",
-      addHeader.add_1 || addHeader[addendumContinuationPointer],
+      props.add_1 || props[addendumContinuationPointer],
       {
         required: false,
         type: "string",
@@ -147,60 +77,47 @@ export class HL7_BASE implements HL7_SPEC {
       },
     );
   }
-
-  /**
-   * Build the ACC Segment
-   * @remarks Add an ACC Segment to the HL7 Message
-   * @since 4.0.0
-   * @param _props
-   * @return void
-   */
-  buildACC(_props: ACC): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-
   /**
    *
    * @since 4.0.0
-   * @param _props
+   * @param props
    */
-  buildBLG(_props: BLG) {
-    throw new HL7FatalError("Not Implemented");
+  buildBLG(props: BLG) {
+    this.headerExists();
+    this._buildBLG(props);
   }
-
-  buildDG1(_props: any): void {
-    this.headerExists()
-    throw new HL7FatalError("Not Implemented");
+  buildDG1(props: any): void {
+    this.headerExists();
+    this._buildDG1(props);
   }
-
-  buildDSC(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildDSC(props: any): void {
+    this.headerExists();
+    this._buildDSC(props);
   }
-
-  buildDSP(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildDSP(props: any): void {
+    this.headerExists();
+    this._buildDSP(props);
   }
-
-  buildERR(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildERR(props: any): void {
+    this.headerExists();
+    this._buildERR(props);
   }
-
-  buildEVN(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildEVN(props: any): void {
+    this.headerExists();
+    this._buildEVN(props);
   }
-
-  buildFT1(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildFT1(props: any): void {
+    this.headerExists();
+    this._buildFT1(props);
   }
-
-  buildGT1(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildGT1(props: any): void {
+    this.headerExists();
+    this._buildGT1(props);
   }
-
-  buildIN1(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildIN1(props: any): void {
+    this.headerExists();
+    this._buildIN1(props);
   }
-
   /**
    * Build MSH Header
    * @remarks Add the required fields based on the spec chosen.
@@ -215,114 +132,256 @@ export class HL7_BASE implements HL7_SPEC {
         `You can only have one MSH Header per HL7 Message.`,
       );
     }
+    this._buildMSH(props);
   }
-
-  buildMRG(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildMRG(props: any): void {
+    this.headerExists();
+    this._buildMRG(props);
   }
-
-  buildMSA(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildMSA(props: any): void {
+    this.headerExists();
+    this._buildMSA(props);
   }
-
-  buildNCK(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildNCK(props: any): void {
+    this.headerExists();
+    this._buildNCK(props);
   }
-
-  buildNK1(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildNK1(props: any): void {
+    this.headerExists();
+    this._buildNK1(props);
   }
-
-  buildNPU(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildNPU(props: any): void {
+    this.headerExists();
+    this._buildNPU(props);
   }
-
-  buildNSC(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildNSC(props: any): void {
+    this.headerExists();
+    this._buildNSC(props);
   }
-
-  buildNST(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildNST(props: any): void {
+    this.headerExists();
+    this._buildNST(props);
   }
-
-  buildNTE(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildNTE(props: any): void {
+    this.headerExists();
+    this._buildNTE(props);
   }
-
-  buildOBR(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildOBR(props: any): void {
+    this.headerExists();
+    this._buildOBR(props);
   }
-
-  buildOBX(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildOBX(props: any): void {
+    this.headerExists();
+    this._buildOBX(props);
   }
-
-  buildORC(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildORC(props: any): void {
+    this.headerExists();
+    this._buildORC(props);
   }
-
-  buildPD1(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildPD1(props: any): void {
+    this.headerExists();
+    this._buildPD1(props);
   }
-
-  buildPID(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildPID(props: any): void {
+    this.headerExists();
+    this._buildPID(props);
   }
-
-  buildPR1(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildPR1(props: any): void {
+    this.headerExists();
+    this._buildPR1(props);
   }
-
-  buildPV1(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildPV1(props: any): void {
+    this.headerExists();
+    this._buildPV1(props);
   }
-
-  buildQRD(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildQRD(props: any): void {
+    this.headerExists();
+    this._buildQRD(props);
   }
-
-  buildQRF(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildQRF(props: any): void {
+    this.headerExists();
+    this._buildQRF(props);
   }
-
-  buildRX1(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildRX1(props: any): void {
+    this.headerExists();
+    this._buildRX1(props);
   }
-
-  buildUB1(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildUB1(props: any): void {
+    this.headerExists();
+    this._buildUB1(props);
   }
-
-  buildURD(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildURD(props: any): void {
+    this.headerExists();
+    this._buildURD(props);
   }
-
-  buildURS(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  buildURS(props: any): void {
+    this.headerExists();
+    this._buildURS(props);
   }
-
   /**
    * Check MSH Header Properties
    * @since 1.0.0
-   * @param _props
    * @return boolean
+   * @param _props
    */
   checkMSH(_props: MSH): boolean {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   *
+   */
   headerExists(): void {
-    const firstSegment = this._message.getFirstSegment()
-    if (firstSegment._name === "MSH") {
+    const firstSegment = this._message.getFirstSegment();
+    if (typeof firstSegment !== "undefined" && firstSegment._name !== "MSH") {
       throw new HL7FatalError("MSH Header must be built first.");
     }
   }
-
   /**
    * Return the string of the entire HL7 message.
    * @since 4.0.0
    */
   toString(): string {
     return this._message.toString();
+  }
+  /**
+   * Build the ADD Segment
+   * @remarks Add an ADD Segment to the HL7 Message
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
+  protected _buildADD(_props: ADD): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+  /**
+   * Build the ACC Segment
+   * @remarks Add an ACC Segment to the HL7 Message
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
+  protected _buildACC(_props: ACC): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+  protected _buildBLG(_props: BLG) {
+    throw new HL7FatalError("Not Implemented");
+  }
+  protected _buildDG1(_props: any) {
+    throw new HL7FatalError("Not Implemented");
+  }
+  protected _buildDSC(_props: any) {
+    throw new HL7FatalError("Not Implemented");
+  }
+  protected _buildDSP(_props: any) {
+    throw new HL7FatalError("Not Implemented");
+  }
+  protected _buildERR(_props: any) {
+    throw new HL7FatalError("Not Implemented");
+  }
+  protected _buildEVN(_props: any) {
+    throw new HL7FatalError("Not Implemented");
+  }
+  protected _buildFT1(_props: any) {
+    throw new HL7FatalError("Not Implemented");
+  }
+  protected _buildGT1(_props: any) {
+    throw new HL7FatalError("Not Implemented");
+  }
+  protected _buildIN1(_props: any) {
+    throw new HL7FatalError("Not Implemented");
+  }
+  /**
+   * Build the MSH Segment
+   * @remarks Add an MSH Segment to the HL7 Message
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
+  protected _buildMSH(_props: Partial<MSH>): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildMRG(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildMSA(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildNCK(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildNK1(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildNPU(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildNSC(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildNST(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildNTE(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildOBR(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildOBX(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildORC(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildPD1(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildPID(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildPR1(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildPV1(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildQRD(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildQRF(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildRX1(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildUB1(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildURD(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+
+  protected _buildURS(_props: any): void {
+    throw new HL7FatalError("Not Implemented");
   }
 }
