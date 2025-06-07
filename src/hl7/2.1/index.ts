@@ -172,14 +172,9 @@ export class HL7_2_1 extends HL7_BASE {
    * @param props
    */
   buildMSH(props: Partial<HL7_2_1_MSH>): void {
-    const msh = { ...props };
+    super.buildMSH(props)
 
-    // make sure there is only one MSH header per message.
-    if (this._message.totalSegment("MSH") > 0) {
-      throw new HL7FatalError(
-        `You can only have one MSH Header per HL7 Message.`,
-      );
-    }
+    const msh = { ...props };
 
     const validator = new Validator({
       segment: this._message.addSegment("MSH"),

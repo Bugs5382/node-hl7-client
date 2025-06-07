@@ -6,9 +6,9 @@ import {
   Batch,
   createHL7Date,
   EmptyNode,
-  FileBatch,
+  FileBatch, HL7FatalError,
   HL7Node,
-  Message,
+  Message
 } from "../src";
 import { HL7ValidationError } from "../src/helpers";
 import {
@@ -128,6 +128,31 @@ describe("node hl7 client - builder tests", () => {
         expect(message_HL7_2_1.toString()).toBe(
           `MSH|^~\\&|||||${createHL7Date(new Date(), "8")}||ACK|12345|T|2.1`,
         );
+      });
+
+      test("... can't have two MSH headers", async () => {
+        try {
+          // build MSH Header
+          message_HL7_2_1.buildMSH({
+            msh_9: "ACK",
+            msh_10: "12345",
+            msh_11: "T",
+          });
+
+          // build MSH Header
+          message_HL7_2_1.buildMSH({
+            msh_9: "ACK",
+            msh_10: "12345",
+            msh_11: "T",
+          });
+
+        } catch (err) {
+          expect(err).toEqual(
+            new HL7FatalError(
+              "You can only have one MSH Header per HL7 Message."
+            ),
+          );
+        }
       });
 
       test("... ADD segment can't follow MSH", async () => {

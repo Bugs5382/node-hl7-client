@@ -122,12 +122,17 @@ export class HL7_BASE implements HL7_SPEC {
    * @param addHeader
    */
   buildADD(addHeader: ADD) {
+    this.headerExists()
+
     const lastSegment = this._message.getLastSegment();
+
+    // @todo This might not be need to check BHS/FHS cause we are building using Message
     if (["MSH", "BHS", "FHS"].includes(lastSegment._name)) {
       throw new HL7ValidationError(
         "This segment must not follow a MSH, BHS, or FHS",
       );
     }
+
     const validator = new Validator({
       segment: this._message.addSegment("ADD"),
     });
@@ -164,6 +169,7 @@ export class HL7_BASE implements HL7_SPEC {
   }
 
   buildDG1(_props: any): void {
+    this.headerExists()
     throw new HL7FatalError("Not Implemented");
   }
 
@@ -199,11 +205,16 @@ export class HL7_BASE implements HL7_SPEC {
    * Build MSH Header
    * @remarks Add the required fields based on the spec chosen.
    * @since 1.0.0
-   * @param _props
    * @return void
+   * @param props
    */
-  buildMSH(_props: MSH): void {
-    throw new HL7FatalError("Not Implemented");
+  buildMSH(props: Partial<MSH>): void {
+    // make sure there is only one MSH header per message.
+    if (this._message.totalSegment("MSH") > 0) {
+      throw new HL7FatalError(
+        `You can only have one MSH Header per HL7 Message.`,
+      );
+    }
   }
 
   buildMRG(_props: any): void {
@@ -298,6 +309,13 @@ export class HL7_BASE implements HL7_SPEC {
    */
   checkMSH(_props: MSH): boolean {
     throw new HL7FatalError("Not Implemented");
+  }
+
+  headerExists(): void {
+    const firstSegment = this._message.getFirstSegment()
+    if (firstSegment._name === "MSH") {
+      throw new HL7FatalError("MSH Header must be built first.");
+    }
   }
 
   /**

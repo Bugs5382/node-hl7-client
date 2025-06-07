@@ -284,6 +284,10 @@ export class Message extends RootBase {
     return this.children[this.children.length - 1] as Segment;
   }
 
+  getFirstSegment(): Segment {
+    return this.children[0] as Segment;
+  }
+
   /** @internal */
   private _getFirstSegment(name: string): Segment | undefined {
     const children = this.children;
