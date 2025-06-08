@@ -23,4 +23,4 @@ export type { HL7_2_7_1_MSH } from "@/hl7/2.7.1";
 export { HL7_2_8 } from "@/hl7/2.8";
 export type { HL7_2_8_MSH } from "@/hl7/2.8";
 export { HL7_BASE } from "@/hl7/base";
-export type { HL7_SPEC } from "@/hl7/base";
+export type { HL7_SPEC } from "@/hl7/specs";

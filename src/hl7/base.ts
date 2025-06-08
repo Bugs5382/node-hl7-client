@@ -86,34 +86,74 @@ export class HL7_BASE implements HL7_SPEC {
     this.headerExists();
     this._buildBLG(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildDG1(props: any): void {
     this.headerExists();
     this._buildDG1(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildDSC(props: any): void {
     this.headerExists();
     this._buildDSC(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildDSP(props: any): void {
     this.headerExists();
     this._buildDSP(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildERR(props: any): void {
     this.headerExists();
     this._buildERR(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildEVN(props: any): void {
     this.headerExists();
     this._buildEVN(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildFT1(props: any): void {
     this.headerExists();
     this._buildFT1(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildGT1(props: any): void {
     this.headerExists();
     this._buildGT1(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildIN1(props: any): void {
     this.headerExists();
     this._buildIN1(props);
@@ -134,86 +174,191 @@ export class HL7_BASE implements HL7_SPEC {
     }
     this._buildMSH(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildMRG(props: any): void {
     this.headerExists();
     this._buildMRG(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildMSA(props: any): void {
     this.headerExists();
     this._buildMSA(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildNCK(props: any): void {
     this.headerExists();
     this._buildNCK(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildNK1(props: any): void {
     this.headerExists();
     this._buildNK1(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildNPU(props: any): void {
     this.headerExists();
     this._buildNPU(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildNSC(props: any): void {
     this.headerExists();
     this._buildNSC(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildNST(props: any): void {
     this.headerExists();
     this._buildNST(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildNTE(props: any): void {
     this.headerExists();
     this._buildNTE(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildOBR(props: any): void {
     this.headerExists();
     this._buildOBR(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildOBX(props: any): void {
     this.headerExists();
     this._buildOBX(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildORC(props: any): void {
     this.headerExists();
     this._buildORC(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildPD1(props: any): void {
     this.headerExists();
     this._buildPD1(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildPID(props: any): void {
     this.headerExists();
     this._buildPID(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildPR1(props: any): void {
     this.headerExists();
     this._buildPR1(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildPV1(props: any): void {
     this.headerExists();
     this._buildPV1(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildQRD(props: any): void {
     this.headerExists();
     this._buildQRD(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildQRF(props: any): void {
     this.headerExists();
     this._buildQRF(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildRX1(props: any): void {
     this.headerExists();
     this._buildRX1(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildUB1(props: any): void {
     this.headerExists();
     this._buildUB1(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildURD(props: any): void {
     this.headerExists();
     this._buildURD(props);
   }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
   buildURS(props: any): void {
     this.headerExists();
     this._buildURS(props);
@@ -244,16 +389,6 @@ export class HL7_BASE implements HL7_SPEC {
     return this._message.toString();
   }
   /**
-   * Build the ADD Segment
-   * @remarks Add an ADD Segment to the HL7 Message
-   * @since 4.0.0
-   * @return void
-   * @param _props
-   */
-  protected _buildADD(_props: ADD): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-  /**
    * Build the ACC Segment
    * @remarks Add an ACC Segment to the HL7 Message
    * @since 4.0.0
@@ -263,30 +398,75 @@ export class HL7_BASE implements HL7_SPEC {
   protected _buildACC(_props: ACC): void {
     throw new HL7FatalError("Not Implemented");
   }
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildBLG(_props: BLG) {
     throw new HL7FatalError("Not Implemented");
   }
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildDG1(_props: any) {
     throw new HL7FatalError("Not Implemented");
   }
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildDSC(_props: any) {
     throw new HL7FatalError("Not Implemented");
   }
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildDSP(_props: any) {
     throw new HL7FatalError("Not Implemented");
   }
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildERR(_props: any) {
     throw new HL7FatalError("Not Implemented");
   }
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildEVN(_props: any) {
     throw new HL7FatalError("Not Implemented");
   }
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildFT1(_props: any) {
     throw new HL7FatalError("Not Implemented");
   }
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildGT1(_props: any) {
     throw new HL7FatalError("Not Implemented");
   }
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildIN1(_props: any) {
     throw new HL7FatalError("Not Implemented");
   }
@@ -300,87 +480,171 @@ export class HL7_BASE implements HL7_SPEC {
   protected _buildMSH(_props: Partial<MSH>): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildMRG(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildMSA(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildNCK(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildNK1(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildNPU(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildNSC(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildNST(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildNTE(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildOBR(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildOBX(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildORC(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildPD1(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildPID(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildPR1(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildPV1(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildQRD(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildQRF(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildRX1(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildUB1(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildURD(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
-
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
   protected _buildURS(_props: any): void {
     throw new HL7FatalError("Not Implemented");
   }
