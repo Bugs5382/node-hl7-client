@@ -1,11 +1,11 @@
 import { Message } from "@/builder";
 import { HL7FatalError, HL7ValidationError } from "@/helpers";
-import { ACC, ADD, BLG, MSH } from "@/hl7/headers";
+import { ACC, ADD, BLG, DG1, MSH } from "@/hl7/headers";
 import { normalizedClientBuilderOptions } from "@/hl7/normalizedBuilder";
 import { HL7_SPEC } from "@/hl7/specs";
-import { addendumContinuationPointer } from "@/hl7/types/symbols";
 import { ClientBuilderOptions } from "@/modules/types";
 import { Validator } from "@/modules/validator";
+import { createHL7Date } from "@/utils";
 
 /**
  * Base Class of an HL7 Specification
@@ -69,7 +69,7 @@ export class HL7_BASE implements HL7_SPEC {
 
     validator.validateAndSet(
       "1",
-      props.add_1 || props[addendumContinuationPointer],
+      props.add_1 || props.addendumContinuationPointer,
       {
         required: false,
         type: "string",
@@ -91,7 +91,7 @@ export class HL7_BASE implements HL7_SPEC {
    * @since 4.0.0
    * @param props
    */
-  buildDG1(props: any): void {
+  buildDG1(props: DG1): void {
     this.headerExists();
     this._buildDG1(props);
   }
@@ -381,12 +381,32 @@ export class HL7_BASE implements HL7_SPEC {
       throw new HL7FatalError("MSH Header must be built first.");
     }
   }
+
+  /**
+   * Set the date.
+   * @param date
+   * @param length
+   */
+  setDate(date?: Date, length?: "8" | "12" | "14" | "19") {
+    return createHL7Date(
+      typeof date === "undefined" ? new Date() : date,
+      length,
+    );
+  }
+
   /**
    * Return the string of the entire HL7 message.
    * @since 4.0.0
    */
   toString(): string {
     return this._message.toString();
+  }
+
+  /** Return Message Object
+   * @since 4.0.0
+   */
+  toMessage(): Message {
+    return this._message;
   }
   /**
    * Build the ACC Segment
@@ -411,7 +431,7 @@ export class HL7_BASE implements HL7_SPEC {
    * @return void
    * @param _props
    */
-  protected _buildDG1(_props: any) {
+  protected _buildDG1(_props: DG1) {
     throw new HL7FatalError("Not Implemented");
   }
   /**

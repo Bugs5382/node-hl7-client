@@ -1,20 +1,14 @@
-import {
-  accidentCode,
-  accidentDateTime,
-  accidentLocation,
-} from "@/hl7/types/symbols";
-
 export interface HL7_ACC {
   /**
    * Accident Date/Time
    * @since 4.0.0
    */
-  acc_1?: string;
+  acc_1?: Date;
   /**
    * Accident Date/Time
    * @since 4.0.0
    */
-  [accidentDateTime]?: string;
+  timeStamp?: Date;
   /**
    * Accident Code
    * @since 4.0.0
@@ -24,7 +18,7 @@ export interface HL7_ACC {
    * Accident Code
    * @since 4.0.0
    */
-  [accidentCode]?: string;
+  accidentCode?: string;
   /**
    * Accident Location
    * @since 4.0.0
@@ -34,5 +28,5 @@ export interface HL7_ACC {
    * Accident Location
    * @since 4.0.0
    */
-  [accidentLocation]?: string;
+  accidentLocation?: string;
 }

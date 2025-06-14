@@ -1,9 +1,3 @@
-import {
-  billingAccountId,
-  billingChargeType,
-  billingWhenToCharge,
-} from "@/hl7/types/symbols";
-
 export interface HL7_BLG {
   /**
    * @since 4.0.0
@@ -12,7 +6,7 @@ export interface HL7_BLG {
   /**
    * @since 4.0.0
    */
-  [billingWhenToCharge]?: string;
+  billingWhenToCharge?: string;
   /**
    * @since 4.0.0
    */
@@ -20,7 +14,7 @@ export interface HL7_BLG {
   /**
    * @since 4.0.0
    */
-  [billingChargeType]?: string;
+  billingChargeType?: string;
   /**
    * @since 4.0.0
    */
@@ -28,5 +22,5 @@ export interface HL7_BLG {
   /**
    * @since 4.0.0
    */
-  [billingAccountId]?: string;
+  billingAccountId?: string;
 }

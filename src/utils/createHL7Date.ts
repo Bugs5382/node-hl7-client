@@ -1,3 +1,5 @@
+export type HL7Date = string & { __brand: "HL7Date" };
+
 /**
  * Create a valid HL7 Date.
  * @remarks Custom for this package and based on HL7 standards.
@@ -13,7 +15,7 @@
 export const createHL7Date = (
   date: Date,
   length?: "8" | "12" | "14" | "19",
-): string => {
+) => {
   const y = date.getFullYear();
   const mo = padHL7Date(date.getMonth() + 1, 2);
   const d = padHL7Date(date.getDate(), 2);
@@ -22,18 +24,22 @@ export const createHL7Date = (
   const s = padHL7Date(date.getSeconds(), 2);
   const ms = padHL7Date(date.getMilliseconds(), 4); // 0–999, zero-padded to 4 digits
 
-  switch (length) {
-    case "8":
-      return `${y}${mo}${d}`;
-    case "12":
-      return `${y}${mo}${d}${h}${mi}`;
-    case "14":
-      return `${y}${mo}${d}${h}${mi}${s}`;
-    case "19":
-      return `${y}${mo}${d}${h}${mi}${s}.${ms}`;
-    default:
-      return `${y}${mo}${d}${h}${mi}${s}`;
-  }
+  const result = (() => {
+    switch (length) {
+      case "8":
+        return `${y}${mo}${d}`;
+      case "12":
+        return `${y}${mo}${d}${h}${mi}`;
+      case "14":
+        return `${y}${mo}${d}${h}${mi}${s}`;
+      case "19":
+        return `${y}${mo}${d}${h}${mi}${s}.${ms}`;
+      default:
+        return `${y}${mo}${d}${h}${mi}${s}`;
+    }
+  })();
+
+  return result as HL7Date;
 };
 
 /**

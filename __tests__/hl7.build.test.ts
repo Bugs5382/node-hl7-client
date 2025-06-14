@@ -139,34 +139,36 @@ describe("node hl7 client - builder tests", () => {
   });
 
   describe("builder message - all versions", () => {
+    const useThisDate = new Date();
     describe("2.1", async () => {
       let message_HL7_2_1: HL7_2_1;
       beforeEach(async () => {
-        message_HL7_2_1 = new HL7_2_1({ date: "8" });
+        message_HL7_2_1 = new HL7_2_1();
       });
       test("... basic", async () => {
         // build MSH Header
         message_HL7_2_1.buildMSH({
+          msh_7: useThisDate,
           msh_9: "ACK",
           msh_10: "12345",
           msh_11: "T",
         });
-
-        // message._message.set("MSH.7", "20081231");
         expect(message_HL7_2_1.toString()).toBe(
-          `MSH|^~\\&|||||${createHL7Date(new Date(), "8")}||ACK|12345|T|2.1`,
+          `MSH|^~\\&|||||${createHL7Date(useThisDate)}||ACK|12345|T|2.1`,
         );
       });
     });
 
     describe.todo("2.2", async () => {});
     describe.todo("2.3", async () => {});
+    describe.todo("2.3.1", async () => {});
     describe.todo("2.4", async () => {});
     describe.todo("2.5", async () => {});
+    describe.todo("2.5.1", async () => {});
     describe.todo("2.6", async () => {});
     describe.todo("2.7", async () => {});
+    describe.todo("2.7.1", async () => {});
     describe.todo("2.8", async () => {});
-    describe.todo("2.8.1", async () => {});
   });
 
   describe.skip("complex builder message", () => {
