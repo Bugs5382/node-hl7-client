@@ -1,9 +1,9 @@
-import { normalizeClientOptions } from "@/utils/normalizedClient";
+import { normalizeClientOptions } from "@/client/normalizedClient";
 import {
   ClientListenerOptions,
   ClientOptions,
   OutboundHandler,
-} from "@/utils/types";
+} from "@/modules/types";
 import EventEmitter from "events";
 import { Connection } from "./connection";
 

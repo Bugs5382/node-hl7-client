@@ -1,6 +1,6 @@
-import { Delimiters } from "@/utils/enum";
-import { HL7FatalError } from "@/utils/exception";
-import { isHL7Number, isHL7String } from "@/utils/utils";
+import { Delimiters } from "@/declaration/enum";
+import { HL7FatalError } from "@/helpers/exception";
+import { isHL7Number, isHL7String } from "@/utils/is";
 import { HL7Node } from "../interface/hL7Node";
 import { Field } from "./field";
 import { NodeBase } from "./nodeBase";
@@ -91,11 +91,7 @@ export class Segment extends NodeBase {
       );
     }
     if (this._name === "MSH" || this._name === "BHS" || this._name === "FHS") {
-      if (index === 1 || index === 2) {
-        throw new HL7FatalError(
-          "You cannot assign the field separator or encoding characters",
-        );
-      } else {
+      if (index !== 1 && index !== 2) {
         index = index - 1;
       }
     }

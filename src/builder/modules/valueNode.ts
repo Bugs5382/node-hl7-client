@@ -1,5 +1,5 @@
-import { Delimiters } from "@/utils/enum";
-import { HL7FatalError } from "@/utils/exception";
+import { Delimiters } from "@/declaration/enum";
+import { HL7FatalError } from "@/helpers/exception";
 import { NodeBase } from "./nodeBase";
 
 /** @internal */

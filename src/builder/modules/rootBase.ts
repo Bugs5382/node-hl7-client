@@ -1,7 +1,8 @@
-import { Delimiters } from "@/utils/enum";
-import { HL7FatalError } from "@/utils/exception";
-import { ClientBuilderOptions } from "@/utils/types";
-import { decodeHexString, escapeForRegExp } from "@/utils/utils";
+import { Delimiters } from "@/declaration/enum";
+import { HL7FatalError } from "@/helpers/exception";
+import { ClientBuilderMessageOptions } from "@/modules/types";
+import { decodeHexString } from "@/utils/decodeHexString";
+import { escapeForRegExp } from "@/utils/escapeForRegExp";
 import { NodeBase } from "./nodeBase";
 
 /**
@@ -31,7 +32,7 @@ export class RootBase extends NodeBase {
     RootBase._defaultDelimiters,
   );
 
-  constructor(opt: ClientBuilderOptions) {
+  constructor(opt: ClientBuilderMessageOptions) {
     super(null, opt.text, Delimiters.Segment);
 
     this._delimiters = `${opt.newLine as string}${opt.separatorField as string}${opt.separatorComponent as string}${opt.separatorRepetition as string}${opt.separatorEscape as string}${opt.separatorSubComponent as string}`;
@@ -55,34 +56,36 @@ export class RootBase extends NodeBase {
       throw new HL7FatalError("Text must be passed in escape function.");
     }
 
-    return text.replace(this._matchEscape, (match: string) => {
-      let ch: string = "";
+    return text;
 
-      switch (match) {
-        case this._delimiters[Delimiters.Escape]:
-          ch = "E";
-          break;
-        case this._delimiters[Delimiters.Field]:
-          ch = "F";
-          break;
-        case this._delimiters[Delimiters.Repetition]:
-          ch = "R";
-          break;
-        case this._delimiters[Delimiters.Component]:
-          ch = "S";
-          break;
-        case this._delimiters[Delimiters.SubComponent]:
-          ch = "T";
-          break;
-      }
-
-      if (typeof ch !== "undefined") {
-        const escape = this._delimiters[Delimiters.Escape];
-        return `${escape}${ch}${escape}`;
-      }
-
-      throw new HL7FatalError(`Escape sequence for ${match} is not known.`);
-    });
+    // return text.replace(this._matchEscape, (match: string) => {
+    //   let ch: string = "";
+    //
+    //   switch (match) {
+    //     case this._delimiters[Delimiters.Escape]:
+    //       ch = "E";
+    //       break;
+    //     case this._delimiters[Delimiters.Field]:
+    //       ch = "F";
+    //       break;
+    //     case this._delimiters[Delimiters.Repetition]:
+    //       ch = "R";
+    //       break;
+    //     case this._delimiters[Delimiters.Component]:
+    //       ch = "S";
+    //       break;
+    //     case this._delimiters[Delimiters.SubComponent]:
+    //       ch = "T";
+    //       break;
+    //   }
+    //
+    //   if (typeof ch !== "undefined") {
+    //     const escape = this._delimiters[Delimiters.Escape];
+    //     return `${escape}${ch}${escape}`;
+    //   }
+    //
+    //   throw new HL7FatalError(`Escape sequence for ${match} is not known.`);
+    // });
   }
   /** @internal */
   unescape(text: string): string {
