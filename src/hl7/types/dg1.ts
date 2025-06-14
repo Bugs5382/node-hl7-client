@@ -49,40 +49,40 @@ export interface HL7_DG1 {
   /** Diagnosis Related Group
    * @since 4.0.0 */
   diagnosisRelatedGroup?: string;
-  /** Sending Application
+  /** Diagnosis Approval Indicator
    * @since 4.0.0 */
   dg1_9?: string;
-  /** Sending Application
+  /** Diagnosis Approval Indicator
    * @since 4.0.0 */
   diagnosisApprovalIndicator?: string;
-  /** Sending Application
+  /** Diagnosis Grouper Review Code
    * @since 4.0.0 */
   dg1_10?: string;
-  /** Sending Application
+  /** Diagnosis Grouper Review Code
    * @since 4.0.0 */
   diagnosisGrouperReviewCode?: string;
-  /** Sending Application
+  /** Diagnosis Outlier Type
    * @since 4.0.0 */
   dg1_11?: string;
-  /** Sending Application
+  /** Diagnosis Outlier Type
    * @since 4.0.0 */
   diagnosisOutlierType?: string;
-  /** Sending Application
+  /** Diagnosis Outlier Days
    * @since 4.0.0 */
   dg1_12?: string;
-  /** Sending Application
+  /** Diagnosis Outlier Days
    * @since 4.0.0 */
   diagnosisOutlierDays?: string;
-  /** Sending Application
+  /** Diagnosis Outlier Cost
    * @since 4.0.0 */
   dg1_13?: string;
-  /** Sending Application
+  /** Diagnosis Outlier Cost
    * @since 4.0.0 */
-  diagnosisOutlierDCost?: string;
-  /** Sending Application
+  diagnosisOutlierCost?: string;
+  /** Diagnosis Grouper Version and Type
    * @since 4.0.0 */
   dg1_14?: string;
-  /** Sending Application
+  /** Diagnosis Grouper Version and Type
    * @since 4.0.0 */
   diagnosisGrouperVersionAndType?: string;
 }
