@@ -142,19 +142,35 @@ describe("node hl7 client - builder tests", () => {
     const useThisDate = new Date();
     describe("2.1", async () => {
       let message_HL7_2_1: HL7_2_1, baseResult: string;
+
       beforeEach(async () => {
+        // create new Hl7 2.1
         message_HL7_2_1 = new HL7_2_1();
-        baseResult = `MSH|^~\\&|||||${createHL7Date(useThisDate)}||ACK|12345|T|2.1`;
-      });
-      test("... basic", async () => {
-        // build MSH Header
+
+        // build the MSH Header
         message_HL7_2_1.buildMSH({
           msh_7: useThisDate,
           msh_9: "ACK",
           msh_10: "12345",
           msh_11: "T",
         });
+
+        // this is the base result
+        baseResult = `MSH|^~\\&|||||${createHL7Date(useThisDate)}||ACK|12345|T|2.1`;
+      });
+      test("... basic", async () => {
+        // build MSH Header
         expect(message_HL7_2_1.toString()).toBe(baseResult);
+      });
+
+      test("... add Event (EVN)", async () => {
+        message_HL7_2_1.buildEVN({
+          evn_1: "A01",
+          evn_2: useThisDate,
+        });
+        expect(message_HL7_2_1.toString()).toBe(
+          baseResult + `\rEVN|A01|${createHL7Date(useThisDate)}||`,
+        );
       });
     });
 

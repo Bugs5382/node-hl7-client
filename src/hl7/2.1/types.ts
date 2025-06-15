@@ -7,6 +7,8 @@ export type { HL7_2_1_DSC } from "@/hl7/2.1/dsc";
 export type { HL7_2_1_MSH } from "@/hl7/2.1/msh";
 
 export interface ClientBuilderOptions_Hl7_2_1 extends ClientBuilderOptions {
+  table_0003?: string[];
+  table_0062?: string[];
   table_0100?: string[];
   table_0076?: string[];
 }

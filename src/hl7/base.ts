@@ -2,7 +2,7 @@ import { Message } from "@/builder";
 import { Segment } from "@/builder/modules/segment";
 import { ValidationRule } from "@/declaration/validationRule";
 import { HL7FatalError, HL7ValidationError } from "@/helpers";
-import { ACC, ADD, BLG, DG1, DSP, ERR, MSH } from "@/hl7/headers";
+import { ACC, ADD, BLG, DG1, DSP, ERR, EVN, MSH } from "@/hl7/headers";
 import { normalizedClientBuilderOptions } from "@/hl7/normalizedBuilder";
 import { HL7_SPEC } from "@/hl7/specs";
 import { ClientBuilderOptions } from "@/modules/types";
@@ -156,7 +156,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @since 4.0.0
    * @param props
    */
-  buildEVN(props: any): void {
+  buildEVN(props: Partial<EVN>): void {
     this.headerExists();
     this._buildEVN(props);
   }
@@ -428,7 +428,8 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @since 4.0.0
    */
   toString(): string {
-    return this._message.toString();
+    const test = this._message.toString();
+    return test;
   }
 
   /** Return Message Object
@@ -808,12 +809,15 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
       }
 
       if (
+        typeof value !== "undefined" &&
         rules.type === "date" &&
         !/^\d{8}(\d{4})?(\d{2})?(\.\d{4})?$/.test(String(value))
       ) {
-        this._validatorThrowError(
-          `Field ${fieldPath} must be a valid HL7 date in one of the following formats: YYYYMMDD, YYYYMMDDHHMM, YYYYMMDDHHMMSS, or YYYYMMDDHHMMSS.SSSS`,
-        );
+        if (rules.required) {
+          this._validatorThrowError(
+            `Field ${fieldPath} must be a valid HL7 date in one of the following formats: YYYYMMDD, YYYYMMDDHHMM, YYYYMMDDHHMMSS, or YYYYMMDDHHMMSS.SSSS`,
+          );
+        }
       }
 
       const valStr = String(value);

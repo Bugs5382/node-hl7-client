@@ -1,5 +1,8 @@
 import { HL7ValidationError } from "@/helpers/exception";
 import { HL7_2_1_ERR } from "@/hl7/2.1/err";
+import { HL7_2_1_EVN } from "@/hl7/2.1/evn";
+import { TABLE_0003 } from "@/hl7/tables/0003";
+import { TABLE_0062 } from "@/hl7/tables/0062";
 import { TABLE_0076 } from "@/hl7/tables/0076";
 import { TABLE_0100 } from "@/hl7/tables/0100";
 import { randomString } from "@/utils/randomString";
@@ -35,6 +38,8 @@ import {
 export class HL7_2_1 extends HL7_BASE {
   private _table_0100: string[];
   private _table_0076: string[];
+  private _table_0003: string[];
+  private _table_0062: string[];
   /**
    *
    * @param props
@@ -44,6 +49,8 @@ export class HL7_2_1 extends HL7_BASE {
     this.version = "2.1";
     this._maxAddSegmentLength = 60;
 
+    this._table_0003 = props?.table_0003 || TABLE_0003;
+    this._table_0062 = props?.table_0062 || TABLE_0062;
     this._table_0100 = props?.table_0100 || TABLE_0100;
     this._table_0076 = props?.table_0076 || TABLE_0076;
   }
@@ -207,6 +214,44 @@ export class HL7_2_1 extends HL7_BASE {
     this._validatorSetValue("1", props.err_1 || props.errorIdAndLocation, {
       required: true,
       length: { min: 1, max: 80 },
+    });
+  }
+
+  protected _buildEVN(props: Partial<HL7_2_1_EVN>) {
+    this._segment = this._message.addSegment("EVN");
+
+    this._validatorSetValue("1", props.evn_1, {
+      allowedValues: this._table_0003,
+      required: true,
+      type: "string",
+    });
+
+    this._validatorSetValue(
+      "2",
+      props.evn_2 instanceof Date && !isNaN(props.evn_2.getTime())
+        ? this.setDate(props.evn_2, this._opt.date)
+        : this.setDate(new Date(), this._opt.date),
+      {
+        required: true,
+        type: "date",
+      },
+    );
+
+    this._validatorSetValue(
+      "3",
+      props.evn_3 instanceof Date && !isNaN(props.evn_3.getTime())
+        ? this.setDate(props.evn_3, this._opt.date)
+        : "",
+      {
+        required: false,
+        type: "date",
+      },
+    );
+
+    this._validatorSetValue("4", props.evn_4, {
+      allowedValues: this._table_0062,
+      required: false,
+      type: "string",
     });
   }
 

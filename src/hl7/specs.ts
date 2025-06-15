@@ -1,4 +1,4 @@
-import { ACC, ADD, BLG, DG1, DSC, DSP, ERR, MSH } from "@/hl7/headers";
+import { ACC, ADD, BLG, DG1, DSC, DSP, ERR, EVN, MSH } from "@/hl7/headers";
 
 /**
  * HL7 Base Interface
@@ -22,7 +22,7 @@ export interface HL7_SPEC {
   /** */
   buildERR: (props: ERR) => void;
   /** */
-  buildEVN: (props: any) => void;
+  buildEVN: (props: EVN) => void;
   /** */
   buildFT1: (props: any) => void;
   /** */
