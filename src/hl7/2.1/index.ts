@@ -1,6 +1,4 @@
 import { HL7ValidationError } from "@/helpers/exception";
-import { HL7_2_1_ERR } from "@/hl7/2.1/err";
-import { HL7_2_1_EVN } from "@/hl7/2.1/evn";
 import { TABLE_0003 } from "@/hl7/tables/0003";
 import { TABLE_0062 } from "@/hl7/tables/0062";
 import { TABLE_0076 } from "@/hl7/tables/0076";
@@ -13,6 +11,9 @@ import {
   HL7_2_1_BLG,
   HL7_2_1_DG1,
   HL7_2_1_DSC,
+  HL7_2_1_ERR,
+  HL7_2_1_EVN,
+  HL7_2_1_FT1,
   HL7_2_1_MSH,
 } from "./types";
 
@@ -255,6 +256,101 @@ export class HL7_2_1 extends HL7_BASE {
     });
   }
 
+  protected _buildFT1(props: Partial<HL7_2_1_FT1>) {
+    this._segment = this._message.addSegment("FT1");
+
+    this._validatorSetValue("1", props.ft1_1, {
+      required: false,
+      length: { min: 1, max: 4 },
+    });
+    this._validatorSetValue("2", props.ft1_2, {
+      required: false,
+      length: { min: 1, max: 12 },
+    });
+    this._validatorSetValue("3", props.ft1_3, {
+      required: false,
+      length: { min: 1, max: 5 },
+    });
+    this._validatorSetValue(
+      "4",
+      props.ft1_4 instanceof Date && !isNaN(props.ft1_4.getTime())
+        ? this.setDate(props.ft1_4, "8")
+        : this.setDate(new Date(), "8"),
+      { required: true, type: "date", length: 8 },
+    );
+    this._validatorSetValue(
+      "5",
+      props.ft1_5 instanceof Date && !isNaN(props.ft1_5.getTime())
+        ? this.setDate(props.ft1_5, "8")
+        : "",
+      { required: false, type: "date", length: 8 },
+    );
+    this._validatorSetValue("6", props.ft1_6, {
+      required: true,
+      length: { min: 1, max: 8 },
+    });
+    this._validatorSetValue("7", props.ft1_7, {
+      required: true,
+      length: { min: 1, max: 20 },
+    });
+    this._validatorSetValue("8", props.ft1_8, {
+      required: false,
+      length: { min: 1, max: 40 },
+    });
+    this._validatorSetValue("9", props.ft1_9, {
+      required: false,
+      length: { min: 1, max: 40 },
+    });
+    this._validatorSetValue("10", props.ft1_10, {
+      required: false,
+      length: { min: 1, max: 12 },
+    });
+    this._validatorSetValue("11", props.ft1_11, {
+      required: false,
+      length: { min: 1, max: 4 },
+    });
+    this._validatorSetValue("12", props.ft1_12, {
+      required: false,
+      length: { min: 1, max: 12 },
+    });
+    this._validatorSetValue("13", props.ft1_13, {
+      required: false,
+      length: { min: 1, max: 16 },
+    });
+    this._validatorSetValue("14", props.ft1_14, {
+      required: false,
+      length: { min: 1, max: 8 },
+    });
+    this._validatorSetValue("15", props.ft1_15, {
+      required: false,
+      length: { min: 1, max: 12 },
+    });
+    this._validatorSetValue("16", props.ft1_16, {
+      required: false,
+      length: { min: 1, max: 12 },
+    });
+    this._validatorSetValue("17", props.ft1_17, { required: false, length: 1 });
+    this._validatorSetValue("18", props.ft1_18, {
+      required: false,
+      length: { min: 1, max: 2 },
+    });
+    this._validatorSetValue("19", props.ft1_19, {
+      required: false,
+      length: { min: 1, max: 8 },
+    });
+    this._validatorSetValue("20", props.ft1_20, {
+      required: false,
+      length: { min: 1, max: 60 },
+    });
+    this._validatorSetValue("21", props.ft1_21, {
+      required: false,
+      length: { min: 1, max: 60 },
+    });
+    this._validatorSetValue("21", props.ft1_22, {
+      required: false,
+      length: { min: 1, max: 12 },
+    });
+  }
   /**
    * Build HL7 MSH Segment
    * @since 1.0.0
