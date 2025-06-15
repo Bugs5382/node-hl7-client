@@ -1,7 +1,8 @@
-import { HL7FatalError, HL7ParserError } from "@/utils/exception";
-import { normalizedClientBatchBuilderOptions } from "@/utils/normalizedBuilder";
-import { ClientBuilderOptions } from "@/utils/types";
-import { createHL7Date, split } from "@/utils/utils";
+import { normalizedClientBatchParserOptions } from "@/builder/normalizedParser";
+import { HL7FatalError, HL7ParserError } from "@/helpers/exception";
+import { ClientBuilderMessageOptions } from "@/modules/types";
+import { createHL7Date } from "@/utils/createHL7Date";
+import { split } from "@/utils/spilt";
 import { FileBatch } from "./fileBatch";
 import { HL7Node } from "./interface/hL7Node";
 import { Message } from "./message";
@@ -18,7 +19,7 @@ import { SegmentList } from "./modules/segmentList";
  */
 export class Batch extends RootBase {
   /** @internal **/
-  _opt: ReturnType<typeof normalizedClientBatchBuilderOptions>;
+  _opt: ReturnType<typeof normalizedClientBatchParserOptions>;
   /** @internal */
   protected _lines: string[];
   /** @internal */
@@ -28,18 +29,14 @@ export class Batch extends RootBase {
    * @since 1.0.0
    * @param props Passing the options to build the batch.
    */
-  constructor(props?: ClientBuilderOptions) {
-    const opt = normalizedClientBatchBuilderOptions(props);
+  constructor(props?: ClientBuilderMessageOptions) {
+    const opt = normalizedClientBatchParserOptions(props);
     super(opt);
     this._lines = [];
     this._opt = opt;
     this._messagesCount = 0;
 
-    if (
-      typeof opt.text !== "undefined" &&
-      opt.parsing === true &&
-      opt.text !== ""
-    ) {
+    if (typeof opt.text !== "undefined" && opt.text !== "") {
       this._lines = split(opt.text).filter((line) => line.startsWith("MSH"));
     } else {
       this.set("BHS.7", createHL7Date(new Date(), this._opt.date));

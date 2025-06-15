@@ -12,7 +12,7 @@ import Client, {
   NotifyPendingCount,
   ReadyState,
 } from "../src";
-import { createDeferred } from "../src/utils/utils";
+import { createDeferred } from "../src/utils";
 import { expectEvent } from "./__utils__";
 
 const port = Number(process.env.TEST_PORT) || 3000;

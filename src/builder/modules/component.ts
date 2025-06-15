@@ -1,4 +1,4 @@
-import { Delimiters } from "@/utils/enum";
+import { Delimiters } from "@/declaration/enum";
 import { HL7Node } from "../interface/hL7Node";
 import { NodeBase } from "./nodeBase";
 import { SubComponent } from "./subComponent";
