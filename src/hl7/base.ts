@@ -7,12 +7,13 @@ import { normalizedClientBuilderOptions } from "@/hl7/normalizedBuilder";
 import { HL7_SPEC } from "@/hl7/specs";
 import { ClientBuilderOptions } from "@/modules/types";
 import { createHL7Date } from "@/utils";
+import EventEmitter from "events";
 
 /**
  * Base Class of an HL7 Specification
  * @since 1.0.0
  */
-export class HL7_BASE implements HL7_SPEC {
+export class HL7_BASE extends EventEmitter implements HL7_SPEC {
   /** Version
    * @since 1.0.0 */
   version = "";
@@ -27,24 +28,32 @@ export class HL7_BASE implements HL7_SPEC {
    * @since 4.0.0
    * @private
    */
-  private errors: string[] = [];
+  private _validatorErrors: string[] = [];
   /**
    *
    * @private
    */
-  private warnings: string[] = [];
-  /** Name
-   * @since 4.0.0 */
+  private _validatorWarnings: string[] = [];
+  /**
+   * @since 4.0.0
+   * @protected */
   protected _message: Message;
   /**
    * Options for the Hl7 Message.
-   * @since 4.0.0 */
+   * @since 4.0.0
+   * @readonly */
   readonly _opt: ClientBuilderOptions;
   /**
-   * Max length of ADD Segment. Changes based off extended class.
-   * @since 4.0.0 */
+   * Max length of ADD Segment.
+   * Changes based on extended class.
+   * @since 4.0.0
+   * @protected */
   protected _maxAddSegmentLength: number | undefined;
-
+  /**
+   * The Current Segment we are working on.
+   * @since 4.0.0
+   * @protected
+   */
   protected _segment!: Segment;
 
   /**
@@ -52,6 +61,7 @@ export class HL7_BASE implements HL7_SPEC {
    * @since 4.0.0
    */
   constructor(props?: ClientBuilderOptions) {
+    super();
     const opt = normalizedClientBuilderOptions(props);
 
     this._opt = opt;
@@ -749,7 +759,9 @@ export class HL7_BASE implements HL7_SPEC {
     dep: ValidationRule["dependsOn"],
     fieldPath: string,
   ) {
-    if (!dep) return;
+    if (!dep) {
+      return;
+    }
 
     const depVal = this._validatorResolvePath(dep.path);
     const isSet = depVal !== undefined && depVal !== null && depVal !== "";
@@ -853,8 +865,8 @@ export class HL7_BASE implements HL7_SPEC {
     value: any,
     rules: ValidationRule = {},
   ): string[] {
-    this.errors = [];
-    this.warnings = [];
+    this._validatorErrors = [];
+    this._validatorWarnings = [];
 
     const normalized = this._validatorNormalize(value, rules);
     this._validatorCheckDependency(rules.dependsOn, fieldPath);
@@ -873,11 +885,11 @@ export class HL7_BASE implements HL7_SPEC {
       this._validatorWarn(msg);
     }
 
-    if (this.errors.length === 0) {
+    if (this._validatorErrors.length === 0) {
       this._segment.set(fieldPath, normalized);
     }
 
-    return this.errors;
+    return [...this._validatorErrors, ...this._validatorWarnings]; // Or return separately if needed
   }
 
   /**
@@ -895,7 +907,8 @@ export class HL7_BASE implements HL7_SPEC {
    * @private
    */
   private _validatorWarn(message: string) {
-    this.warnings.push(`${message}`);
+    this.emit("warning", message);
+    this._validatorWarnings.push(`${message}`);
   }
 
   /**
@@ -905,10 +918,11 @@ export class HL7_BASE implements HL7_SPEC {
    * @private
    */
   private _validatorThrowError(message: string, forceThrow: boolean = false) {
+    this.emit("error", message);
     if (this.hardError || forceThrow) {
       throw new HL7ValidationError(message);
     }
 
-    this.errors.push(message);
+    this._validatorErrors.push(message);
   }
 }
