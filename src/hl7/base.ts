@@ -1,6 +1,7 @@
 import { Message } from "@/builder";
+import { ValidationRule } from "@/declaration/validationRule";
 import { HL7FatalError, HL7ValidationError } from "@/helpers";
-import { ACC, ADD, BLG, DG1, MSH } from "@/hl7/headers";
+import { ACC, ADD, BLG, DG1, DSP, ERR, MSH } from "@/hl7/headers";
 import { normalizedClientBuilderOptions } from "@/hl7/normalizedBuilder";
 import { HL7_SPEC } from "@/hl7/specs";
 import { ClientBuilderOptions } from "@/modules/types";
@@ -445,17 +446,57 @@ export class HL7_BASE implements HL7_SPEC {
   /**
    * @since 4.0.0
    * @return void
-   * @param _props
+   * @param props
    */
-  protected _buildDSP(_props: any) {
-    throw new HL7FatalError("Not Implemented");
+  protected _buildDSP(props: Partial<DSP>): void {
+    const validator = new Validator({
+      segment: this._message.addSegment("DSP"),
+    });
+
+    const rulesDSP_3: ValidationRule = {};
+    const rulesDSP_4: ValidationRule = {};
+    const rulesDSP_5: ValidationRule = {};
+
+    if (!["2.7", "2.7.1", "2.8"].includes(this.version)) {
+      rulesDSP_3.length = { min: 1, max: 300 };
+    }
+
+    if (!["2.7", "2.7.1", "2.8"].includes(this.version)) {
+      rulesDSP_4.length = { min: 1, max: 2 };
+    }
+
+    if (!["2.7", "2.7.1", "2.8"].includes(this.version)) {
+      rulesDSP_5.length = { min: 1, max: 20 };
+    }
+
+    validator.validateAndSet("1", props.dsp_1, {
+      required: false,
+      length: { min: 1, max: 4 },
+    });
+    validator.validateAndSet("2", props.dsp_2, {
+      required: false,
+      length: { min: 1, max: 4 },
+    });
+    validator.validateAndSet("3", props.dsp_3, {
+      required: true,
+      ...rulesDSP_3,
+    });
+    validator.validateAndSet("4", props.dsp_4, {
+      required: false,
+      ...rulesDSP_4,
+    });
+    validator.validateAndSet("5", props.dsp_5, {
+      required: false,
+      ...rulesDSP_5,
+    });
   }
+
   /**
    * @since 4.0.0
    * @return void
    * @param _props
    */
-  protected _buildERR(_props: any) {
+  protected _buildERR(_props: ERR) {
     throw new HL7FatalError("Not Implemented");
   }
   /**

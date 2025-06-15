@@ -1,6 +1,5 @@
 import { HL7ValidationError } from "@/helpers/exception";
-import { HL7_2_1_BLG } from "@/hl7/2.1/blg";
-import { HL7_2_1_DG1 } from "@/hl7/2.1/dg1";
+import { HL7_2_1_ERR } from "@/hl7/2.1/err";
 import { TABLE_0076 } from "@/hl7/tables/0076";
 import { TABLE_0100 } from "@/hl7/tables/0100";
 import { Validator } from "@/modules/validator";
@@ -9,6 +8,9 @@ import { HL7_BASE } from "../base";
 import {
   ClientBuilderOptions_Hl7_2_1,
   HL7_2_1_ACC,
+  HL7_2_1_BLG,
+  HL7_2_1_DG1,
+  HL7_2_1_DSC,
   HL7_2_1_MSH,
 } from "./types";
 
@@ -183,14 +185,10 @@ export class HL7_2_1 extends HL7_BASE {
       required: false,
       length: { min: 1, max: 3 },
     });
-    validator.validateAndSet(
-      "13",
-      props.dg1_13 || props.diagnosisOutlierDCost,
-      {
-        required: false,
-        length: { min: 1, max: 12 },
-      },
-    );
+    validator.validateAndSet("13", props.dg1_13 || props.diagnosisOutlierCost, {
+      required: false,
+      length: { min: 1, max: 12 },
+    });
     validator.validateAndSet(
       "14",
       props.dg1_14 || props.diagnosisGrouperVersionAndType,
@@ -199,6 +197,28 @@ export class HL7_2_1 extends HL7_BASE {
         length: { min: 1, max: 4 },
       },
     );
+  }
+
+  protected _buildDSC(props: Partial<HL7_2_1_DSC>): void {
+    const validator = new Validator({
+      segment: this._message.addSegment("DSC"),
+    });
+
+    validator.validateAndSet("1", props.dsc_1 || props.continuationPointer, {
+      required: false,
+      length: { min: 1, max: 60 },
+    });
+  }
+
+  protected _buildERR(props: Partial<HL7_2_1_ERR>) {
+    const validator = new Validator({
+      segment: this._message.addSegment("ERR"),
+    });
+
+    validator.validateAndSet("1", props.err_1 || props.errorIdAndLocation, {
+      required: true,
+      length: { min: 1, max: 80 },
+    });
   }
 
   /**

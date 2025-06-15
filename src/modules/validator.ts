@@ -31,6 +31,11 @@ export class Validator {
    * @private
    */
   private readonly hardError: boolean;
+  /**
+   *
+   * @private
+   */
+  private warnings: string[] = [];
 
   constructor(props: HL7ValidationProps) {
     this.hardError = props.hardError || false;
@@ -132,15 +137,33 @@ export class Validator {
     rules: ValidationRule = {},
   ): string[] {
     this.errors = [];
+    this.warnings = [];
     const normalized = this.normalize(value, rules);
     this.checkDependency(rules.dependsOn, fieldPath);
     this.validateValue(fieldPath, normalized, rules);
+
+    if (
+      rules.deprecated &&
+      normalized !== undefined &&
+      normalized !== null &&
+      normalized !== ""
+    ) {
+      let msg = `Field ${fieldPath} is deprecated and should not be used.`;
+      if (rules.useField) {
+        msg += ` Use '${rules.useField}' instead.`;
+      }
+      this._warn(msg);
+    }
 
     if (this.errors.length === 0) {
       this.segment.set(fieldPath, normalized);
     }
 
     return this.errors;
+  }
+
+  private _warn(message: string) {
+    this.warnings.push(`${message}`);
   }
 
   private _throwError(message: string, forceThrow: boolean = false) {

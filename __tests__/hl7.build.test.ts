@@ -141,9 +141,10 @@ describe("node hl7 client - builder tests", () => {
   describe("builder message - all versions", () => {
     const useThisDate = new Date();
     describe("2.1", async () => {
-      let message_HL7_2_1: HL7_2_1;
+      let message_HL7_2_1: HL7_2_1, baseResult: string;
       beforeEach(async () => {
         message_HL7_2_1 = new HL7_2_1();
+        baseResult = `MSH|^~\\&|||||${createHL7Date(useThisDate)}||ACK|12345|T|2.1`;
       });
       test("... basic", async () => {
         // build MSH Header
@@ -153,9 +154,7 @@ describe("node hl7 client - builder tests", () => {
           msh_10: "12345",
           msh_11: "T",
         });
-        expect(message_HL7_2_1.toString()).toBe(
-          `MSH|^~\\&|||||${createHL7Date(useThisDate)}||ACK|12345|T|2.1`,
-        );
+        expect(message_HL7_2_1.toString()).toBe(baseResult);
       });
     });
 
