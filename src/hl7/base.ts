@@ -1,11 +1,11 @@
 import { Message } from "@/builder";
+import { Segment } from "@/builder/modules/segment";
 import { ValidationRule } from "@/declaration/validationRule";
 import { HL7FatalError, HL7ValidationError } from "@/helpers";
 import { ACC, ADD, BLG, DG1, DSP, ERR, MSH } from "@/hl7/headers";
 import { normalizedClientBuilderOptions } from "@/hl7/normalizedBuilder";
 import { HL7_SPEC } from "@/hl7/specs";
 import { ClientBuilderOptions } from "@/modules/types";
-import { Validator } from "@/modules/validator";
 import { createHL7Date } from "@/utils";
 
 /**
@@ -16,6 +16,23 @@ export class HL7_BASE implements HL7_SPEC {
   /** Version
    * @since 1.0.0 */
   version = "";
+  /**
+   * Regardless if errors are soft, always throw and exception or deviation from the rule.
+   * @since 4.0.0
+   * @private
+   */
+  private readonly hardError: boolean;
+  /**
+   * Errors
+   * @since 4.0.0
+   * @private
+   */
+  private errors: string[] = [];
+  /**
+   *
+   * @private
+   */
+  private warnings: string[] = [];
   /** Name
    * @since 4.0.0 */
   protected _message: Message;
@@ -28,6 +45,8 @@ export class HL7_BASE implements HL7_SPEC {
    * @since 4.0.0 */
   protected _maxAddSegmentLength: number | undefined;
 
+  protected _segment!: Segment;
+
   /**
    * Create a new HL7 Message
    * @since 4.0.0
@@ -37,6 +56,7 @@ export class HL7_BASE implements HL7_SPEC {
 
     this._opt = opt;
     this._message = new Message(opt);
+    this.hardError = props?.hardError || false;
   }
 
   /**
@@ -64,11 +84,9 @@ export class HL7_BASE implements HL7_SPEC {
       );
     }
 
-    const validator = new Validator({
-      segment: this._message.addSegment("ADD"),
-    });
+    this._segment = this._message.addSegment("ADD");
 
-    validator.validateAndSet(
+    this._validatorSetValue(
       "1",
       props.add_1 || props.addendumContinuationPointer,
       {
@@ -449,9 +467,7 @@ export class HL7_BASE implements HL7_SPEC {
    * @param props
    */
   protected _buildDSP(props: Partial<DSP>): void {
-    const validator = new Validator({
-      segment: this._message.addSegment("DSP"),
-    });
+    this._segment = this._message.addSegment("DSP");
 
     const rulesDSP_3: ValidationRule = {};
     const rulesDSP_4: ValidationRule = {};
@@ -469,23 +485,23 @@ export class HL7_BASE implements HL7_SPEC {
       rulesDSP_5.length = { min: 1, max: 20 };
     }
 
-    validator.validateAndSet("1", props.dsp_1, {
+    this._validatorSetValue("1", props.dsp_1, {
       required: false,
       length: { min: 1, max: 4 },
     });
-    validator.validateAndSet("2", props.dsp_2, {
+    this._validatorSetValue("2", props.dsp_2, {
       required: false,
       length: { min: 1, max: 4 },
     });
-    validator.validateAndSet("3", props.dsp_3, {
+    this._validatorSetValue("3", props.dsp_3, {
       required: true,
       ...rulesDSP_3,
     });
-    validator.validateAndSet("4", props.dsp_4, {
+    this._validatorSetValue("4", props.dsp_4, {
       required: false,
       ...rulesDSP_4,
     });
-    validator.validateAndSet("5", props.dsp_5, {
+    this._validatorSetValue("5", props.dsp_5, {
       required: false,
       ...rulesDSP_5,
     });
@@ -708,5 +724,191 @@ export class HL7_BASE implements HL7_SPEC {
    */
   protected _buildURS(_props: any): void {
     throw new HL7FatalError("Not Implemented");
+  }
+
+  /**
+   *
+   * @param value
+   * @param rules
+   * @private
+   */
+  private _validatorNormalize(value: any, rules: ValidationRule): any {
+    if (typeof value === "string") {
+      return value.trim();
+    }
+    return value;
+  }
+
+  /**
+   *
+   * @param dep
+   * @param fieldPath
+   * @private
+   */
+  private _validatorCheckDependency(
+    dep: ValidationRule["dependsOn"],
+    fieldPath: string,
+  ) {
+    if (!dep) return;
+
+    const depVal = this._validatorResolvePath(dep.path);
+    const isSet = depVal !== undefined && depVal !== null && depVal !== "";
+
+    if (dep.mustBeSet && !isSet) {
+      this._validatorThrowError(
+        `Field ${fieldPath} requires ${dep.path} to be set`,
+      );
+    }
+
+    if (dep.mustEqual !== undefined && depVal !== dep.mustEqual) {
+      this._validatorThrowError(
+        `Field ${fieldPath} requires ${dep.path} to equal "${dep.mustEqual}", but got "${depVal}"`,
+      );
+    }
+  }
+
+  /**
+   *
+   * @param fieldPath
+   * @param value
+   * @param rules
+   * @private
+   */
+  private _validatorCheckValue(
+    fieldPath: string,
+    value: any,
+    rules: ValidationRule,
+  ) {
+    if (
+      rules.required &&
+      (value === undefined || value === null || value === "")
+    ) {
+      this._validatorThrowError(`Field ${fieldPath} is required`, true);
+    }
+
+    if (value !== undefined && value !== null) {
+      if (rules.type === "number" && isNaN(Number(value))) {
+        this._validatorThrowError(`Field ${fieldPath} must be a number`);
+      }
+
+      if (rules.type === "string" && typeof value !== "string") {
+        this._validatorThrowError(`Field ${fieldPath} must be a string`);
+      }
+
+      if (
+        rules.type === "date" &&
+        !/^\d{8}(\d{4})?(\d{2})?(\.\d{4})?$/.test(String(value))
+      ) {
+        this._validatorThrowError(
+          `Field ${fieldPath} must be a valid HL7 date in one of the following formats: YYYYMMDD, YYYYMMDDHHMM, YYYYMMDDHHMMSS, or YYYYMMDDHHMMSS.SSSS`,
+        );
+      }
+
+      const valStr = String(value);
+      const len = valStr.length;
+
+      if (typeof rules.length === "number" && len !== rules.length) {
+        this._validatorThrowError(
+          `Field ${fieldPath} must be exactly ${rules.length} characters`,
+        );
+      }
+
+      if (typeof rules.length === "object") {
+        if (rules.length.min && len < rules.length.min) {
+          this._validatorThrowError(
+            `Field ${fieldPath} must be at least ${rules.length.min} characters`,
+          );
+        }
+        if (rules.length.max && len > rules.length.max) {
+          this._validatorThrowError(
+            `Field ${fieldPath} must be at most ${rules.length.max} characters`,
+          );
+        }
+      }
+
+      if (rules.pattern && !rules.pattern.test(valStr)) {
+        this._validatorThrowError(
+          `Field ${fieldPath} does not match expected format`,
+        );
+      }
+
+      if (rules.allowedValues && !rules.allowedValues.includes(valStr)) {
+        this._validatorThrowError(
+          `Field ${fieldPath} must be one of: ${rules.allowedValues.join(", ")}`,
+          true,
+        );
+      }
+    }
+  }
+
+  /**
+   *
+   * @param fieldPath
+   * @param value
+   * @param rules
+   * @protected
+   */
+  protected _validatorSetValue(
+    fieldPath: string,
+    value: any,
+    rules: ValidationRule = {},
+  ): string[] {
+    this.errors = [];
+    this.warnings = [];
+
+    const normalized = this._validatorNormalize(value, rules);
+    this._validatorCheckDependency(rules.dependsOn, fieldPath);
+    this._validatorCheckValue(fieldPath, normalized, rules);
+
+    if (
+      rules.deprecated &&
+      normalized !== undefined &&
+      normalized !== null &&
+      normalized !== ""
+    ) {
+      let msg = `Field ${fieldPath} is deprecated and should not be used.`;
+      if (rules.useField) {
+        msg += ` Use '${rules.useField}' instead.`;
+      }
+      this._validatorWarn(msg);
+    }
+
+    if (this.errors.length === 0) {
+      this._segment.set(fieldPath, normalized);
+    }
+
+    return this.errors;
+  }
+
+  /**
+   *
+   * @param path
+   * @private
+   */
+  private _validatorResolvePath(path: string): any {
+    return this._segment.get(path);
+  }
+
+  /**
+   *
+   * @param message
+   * @private
+   */
+  private _validatorWarn(message: string) {
+    this.warnings.push(`${message}`);
+  }
+
+  /**
+   *
+   * @param message
+   * @param forceThrow
+   * @private
+   */
+  private _validatorThrowError(message: string, forceThrow: boolean = false) {
+    if (this.hardError || forceThrow) {
+      throw new HL7ValidationError(message);
+    }
+
+    this.errors.push(message);
   }
 }

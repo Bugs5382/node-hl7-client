@@ -51,6 +51,8 @@ export interface ClientBuilderOptions {
    * @since 1.0.0
    * @default & */
   separatorSubComponent?: string;
+  /** */
+  hardError?: boolean;
 }
 
 export interface ClientBuilderMessageOptions extends ClientBuilderOptions {
