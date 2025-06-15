@@ -101,7 +101,6 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
       props.add_1 || props.addendumContinuationPointer,
       {
         required: false,
-        type: "string",
         length: { min: 0, max: this._maxAddSegmentLength },
       },
     );
@@ -867,7 +866,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
   protected _validatorSetValue(
     fieldPath: string,
     value: any,
-    rules: ValidationRule = {},
+    rules: ValidationRule = { type: "string" },
   ): string[] {
     this._validatorErrors = [];
     this._validatorWarnings = [];
@@ -882,7 +881,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
       normalized !== null &&
       normalized !== ""
     ) {
-      let msg = `Field ${fieldPath} is deprecated and should not be used.`;
+      let msg = `Field ${fieldPath} is deprecated and should not be used in version v${this.version}.`;
       if (rules.useField) {
         msg += ` Use '${rules.useField}' instead.`;
       }

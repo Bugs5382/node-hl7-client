@@ -78,13 +78,13 @@ export class HL7_2_1 extends HL7_BASE {
 
     this._validatorSetValue("2", props.acc_2 || props.accidentCode, {
       required: false,
-      type: "string",
+
       length: 2,
     });
 
     this._validatorSetValue("3", props.acc_3 || props.accidentLocation, {
       required: false,
-      type: "string",
+
       length: 25,
     });
   }
@@ -100,20 +100,20 @@ export class HL7_2_1 extends HL7_BASE {
     // see https://hl7-definition.caristix.com/v2/HL7v2.1/Tables/0100
     this._validatorSetValue("1", props.blg_1 || props.billingWhenToCharge, {
       required: false,
-      type: "string",
+
       length: { min: 1, max: 15 },
       allowedValues: this._table_0100,
     });
 
     this._validatorSetValue("2", props.blg_2 || props.billingChargeType, {
       required: false,
-      type: "string",
+
       length: 2,
     });
 
     this._validatorSetValue("3", props.blg_3 || props.billingAccountId, {
       required: false,
-      type: "string",
+
       length: 25,
     });
   }
@@ -224,7 +224,6 @@ export class HL7_2_1 extends HL7_BASE {
     this._validatorSetValue("1", props.evn_1, {
       allowedValues: this._table_0003,
       required: true,
-      type: "string",
     });
 
     this._validatorSetValue(
@@ -252,7 +251,6 @@ export class HL7_2_1 extends HL7_BASE {
     this._validatorSetValue("4", props.evn_4, {
       allowedValues: this._table_0062,
       required: false,
-      type: "string",
     });
   }
 
@@ -370,32 +368,32 @@ export class HL7_2_1 extends HL7_BASE {
       `${this._opt.separatorComponent as string}${this._opt.separatorRepetition as string}${this._opt.separatorEscape as string}${this._opt.separatorSubComponent as string}`,
       {
         required: true,
-        type: "string",
+
         length: 4,
       },
     );
 
     this._validatorSetValue("3", props.msh_3 || props.sendingApplication, {
       required: false,
-      type: "string",
+
       length: { min: 1, max: 15 },
     });
 
     this._validatorSetValue("4", props.msh_4 || props.sendingFacility, {
       required: false,
-      type: "string",
+
       length: { min: 1, max: 20 },
     });
 
     this._validatorSetValue("5", props.msh_5 || props.receivingApplication, {
       required: false,
-      type: "string",
+
       length: { min: 1, max: 15 },
     });
 
     this._validatorSetValue("4", props.msh_6 || props.receivingFacility, {
       required: false,
-      type: "string",
+
       length: { min: 1, max: 30 },
     });
 
@@ -413,33 +411,32 @@ export class HL7_2_1 extends HL7_BASE {
 
     this._validatorSetValue("8", props.msh_8, {
       required: false,
-      type: "string",
+
       length: { min: 1, max: 40 },
     });
 
     // review https://hl7-definition.caristix.com/v2/HL7v2.1/Tables/0076 for valid values
     this._validatorSetValue("9", props.msh_9, {
       required: true,
-      type: "string",
+
       allowedValues: this._table_0076,
     });
 
     this._validatorSetValue("10", props.msh_10 || randomString(), {
       required: false,
-      type: "string",
+
       length: { min: 1, max: 20 },
     });
 
     this._validatorSetValue("11", props.msh_11, {
       required: true,
-      type: "string",
+
       length: 1,
       allowedValues: ["P", "T"],
     });
 
     this._validatorSetValue("12", this.version, {
       required: true,
-      type: "string",
     });
   }
 }
