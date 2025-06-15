@@ -2,7 +2,7 @@ import { Message } from "@/builder";
 import { Segment } from "@/builder/modules/segment";
 import { ValidationRule } from "@/declaration/validationRule";
 import { HL7FatalError, HL7ValidationError } from "@/helpers";
-import { ACC, ADD, BLG, DG1, DSP, ERR, EVN, MSH } from "@/hl7/headers";
+import { ACC, ADD, BLG, DG1, DSP, ERR, EVN, FT1, MSH } from "@/hl7/headers";
 import { normalizedClientBuilderOptions } from "@/hl7/normalizedBuilder";
 import { HL7_SPEC } from "@/hl7/specs";
 import { ClientBuilderOptions } from "@/modules/types";
@@ -164,7 +164,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @since 4.0.0
    * @param props
    */
-  buildFT1(props: any): void {
+  buildFT1(props: Partial<FT1>): void {
     this.headerExists();
     this._buildFT1(props);
   }
@@ -822,7 +822,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
       const valStr = String(value);
       const len = valStr.length;
 
-      if (typeof rules.length === "number" && len !== rules.length) {
+      if (typeof rules.length === "number" && len !== rules.length && rules.type !== 'date') {
         this._validatorThrowError(
           `Field ${fieldPath} must be exactly ${rules.length} characters`,
         );
