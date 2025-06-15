@@ -1,4 +1,4 @@
-import { ACC, ADD, BLG, MSH } from "@/hl7/headers";
+import { ACC, ADD, BLG, DG1, DSC, DSP, ERR, MSH } from "@/hl7/headers";
 
 /**
  * HL7 Base Interface
@@ -14,13 +14,13 @@ export interface HL7_SPEC {
   /** Build BLG (Billing) Segment */
   buildBLG: (props: BLG) => void;
   /** */
-  buildDG1: (props: any) => void;
+  buildDG1: (props: DG1) => void;
   /** */
-  buildDSC: (props: any) => void;
+  buildDSC: (props: DSC) => void;
   /** */
-  buildDSP: (props: any) => void;
+  buildDSP: (props: DSP) => void;
   /** */
-  buildERR: (props: any) => void;
+  buildERR: (props: ERR) => void;
   /** */
   buildEVN: (props: any) => void;
   /** */
