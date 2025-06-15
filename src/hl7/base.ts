@@ -822,7 +822,11 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
       const valStr = String(value);
       const len = valStr.length;
 
-      if (typeof rules.length === "number" && len !== rules.length && rules.type !== 'date') {
+      if (
+        typeof rules.length === "number" &&
+        len !== rules.length &&
+        rules.type !== "date"
+      ) {
         this._validatorThrowError(
           `Field ${fieldPath} must be exactly ${rules.length} characters`,
         );

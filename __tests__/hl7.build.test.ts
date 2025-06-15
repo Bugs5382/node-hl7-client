@@ -141,7 +141,7 @@ describe("node hl7 client - builder tests", () => {
   describe("builder message - all versions", () => {
     const useThisDate = new Date();
     describe("2.1", async () => {
-      let message_HL7_2_1: HL7_2_1, baseResult: string;
+      let message_HL7_2_1: HL7_2_1, baseResult_HL7_2_1: string;
 
       beforeEach(async () => {
         // create new Hl7 2.1
@@ -156,11 +156,11 @@ describe("node hl7 client - builder tests", () => {
         });
 
         // this is the base result
-        baseResult = `MSH|^~\\&|||||${createHL7Date(useThisDate)}||ACK|12345|T|2.1`;
+        baseResult_HL7_2_1 = `MSH|^~\\&|||||${createHL7Date(useThisDate)}||ACK|12345|T|2.1`;
       });
       test("... basic", async () => {
         // build MSH Header
-        expect(message_HL7_2_1.toString()).toBe(baseResult);
+        expect(message_HL7_2_1.toString()).toBe(baseResult_HL7_2_1);
       });
 
       test("... add Event (EVN)", async () => {
@@ -169,7 +169,19 @@ describe("node hl7 client - builder tests", () => {
           evn_2: useThisDate,
         });
         expect(message_HL7_2_1.toString()).toBe(
-          baseResult + `\rEVN|A01|${createHL7Date(useThisDate)}||`,
+          baseResult_HL7_2_1 + `\rEVN|A01|${createHL7Date(useThisDate)}||`,
+        );
+      });
+
+      test("... add Financial Transaction (FT1)", async () => {
+        message_HL7_2_1.buildFT1({
+          ft1_4: useThisDate,
+          ft1_6: "ADD",
+          ft1_7: "HELLO",
+        });
+        expect(message_HL7_2_1.toString()).toBe(
+          baseResult_HL7_2_1 +
+            `\rFT1||||${createHL7Date(useThisDate, "8")}||ADD|HELLO||||||||||||||`,
         );
       });
     });

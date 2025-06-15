@@ -274,14 +274,14 @@ export class HL7_2_1 extends HL7_BASE {
       props.ft1_4 instanceof Date && !isNaN(props.ft1_4.getTime())
         ? this.setDate(props.ft1_4, "8")
         : this.setDate(new Date(), "8"),
-      { required: true, type: "date", length: 8 },
+      { required: true, type: "date" },
     );
     this._validatorSetValue(
       "5",
       props.ft1_5 instanceof Date && !isNaN(props.ft1_5.getTime())
         ? this.setDate(props.ft1_5, "8")
         : "",
-      { required: false, type: "date", length: 8 },
+      { required: false, type: "date" },
     );
     this._validatorSetValue("6", props.ft1_6, {
       required: true,
