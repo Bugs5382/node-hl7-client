@@ -1,4 +1,6 @@
 import { HL7ValidationError } from "@/helpers/exception";
+import { HL7_2_1_GT1 } from "@/hl7/2.1/gt1";
+import { TABLE_0001 } from "@/hl7/tables/0001";
 import { TABLE_0003 } from "@/hl7/tables/0003";
 import { TABLE_0062 } from "@/hl7/tables/0062";
 import { TABLE_0076 } from "@/hl7/tables/0076";
@@ -41,6 +43,7 @@ export class HL7_2_1 extends HL7_BASE {
   private _table_0076: string[];
   private _table_0003: string[];
   private _table_0062: string[];
+  private _table_0001: string[];
   /**
    *
    * @param props
@@ -50,6 +53,7 @@ export class HL7_2_1 extends HL7_BASE {
     this.version = "2.1";
     this._maxAddSegmentLength = 60;
 
+    this._table_0001 = props?.table_0001 || TABLE_0001;
     this._table_0003 = props?.table_0003 || TABLE_0003;
     this._table_0062 = props?.table_0062 || TABLE_0062;
     this._table_0100 = props?.table_0100 || TABLE_0100;
@@ -349,6 +353,83 @@ export class HL7_2_1 extends HL7_BASE {
       length: { min: 1, max: 12 },
     });
   }
+
+  protected _buildGT1(props: Partial<HL7_2_1_GT1>) {
+    this._segment = this._message.addSegment("GT1");
+
+    this._validatorSetValue("1", props.gt1_1, {
+      required: false,
+      length: { min: 1, max: 4 },
+    });
+    this._validatorSetValue("2", props.gt1_2, {
+      required: false,
+      length: { min: 1, max: 12 },
+    });
+    this._validatorSetValue("3", props.gt1_3, {
+      required: true,
+      length: { min: 1, max: 5 },
+    });
+    this._validatorSetValue("4", props.gt1_4, { required: true });
+    this._validatorSetValue("5", props.gt1_5, { required: false });
+    this._validatorSetValue("6", props.gt1_6, {
+      required: true,
+      length: { min: 1, max: 8 },
+    });
+    this._validatorSetValue("7", props.gt1_7, {
+      required: true,
+      length: { min: 1, max: 20 },
+    });
+    this._validatorSetValue("8", props.gt1_8, {
+      required: false,
+      length: { min: 1, max: 40 },
+    });
+    this._validatorSetValue("9", props.gt1_9, {
+      required: false,
+      length: { min: 1, max: 40 },
+    });
+    this._validatorSetValue("10", props.gt1_10, {
+      required: false,
+      length: { min: 1, max: 12 },
+    });
+    this._validatorSetValue("11", props.gt1_11, {
+      required: false,
+      length: { min: 1, max: 4 },
+    });
+    this._validatorSetValue("12", props.gt1_12, {
+      required: false,
+      length: { min: 1, max: 12 },
+    });
+    this._validatorSetValue("13", props.gt1_13, {
+      required: false,
+      length: { min: 1, max: 16 },
+    });
+    this._validatorSetValue("14", props.gt1_14, {
+      required: false,
+      length: { min: 1, max: 8 },
+    });
+    this._validatorSetValue("15", props.gt1_15, {
+      required: false,
+      length: { min: 1, max: 12 },
+    });
+    this._validatorSetValue("16", props.gt1_16, {
+      required: false,
+      length: { min: 1, max: 12 },
+    });
+    this._validatorSetValue("17", props.gt1_17, { required: false, length: 1 });
+    this._validatorSetValue("18", props.gt1_18, {
+      required: false,
+      length: { min: 1, max: 2 },
+    });
+    this._validatorSetValue("19", props.gt1_19, {
+      required: false,
+      length: { min: 1, max: 8 },
+    });
+    this._validatorSetValue("20", props.gt1_20, {
+      required: false,
+      length: { min: 1, max: 60 },
+    });
+  }
+
   /**
    * Build HL7 MSH Segment
    * @since 1.0.0

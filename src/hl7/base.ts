@@ -2,7 +2,19 @@ import { Message } from "@/builder";
 import { Segment } from "@/builder/modules/segment";
 import { ValidationRule } from "@/declaration/validationRule";
 import { HL7FatalError, HL7ValidationError } from "@/helpers";
-import { ACC, ADD, BLG, DG1, DSP, ERR, EVN, FT1, MSH } from "@/hl7/headers";
+import {
+  ACC,
+  ADD,
+  BLG,
+  DG1,
+  DSC,
+  DSP,
+  ERR,
+  EVN,
+  FT1,
+  GT1,
+  MSH,
+} from "@/hl7/headers";
 import { normalizedClientBuilderOptions } from "@/hl7/normalizedBuilder";
 import { HL7_SPEC } from "@/hl7/specs";
 import { ClientBuilderOptions } from "@/modules/types";
@@ -173,7 +185,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @since 4.0.0
    * @param props
    */
-  buildGT1(props: any): void {
+  buildGT1(props: Partial<GT1>): void {
     this.headerExists();
     this._buildGT1(props);
   }
@@ -468,7 +480,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @return void
    * @param _props
    */
-  protected _buildDSC(_props: any) {
+  protected _buildDSC(_props: DSC) {
     throw new HL7FatalError("Not Implemented");
   }
   /**
@@ -530,7 +542,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @return void
    * @param _props
    */
-  protected _buildEVN(_props: any) {
+  protected _buildEVN(_props: EVN) {
     throw new HL7FatalError("Not Implemented");
   }
   /**
@@ -538,7 +550,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @return void
    * @param _props
    */
-  protected _buildFT1(_props: any) {
+  protected _buildFT1(_props: FT1) {
     throw new HL7FatalError("Not Implemented");
   }
   /**
@@ -546,7 +558,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @return void
    * @param _props
    */
-  protected _buildGT1(_props: any) {
+  protected _buildGT1(_props: GT1) {
     throw new HL7FatalError("Not Implemented");
   }
   /**
@@ -870,24 +882,33 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
   protected _validatorSetValue(
     fieldPath: string,
     value: any,
-    rules: ValidationRule = { type: "string" },
+    rules: ValidationRule,
   ): string[] {
     this._validatorErrors = [];
     this._validatorWarnings = [];
 
-    const normalized = this._validatorNormalize(value, rules);
-    this._validatorCheckDependency(rules.dependsOn, fieldPath);
-    this._validatorCheckValue(fieldPath, normalized, rules);
+    const normalizedRules: ValidationRule = {
+      type: "string",
+      ...rules,
+    };
+
+    if (!this._validatorIsVersionCompatible(rules.hl7Support)) {
+      return [];
+    }
+
+    const normalized = this._validatorNormalize(value, normalizedRules);
+    this._validatorCheckDependency(normalizedRules.dependsOn, fieldPath);
+    this._validatorCheckValue(fieldPath, normalized, normalizedRules);
 
     if (
-      rules.deprecated &&
+      normalizedRules.deprecated &&
       normalized !== undefined &&
       normalized !== null &&
       normalized !== ""
     ) {
       let msg = `Field ${fieldPath} is deprecated and should not be used in version v${this.version}.`;
       if (rules.useField) {
-        msg += ` Use '${rules.useField}' instead.`;
+        msg += ` Use '${normalizedRules.useField}' instead.`;
       }
       this._validatorWarn(msg);
     }
@@ -897,6 +918,57 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
     }
 
     return [...this._validatorErrors, ...this._validatorWarnings]; // Or return separately if needed
+  }
+
+  /**
+   *
+   * @param support
+   * @private
+   */
+  private _validatorIsVersionCompatible(support?: string | string[]): boolean {
+    if (!support) return true;
+
+    const satisfies = (expr: string): boolean => {
+      const match = expr.match(/(<=|>=|<|>|==?)\s*([\d.]+)/);
+      if (!match) return false;
+
+      const [_, op, ver] = match;
+      const cmp = this._compareVersions(this.version, ver);
+
+      switch (op) {
+        case "<":
+          return cmp < 0;
+        case "<=":
+          return cmp <= 0;
+        case ">":
+          return cmp > 0;
+        case ">=":
+          return cmp >= 0;
+        case "=":
+        case "==":
+          return cmp === 0;
+        default:
+          return false;
+      }
+    };
+
+    if (typeof support === "string") {
+      return satisfies(support);
+    }
+
+    return support.some((expr) => satisfies(expr));
+  }
+
+  private _compareVersions(a: string, b: string): number {
+    const pa = a.split(".").map(Number);
+    const pb = b.split(".").map(Number);
+    const len = Math.max(pa.length, pb.length);
+
+    for (let i = 0; i < len; i++) {
+      const diff = (pa[i] || 0) - (pb[i] || 0);
+      if (diff !== 0) return diff;
+    }
+    return 0;
   }
 
   /**

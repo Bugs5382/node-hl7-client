@@ -14,4 +14,5 @@ export type ValidationRule = {
     mustBeSet?: boolean;
     mustEqual?: any;
   };
+  hl7Support?: string | string[];
 };

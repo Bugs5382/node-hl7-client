@@ -10,6 +10,7 @@ export type { HL7_2_1_FT1 } from "@/hl7/2.1/ft1";
 export type { HL7_2_1_MSH } from "@/hl7/2.1/msh";
 
 export interface ClientBuilderOptions_Hl7_2_1 extends ClientBuilderOptions {
+  table_0001?: string[];
   table_0003?: string[];
   table_0062?: string[];
   table_0100?: string[];
