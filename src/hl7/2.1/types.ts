@@ -7,6 +7,8 @@ export type { HL7_2_1_DSC } from "@/hl7/2.1/dsc";
 export type { HL7_2_1_ERR } from "@/hl7/2.1/err";
 export type { HL7_2_1_EVN } from "@/hl7/2.1/evn";
 export type { HL7_2_1_FT1 } from "@/hl7/2.1/ft1";
+export type { HL7_2_1_GT1 } from "@/hl7/2.1/gt1";
+export type { HL7_2_1_IN1 } from "@/hl7/2.1/in1";
 export type { HL7_2_1_MSH } from "@/hl7/2.1/msh";
 
 export interface ClientBuilderOptions_Hl7_2_1 extends ClientBuilderOptions {

@@ -6,6 +6,7 @@ import { HL7_2_1_ERR } from "@/hl7/2.1/err";
 import { HL7_2_1_EVN } from "@/hl7/2.1/evn";
 import { HL7_2_1_FT1 } from "@/hl7/2.1/ft1";
 import { HL7_2_1_GT1 } from "@/hl7/2.1/gt1";
+import { HL7_2_1_IN1 } from "@/hl7/2.1/in1";
 import { HL7_2_1_MSH } from "@/hl7/2.1/msh";
 import { HL7_ADD } from "@/hl7/types/add";
 import { HL7_DSP } from "@/hl7/types/dsp";
@@ -39,6 +40,8 @@ export type EVN = HL7_2_1_EVN;
 export type FT1 = HL7_2_1_FT1;
 
 export type GT1 = HL7_2_1_GT1;
+
+export type IN1 = HL7_2_1_IN1;
 
 /**
  * MSH Unions

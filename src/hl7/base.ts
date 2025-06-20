@@ -13,6 +13,7 @@ import {
   EVN,
   FT1,
   GT1,
+  IN1,
   MSH,
 } from "@/hl7/headers";
 import { normalizedClientBuilderOptions } from "@/hl7/normalizedBuilder";
@@ -112,7 +113,6 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
       "1",
       props.add_1 || props.addendumContinuationPointer,
       {
-        required: false,
         length: { min: 0, max: this._maxAddSegmentLength },
       },
     );
@@ -194,7 +194,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @since 4.0.0
    * @param props
    */
-  buildIN1(props: any): void {
+  buildIN1(props: Partial<IN1>): void {
     this.headerExists();
     this._buildIN1(props);
   }
@@ -508,11 +508,9 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
     }
 
     this._validatorSetValue("1", props.dsp_1, {
-      required: false,
       length: { min: 1, max: 4 },
     });
     this._validatorSetValue("2", props.dsp_2, {
-      required: false,
       length: { min: 1, max: 4 },
     });
     this._validatorSetValue("3", props.dsp_3, {
@@ -520,11 +518,9 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
       ...rulesDSP_3,
     });
     this._validatorSetValue("4", props.dsp_4, {
-      required: false,
       ...rulesDSP_4,
     });
     this._validatorSetValue("5", props.dsp_5, {
-      required: false,
       ...rulesDSP_5,
     });
   }
@@ -566,7 +562,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @return void
    * @param _props
    */
-  protected _buildIN1(_props: any) {
+  protected _buildIN1(_props: IN1) {
     throw new HL7FatalError("Not Implemented");
   }
   /**
@@ -882,17 +878,21 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
   protected _validatorSetValue(
     fieldPath: string,
     value: any,
-    rules: ValidationRule,
+    rules?: ValidationRule,
   ): string[] {
     this._validatorErrors = [];
     this._validatorWarnings = [];
 
     const normalizedRules: ValidationRule = {
+      required: false,
       type: "string",
       ...rules,
     };
 
-    if (!this._validatorIsVersionCompatible(rules.hl7Support)) {
+    if (
+      typeof rules !== "undefined" &&
+      !this._validatorIsVersionCompatible(rules.hl7Support)
+    ) {
       return [];
     }
 
@@ -901,13 +901,14 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
     this._validatorCheckValue(fieldPath, normalized, normalizedRules);
 
     if (
+      typeof normalizedRules.deprecated !== "undefined" &&
       normalizedRules.deprecated &&
       normalized !== undefined &&
       normalized !== null &&
       normalized !== ""
     ) {
       let msg = `Field ${fieldPath} is deprecated and should not be used in version v${this.version}.`;
-      if (rules.useField) {
+      if (typeof rules !== "undefined" && rules.useField) {
         msg += ` Use '${normalizedRules.useField}' instead.`;
       }
       this._validatorWarn(msg);

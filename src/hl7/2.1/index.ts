@@ -1,5 +1,6 @@
 import { HL7ValidationError } from "@/helpers/exception";
 import { HL7_2_1_GT1 } from "@/hl7/2.1/gt1";
+import { HL7_2_1_IN1 } from "@/hl7/2.1/in1";
 import { TABLE_0001 } from "@/hl7/tables/0001";
 import { TABLE_0003 } from "@/hl7/tables/0003";
 import { TABLE_0062 } from "@/hl7/tables/0062";
@@ -74,21 +75,16 @@ export class HL7_2_1 extends HL7_BASE {
         ? this.setDate(props.acc_1 || props.timeStamp, this._opt.date)
         : "",
       {
-        required: false,
         type: "date",
         length: { min: 8, max: 19 },
       },
     );
 
     this._validatorSetValue("2", props.acc_2 || props.accidentCode, {
-      required: false,
-
       length: 2,
     });
 
     this._validatorSetValue("3", props.acc_3 || props.accidentLocation, {
-      required: false,
-
       length: 25,
     });
   }
@@ -103,21 +99,15 @@ export class HL7_2_1 extends HL7_BASE {
 
     // see https://hl7-definition.caristix.com/v2/HL7v2.1/Tables/0100
     this._validatorSetValue("1", props.blg_1 || props.billingWhenToCharge, {
-      required: false,
-
       length: { min: 1, max: 15 },
       allowedValues: this._table_0100,
     });
 
     this._validatorSetValue("2", props.blg_2 || props.billingChargeType, {
-      required: false,
-
       length: 2,
     });
 
     this._validatorSetValue("3", props.blg_3 || props.billingAccountId, {
-      required: false,
-
       length: 25,
     });
   }
@@ -139,11 +129,9 @@ export class HL7_2_1 extends HL7_BASE {
       length: { min: 1, max: 2 },
     });
     this._validatorSetValue("3", props.dg1_3 || props.diagnosisCode, {
-      required: false,
       length: { min: 1, max: 8 },
     });
     this._validatorSetValue("4", props.dg1_4 || props.diagnosisDescription, {
-      required: false,
       length: { min: 1, max: 40 },
     });
     this._validatorSetValue(
@@ -152,25 +140,22 @@ export class HL7_2_1 extends HL7_BASE {
         (props.timeStamp instanceof Date && !isNaN(props.timeStamp.getTime()))
         ? this.setDate(props.dg1_5 || props.timeStamp, this._opt.date)
         : "",
-      { required: false, length: { min: 1, max: 19 } },
+      { length: { min: 1, max: 19 } },
     );
     this._validatorSetValue("6", props.dg1_6 || props.diagnosisType, {
       required: true,
       length: { min: 1, max: 2 },
     });
     this._validatorSetValue("7", props.dg1_7 || props.diagnosisMajorCategory, {
-      required: false,
       length: { min: 1, max: 4 },
     });
     this._validatorSetValue("8", props.dg1_8 || props.diagnosisRelatedGroup, {
-      required: false,
       length: { min: 1, max: 4 },
     });
     this._validatorSetValue(
       "9",
       props.dg1_9 || props.diagnosisApprovalIndicator,
       {
-        required: false,
         length: { min: 1, max: 2 },
       },
     );
@@ -178,27 +163,22 @@ export class HL7_2_1 extends HL7_BASE {
       "10",
       props.dg1_10 || props.diagnosisGrouperReviewCode,
       {
-        required: false,
         length: { min: 1, max: 2 },
       },
     );
     this._validatorSetValue("11", props.dg1_11 || props.diagnosisOutlierType, {
-      required: false,
       length: { min: 1, max: 2 },
     });
     this._validatorSetValue("12", props.dg1_12 || props.diagnosisOutlierDays, {
-      required: false,
       length: { min: 1, max: 3 },
     });
     this._validatorSetValue("13", props.dg1_13 || props.diagnosisOutlierCost, {
-      required: false,
       length: { min: 1, max: 12 },
     });
     this._validatorSetValue(
       "14",
       props.dg1_14 || props.diagnosisGrouperVersionAndType,
       {
-        required: false,
         length: { min: 1, max: 4 },
       },
     );
@@ -208,7 +188,6 @@ export class HL7_2_1 extends HL7_BASE {
     this._segment = this._message.addSegment("DSC");
 
     this._validatorSetValue("1", props.dsc_1 || props.continuationPointer, {
-      required: false,
       length: { min: 1, max: 60 },
     });
   }
@@ -247,14 +226,12 @@ export class HL7_2_1 extends HL7_BASE {
         ? this.setDate(props.evn_3, this._opt.date)
         : "",
       {
-        required: false,
         type: "date",
       },
     );
 
     this._validatorSetValue("4", props.evn_4, {
       allowedValues: this._table_0062,
-      required: false,
     });
   }
 
@@ -262,15 +239,12 @@ export class HL7_2_1 extends HL7_BASE {
     this._segment = this._message.addSegment("FT1");
 
     this._validatorSetValue("1", props.ft1_1, {
-      required: false,
       length: { min: 1, max: 4 },
     });
     this._validatorSetValue("2", props.ft1_2, {
-      required: false,
       length: { min: 1, max: 12 },
     });
     this._validatorSetValue("3", props.ft1_3, {
-      required: false,
       length: { min: 1, max: 5 },
     });
     this._validatorSetValue(
@@ -285,7 +259,7 @@ export class HL7_2_1 extends HL7_BASE {
       props.ft1_5 instanceof Date && !isNaN(props.ft1_5.getTime())
         ? this.setDate(props.ft1_5, "8")
         : "",
-      { required: false, type: "date" },
+      { type: "date" },
     );
     this._validatorSetValue("6", props.ft1_6, {
       required: true,
@@ -296,60 +270,46 @@ export class HL7_2_1 extends HL7_BASE {
       length: { min: 1, max: 20 },
     });
     this._validatorSetValue("8", props.ft1_8, {
-      required: false,
       length: { min: 1, max: 40 },
     });
     this._validatorSetValue("9", props.ft1_9, {
-      required: false,
       length: { min: 1, max: 40 },
     });
     this._validatorSetValue("10", props.ft1_10, {
-      required: false,
       length: { min: 1, max: 12 },
     });
     this._validatorSetValue("11", props.ft1_11, {
-      required: false,
       length: { min: 1, max: 4 },
     });
     this._validatorSetValue("12", props.ft1_12, {
-      required: false,
       length: { min: 1, max: 12 },
     });
     this._validatorSetValue("13", props.ft1_13, {
-      required: false,
       length: { min: 1, max: 16 },
     });
     this._validatorSetValue("14", props.ft1_14, {
-      required: false,
       length: { min: 1, max: 8 },
     });
     this._validatorSetValue("15", props.ft1_15, {
-      required: false,
       length: { min: 1, max: 12 },
     });
     this._validatorSetValue("16", props.ft1_16, {
-      required: false,
       length: { min: 1, max: 12 },
     });
-    this._validatorSetValue("17", props.ft1_17, { required: false, length: 1 });
+    this._validatorSetValue("17", props.ft1_17, { length: 1 });
     this._validatorSetValue("18", props.ft1_18, {
-      required: false,
       length: { min: 1, max: 2 },
     });
     this._validatorSetValue("19", props.ft1_19, {
-      required: false,
       length: { min: 1, max: 8 },
     });
     this._validatorSetValue("20", props.ft1_20, {
-      required: false,
       length: { min: 1, max: 60 },
     });
     this._validatorSetValue("21", props.ft1_21, {
-      required: false,
       length: { min: 1, max: 60 },
     });
     this._validatorSetValue("21", props.ft1_22, {
-      required: false,
       length: { min: 1, max: 12 },
     });
   }
@@ -358,11 +318,9 @@ export class HL7_2_1 extends HL7_BASE {
     this._segment = this._message.addSegment("GT1");
 
     this._validatorSetValue("1", props.gt1_1, {
-      required: false,
       length: { min: 1, max: 4 },
     });
     this._validatorSetValue("2", props.gt1_2, {
-      required: false,
       length: { min: 1, max: 12 },
     });
     this._validatorSetValue("3", props.gt1_3, {
@@ -370,7 +328,7 @@ export class HL7_2_1 extends HL7_BASE {
       length: { min: 1, max: 5 },
     });
     this._validatorSetValue("4", props.gt1_4, { required: true });
-    this._validatorSetValue("5", props.gt1_5, { required: false });
+    this._validatorSetValue("5", props.gt1_5);
     this._validatorSetValue("6", props.gt1_6, {
       required: true,
       length: { min: 1, max: 8 },
@@ -380,54 +338,94 @@ export class HL7_2_1 extends HL7_BASE {
       length: { min: 1, max: 20 },
     });
     this._validatorSetValue("8", props.gt1_8, {
-      required: false,
       length: { min: 1, max: 40 },
     });
     this._validatorSetValue("9", props.gt1_9, {
-      required: false,
       length: { min: 1, max: 40 },
     });
     this._validatorSetValue("10", props.gt1_10, {
-      required: false,
       length: { min: 1, max: 12 },
     });
     this._validatorSetValue("11", props.gt1_11, {
-      required: false,
       length: { min: 1, max: 4 },
     });
     this._validatorSetValue("12", props.gt1_12, {
-      required: false,
       length: { min: 1, max: 12 },
     });
     this._validatorSetValue("13", props.gt1_13, {
-      required: false,
       length: { min: 1, max: 16 },
     });
     this._validatorSetValue("14", props.gt1_14, {
-      required: false,
       length: { min: 1, max: 8 },
     });
     this._validatorSetValue("15", props.gt1_15, {
-      required: false,
       length: { min: 1, max: 12 },
     });
     this._validatorSetValue("16", props.gt1_16, {
-      required: false,
       length: { min: 1, max: 12 },
     });
-    this._validatorSetValue("17", props.gt1_17, { required: false, length: 1 });
+    this._validatorSetValue("17", props.gt1_17, { length: 1 });
     this._validatorSetValue("18", props.gt1_18, {
-      required: false,
       length: { min: 1, max: 2 },
     });
     this._validatorSetValue("19", props.gt1_19, {
-      required: false,
       length: { min: 1, max: 8 },
     });
     this._validatorSetValue("20", props.gt1_20, {
-      required: false,
       length: { min: 1, max: 60 },
     });
+  }
+
+  protected _buildIN1(props: Partial<HL7_2_1_IN1>) {
+    this._segment = this._message.addSegment("IN1");
+
+    this._validatorSetValue("1", props.in1_1, { required: true });
+    this._validatorSetValue("2", props.in1_2, { required: true });
+    this._validatorSetValue("3", props.in1_3, { required: true });
+    this._validatorSetValue("4", props.in1_4);
+    this._validatorSetValue("5", props.in1_5);
+    this._validatorSetValue("6", props.in1_6);
+    this._validatorSetValue("7", props.in1_7);
+    this._validatorSetValue("8", props.in1_8);
+    this._validatorSetValue("9", props.in1_9);
+    this._validatorSetValue("10", props.in1_10);
+    this._validatorSetValue("11", props.in1_11);
+    this._validatorSetValue("12", props.in1_12);
+    this._validatorSetValue("13", props.in1_13);
+    this._validatorSetValue("14", props.in1_14);
+    this._validatorSetValue("15", props.in1_15);
+    this._validatorSetValue("16", props.in1_16);
+    this._validatorSetValue("17", props.in1_17);
+    this._validatorSetValue("18", props.in1_18);
+    this._validatorSetValue("19", props.in1_19);
+    this._validatorSetValue("20", props.in1_20);
+    this._validatorSetValue("21", props.in1_21);
+    this._validatorSetValue("22", props.in1_22);
+    this._validatorSetValue("23", props.in1_23);
+    this._validatorSetValue("24", props.in1_24);
+    this._validatorSetValue("25", props.in1_25);
+    this._validatorSetValue("26", props.in1_26);
+    this._validatorSetValue("27", props.in1_27);
+    this._validatorSetValue("28", props.in1_28);
+    this._validatorSetValue("29", props.in1_29);
+    this._validatorSetValue("30", props.in1_30);
+    this._validatorSetValue("31", props.in1_31);
+    this._validatorSetValue("32", props.in1_32);
+    this._validatorSetValue("33", props.in1_33);
+    this._validatorSetValue("34", props.in1_34);
+    this._validatorSetValue("35", props.in1_35);
+    this._validatorSetValue("36", props.in1_36);
+    this._validatorSetValue("37", props.in1_37);
+    this._validatorSetValue("38", props.in1_38);
+    this._validatorSetValue("39", props.in1_39);
+    this._validatorSetValue("40", props.in1_40);
+    this._validatorSetValue("41", props.in1_41);
+    this._validatorSetValue("42", props.in1_42);
+    this._validatorSetValue("43", props.in1_43, {
+      allowedValues: this._table_0001,
+      length: 1,
+    });
+    this._validatorSetValue("44", props.in1_44);
   }
 
   /**
@@ -455,26 +453,18 @@ export class HL7_2_1 extends HL7_BASE {
     );
 
     this._validatorSetValue("3", props.msh_3 || props.sendingApplication, {
-      required: false,
-
       length: { min: 1, max: 15 },
     });
 
     this._validatorSetValue("4", props.msh_4 || props.sendingFacility, {
-      required: false,
-
       length: { min: 1, max: 20 },
     });
 
     this._validatorSetValue("5", props.msh_5 || props.receivingApplication, {
-      required: false,
-
       length: { min: 1, max: 15 },
     });
 
     this._validatorSetValue("4", props.msh_6 || props.receivingFacility, {
-      required: false,
-
       length: { min: 1, max: 30 },
     });
 
@@ -491,8 +481,6 @@ export class HL7_2_1 extends HL7_BASE {
     );
 
     this._validatorSetValue("8", props.msh_8, {
-      required: false,
-
       length: { min: 1, max: 40 },
     });
 
@@ -504,8 +492,6 @@ export class HL7_2_1 extends HL7_BASE {
     });
 
     this._validatorSetValue("10", props.msh_10 || randomString(), {
-      required: false,
-
       length: { min: 1, max: 20 },
     });
 
