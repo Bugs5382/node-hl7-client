@@ -17,6 +17,7 @@ import {
   MRG,
   MSA,
   MSH,
+  NK1,
 } from "@/hl7/headers";
 import { normalizedClientBuilderOptions } from "@/hl7/normalizedBuilder";
 import { HL7_SPEC } from "@/hl7/specs";
@@ -255,7 +256,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @since 4.0.0
    * @param props
    */
-  buildNK1(props: any): void {
+  buildNK1(props: Partial<NK1>): void {
     this.headerExists();
     this._buildNK1(props);
   }
@@ -645,7 +646,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @return void
    * @param _props
    */
-  protected _buildNK1(_props: any): void {
+  protected _buildNK1(_props: Partial<NK1>): void {
     throw new HL7FatalError("Not Implemented");
   }
   /**

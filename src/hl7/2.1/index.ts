@@ -21,6 +21,7 @@ import {
   HL7_2_1_MRG,
   HL7_2_1_MSA,
   HL7_2_1_MSH,
+  HL7_2_1_NK1,
 } from "./types";
 
 /**
@@ -531,5 +532,17 @@ export class HL7_2_1 extends HL7_BASE {
     this._validatorSetValue("12", this.version, {
       required: true,
     });
+  }
+
+  protected _buildNK1(props: Partial<HL7_2_1_NK1>) {
+    this._segment = this._message.addSegment("NK1");
+
+    this._validatorSetValue("1", props.nk1_1, {
+      required: true,
+    });
+    this._validatorSetValue("2", props.nk1_2);
+    this._validatorSetValue("3", props.nk1_3);
+    this._validatorSetValue("4", props.nk1_4);
+    this._validatorSetValue("5", props.nk1_5);
   }
 }
