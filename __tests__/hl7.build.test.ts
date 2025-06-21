@@ -184,6 +184,16 @@ describe("node hl7 client - builder tests", () => {
             `\rFT1||||${createHL7Date(useThisDate, "8")}||ADD|HELLO||||||||||||||`,
         );
       });
+
+      test("... add System Clock (NCK)", async () => {
+        message_HL7_2_1.buildNCK();
+        const expectedNoMs = (
+          baseResult_HL7_2_1 + `\rNCK|${createHL7Date(useThisDate, "19")}`
+        ).replace(/\.\d{4}/, "");
+        expect(message_HL7_2_1.toString().replace(/\.\d{4}/, "")).toBe(
+          expectedNoMs,
+        );
+      });
     });
 
     describe.todo("2.2", async () => {});

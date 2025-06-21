@@ -3,6 +3,7 @@ import { HL7_2_1_GT1 } from "@/hl7/2.1/gt1";
 import { HL7_2_1_IN1 } from "@/hl7/2.1/in1";
 import { TABLE_0001 } from "@/hl7/tables/0001";
 import { TABLE_0003 } from "@/hl7/tables/0003";
+import { TABLE_0008 } from "@/hl7/tables/0008";
 import { TABLE_0062 } from "@/hl7/tables/0062";
 import { TABLE_0076 } from "@/hl7/tables/0076";
 import { TABLE_0100 } from "@/hl7/tables/0100";
@@ -17,6 +18,8 @@ import {
   HL7_2_1_ERR,
   HL7_2_1_EVN,
   HL7_2_1_FT1,
+  HL7_2_1_MRG,
+  HL7_2_1_MSA,
   HL7_2_1_MSH,
 } from "./types";
 
@@ -45,6 +48,7 @@ export class HL7_2_1 extends HL7_BASE {
   private _table_0003: string[];
   private _table_0062: string[];
   private _table_0001: string[];
+  private _table_0008: string[];
   /**
    *
    * @param props
@@ -56,6 +60,7 @@ export class HL7_2_1 extends HL7_BASE {
 
     this._table_0001 = props?.table_0001 || TABLE_0001;
     this._table_0003 = props?.table_0003 || TABLE_0003;
+    this._table_0008 = props?.table_0008 || TABLE_0008;
     this._table_0062 = props?.table_0062 || TABLE_0062;
     this._table_0100 = props?.table_0100 || TABLE_0100;
     this._table_0076 = props?.table_0076 || TABLE_0076;
@@ -428,6 +433,30 @@ export class HL7_2_1 extends HL7_BASE {
     this._validatorSetValue("44", props.in1_44);
   }
 
+  protected _buildMRG(props: Partial<HL7_2_1_MRG>) {
+    this._segment = this._message.addSegment("MRG");
+
+    this._validatorSetValue("1", props.mrg_1, {
+      required: true,
+      length: { min: 1, max: 16 },
+    });
+    this._validatorSetValue("2", props.mrg_2, { length: { min: 1, max: 16 } });
+    this._validatorSetValue("3", props.mrg_3, { length: { min: 1, max: 20 } });
+  }
+
+  protected _buildMSA(props: Partial<HL7_2_1_MSA>) {
+    this._segment = this._message.addSegment("MSA");
+
+    this._validatorSetValue("1", props.msa_1, {
+      required: true,
+      allowedValues: this._table_0008,
+    });
+    this._validatorSetValue("2", props.msa_2, { required: true });
+    this._validatorSetValue("3", props.msa_3);
+    this._validatorSetValue("4", props.msa_4);
+    this._validatorSetValue("5", props.msa_5);
+  }
+
   /**
    * Build HL7 MSH Segment
    * @since 1.0.0
@@ -447,7 +476,6 @@ export class HL7_2_1 extends HL7_BASE {
       `${this._opt.separatorComponent as string}${this._opt.separatorRepetition as string}${this._opt.separatorEscape as string}${this._opt.separatorSubComponent as string}`,
       {
         required: true,
-
         length: 4,
       },
     );
@@ -487,7 +515,6 @@ export class HL7_2_1 extends HL7_BASE {
     // review https://hl7-definition.caristix.com/v2/HL7v2.1/Tables/0076 for valid values
     this._validatorSetValue("9", props.msh_9, {
       required: true,
-
       allowedValues: this._table_0076,
     });
 
@@ -497,7 +524,6 @@ export class HL7_2_1 extends HL7_BASE {
 
     this._validatorSetValue("11", props.msh_11, {
       required: true,
-
       length: 1,
       allowedValues: ["P", "T"],
     });

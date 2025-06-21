@@ -36,7 +36,7 @@ export interface HL7_SPEC {
   /** Build MSH (Message Header) Segment */
   buildMSH: (props: MSH) => void;
   /** */
-  buildNCK: (props: any) => void;
+  buildNCK: () => void;
   /** */
   buildNK1: (props: any) => void;
   /** */

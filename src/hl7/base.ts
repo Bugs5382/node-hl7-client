@@ -14,12 +14,14 @@ import {
   FT1,
   GT1,
   IN1,
+  MRG,
+  MSA,
   MSH,
 } from "@/hl7/headers";
 import { normalizedClientBuilderOptions } from "@/hl7/normalizedBuilder";
 import { HL7_SPEC } from "@/hl7/specs";
 import { ClientBuilderOptions } from "@/modules/types";
-import { createHL7Date } from "@/utils";
+import { createHL7Date, DateLength } from "@/utils";
 import EventEmitter from "events";
 
 /**
@@ -113,7 +115,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
       "1",
       props.add_1 || props.addendumContinuationPointer,
       {
-        length: { min: 0, max: this._maxAddSegmentLength },
+        length: { max: this._maxAddSegmentLength },
       },
     );
   }
@@ -199,6 +201,24 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
     this._buildIN1(props);
   }
   /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
+  buildMRG(props: Partial<MRG>): void {
+    this.headerExists();
+    this._buildMRG(props);
+  }
+  /**
+   *
+   * @since 4.0.0
+   * @param props
+   */
+  buildMSA(props: Partial<MSA>): void {
+    this.headerExists();
+    this._buildMSA(props);
+  }
+  /**
    * Build MSH Header
    * @remarks Add the required fields based on the spec chosen.
    * @since 1.0.0
@@ -217,29 +237,18 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
   /**
    *
    * @since 4.0.0
-   * @param props
    */
-  buildMRG(props: any): void {
+  buildNCK(): void {
     this.headerExists();
-    this._buildMRG(props);
-  }
-  /**
-   *
-   * @since 4.0.0
-   * @param props
-   */
-  buildMSA(props: any): void {
-    this.headerExists();
-    this._buildMSA(props);
-  }
-  /**
-   *
-   * @since 4.0.0
-   * @param props
-   */
-  buildNCK(props: any): void {
-    this.headerExists();
-    this._buildNCK(props);
+
+    // make sure there is only one MSH header per message.
+    if (this._message.totalSegment("NCK") > 0) {
+      throw new HL7FatalError(
+        `You can only have one NCK segment per HL7 Message.`,
+      );
+    }
+
+    this._buildNCK();
   }
   /**
    *
@@ -427,7 +436,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @param date
    * @param length
    */
-  setDate(date?: Date, length?: "8" | "12" | "14" | "19") {
+  setDate(date?: Date, length?: DateLength) {
     return createHL7Date(
       typeof date === "undefined" ? new Date() : date,
       length,
@@ -439,8 +448,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @since 4.0.0
    */
   toString(): string {
-    const test = this._message.toString();
-    return test;
+    return this._message.toString();
   }
 
   /** Return Message Object
@@ -566,6 +574,22 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
     throw new HL7FatalError("Not Implemented");
   }
   /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
+  protected _buildMRG(_props: MRG): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+  /**
+   * @since 4.0.0
+   * @return void
+   * @param _props
+   */
+  protected _buildMSA(_props: MSA): void {
+    throw new HL7FatalError("Not Implemented");
+  }
+  /**
    * Build the MSH Segment
    * @remarks Add an MSH Segment to the HL7 Message
    * @since 4.0.0
@@ -578,26 +602,43 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
   /**
    * @since 4.0.0
    * @return void
-   * @param _props
    */
-  protected _buildMRG(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-  /**
-   * @since 4.0.0
-   * @return void
-   * @param _props
-   */
-  protected _buildMSA(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
-  }
-  /**
-   * @since 4.0.0
-   * @return void
-   * @param _props
-   */
-  protected _buildNCK(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  protected _buildNCK(): void {
+    this._segment = this._message.addSegment("NCK");
+
+    const versionCheck = this.version;
+    let setMaxLength: DateLength;
+
+    switch (versionCheck) {
+      case "2.1":
+        setMaxLength = "19";
+        break;
+      case "2.2":
+      case "2.3":
+      case "2.3.1":
+      case "2.4":
+      case "2.5":
+      case "2.5.1":
+        setMaxLength = "26";
+        break;
+      case "2.6":
+      case "2.7":
+      case "2.7.1":
+      case "2.8":
+        setMaxLength = "24";
+        break;
+      default:
+        setMaxLength = "19";
+    }
+
+    this._validatorSetValue("1", this.setDate(new Date(), setMaxLength), {
+      required: true,
+      type: "date",
+      length: {
+        min: 8,
+        max: parseInt(setMaxLength),
+      },
+    });
   }
   /**
    * @since 4.0.0
@@ -888,6 +929,16 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
       type: "string",
       ...rules,
     };
+
+    if (
+      typeof normalizedRules !== "undefined" &&
+      typeof normalizedRules.allowedValues !== "undefined" &&
+      normalizedRules.type !== "string"
+    ) {
+      this._validatorThrowError(
+        `Type must be string if 'allowedValues' is set.`,
+      );
+    }
 
     if (
       typeof rules !== "undefined" &&

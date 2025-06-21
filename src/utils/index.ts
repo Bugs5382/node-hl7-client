@@ -1,6 +1,7 @@
 export { assertNumber } from "./assertNumber";
 export { createDeferred } from "./createDeferred";
 export { createHL7Date } from "./createHL7Date";
+export type { DateLength } from "./createHL7Date";
 export { decodeHexString } from "./decodeHexString";
 export { escapeForRegExp } from "./escapeForRegExp";
 export { expBackoff } from "./expBackoff";
