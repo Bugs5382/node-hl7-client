@@ -1,5 +1,26 @@
 # Node HL7 Client
 
+## v3.2.0 - 2025-06-28
+
+#### What Changed 👀
+
+#### 🚀 Features
+
+- feat: changed to tsup @Bugs5382 (#191)
+- feat: update test structure @Bugs5382 (#189)
+
+#### 🐛 Bug Fixes
+
+- fix: timezone handling when converting to date @Bugs5382 (#206)
+
+#### 🧩 Dependency Updates
+
+- feat: changed to tsup @Bugs5382 (#191)
+
+### Extra
+
+**Full Changelog**: https://github.com/Bugs5382/node-hl7-client/compare/v3.1.0...v3.2.0
+
 ## v3.1.0 - 2025-05-18
 
 #### What Changed 👀
