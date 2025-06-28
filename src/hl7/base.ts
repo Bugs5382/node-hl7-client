@@ -18,6 +18,8 @@ import {
   MSA,
   MSH,
   NK1,
+  NPU,
+  NSC,
 } from "@/hl7/headers";
 import { normalizedClientBuilderOptions } from "@/hl7/normalizedBuilder";
 import { HL7_SPEC } from "@/hl7/specs";
@@ -265,7 +267,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @since 4.0.0
    * @param props
    */
-  buildNPU(props: any): void {
+  buildNPU(props: Partial<NPU>): void {
     this.headerExists();
     this._buildNPU(props);
   }
@@ -274,7 +276,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @since 4.0.0
    * @param props
    */
-  buildNSC(props: any): void {
+  buildNSC(props: Partial<NSC>): void {
     this.headerExists();
     this._buildNSC(props);
   }
@@ -654,7 +656,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @return void
    * @param _props
    */
-  protected _buildNPU(_props: any): void {
+  protected _buildNPU(_props: Partial<NPU>): void {
     throw new HL7FatalError("Not Implemented");
   }
   /**
@@ -662,7 +664,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @return void
    * @param _props
    */
-  protected _buildNSC(_props: any): void {
+  protected _buildNSC(_props: Partial<NSC>): void {
     throw new HL7FatalError("Not Implemented");
   }
   /**

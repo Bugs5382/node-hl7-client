@@ -7,6 +7,7 @@ import { TABLE_0008 } from "@/hl7/tables/0008";
 import { TABLE_0062 } from "@/hl7/tables/0062";
 import { TABLE_0076 } from "@/hl7/tables/0076";
 import { TABLE_0100 } from "@/hl7/tables/0100";
+import { TABLE_0116 } from "@/hl7/tables/0116";
 import { randomString } from "@/utils/randomString";
 import { HL7_BASE } from "../base";
 import {
@@ -22,6 +23,8 @@ import {
   HL7_2_1_MSA,
   HL7_2_1_MSH,
   HL7_2_1_NK1,
+  HL7_2_1_NPU,
+  HL7_2_1_NSC,
 } from "./types";
 
 /**
@@ -50,6 +53,7 @@ export class HL7_2_1 extends HL7_BASE {
   private _table_0062: string[];
   private _table_0001: string[];
   private _table_0008: string[];
+  private _table_0116: string[];
   /**
    *
    * @param props
@@ -65,6 +69,7 @@ export class HL7_2_1 extends HL7_BASE {
     this._table_0062 = props?.table_0062 || TABLE_0062;
     this._table_0100 = props?.table_0100 || TABLE_0100;
     this._table_0076 = props?.table_0076 || TABLE_0076;
+    this._table_0116 = props?.table_0116 || TABLE_0116;
   }
 
   /**
@@ -544,5 +549,32 @@ export class HL7_2_1 extends HL7_BASE {
     this._validatorSetValue("3", props.nk1_3);
     this._validatorSetValue("4", props.nk1_4);
     this._validatorSetValue("5", props.nk1_5);
+  }
+
+  protected _buildNPU(props: Partial<HL7_2_1_NPU>) {
+    this._segment = this._message.addSegment("NPU");
+
+    this._validatorSetValue("1", props.npu_1, {
+      required: true,
+    });
+    this._validatorSetValue("2", props.npu_2, {
+      allowedValues: this._table_0116,
+    });
+  }
+
+  protected _buildNSC(props: Partial<HL7_2_1_NSC>) {
+    this._segment = this._message.addSegment("NSC");
+
+    this._validatorSetValue("1", props.nsc_1, {
+      required: true,
+    });
+    this._validatorSetValue("2", props.nsc_2);
+    this._validatorSetValue("3", props.nsc_3);
+    this._validatorSetValue("4", props.nsc_4);
+    this._validatorSetValue("5", props.nsc_5);
+    this._validatorSetValue("6", props.nsc_6);
+    this._validatorSetValue("7", props.nsc_7);
+    this._validatorSetValue("8", props.nsc_8);
+    this._validatorSetValue("9", props.nsc_9);
   }
 }

@@ -13,7 +13,8 @@ export type { HL7_2_1_MRG } from "@/hl7/2.1/mrg";
 export type { HL7_2_1_MSA } from "@/hl7/2.1/msa";
 export type { HL7_2_1_MSH } from "@/hl7/2.1/msh";
 export type { HL7_2_1_NK1 } from "@/hl7/2.1/nk1";
-
+export type { HL7_2_1_NPU } from "@/hl7/2.1/npu";
+export type { HL7_2_1_NSC } from "@/hl7/2.1/nsc";
 export interface ClientBuilderOptions_Hl7_2_1 extends ClientBuilderOptions {
   table_0001?: string[];
   table_0008?: string[];
@@ -21,4 +22,5 @@ export interface ClientBuilderOptions_Hl7_2_1 extends ClientBuilderOptions {
   table_0062?: string[];
   table_0100?: string[];
   table_0076?: string[];
+  table_0116?: string[];
 }

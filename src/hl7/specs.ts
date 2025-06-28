@@ -1,4 +1,17 @@
-import { ACC, ADD, BLG, DG1, DSC, DSP, ERR, EVN, MSH } from "@/hl7/headers";
+import {
+  ACC,
+  ADD,
+  BLG,
+  DG1,
+  DSC,
+  DSP,
+  ERR,
+  EVN,
+  MSH,
+  NK1,
+  NPU,
+  NSC,
+} from "@/hl7/headers";
 
 /**
  * HL7 Base Interface
@@ -38,11 +51,11 @@ export interface HL7_SPEC {
   /** */
   buildNCK: () => void;
   /** */
-  buildNK1: (props: any) => void;
+  buildNK1: (props: NK1) => void;
   /** */
-  buildNPU: (props: any) => void;
+  buildNPU: (props: NPU) => void;
   /** */
-  buildNSC: (props: any) => void;
+  buildNSC: (props: NSC) => void;
   /** */
   buildNST: (props: any) => void;
   /** */

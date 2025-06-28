@@ -11,6 +11,8 @@ import { HL7_2_1_MRG } from "@/hl7/2.1/mrg";
 import { HL7_2_1_MSA } from "@/hl7/2.1/msa";
 import { HL7_2_1_MSH } from "@/hl7/2.1/msh";
 import { HL7_2_1_NK1 } from "@/hl7/2.1/nk1";
+import { HL7_2_1_NPU } from "@/hl7/2.1/npu";
+import { HL7_2_1_NSC } from "@/hl7/2.1/nsc";
 import { HL7_ADD } from "@/hl7/types/add";
 import { HL7_DSP } from "@/hl7/types/dsp";
 import { HL7_2_2_MSH } from "./2.2";
@@ -68,3 +70,7 @@ export type MSH =
   | HL7_2_8_MSH;
 
 export type NK1 = HL7_2_1_NK1;
+
+export type NPU = HL7_2_1_NPU;
+
+export type NSC = HL7_2_1_NSC;
