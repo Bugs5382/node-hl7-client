@@ -266,10 +266,12 @@ describe("node hl7 client - sanity tests", () => {
     const hl7_timezone: string =
       "MSH|^~\\\\&|device||Host||19981004010159+0100||OUL^R22^OUL_R22|2|P|2.5.1|||NE|AL||UNICODE UTF-8|||LAB-01^IHE\\r";
 
-    test( '... timezone offset', async () => {
+    test("... timezone offset", async () => {
       const message = new Message({ text: hl7_timezone });
-      expect(message.get('MSH.7').toDate()).toEqual(new Date(`1998-10-04T00:01:59.000Z`))
-    })
+      expect(message.get("MSH.7").toDate()).toEqual(
+        new Date(`1998-10-04T00:01:59.000Z`),
+      );
+    });
 
     test("...clean up line breaks", async () => {
       const message = new Message({ text: hl7_line_breaks });

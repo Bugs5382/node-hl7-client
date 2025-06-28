@@ -40,21 +40,14 @@ export class ValueNode extends NodeBase {
     const tzOffsetMatch = text.match(/([+-])(\d{2})(\d{2})$/);
 
     if (tzOffsetMatch) {
-      const sign = tzOffsetMatch[1] === '+' ? -1 : 1; // inverse because offset is from UTC
+      const sign = tzOffsetMatch[1] === "+" ? -1 : 1; // inverse because offset is from UTC
       const tzHour = parseInt(tzOffsetMatch[2]);
       const tzMin = parseInt(tzOffsetMatch[3]);
       const offsetMillis = sign * ((tzHour * 60 + tzMin) * 60 * 1000);
       return new Date(baseDate.getTime() + offsetMillis);
     }
 
-    return new Date(
-      year,
-      month,
-      day,
-      hour,
-      minute,
-      second,
-    );
+    return new Date(year, month, day, hour, minute, second);
   }
 
   /** @internal */
