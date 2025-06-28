@@ -1,7 +1,11 @@
-import { HL7FatalError, HL7ParserError } from "@/utils/exception";
-import { normalizedClientMessageBuilderOptions } from "@/utils/normalizedBuilder";
-import { ClientBuilderMessageOptions } from "@/utils/types";
-import { isHL7Number, split } from "@/utils/utils";
+import { normalizedClientMessageParserOptions } from "@/builder/normalizedParser";
+import { HL7FatalError, HL7ParserError } from "@/helpers/exception";
+import {
+  ClientBuilderMessageOptions,
+  ClientBuilderOptions,
+} from "@/modules/types";
+import { isHL7Number } from "@/utils/is";
+import { split } from "@/utils/spilt";
 import { FileBatch } from "./fileBatch";
 import { HL7Node } from "./interface/hL7Node";
 import { NodeBase } from "./modules/nodeBase";
@@ -15,7 +19,7 @@ import { SegmentList } from "./modules/segmentList";
  */
 export class Message extends RootBase {
   /** @internal */
-  _opt: ReturnType<typeof normalizedClientMessageBuilderOptions>;
+  _opt: ReturnType<typeof normalizedClientMessageParserOptions>;
 
   /**
    * Build the Message or Parse It
@@ -35,28 +39,24 @@ export class Message extends RootBase {
    *
    */
   constructor(props?: ClientBuilderMessageOptions) {
-    const opt = normalizedClientMessageBuilderOptions(props);
+    const opt = normalizedClientMessageParserOptions(props);
 
     super(opt);
 
     this._opt = opt;
 
-    if (
-      typeof opt.text !== "undefined" &&
-      opt.parsing === true &&
-      opt.text !== ""
-    ) {
+    if (typeof opt.text !== "undefined" && opt.text !== "") {
       const totalMsh = split(opt.text).filter((line) => line.startsWith("MSH"));
       if (totalMsh.length !== 0 && totalMsh.length !== 1) {
         throw new HL7FatalError("Multiple MSH segments found. Use Batch.");
       }
     }
 
-    if (typeof this._opt.messageHeader !== "undefined") {
-      if (this._opt.specification.checkMSH(this._opt.messageHeader) === true) {
-        this._opt.specification.buildMSH(this._opt.messageHeader, this);
-      }
-    }
+    // if (typeof this._opt.messageHeader !== "undefined") {
+    //   if (this._opt.hl7.checkMSH(this._opt.messageHeader) === true) {
+    //     this._opt.hl7.buildMSH(this._opt.messageHeader, this);
+    //   }
+    // }
   }
 
   /**
@@ -267,6 +267,25 @@ export class Message extends RootBase {
    */
   protected pathCore(): string[] {
     return [];
+  }
+
+  /**
+   * Total Segments
+   * @remarks That match the name.
+   * @since 4.0.0
+   * @param name
+   */
+  totalSegment(name: string): number {
+    return this.children.filter((segment) => (segment as Segment).name === name)
+      .length;
+  }
+
+  getLastSegment(): Segment {
+    return this.children[this.children.length - 1] as Segment;
+  }
+
+  getFirstSegment(): Segment {
+    return this.children[0] as Segment;
   }
 
   /** @internal */

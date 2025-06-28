@@ -7,7 +7,7 @@ import {
   isFile,
   Message,
 } from "../src";
-import { HL7_2_4 } from "../src/specification/2.4";
+import { HL7_2_4 } from "../src/hl7/2.4";
 import { MSH_HEADER } from "./__data__/constants";
 
 describe("node hl7 client - sanity tests", () => {

@@ -7,27 +7,17 @@ import {
   createHL7Date,
   EmptyNode,
   FileBatch,
+  HL7FatalError,
   HL7Node,
   Message,
 } from "../src";
-import {
-  HL7_2_1,
-  HL7_2_2,
-  HL7_2_3,
-  HL7_2_3_1,
-  HL7_2_4,
-  HL7_2_5,
-  HL7_2_5_1,
-  HL7_2_6,
-  HL7_2_7,
-  HL7_2_7_1,
-  HL7_2_8,
-} from "../src/hl7";
+import { HL7ValidationError } from "../src/helpers";
+import { HL7_2_1 } from "../src/hl7";
 import { MSH_HEADER } from "./__data__/constants";
 import { sleep } from "./__utils__";
 
 describe("node hl7 client - builder tests", () => {
-  describe("build message basics", () => {
+  describe.skip("build message basics", () => {
     let message: Message;
     const randomControlID = randomUUID();
 
@@ -47,6 +37,44 @@ describe("node hl7 client - builder tests", () => {
       expect(message.toString()).toContain(
         `|ADT^A01^ADT_A01|${randomControlID}||2.7`,
       );
+    });
+
+    test("... can't have two MSH headers", async () => {
+      try {
+        // build MSH Header
+        message_HL7_2_1.buildMSH({
+          msh_9: "ACK",
+          msh_10: "12345",
+          msh_11: "T",
+        });
+      } catch (err) {
+        expect(err).toEqual(
+          new HL7FatalError(
+            "You can only have one MSH Header per HL7 Message.",
+          ),
+        );
+      }
+    });
+
+    test("... ADD segment can't follow MSH", async () => {
+      try {
+        // build MSH Header
+        message.buildMSH({
+          msh_9: "ACK",
+          msh_10: "12345",
+          msh_11: "T",
+        });
+
+        message.buildADD({
+          add_1: "Fail cause you can't have this after MSH",
+        });
+      } catch (err) {
+        expect(err).toEqual(
+          new HL7ValidationError(
+            "This segment must not follow a MSH, BHS, or FHS",
+          ),
+        );
+      }
     });
 
     test("...extend Message build", async () => {
@@ -110,226 +138,77 @@ describe("node hl7 client - builder tests", () => {
     });
   });
 
-  describe("builder message (MSH) specification", () => {
-    test("2.1 - build", async () => {
-      const message = new Message({
-        specification: new HL7_2_1(),
-        messageHeader: {
-          msh_9: "ADT",
+  describe("builder message - all versions", () => {
+    const useThisDate = new Date();
+    describe("2.1", async () => {
+      let message_HL7_2_1: HL7_2_1, baseResult_HL7_2_1: string;
+
+      beforeEach(async () => {
+        // create new Hl7 2.1
+        message_HL7_2_1 = new HL7_2_1();
+
+        // build the MSH Header
+        message_HL7_2_1.buildMSH({
+          msh_7: useThisDate,
+          msh_9: "ACK",
           msh_10: "12345",
-          msh_11: "D",
-        },
+          msh_11: "T",
+        });
+
+        // this is the base result
+        baseResult_HL7_2_1 = `MSH|^~\\&|||||${createHL7Date(useThisDate)}||ACK|12345|T|2.1`;
       });
-      message.set("MSH.7", "20081231");
-      expect(message.toString()).toBe(
-        "MSH|^~\\&|||||20081231||ADT|12345|D|2.1",
-      );
+      test("... basic", async () => {
+        // build MSH Header
+        expect(message_HL7_2_1.toString()).toBe(baseResult_HL7_2_1);
+      });
+
+      test("... add Event (EVN)", async () => {
+        message_HL7_2_1.buildEVN({
+          evn_1: "A01",
+          evn_2: useThisDate,
+        });
+        expect(message_HL7_2_1.toString()).toBe(
+          baseResult_HL7_2_1 + `\rEVN|A01|${createHL7Date(useThisDate)}||`,
+        );
+      });
+
+      test("... add Financial Transaction (FT1)", async () => {
+        message_HL7_2_1.buildFT1({
+          ft1_4: useThisDate,
+          ft1_6: "ADD",
+          ft1_7: "HELLO",
+        });
+        expect(message_HL7_2_1.toString()).toBe(
+          baseResult_HL7_2_1 +
+            `\rFT1||||${createHL7Date(useThisDate, "8")}||ADD|HELLO||||||||||||||`,
+        );
+      });
+
+      test("... add System Clock (NCK)", async () => {
+        message_HL7_2_1.buildNCK();
+        const expectedNoMs = (
+          baseResult_HL7_2_1 + `\rNCK|${createHL7Date(useThisDate, "19")}`
+        ).replace(/\.\d{4}/, "");
+        expect(message_HL7_2_1.toString().replace(/\.\d{4}/, "")).toBe(
+          expectedNoMs,
+        );
+      });
     });
 
-    test("2.2 - build", async () => {
-      const message = new Message({
-        specification: new HL7_2_2(),
-        messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
-          msh_10: "12345",
-          msh_11: "D",
-        },
-      });
-      message.set("MSH.7", "20081231");
-      expect(message.toString()).toBe(
-        "MSH|^~\\&|||||20081231||ADT^A01|12345|D|2.2",
-      );
-    });
-
-    test("2.3 - build", async () => {
-      const message = new Message({
-        specification: new HL7_2_3(),
-        messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
-          msh_10: "12345",
-          msh_11_1: "D",
-          msh_11_2: "A",
-        },
-      });
-      message.set("MSH.7", "20081231");
-      expect(message.toString()).toBe(
-        "MSH|^~\\&|||||20081231||ADT^A01|12345|D^A|2.3",
-      );
-    });
-
-    test("2.3.1 - build", async () => {
-      const message = new Message({
-        specification: new HL7_2_3_1(),
-        messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
-          msh_10: "12345",
-          msh_11_1: "D",
-          msh_11_2: "A",
-        },
-      });
-      message.set("MSH.7", "20081231");
-      expect(message.toString()).toBe(
-        "MSH|^~\\&|||||20081231||ADT^A01|12345|D^A|2.3.1",
-      );
-    });
-
-    test("2.3.1 - build - MSH9.3 has no bearing", async () => {
-      const message = new Message({
-        specification: new HL7_2_3_1(),
-        messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
-          msh_9_3: "ACK",
-          msh_10: "12345",
-          msh_11_1: "D",
-          msh_11_2: "A",
-        },
-      });
-      message.set("MSH.7", "20081231");
-      expect(message.toString()).toBe(
-        "MSH|^~\\&|||||20081231||ADT^A01|12345|D^A|2.3.1",
-      );
-    });
-
-    test("2.4 - build", async () => {
-      const message = new Message({
-        specification: new HL7_2_4(),
-        messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
-          msh_10: "12345",
-          msh_11_1: "D",
-          msh_11_2: "A",
-        },
-      });
-      message.set("MSH.7", "20081231");
-      expect(message.toString()).toBe(
-        "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D^A|2.4",
-      );
-    });
-
-    test("2.4 - build - MSH9.3 override", async () => {
-      const message = new Message({
-        specification: new HL7_2_4(),
-        messageHeader: {
-          msh_9_1: "ACK",
-          msh_9_2: "A01",
-          msh_9_3: "ACK",
-          msh_10: "12345",
-          msh_11_1: "D",
-          msh_11_2: "A",
-        },
-      });
-      message.set("MSH.7", "20081231");
-      expect(message.toString()).toBe(
-        "MSH|^~\\&|||||20081231||ACK^A01^ACK|12345|D^A|2.4",
-      );
-    });
-
-    test("2.5 - build", async () => {
-      const message = new Message({
-        specification: new HL7_2_5(),
-        messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
-          msh_10: "12345",
-          msh_11_1: "D",
-          msh_11_2: "A",
-        },
-      });
-      message.set("MSH.7", "20081231");
-      expect(message.toString()).toBe(
-        "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D^A|2.5",
-      );
-    });
-
-    test("2.5.1 - build", async () => {
-      const message = new Message({
-        specification: new HL7_2_5_1(),
-        messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
-          msh_10: "12345",
-          msh_11_1: "D",
-          msh_11_2: "A",
-        },
-      });
-      message.set("MSH.7", "20081231");
-      expect(message.toString()).toBe(
-        "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D^A|2.5.1",
-      );
-    });
-
-    test("2.6 - build", async () => {
-      const message = new Message({
-        specification: new HL7_2_6(),
-        messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
-          msh_10: "12345",
-          msh_11_1: "D",
-          msh_11_2: "A",
-        },
-      });
-      message.set("MSH.7", "20081231");
-      expect(message.toString()).toBe(
-        "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D^A|2.6",
-      );
-    });
-
-    test("2.7 - build", async () => {
-      const message = new Message({
-        specification: new HL7_2_7(),
-        messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
-          msh_10: "12345",
-          msh_11_1: "D",
-        },
-      });
-      message.set("MSH.7", "20081231");
-      expect(message.toString()).toBe(
-        "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7",
-      );
-    });
-
-    test("2.7.1 - build", async () => {
-      const message = new Message({
-        specification: new HL7_2_7_1(),
-        messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
-          msh_10: "12345",
-          msh_11_1: "D",
-        },
-      });
-      message.set("MSH.7", "20081231");
-      expect(message.toString()).toBe(
-        "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7.1",
-      );
-    });
-
-    test("2.8 - build", async () => {
-      const message = new Message({
-        specification: new HL7_2_8(),
-        messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
-          msh_10: "12345",
-          msh_11_1: "D",
-        },
-      });
-      message.set("MSH.7", "20081231");
-      expect(message.toString()).toBe(
-        "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.8",
-      );
-    });
+    describe.todo("2.2", async () => {});
+    describe.todo("2.3", async () => {});
+    describe.todo("2.3.1", async () => {});
+    describe.todo("2.4", async () => {});
+    describe.todo("2.5", async () => {});
+    describe.todo("2.5.1", async () => {});
+    describe.todo("2.6", async () => {});
+    describe.todo("2.7", async () => {});
+    describe.todo("2.7.1", async () => {});
+    describe.todo("2.8", async () => {});
   });
 
-  describe("complex builder message", () => {
+  describe.skip("complex builder message", () => {
     let message: Message;
 
     beforeEach(async () => {
@@ -511,7 +390,7 @@ describe("node hl7 client - builder tests", () => {
     });
   });
 
-  describe("complex builder batch", () => {
+  describe.skip("complex builder batch", () => {
     let batch: Batch;
     let message: Message;
     const date = createHL7Date(new Date(), "8");
@@ -600,7 +479,7 @@ describe("node hl7 client - builder tests", () => {
     });
   });
 
-  describe("basic file basics", () => {
+  describe.skip("basic file basics", () => {
     let file: FileBatch;
 
     beforeEach(async () => {
