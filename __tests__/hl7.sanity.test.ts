@@ -14,7 +14,6 @@ describe("node hl7 client - sanity tests", () => {
   describe("...Message", () => {
     test("error - Message Object - nothing passed", async () => {
       try {
-        // @ts-expect-error
         const message = new Message();
       } catch (err) {
         expect(err).toEqual(
@@ -195,7 +194,6 @@ describe("node hl7 client - sanity tests", () => {
   describe("...Batch", () => {
     test("error - Batch Object - single MSH passed", async () => {
       try {
-        // @ts-expect-error
         const batch = new Batch({
           text: "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231",
         });
@@ -265,6 +263,15 @@ describe("node hl7 client - sanity tests", () => {
       "BHS:-+?*:::::20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1";
     const hl7_line_breaks: string =
       "MSH|^~\\&|device||Host||20240101000000+0000||OUL^R22^OUL_R22|2|P|2.5.1|||NE|AL||UNICODE UTF-8|||LAB-01^IHE\r";
+    const hl7_timezone: string =
+      "MSH|^~\\\\&|device||Host||19981004010159+0100||OUL^R22^OUL_R22|2|P|2.5.1|||NE|AL||UNICODE UTF-8|||LAB-01^IHE\\r";
+
+    test("... timezone offset", async () => {
+      const message = new Message({ text: hl7_timezone });
+      expect(message.get("MSH.7").toDate()).toEqual(
+        new Date(`1998-10-04T00:01:59.000Z`),
+      );
+    });
 
     test("...clean up line breaks", async () => {
       const message = new Message({ text: hl7_line_breaks });
@@ -334,7 +341,6 @@ describe("node hl7 client - sanity tests", () => {
 
     test("...should be used as a Batch", async () => {
       try {
-        // @ts-expect-error
         const message = new Message({ text: hl7_batch_msh_string });
       } catch (err) {
         expect(err).toEqual(

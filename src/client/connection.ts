@@ -1,27 +1,22 @@
-import EventEmitter from "node:events";
-import net, { Socket } from "node:net";
-import { clearTimeout } from "node:timers";
-import tls from "node:tls";
-import { Batch, FileBatch, Message } from "../builder/index.js";
-import type { MessageItem } from "../index.js";
-import { MLLPCodec } from "../utils/codec.js";
-import { ReadyState } from "../utils/enum.js";
-import { HL7FatalError } from "../utils/exception.js";
-import { normalizeClientListenerOptions } from "../utils/normalizedClient.js";
+import { MLLPCodec } from "@/utils/codec";
+import { ReadyState } from "@/utils/enum";
+import { HL7FatalError } from "@/utils/exception";
+import { normalizeClientListenerOptions } from "@/utils/normalizedClient";
 import {
   ClientListenerOptions,
   FallBackHandler,
   NotifyPendingCount,
   OutboundHandler,
-} from "../utils/types.js";
-import {
-  createDeferred,
-  Deferred,
-  expBackoff,
-  isBatch,
-} from "../utils/utils.js";
-import { Client } from "./client.js";
-import { InboundResponse } from "./module/inboundResponse.js";
+} from "@/utils/types";
+import { createDeferred, Deferred, expBackoff, isBatch } from "@/utils/utils";
+import EventEmitter from "node:events";
+import net, { Socket } from "node:net";
+import { clearTimeout } from "node:timers";
+import tls from "node:tls";
+import { Batch, FileBatch, Message } from "../builder/index";
+import type { MessageItem } from "../index";
+import { Client } from "./client";
+import { InboundResponse } from "./module/inboundResponse";
 
 export interface IConnection extends EventEmitter {
   /** The connection has been closed manually. You have to start the connection again. */
@@ -48,6 +43,18 @@ export interface IConnection extends EventEmitter {
  * @remarks Create a connection customer that will listen to result send to the particular port.
  * @since 1.0.0 */
 export class Connection extends EventEmitter implements IConnection {
+  /** @internal */
+  readonly stats = {
+    /** Total acknowledged messages back from server.
+     * @since 1.1.0 */
+    acknowledged: 0,
+    /** Pending Messages
+     * @since 3.1.0 */
+    pending: 0,
+    /** Total message sent to server.
+     * @since 1.1.0 */
+    sent: 0,
+  };
   /** @internal */
   _handler: OutboundHandler;
   /** @internal */
@@ -93,20 +100,17 @@ export class Connection extends EventEmitter implements IConnection {
   /** @internal */
   private readonly _maxLimit: number;
   /** @internal */
-  private _notifyOnLimitExceeded: boolean;
-  /** @internal */
-  readonly stats = {
-    /** Total acknowledged messages back from server.
-     * @since 1.1.0 */
-    acknowledged: 0,
-    /** Pending Messages
-     * @since 3.1.0 */
-    pending: 0,
-    /** Total message sent to server.
-     * @since 1.1.0 */
-    sent: 0,
-  };
+  private readonly _notifyOnLimitExceeded: boolean;
 
+  /**
+   * The handle that handles telling the client how many pending message this connection has.
+   * @since 3.1.0
+   * @param count
+   */
+  private _handlePendingUpdate = async (count: number): Promise<void> => {
+    this.stats.pending = count;
+    this.emit("client.pending", this.stats.pending);
+  };
   /**
    * @since 1.0.0
    * @param client The client parent that we are connecting too.
@@ -160,16 +164,6 @@ export class Connection extends EventEmitter implements IConnection {
       this._socket = undefined;
     }
   }
-
-  /**
-   * The handle that handles telling the client how many pending message this connection has.
-   * @since 3.1.0
-   * @param count
-   */
-  private _handlePendingUpdate = async (count: number): Promise<void> => {
-    this.stats.pending = count;
-    this.emit("client.pending", this.stats.pending);
-  };
 
   /**
    * This is the default Enqueue Message Handler

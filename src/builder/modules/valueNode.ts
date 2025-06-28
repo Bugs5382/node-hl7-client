@@ -1,6 +1,6 @@
-import { Delimiters } from "../../utils/enum.js";
-import { HL7FatalError } from "../../utils/exception.js";
-import { NodeBase } from "./nodeBase.js";
+import { Delimiters } from "@/utils/enum";
+import { HL7FatalError } from "@/utils/exception";
+import { NodeBase } from "./nodeBase";
 
 /** @internal */
 export class ValueNode extends NodeBase {
@@ -27,38 +27,27 @@ export class ValueNode extends NodeBase {
   /** @internal */
   toDate(): Date {
     const text = this.toString();
-    if (text.length === 8) {
-      /** YYYYMMDD */
-      return new Date(
-        parseInt(text.slice(0, 4)),
-        parseInt(text.slice(4, 6)) - 1,
-        parseInt(text.slice(6, 8)),
-        0,
-        0,
-        0,
-      );
-    } else if (text.length === 12) {
-      /** YYYYMMDDHHMM */
-      return new Date(
-        parseInt(text.slice(0, 4)),
-        parseInt(text.slice(4, 6)) - 1,
-        parseInt(text.slice(6, 8)),
-        parseInt(text.slice(8, 10)),
-        parseInt(text.slice(10, 12)),
-        0,
-      );
-    } else if (text.length >= 14) {
-      /** YYYYMMDDHHMMSS **/
-      return new Date(
-        parseInt(text.slice(0, 4)),
-        parseInt(text.slice(4, 6)) - 1,
-        parseInt(text.slice(6, 8)),
-        parseInt(text.slice(8, 10)),
-        parseInt(text.slice(10, 12)),
-        parseInt(text.slice(12, 14)),
-      );
+
+    const year = parseInt(text.slice(0, 4));
+    const month = parseInt(text.slice(4, 6)) - 1;
+    const day = parseInt(text.slice(6, 8));
+    const hour = parseInt(text.slice(8, 10) || "0");
+    const minute = parseInt(text.slice(10, 12) || "0");
+    const second = parseInt(text.slice(12, 14) || "0");
+
+    const baseDate = new Date(Date.UTC(year, month, day, hour, minute, second));
+
+    const tzOffsetMatch = text.match(/([+-])(\d{2})(\d{2})$/);
+
+    if (tzOffsetMatch) {
+      const sign = tzOffsetMatch[1] === "+" ? -1 : 1; // inverse because offset is from UTC
+      const tzHour = parseInt(tzOffsetMatch[2]);
+      const tzMin = parseInt(tzOffsetMatch[3]);
+      const offsetMillis = sign * ((tzHour * 60 + tzMin) * 60 * 1000);
+      return new Date(baseDate.getTime() + offsetMillis);
     }
-    throw new HL7FatalError("Invalid Date Format");
+
+    return new Date(year, month, day, hour, minute, second);
   }
 
   /** @internal */

@@ -1,10 +1,13 @@
 import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
 import pluginPrettier from 'eslint-plugin-prettier';
+import sortClassMembers from "eslint-plugin-sort-class-members";
+
 
 export default [
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
+  sortClassMembers.configs["flat/recommended"],
   {
     files: ["**/*.{js,mjs,cjs,ts}"],
     plugins: {

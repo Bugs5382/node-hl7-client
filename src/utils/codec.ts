@@ -3,7 +3,7 @@ import {
   PROTOCOL_MLLP_END,
   PROTOCOL_MLLP_FOOTER,
   PROTOCOL_MLLP_HEADER,
-} from "./constants.js";
+} from "./constants";
 
 /** MLLPCodec Class
  * @since 3.1.0 */

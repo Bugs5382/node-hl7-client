@@ -1,8 +1,8 @@
-import { Delimiters } from "../../utils/enum.js";
-import { HL7Node } from "../interface/hL7Node.js";
-import { FieldRepetition } from "./fieldRepetition.js";
-import { NodeBase } from "./nodeBase.js";
-import { ValueNode } from "./valueNode.js";
+import { Delimiters } from "@/utils/enum";
+import { HL7Node } from "../interface/hL7Node";
+import { FieldRepetition } from "./fieldRepetition";
+import { NodeBase } from "./nodeBase";
+import { ValueNode } from "./valueNode";
 
 /** @internal */
 export class Field extends ValueNode {

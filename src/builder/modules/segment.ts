@@ -1,10 +1,10 @@
-import { Delimiters } from "../../utils/enum.js";
-import { HL7FatalError } from "../../utils/exception.js";
-import { isHL7Number, isHL7String } from "../../utils/utils.js";
-import { HL7Node } from "../interface/hL7Node.js";
-import { Field } from "./field.js";
-import { NodeBase } from "./nodeBase.js";
-import { SubComponent } from "./subComponent.js";
+import { Delimiters } from "@/utils/enum";
+import { HL7FatalError } from "@/utils/exception";
+import { isHL7Number, isHL7String } from "@/utils/utils";
+import { HL7Node } from "../interface/hL7Node";
+import { Field } from "./field";
+import { NodeBase } from "./nodeBase";
+import { SubComponent } from "./subComponent";
 
 /**
  * Segment

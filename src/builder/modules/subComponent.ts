@@ -1,6 +1,6 @@
-import { HL7FatalError } from "../../utils/exception.js";
-import { isHL7String } from "../../utils/utils.js";
-import { ValueNode } from "./valueNode.js";
+import { HL7FatalError } from "@/utils/exception";
+import { isHL7String } from "@/utils/utils";
+import { ValueNode } from "./valueNode";
 
 /** @internal */
 export class SubComponent extends ValueNode {

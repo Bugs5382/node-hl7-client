@@ -23,19 +23,19 @@
   "exports": {
     ".": {
       "types": "./lib/types/index.d.ts",
-      "import": "./lib/esm/index.js",
+      "import": "./lib/esm/index.mjs",
       "require": "./lib/cjs/index.js",
       "default": "./lib/cjs/index.js"
     },
     "./hl7": {
       "types": "./lib/types/hl7.d.ts",
-      "import": "./lib/esm/hl7.js",
+      "import": "./lib/esm/hl7.mjs",
       "require": "./lib/cjs/hl7.js",
       "default": "./lib/cjs/hl7.js"
     }
   },
   "main": "./lib/cjs/index.js",
-  "module": "./lib/esm/index.js",
+  "module": "./lib/esm/index.mjs",
   "types": "./lib/types/index.d.ts",
   "typesVersions": {
     "*": {
@@ -50,9 +50,8 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc -p src/tsconfig.esm.json && tsc -p src/tsconfig.cjs.json && tsc -p src/tsconfig.types.json && ./bin/build-types.sh",
-    "build:watch": "tsc -p src/tsconfig.esm.json -w",
-    "build:watch:cjs": "tsc -p src/tsconfig.cjs.json -w",
+    "build": "tsup",
+    "build:dev": "NODE_ENV=development tsup",
     "clean": "rm -rf coverage docs lib temp",
     "format:check": "prettier --check 'pages/**/*.md' 'src/**/*.ts' '__tests__/**/*.ts'",
     "format:write": "prettier --write 'pages/**/*.md' 'src/**/*.ts' '__tests__/**/*.ts'",
@@ -72,36 +71,37 @@
     "update:post-update": "npm install && npm run test"
   },
   "devDependencies": {
-    "@eslint/js": "^9.26.0",
-    "@ianvs/prettier-plugin-sort-imports": "^4.4.1",
+    "@eslint/js": "^9.28.0",
+    "@ianvs/prettier-plugin-sort-imports": "^4.4.2",
+    "@redis/client": "^5.1.1",
     "@shipgirl/typedoc-plugin-versions": "^0.3.1",
-    "@types/node": "^22.15.17",
+    "@types/node": "^22.15.29",
     "@types/tcp-port-used": "^1.0.4",
-    "@typescript-eslint/eslint-plugin": "^8.32.0",
-    "@typescript-eslint/parser": "^8.32.0",
-    "@vitest/coverage-v8": "^3.1.3",
-    "@vitest/ui": "^3.1.3",
-    "eslint": "^9.26.0",
+    "@typescript-eslint/eslint-plugin": "^8.33.0",
+    "@typescript-eslint/parser": "^8.33.0",
+    "@vitest/coverage-v8": "^3.1.4",
+    "@vitest/ui": "^3.1.4",
+    "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.5",
-    "eslint-plugin-prettier": "^5.4.0",
-    "globals": "^16.1.0",
+    "eslint-plugin-prettier": "^5.4.1",
+    "eslint-plugin-sort-class-members": "^1.21.0",
+    "globals": "^16.2.0",
     "node-hl7-server": "^3.3.0",
     "npm-check-updates": "^18.0.1",
     "npm-package-json-lint": "^8.0.0",
+    "npm-package-json-lint-config-default": "^7.0.1",
     "portfinder": "^1.0.37",
     "pre-commit": "^1.2.2",
     "prettier-plugin-organize-imports": "^4.1.0",
-    "redis": "^5.0.1",
     "redis-memory-server": "^0.12.1",
     "snazzy": "^9.0.0",
     "sort-package-json": "^3.2.1",
     "tcp-port-used": "^1.0.2",
-    "ts-node": "^10.9.2",
-    "tsd": "^0.32.0",
-    "typedoc": "^0.28.4",
+    "tsup": "^8.5.0",
+    "typedoc": "^0.28.5",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.32.0",
-    "vitest": "^3.1.3"
+    "typescript-eslint": "^8.33.0",
+    "vitest": "^3.1.4"
   },
   "engines": {
     "node": ">=20.15.0"

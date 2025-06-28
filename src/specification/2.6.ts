@@ -1,5 +1,5 @@
-import { Message } from "../builder/message.js";
-import { HL7_2_5_1, HL7_2_5_1_MSH } from "./2.5.1.js";
+import { Message } from "../builder/message";
+import { HL7_2_5_1, HL7_2_5_1_MSH } from "./2.5.1";
 
 /**
  * HL7 2.6 MSH Specification
