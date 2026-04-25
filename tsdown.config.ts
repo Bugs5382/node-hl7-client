@@ -1,4 +1,4 @@
-import { defineConfig } from "tsup";
+import { defineConfig } from "tsdown";
 
 const sourcemap = process.env.NODE_ENV === "development";
 
@@ -9,7 +9,6 @@ export default defineConfig([
     outDir: "lib/cjs",
     dts: false,
     clean: true,
-    splitting: false,
     minify: !sourcemap,
     sourcemap: sourcemap,
     target: "esnext",
@@ -19,7 +18,6 @@ export default defineConfig([
     format: ["esm"],
     outDir: "lib/esm",
     dts: false,
-    splitting: false,
     minify: !sourcemap,
     sourcemap: sourcemap,
     target: "esnext",
@@ -30,7 +28,6 @@ export default defineConfig([
     outDir: "lib/cjs",
     dts: false,
     clean: false,
-    splitting: false,
     minify: !sourcemap,
     sourcemap: sourcemap,
     target: "esnext",
@@ -40,7 +37,6 @@ export default defineConfig([
     format: ["esm"],
     outDir: "lib/esm",
     dts: false,
-    splitting: false,
     minify: !sourcemap,
     sourcemap: sourcemap,
     target: "esnext",
@@ -48,15 +44,9 @@ export default defineConfig([
   {
     entry: ["src/index.ts"],
     outDir: "lib/types",
-    dts: {
-      only: true,
-    },
   },
   {
     entry: ["src/hl7.ts"],
     outDir: "lib/types",
-    dts: {
-      only: true,
-    },
   },
 ]);

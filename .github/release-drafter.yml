@@ -1,7 +1,7 @@
 name-template: 'v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
 template: |
-  ## What Changed 👀
+  # What Changed 👀
   
   $CHANGES
   
@@ -11,11 +11,9 @@ template: |
 categories:
   - title: 🚀 Features
     labels:
-      - feature
       - enhancement
   - title: 🐛 Bug Fixes
     labels:
-      - fix
       - bug
   - title: ⚠️ Changes
     labels:
@@ -31,11 +29,9 @@ categories:
       - security
   - title: 📄 Documentation
     labels:
-      - docs
       - documentation
   - title: 🧩 Dependency Updates
     labels:
-      - deps
       - dependencies
     collapse-after: 5
 prerelease-identifier: 'beta'
@@ -44,13 +40,14 @@ change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add
 version-resolver:
   major:
     labels:
-      - major
+      - 'breaking'
   minor:
     labels:
-      - minor
+      - 'enhancement'
   patch:
     labels:
-      - patch
+      - 'fix'
+      - 'refactor'
   default: patch
 exclude-labels:
   - skip-changelog

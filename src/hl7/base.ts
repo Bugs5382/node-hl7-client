@@ -20,6 +20,7 @@ import {
   NK1,
   NPU,
   NSC,
+  NST,
 } from "@/hl7/headers";
 import { normalizedClientBuilderOptions } from "@/hl7/normalizedBuilder";
 import { HL7_SPEC } from "@/hl7/specs";
@@ -285,7 +286,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @since 4.0.0
    * @param props
    */
-  buildNST(props: any): void {
+  buildNST(props: NST): void {
     this.headerExists();
     this._buildNST(props);
   }
@@ -670,10 +671,28 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
   /**
    * @since 4.0.0
    * @return void
-   * @param _props
+   * @param props
    */
-  protected _buildNST(_props: any): void {
-    throw new HL7FatalError("Not Implemented");
+  protected _buildNST(props: NST): void {
+    this._segment = this._message.addSegment("NST");
+
+    this._validatorSetValue("1", props.nst_1, {
+      required: true,
+    });
+    this._validatorSetValue("2", props.nst_2);
+    this._validatorSetValue("3", props.nst_3);
+    this._validatorSetValue("4", props.nst_4);
+    this._validatorSetValue("5", props.nst_5);
+    this._validatorSetValue("6", props.nst_6);
+    this._validatorSetValue("7", props.nst_7);
+    this._validatorSetValue("8", props.nst_8);
+    this._validatorSetValue("9", props.nst_9);
+    this._validatorSetValue("10", props.nst_10);
+    this._validatorSetValue("11", props.nst_11);
+    this._validatorSetValue("12", props.nst_12);
+    this._validatorSetValue("13", props.nst_13);
+    this._validatorSetValue("14", props.nst_14);
+    this._validatorSetValue("15", props.nst_15);
   }
   /**
    * @since 4.0.0
