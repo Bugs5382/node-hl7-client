@@ -7,7 +7,7 @@
     "hl7-parser",
     "hl7-client",
     "hl7-builder",
-    "hl7-speffications",
+    "hl7-specifications",
     "hl7-validation"
   ],
   "homepage": "https://github.com/Bugs5382/node-hl7-client#readme",

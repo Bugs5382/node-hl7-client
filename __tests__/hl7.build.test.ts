@@ -181,7 +181,7 @@ describe("node hl7 client - builder tests", () => {
         });
         expect(message_HL7_2_1.toString()).toBe(
           baseResult_HL7_2_1 +
-            `\rFT1||||${createHL7Date(useThisDate, "8")}||ADD|HELLO||||||||||||||`,
+            `\rFT1||||${createHL7Date(useThisDate, "8")}||ADD|HELLO|||||||||||||||`,
         );
       });
 

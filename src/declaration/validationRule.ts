@@ -17,7 +17,7 @@ export type ValidationRule = {
   length?: number | { min?: number; max?: number };
   number?: { min?: number; max?: number };
   pattern?: RegExp;
-  /** If this is set to 'trye', this specification is required.
+  /** If this is set to 'true', this specification is required.
    * @default false */
   required?: boolean;
   /** Type of Input

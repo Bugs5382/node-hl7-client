@@ -320,7 +320,7 @@ export class HL7_2_1 extends HL7_BASE {
     this._validatorSetValue("21", props.ft1_21, {
       length: { min: 1, max: 60 },
     });
-    this._validatorSetValue("21", props.ft1_22, {
+    this._validatorSetValue("22", props.ft1_22, {
       length: { min: 1, max: 12 },
     });
   }
@@ -498,7 +498,7 @@ export class HL7_2_1 extends HL7_BASE {
       length: { min: 1, max: 15 },
     });
 
-    this._validatorSetValue("4", props.msh_6 || props.receivingFacility, {
+    this._validatorSetValue("6", props.msh_6 || props.receivingFacility, {
       length: { min: 1, max: 30 },
     });
 

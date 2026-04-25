@@ -430,7 +430,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    */
   headerExists(): void {
     const firstSegment = this._message.getFirstSegment();
-    if (typeof firstSegment !== "undefined" && firstSegment._name !== "MSH") {
+    if (typeof firstSegment === "undefined" || firstSegment._name !== "MSH") {
       throw new HL7FatalError("MSH Header must be built first.");
     }
   }
@@ -813,7 +813,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @param rules
    * @private
    */
-  private _validatorNormalize(value: any, rules: ValidationRule): any {
+  private _validatorNormalize(value: any): any {
     if (typeof value === "string") {
       return value.trim();
     }
@@ -881,11 +881,11 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
       if (
         typeof value !== "undefined" &&
         rules.type === "date" &&
-        !/^\d{8}(\d{4})?(\d{2})?(\.\d{4})?$/.test(String(value))
+        !/^\d{8}(\d{4}(\d{2}(\.\d{1,6})?)?)?([+-]\d{4})?$/.test(String(value))
       ) {
         if (rules.required) {
           this._validatorThrowError(
-            `Field ${fieldPath} must be a valid HL7 date in one of the following formats: YYYYMMDD, YYYYMMDDHHMM, YYYYMMDDHHMMSS, or YYYYMMDDHHMMSS.SSSS`,
+            `Field ${fieldPath} must be a valid HL7 date in one of the following formats: YYYYMMDD, YYYYMMDDHHMM, YYYYMMDDHHMMSS, YYYYMMDDHHMMSS.SSSS, or with timezone offset`,
           );
         }
       }
@@ -969,7 +969,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
       return [];
     }
 
-    const normalized = this._validatorNormalize(value, normalizedRules);
+    const normalized = this._validatorNormalize(value);
     this._validatorCheckDependency(normalizedRules.dependsOn, fieldPath);
     this._validatorCheckValue(fieldPath, normalized, normalizedRules);
 
