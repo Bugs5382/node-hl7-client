@@ -1,4 +1,7 @@
-# Node HL7 Client
+# NOTICE (READ ONLY)
+I have moved this code into a mono repo here. The same functionialy but now in one repo. Version 4.0.0 is where the new repo will start off for both packages.
+
+## Node HL7 Client
 
 > A pure TypeScript HL7 client for Node.js enabling seamless communication with HL7 servers.
 
